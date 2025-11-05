@@ -1,0 +1,23 @@
+version: "3"
+services:
+  eventifive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aymenmerabta12/eventifive:latest
+    container_name: eventifive
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+  nginx:
+    image: nginx:latest
+    container_name: eventifive-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/default.conf
+    depends_on:
+      - eventifive
