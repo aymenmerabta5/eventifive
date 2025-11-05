@@ -6,6 +6,9 @@ import "./src/env.ts";
 import type { NextConfig } from "next";
 
 /** @type {import("next").NextConfig} */
-const config: NextConfig = {};
+const config: NextConfig = {
+    typedRoutes: true,
+    reactCompiler: true,
+};
 
 export default config;
