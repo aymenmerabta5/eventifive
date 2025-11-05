@@ -1,7 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-
+import { env } from "@/env";
+import { captcha } from "better-auth/plugins";
 import { db } from "@/server/db";
+import { sendEmail } from "@/lib/sendEmail";
+import ResetPasswordEmail from "@/lib/emails/ResetPasswordEmail";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -9,7 +12,39 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url, token }, request) => {
+      await sendEmail(
+        user.email as unknown as string,
+        "Reset your password",
+        ResetPasswordEmail,
+        {
+          link: url,
+        },
+        {
+          from: env.RESEND_SENDER_EMAIL,
+        },
+      );
+    },
+    autoSignIn: true,
+    resetPasswordTokenExpiresIn: 3600,
+    onPasswordReset: async ({ user }, request) => {
+      console.log(`Password for user ${user.email} has been reset.`);
+    },
+
   },
+  socialProviders: {
+    google: {
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      redirectURI: env.BETTER_AUTH_URL
+    }
+  },
+  plugins: [
+    captcha({
+      secretKey: env.CLOUDFLARE_TURNSTYLE_SK,
+      provider: "cloudflare-turnstile",
+    }),
+  ]
 });
 
 export type Session = typeof auth.$Infer.Session;
