@@ -26,6 +26,8 @@
     "@orpc/server": "^1.10.4",
     "@orpc/tanstack-query": "^1.10.4",
     "@orpc/zod": "^1.10.4",
+    "@react-email/components": "^0.5.7",
+    "@react-email/tailwind": "^1.2.2",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tanstack/react-form": "^1.23.8",
     "@tanstack/react-query": "^5.90.7",

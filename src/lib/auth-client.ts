@@ -1,4 +1,4 @@
-import type { auth } from "@eventify/auth";
+import type { auth } from "@/server/better-auth/";
 import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 
