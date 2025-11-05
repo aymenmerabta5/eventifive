@@ -11,8 +11,22 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string()
         : z.string().optional(),
-    BETTER_AUTH_GITHUB_CLIENT_ID: z.string(),
-    BETTER_AUTH_GITHUB_CLIENT_SECRET: z.string(),
+    
+        // Better Auth
+    BETTER_AUTH_URL: z.string().url(),
+        
+        // Email (Resend)
+    RESEND_API_KEY: z.string().min(1),
+    RESEND_SENDER_EMAIL: z.string().email(),
+        
+        // Cloudflare Turnstile (Server-side secret)
+    CLOUDFLARE_TURNSTYLE_SK: z.string().min(1),
+        
+        // CORS
+    CORS_ORIGIN: z.string().url().default("http://localhost:3001"),
+        
+        // Optional
+    OPEN_AI_API_KEY: z.string().min(1).optional(),
     DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -34,9 +48,12 @@ export const env = createEnv({
    */
   runtimeEnv: {
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-    BETTER_AUTH_GITHUB_CLIENT_ID: process.env.BETTER_AUTH_GITHUB_CLIENT_ID,
-    BETTER_AUTH_GITHUB_CLIENT_SECRET:
-      process.env.BETTER_AUTH_GITHUB_CLIENT_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_SENDER_EMAIL: process.env.RESEND_SENDER_EMAIL,
+    CLOUDFLARE_TURNSTYLE_SK: process.env.CLOUDFLARE_TURNSTYLE_SK,
+    CORS_ORIGIN: process.env.CORS_ORIGIN,
+    OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
   },
