@@ -1,14 +1,16 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
-import { WavyBackground } from "./_components/Hero";
+import { Hero } from "./_components/Hero";
+import WhoWeAre from "./_components/WhoWeAre";
 
 export default function Home() {
 	// const healthCheck = useQuery(orpc.healthCheck.queryOptions());
 
 	return (
 		<div className="flex flex-col">
-			<WavyBackground />
+			<Hero />
+			<WhoWeAre />
 		</div>
 	);
 }
