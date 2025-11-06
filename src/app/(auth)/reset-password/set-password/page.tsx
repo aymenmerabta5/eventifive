@@ -8,7 +8,6 @@ import ReturnBack from "@/components/return-back";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Key } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { useEffect } from "react";
@@ -54,7 +53,7 @@ export default function SetPasswordPage() {
   });
 
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
+    <div className="relative flex mt-12 items-center justify-center p-4">
       <ReturnBack />
       <div className="relative w-full max-w-lg">
         <div

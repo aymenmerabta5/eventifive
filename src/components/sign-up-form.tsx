@@ -68,7 +68,7 @@ export default function SignUpForm({
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
+    <div className="flex mt-12 items-center justify-center p-4">
       <div className="relative w-full max-w-lg">
         <div
           className="absolute inset-0 -z-10 rounded-xl opacity-10 blur-3xl dark:opacity-40"
