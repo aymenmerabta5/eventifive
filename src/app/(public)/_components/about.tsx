@@ -80,7 +80,7 @@ export default function About() {
                 delay: 0.3,
               }}
             >
-              <HandHeart className="h-16 w-16 text-purple-600 dark:text-white/80 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <HandHeart className="h-16 w-16 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
             <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Unlock winning strategies with a Strategic Advisor
@@ -107,7 +107,7 @@ export default function About() {
                 delay: 0.4,
               }}
             >
-              <Ticket className="h-16 w-16 text-purple-600 dark:text-white/80 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <Ticket className="h-16 w-16 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
             <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Expand your reach with exclusive Eventbrite-sponsored marketing
@@ -134,7 +134,7 @@ export default function About() {
                 delay: 0.5,
               }}
             >
-              <MessageCircle className="h-16 w-16 text-purple-600 dark:text-white/80 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <MessageCircle className="h-16 w-16 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
             <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Get priority access to phone and 24/7 chat support
@@ -154,7 +154,8 @@ export default function About() {
             whileTap={{ scale: 0.95 }}
           >
             <Button
-              className="bg-purple-600 dark:bg-white/10 backdrop-blur-sm text-white dark:text-white hover:bg-purple-700 dark:hover:bg-white/20 border border-purple-700 dark:border-white/20 rounded-full px-8 py-6 text-sm md:text-base font-medium transition-all"
+            className="px-8 py-6 rounded-4xl dark:bg-white/10 backdrop-blur-sm text-white dark:text-white hover:bg-primary/90 dark:hover:bg-white/20 border border-primary dark:border-white/20"
+           
             >
               Reach out to us
             </Button>

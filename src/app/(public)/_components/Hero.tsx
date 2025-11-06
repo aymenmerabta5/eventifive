@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 export function Hero() {
   return (
-    <WavyBackgroundComponent className="max-w-7xl mx-auto pb-40">
+    <WavyBackgroundComponent className="max-w-7xl mx-auto pb-40 pt-24">
       <div className="relative z-10 flex flex-col items-center justify-center px-4">
         {/* Main Heading with Gradient */}
         <motion.div

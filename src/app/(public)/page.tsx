@@ -4,6 +4,7 @@ import { orpc } from "@/utils/orpc";
 import { Hero } from "./_components/Hero";
 import WhoWeAre from "./_components/WhoWeAre";
 import About from "./_components/About";
+import Platform from "./_components/Platform";
  
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
 			<Hero />
 			<About/>
 			<WhoWeAre />
+			<Platform />
 		</div>
 	);
 }
