@@ -6,11 +6,11 @@ import { motion } from "motion/react";
 
 export default function About() {
   return (
-    <div className="bg-(--dark-blue) pb-24 pt-52 px-4 md:px-8 relative overflow-hidden">
+    <div className="bg-blue-50 dark:bg-(--dark-blue) pb-24 pt-52 px-4 md:px-8 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"
+          className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 dark:bg-blue-500/10 rounded-full blur-3xl"
           animate={{
             x: [0, 100, 0],
             y: [0, 50, 0],
@@ -23,7 +23,7 @@ export default function About() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-300/30 dark:bg-blue-400/10 rounded-full blur-3xl"
           animate={{
             x: [0, -80, 0],
             y: [0, -60, 0],
@@ -43,7 +43,7 @@ export default function About() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-white/90 text-center mb-4"
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white/90 text-center mb-4"
         >
           Hosting large events?
         </motion.h1>
@@ -53,7 +53,7 @@ export default function About() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-white/70 text-center mb-12"
+          className="text-base md:text-lg text-gray-700 dark:text-white/70 text-center mb-12"
         >
           Grow your events with our expert team by your side
         </motion.p>
@@ -80,9 +80,9 @@ export default function About() {
                 delay: 0.3,
               }}
             >
-              <HandHeart className="h-16 w-16 text-white/80 group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <HandHeart className="h-16 w-16 text-purple-600 dark:text-white/80 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
-            <p className="text-base md:text-lg text-white/60 group-hover:text-white/80 transition-colors">
+            <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Unlock winning strategies with a Strategic Advisor
             </p>
           </motion.div>
@@ -107,9 +107,9 @@ export default function About() {
                 delay: 0.4,
               }}
             >
-              <Ticket className="h-16 w-16 text-white/80 group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <Ticket className="h-16 w-16 text-purple-600 dark:text-white/80 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
-            <p className="text-base md:text-lg text-white/60 group-hover:text-white/80 transition-colors">
+            <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Expand your reach with exclusive Eventbrite-sponsored marketing
             </p>
           </motion.div>
@@ -134,9 +134,9 @@ export default function About() {
                 delay: 0.5,
               }}
             >
-              <MessageCircle className="h-16 w-16 text-white/80 group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <MessageCircle className="h-16 w-16 text-purple-600 dark:text-white/80 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
-            <p className="text-base md:text-lg text-white/60 group-hover:text-white/80 transition-colors">
+            <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Get priority access to phone and 24/7 chat support
             </p>
           </motion.div>
@@ -154,7 +154,7 @@ export default function About() {
             whileTap={{ scale: 0.95 }}
           >
             <Button
-              className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 border border-white/20 rounded-full px-8 py-6 text-base md:text-lg font-medium transition-all"
+              className="bg-purple-600 dark:bg-white/10 backdrop-blur-sm text-white dark:text-white hover:bg-purple-700 dark:hover:bg-white/20 border border-purple-700 dark:border-white/20 rounded-full px-8 py-6 text-sm md:text-base font-medium transition-all"
             >
               Reach out to us
             </Button>
