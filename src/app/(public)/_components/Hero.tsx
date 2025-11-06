@@ -15,7 +15,7 @@ export function Hero() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative"
         >
-          <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-center font-display tracking-tight mb-2">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-center font-display tracking-tight mb-2">
             <span className="bg-clip-text text-transparent bg-linear-to-r from-chart-3 via-primary dark:to-white to-indigo-400 drop-shadow-2xl">
               Eventi
             </span>
