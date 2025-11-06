@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
 import { Hero } from "./_components/Hero";
 import WhoWeAre from "./_components/WhoWeAre";
-import About from "./_components/about";
+import About from "./_components/About";
  
 
 export default function Home() {
