@@ -190,8 +190,8 @@ export default function SignInForm({
           </div>
 
           <Button
+            variant="outline"
             className="rounded-3xl px-4"
-            asChild
             onClick={() =>
               authClient.signIn.social(
                 {
