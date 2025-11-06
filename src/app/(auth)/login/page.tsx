@@ -6,7 +6,7 @@ import { useState } from "react";
 import ReturnBack from "@/components/return-back";
 
 export default function LoginPage() {
-	const [showSignIn, setShowSignIn] = useState(false);
+	const [showSignIn, setShowSignIn] = useState<boolean>(true);
 
 	return showSignIn ? (
 		<>

@@ -3,7 +3,6 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
 import Loader from "./loader";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "next/navigation";
@@ -14,6 +13,8 @@ import { SiGoogle } from "@icons-pack/react-simple-icons";
 import Turnstile, { useTurnstile } from "react-turnstile";
 import { env } from "@/env";
 import { useState } from "react";
+import { Button as StatefulButton } from "./ui/stateful-button";
+import { Button } from "./ui/button";
 
 export default function SignInForm({
   onSwitchToSignUp,
@@ -53,6 +54,8 @@ export default function SignInForm({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onError: (error: any) => {
             toast.error(error.error.message || error.error.statusText);
+            turnstile?.reset();
+            setToken(null);
           },
         },
       );
@@ -169,13 +172,13 @@ export default function SignInForm({
 
             <form.Subscribe>
               {(state) => (
-                <Button
+                <StatefulButton
                   type="submit"
                   className="mt-6 h-11 w-full rounded-4xl"
                   disabled={!state.canSubmit || state.isSubmitting}
                 >
                   {state.isSubmitting ? "Signing in..." : "Sign In"}
-                </Button>
+                </StatefulButton>
               )}
             </form.Subscribe>
           </form>
@@ -187,8 +190,8 @@ export default function SignInForm({
           </div>
 
           <Button
-            variant="outline"
             className="rounded-3xl px-4"
+            asChild
             onClick={() =>
               authClient.signIn.social(
                 {

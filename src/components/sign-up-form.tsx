@@ -13,6 +13,7 @@ import Turnstile, { useTurnstile } from "react-turnstile";
 import { env } from "@/env";
 import { useState } from "react";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
+import { Button as StatefulButton } from "./ui/stateful-button";
 
 export default function SignUpForm({
   onSwitchToSignIn,
@@ -185,7 +186,8 @@ export default function SignUpForm({
                   setToken(token);
                 }}
                 onError={() => {
-                  turnstile.reset();
+                  toast.error("Please solve the captcha");
+                  turnstile?.reset();
                   setToken(null);
                 }}
               />
@@ -193,13 +195,13 @@ export default function SignUpForm({
 
             <form.Subscribe>
               {(state) => (
-                <Button
-                  type="submit"
-                  className="mt-3 h-11 w-full rounded-4xl"
-                  disabled={!state.canSubmit || state.isSubmitting}
-                >
-                  {state.isSubmitting ? "Signing up..." : "Sign Up"}
-                </Button>
+                  <StatefulButton
+                    type="submit"
+                    className="mt-3 h-11 w-full rounded-4xl"
+                    disabled={!state.canSubmit || state.isSubmitting}
+                  >
+                    {state.isSubmitting ? "Signing up..." : "Sign Up"}
+                  </StatefulButton>
               )}
             </form.Subscribe>
           </form>

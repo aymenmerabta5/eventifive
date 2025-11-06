@@ -18,12 +18,14 @@ export const auth = betterAuth({
         "Reset your password",
         ResetPasswordEmail,
         {
-          link: url,
+          link: env.BETTER_AUTH_URL + `/reset-password/set-password?token=${token}`,
         },
         {
           from: env.RESEND_SENDER_EMAIL,
         },
       );
+    console.log(url);
+    console.log(token);
     },
     autoSignIn: true,
     resetPasswordTokenExpiresIn: 3600,
@@ -36,7 +38,6 @@ export const auth = betterAuth({
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      redirectURI: env.BETTER_AUTH_URL
     }
   },
   plugins: [
