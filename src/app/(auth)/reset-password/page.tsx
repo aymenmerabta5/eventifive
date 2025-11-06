@@ -1,3 +1,5 @@
+"use client";
+
 import ReturnBack from "@/components/return-back";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -5,8 +7,69 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Key } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import Turnstile, { useTurnstile } from "react-turnstile";
+import { env } from "@/env";
+import { useRouter } from "next/navigation";
 
 export default function ResetPasswordPage() {
+	const [email, setEmail] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [token, setToken] = useState<string | null>(null);
+	const turnstile = useTurnstile();
+	const router = useRouter();
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		
+		if (!email) {
+			toast.error("Please enter your email address");
+			return;
+		}
+
+		if (!token) {
+			toast.error("Please solve the captcha");
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			await authClient.forgetPassword(
+				{
+					email,
+					fetchOptions: {
+						headers: {
+							"x-captcha-response": token ?? "",
+						},
+					},
+				},
+				{
+					onSuccess: () => {
+						toast.success("Preccessing to reset password...");
+						setEmail("");
+						setToken(null);
+						turnstile?.reset();
+						router.push("/reset-password/set-password");
+					},
+					onError: (error: any) => {
+						toast.error(error.error?.message || "Failed to send reset email. Please try again.");
+						turnstile?.reset();
+						setToken(null);
+					},
+				},
+			);
+		} catch (error) {
+			toast.error("An unexpected error occurred. Please try again.");
+			turnstile?.reset();
+			setToken(null);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	return (
 		<>
 			<ReturnBack />
@@ -30,7 +93,7 @@ export default function ResetPasswordPage() {
 							</p>
 						</div>
 
-						<form className="space-y-5">
+						<form onSubmit={handleSubmit} className="space-y-5">
 							<div className="space-y-2">
 								<Label htmlFor="email" className="text-sm font-medium">
 									Email
@@ -38,13 +101,35 @@ export default function ResetPasswordPage() {
 								<Input
 									id="email"
 									type="email"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
 									className="h-11"
 									placeholder="Enter your email"
+									disabled={isLoading}
+									required
 								/>
 							</div>
 
-							<Button type="submit"   className="mt-6 h-11 w-full rounded-4xl">
-								Confirm 
+							<div className="flex justify-center">
+								<Turnstile
+									sitekey={env.NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK}
+									onVerify={(token) => {
+										setToken(token);
+									}}
+									onError={() => {
+										turnstile?.reset();
+										setToken(null);
+									}}
+								/>
+							</div>
+
+							<Button 
+								type="submit" 
+								className="mt-6 h-11 w-full rounded-4xl"
+								disabled={isLoading || !token}
+							>
+								{isLoading ? "Sending..." : "Confirm"}
+								
 							</Button>
 						</form>
 
