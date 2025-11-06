@@ -1,9 +1,9 @@
-# eventifive
+# Eventifive
 
 **Version:** 0.1.0  
 **Status:** Private / Proprietary
 
-eventifive is a modern event management platform built with Next.js 16 and the latest web technologies.
+Eventifive is a modern event management platform built with Next.js 16 and the latest web technologies.
 
 ## 🔒 License
 
