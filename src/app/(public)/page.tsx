@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
 import { Hero } from "./_components/Hero";
 import WhoWeAre from "./_components/WhoWeAre";
+import About from "./_components/about";
+ 
 
 export default function Home() {
 	// const healthCheck = useQuery(orpc.healthCheck.queryOptions());
@@ -10,6 +12,7 @@ export default function Home() {
 	return (
 		<div className="flex flex-col">
 			<Hero />
+			<About/>
 			<WhoWeAre />
 		</div>
 	);
