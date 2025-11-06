@@ -1,6 +1,8 @@
 import { WavyBackground as WavyBackgroundComponent } from "@/components/ui/wavy-background";
+import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 export function Hero() {
   return (
@@ -52,9 +54,9 @@ export function Hero() {
         >
           Create • Manage • Celebrate
         </motion.p>
-        <Button className="mt-12 w-45 py-6 rounded-4xl">
+        <Link href="/events" className={cn(buttonVariants({ variant: "default" }), "mt-12 w-45 py-6 rounded-4xl cursor-pointer")}>
           View Events
-        </Button>
+        </Link>
       </div>
     </WavyBackgroundComponent>
   );
