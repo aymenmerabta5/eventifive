@@ -7,9 +7,11 @@ export default function AppLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<div className="grid grid-rows-[auto_1fr] h-svh">
+		<div className="min-h-screen flex flex-col">
 			<Header />
-			{children}
+			<main className="flex-1">
+				{children}
+			</main>
 			<Footer/>
 		</div>
 	);

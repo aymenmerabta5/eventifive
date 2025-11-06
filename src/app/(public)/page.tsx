@@ -7,7 +7,9 @@ export default function Home() {
 	// const healthCheck = useQuery(orpc.healthCheck.queryOptions());
 
 	return (
-		<WavyBackground />
+		<div className="flex flex-col">
+			<WavyBackground />
+		</div>
 	);
 }
 
