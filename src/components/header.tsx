@@ -11,7 +11,7 @@ export default function Header() {
 	] as const;
 
 	return (
-		<header className="border-b bg-background">
+		<header className="relative z-50 border-b bg-background">
 			<div className="container mx-auto px-4 py-4 flex items-center justify-between">
 				<nav className="flex items-center gap-8 text-lg">
 					<Logo />
