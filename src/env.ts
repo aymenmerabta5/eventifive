@@ -34,7 +34,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    
+    ARCJET_API: z.string().min(1),
   },
 
   /**
@@ -64,6 +64,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK: process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK,
+    ARCJET_API: process.env.ARCJET_API,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

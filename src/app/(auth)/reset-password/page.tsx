@@ -15,7 +15,6 @@ import { env } from "@/env";
 import { useForm } from "@tanstack/react-form";
 import { resetPasswordSchema } from "@/lib/schemas/schemas";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
-import { formatError } from "zod/v4/core";
 
 export default function ResetPasswordPage() {
   const [token, setToken] = useState<string | null>(null);
