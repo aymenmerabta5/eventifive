@@ -186,4 +186,14 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Hide scrollbar but keep scrolling functionality */
+  html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
