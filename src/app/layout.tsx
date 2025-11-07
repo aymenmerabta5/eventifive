@@ -22,8 +22,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Eventify",
-	description: "Eventify is a platform for creating and managing events",
+	title: "Eventifive",
+	description: "Eventifive is a platform for creating and managing events",
 };
 
 export default function RootLayout({

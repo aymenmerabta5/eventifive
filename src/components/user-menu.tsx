@@ -36,8 +36,11 @@ export default function UserMenu() {
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild><Link href="/setting">Setting</Link></DropdownMenuItem>
+				<DropdownMenuSeparator />
 				<DropdownMenuItem>{session.user.email}</DropdownMenuItem>
 				<DropdownMenuItem asChild>
+					
 					<Button
 						variant="destructive"
 						className="w-full"
