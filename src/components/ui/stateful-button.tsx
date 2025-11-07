@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import React from "react";
-import { motion, AnimatePresence, useAnimate } from "motion/react";
+import { motion, useAnimate } from "motion/react";
 import { buttonVariants } from "./button";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -65,6 +65,7 @@ export const Button = ({ className, children, ...props }: ButtonProps) => {
   };
 
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (props.disabled) return;
     await animateLoading();
     await props.onClick?.(event);
     await animateSuccess();
@@ -82,8 +83,6 @@ export const Button = ({ className, children, ...props }: ButtonProps) => {
 
   return (
     <motion.button
-      layout
-      layoutId="button"
       ref={scope}
       className={cn(
         "flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full bg-green-500 px-4 py-2 font-medium text-white ring-offset-2 transition duration-200 dark:ring-offset-black",

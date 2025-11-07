@@ -8,19 +8,20 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
-import { User, Mail } from "lucide-react";
+import Avatar from "./Avatar";
+import type { User as BetterAuthUser } from "better-auth";
+import ProfileInfo from "./ProfileInfo";
+import ChangeEmail from "./ChangeEmail";
+import ChangePassword from "./ChangePassword";
 
 export default function Main() {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
     return (
-      <div className="relative w-full max-w-2xl">
+      <div className="relative w-full max-w-4xl">
         <div
           className="absolute inset-0 -z-10 rounded-xl opacity-10 blur-3xl dark:opacity-40"
           style={{
@@ -53,18 +54,10 @@ export default function Main() {
       </div>
     );
   }
-  const user = session?.user;
-  const name = user?.name || "Guest User";
-  const initials =
-    user?.name
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "U";
+  
 
   return (
-    <div className="relative w-full max-w-2xl">
+    <div className="relative w-full max-w-4xl">
       <div
         className="absolute inset-0 -z-10 rounded-xl opacity-10 blur-3xl dark:opacity-40"
         style={{
@@ -81,63 +74,16 @@ export default function Main() {
         </CardHeader>
       <CardContent className="space-y-6">
         {/* Avatar Section */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground flex h-24 w-24 items-center justify-center rounded-full text-2xl font-bold shadow-lg ring-4 ring-background">
-              {initials}
-            </div>
-            <div className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-green-500 border-2 border-background"></div>
-          </div>
-          <div className="text-center">
-            <h2 className="text-xl font-semibold">{name}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{user?.email || "Not logged in"}</p>
-          </div>
-        </div>
+        <Avatar user={session?.user as unknown as BetterAuthUser} isPending={isPending} />
 
         {/* Divider */}
         <div className="border-t border-border"></div>
 
         {/* Profile Information */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium">
-              <User className="size-4" />
-              Full Name
-            </Label>
-            <Input
-              id="name"
-              disabled={true}
-              type="text"
-              value={user?.name || ""}
-              placeholder="Not available"
-              className="w-full bg-muted/50"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
-              <Mail className="size-4" />
-              Email Address
-            </Label>
-            <Input
-              id="email"
-              disabled={true}
-              type="email"
-              value={user?.email || ""}
-              placeholder="Not available"
-              className="w-full bg-muted/50"
-            />
-          </div>
-        </div>
+        <ProfileInfo user={session?.user as unknown as BetterAuthUser} />
+        <ChangeEmail user={session?.user as unknown as BetterAuthUser} />
+        <ChangePassword />
       </CardContent>
-      <CardFooter className="flex flex-col gap-3 pt-6 border-t">
-        <Button variant="default" className="w-full" size="lg">
-          Update Profile
-        </Button>
-        <Button variant="destructive" className="w-full" size="lg">
-          Delete Account
-        </Button>
-      </CardFooter>
       </Card>
     </div>
   );

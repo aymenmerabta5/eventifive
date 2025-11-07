@@ -2,27 +2,29 @@ import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
-import Loader from "./loader";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import Loader from "../../../../components/loader";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
+import { Label } from "../../../../components/ui/label";
 import { useRouter } from "next/navigation";
-import { Card } from "./ui/card";
+import { Card } from "../../../../components/ui/card";
 import { UserPlus } from "lucide-react";
 import Turnstile, { useTurnstile } from "react-turnstile";
 import { env } from "@/env";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
-import { Button as StatefulButton } from "./ui/stateful-button";
+import { Button as StatefulButton } from "../../../../components/ui/stateful-button";
 
 export default function SignUpForm({
   onSwitchToSignIn,
 }: {
   onSwitchToSignIn: () => void;
 }) {
+
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
-  const { isPending } = authClient.useSession();
+  const [isPending, startTransition] = useTransition();
+  const { isPending: isSessionPending } = authClient.useSession();
   const turnstile = useTurnstile();
   const form = useForm({
     defaultValues: {
@@ -31,7 +33,8 @@ export default function SignUpForm({
       name: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email(
+      startTransition(async () => {
+        await authClient.signUp.email(
         {
           email: value.email,
           password: value.password,
@@ -53,7 +56,8 @@ export default function SignUpForm({
           },
         },
       );
-    },
+    });
+  },
     validators: {
       onSubmit: z.object({
         name: z.string().min(2, "Name must be at least 2 characters"),
@@ -63,7 +67,7 @@ export default function SignUpForm({
     },
   });
 
-  if (isPending) {
+  if (isSessionPending) {
     return <Loader />;
   }
 

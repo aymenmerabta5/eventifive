@@ -2,29 +2,30 @@ import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
-import Loader from "./loader";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import Loader from "../../../../components/loader";
+import { Input } from "../../../../components/ui/input";
+import { Label } from "../../../../components/ui/label";
 import { useRouter } from "next/navigation";
-import { Card } from "./ui/card";
-import { LogIn } from "lucide-react";
+import { Card } from "../../../../components/ui/card";
+import { Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
 import Turnstile, { useTurnstile } from "react-turnstile";
 import { env } from "@/env";
-import { useState } from "react";
-import { Button as StatefulButton } from "./ui/stateful-button";
-import { Button } from "./ui/button";
+import { Activity, useState, useTransition } from "react";
+import { Button as StatefulButton } from "../../../../components/ui/stateful-button";
+import { Button } from "../../../../components/ui/button";
 
 export default function SignInForm({
   onSwitchToSignUp,
 }: {
   onSwitchToSignUp: () => void;
 }) {
+  const [isPending, startTransition] = useTransition();
   const [token, setToken] = useState<string | null>(null);
   const turnstile = useTurnstile();
   const router = useRouter();
-  const { isPending } = authClient.useSession();
+  const { isPending: isSessionPending } = authClient.useSession();
 
   const form = useForm({
     defaultValues: {
@@ -36,7 +37,8 @@ export default function SignInForm({
         toast.error("Please solve the captcha");
         return;
       }
-      await authClient.signIn.email(
+      startTransition(async () => {
+        await authClient.signIn.email(
         {
           email: value.email,
           password: value.password,
@@ -59,7 +61,8 @@ export default function SignInForm({
           },
         },
       );
-    },
+    });
+  },
     validators: {
       onSubmit: z.object({
         email: z.string().email("Invalid email address"),
@@ -68,7 +71,7 @@ export default function SignInForm({
     },
   });
 
-  if (isPending) {
+  if (isSessionPending) {
     return <Loader />;
   }
 
@@ -208,6 +211,9 @@ export default function SignInForm({
               )
             }
           >
+            <Activity mode={isPending ? "visible" : "hidden"}>
+              <Loader2 className="animate-spin size-4" />
+            </Activity>
             <SiGoogle className="me-3" />
             Sign in with Google
           </Button>

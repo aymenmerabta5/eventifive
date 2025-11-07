@@ -1,12 +1,12 @@
 
-import Setting from "../_components/Setting";
+import Settings from "./_components/Settings";
 
 export default function ProfilePage() {
 	return (
-		<div className="min-h-screen">
+		<div className="container mx-auto min-h-screen">
 			
 			<main className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
-				<Setting />
+				<Settings />
 			</main>
 		</div>
 	);
