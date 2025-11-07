@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Mail, Key } from "lucide-react";
+import { Key } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { changePasswordSchema } from "@/lib/schemas/schemas";
 import { toast } from "sonner";
