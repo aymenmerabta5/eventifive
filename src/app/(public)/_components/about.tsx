@@ -10,7 +10,7 @@ export default function About() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 dark:bg-blue-500/10 rounded-full blur-3xl"
+          className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 dark:bg-purple-400/15 rounded-full blur-3xl"
           animate={{
             x: [0, 100, 0],
             y: [0, 50, 0],
@@ -23,7 +23,7 @@ export default function About() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-300/30 dark:bg-blue-400/10 rounded-full blur-3xl"
+          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-300/30 dark:bg-purple-400/15 rounded-full blur-3xl"
           animate={{
             x: [0, -80, 0],
             y: [0, -60, 0],

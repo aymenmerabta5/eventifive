@@ -7,7 +7,7 @@ export default function Platform() {
   return (
     <div className="relative w-full overflow-hidden">
       {/* Purple Gradient Background */}
-      <div className="bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 dark:from-[#0a0a0f] dark:via-[#1a0a2e] dark:to-[#6b21a8] py-24 md:py-32 px-4 md:px-8">
+      <div className="bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 dark:from-[#0a0a0f] dark:via-[#1a0a2ead] dark:to-[#44146390] py-24 md:py-32 px-4 md:px-8">
         <div className="max-w-6xl mx-auto relative z-10">
           {/* Badge */}
           <motion.div
