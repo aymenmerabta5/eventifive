@@ -8,15 +8,15 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import Avatar from "./Avatar";
-import type { User as BetterAuthUser } from "better-auth";
+// import Avatar from "./Avatar";
 import ProfileInfo from "./ProfileInfo";
 import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
-import { LogOut, User, Settings, Shield, FileText } from "lucide-react";
+// import { LogOut, User, Settings, Shield, FileText } from "lucide-react";
 import { useState } from "react";
+import { Sidebar, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 
 export default function Main() {
   const { data: session, isPending } = authClient.useSession();
@@ -26,7 +26,7 @@ export default function Main() {
   if (isPending || !user) {
     return (
       <div className="flex min-h-screen w-full">
-        <aside className="fixed left-0 top-0 z-10 flex h-screen w-80 flex-col border-r border-primary/20 bg-card/95 backdrop-blur-md">
+        {/* <aside className="fixed left-0 top-20 z-40 flex h-[calc(100vh-5rem)] w-80 flex-col border-r border-primary/20 bg-card/95 backdrop-blur-md">
           <div className="flex flex-col items-center gap-6 p-8 pt-24">
             <Skeleton className="h-32 w-32 rounded-full" />
             <div className="text-center w-full space-y-2">
@@ -48,7 +48,7 @@ export default function Main() {
           <div className="p-6 border-t border-primary/20">
             <Skeleton className="h-11 w-full" />
           </div>
-        </aside>
+        </aside> */}
 
         <main className="ml-80 flex-1 p-8">
           <div className="relative max-w-4xl">
@@ -95,11 +95,11 @@ export default function Main() {
 
   return (
     <div className="flex min-h-screen w-full">
-      <aside className="fixed left-0 top-0 z-10 flex h-screen w-80 flex-col border-r border-primary/20 bg-gradient-to-b from-card/95 to-card/90 backdrop-blur-md shadow-2xl">
+      {/* <aside className="fixed left-0 top-20 z-40 flex h-[calc(100vh-5rem)] w-80 flex-col border-r border-primary/20 bg-gradient-to-b from-card/95 to-card/90 backdrop-blur-md shadow-2xl">
         <div className="absolute inset-0 bg-primary/5 opacity-50"></div>
         <div className="relative flex flex-col items-center gap-6 p-8 pt-24">
           <Avatar user={user} isPending={isPending} />
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent mt-2"></div>
+          <div className="w-full h-px bg-linear-to-r from-transparent via-primary/30 to-transparent mt-2"></div>
         </div>
         
         <nav className="relative flex-1 px-4 py-6 space-y-2">
@@ -168,7 +168,7 @@ export default function Main() {
             Logout
           </Button>
         </div>
-      </aside>
+      </aside> */}
 
       <main className="ml-80 flex-1 p-8 pt-16">
         <div className="relative max-w-4xl">
@@ -177,7 +177,7 @@ export default function Main() {
 
           <div className="relative space-y-6">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                 Account Settings
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
@@ -186,10 +186,10 @@ export default function Main() {
             </div>
 
             <Card className="border-primary/20 bg-card/95 backdrop-blur-sm shadow-xl hover:border-primary/30 hover:shadow-2xl transition-all duration-300 group overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-1 bg-gradient-to-b from-primary to-primary/60 rounded-full group-hover:w-1.5 transition-all"></div>
+                  <div className="h-10 w-1 bg-linear-to-r from-primary to-primary/60 rounded-full group-hover:w-1.5 transition-all"></div>
                   <CardTitle className="text-xl">Profile Information</CardTitle>
                 </div>
                 <CardDescription>Update your personal details</CardDescription>
@@ -200,10 +200,10 @@ export default function Main() {
             </Card>
 
             <Card className="border-primary/20 bg-card/95 backdrop-blur-sm shadow-xl hover:border-primary/30 hover:shadow-2xl transition-all duration-300 group overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-1 bg-gradient-to-b from-primary to-primary/60 rounded-full group-hover:w-1.5 transition-all"></div>
+                  <div className="h-10 w-1 bg-linear-to-r from-primary to-primary/60 rounded-full group-hover:w-1.5 transition-all"></div>
                   <CardTitle className="text-xl">Email Address</CardTitle>
                 </div>
                 <CardDescription>Manage your email preferences</CardDescription>
@@ -214,10 +214,10 @@ export default function Main() {
             </Card>
 
             <Card className="border-primary/20 bg-card/95 backdrop-blur-sm shadow-xl hover:border-primary/30 hover:shadow-2xl transition-all duration-300 group overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary/0 via-primary/50 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-1 bg-gradient-to-b from-primary to-primary/60 rounded-full group-hover:w-1.5 transition-all"></div>
+                  <div className="h-10 w-1 bg-linear-to-r from-primary to-primary/60 rounded-full group-hover:w-1.5 transition-all"></div>
                   <CardTitle className="text-xl">Security</CardTitle>
                 </div>
                 <CardDescription>Update your password to keep your account secure</CardDescription>

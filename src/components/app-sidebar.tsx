@@ -24,7 +24,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = authClient.useSession();
   const user = session?.user as unknown as BetterAuthUser;
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="offcanvas" {...props} className="top-18.5 z-10">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
