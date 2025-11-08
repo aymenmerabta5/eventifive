@@ -18,8 +18,9 @@ import ChangePassword from "./ChangePassword";
 
 export default function Main() {
   const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
-  if (isPending) {
+  if (isPending || !user) {
     return (
       <div className="relative w-full max-w-4xl">
         <div
@@ -74,14 +75,14 @@ export default function Main() {
         </CardHeader>
       <CardContent className="space-y-6">
         {/* Avatar Section */}
-        <Avatar user={session?.user as unknown as BetterAuthUser} isPending={isPending} />
+        <Avatar user={user} isPending={isPending} />
 
         {/* Divider */}
         <div className="border-t border-border"></div>
 
         {/* Profile Information */}
-        <ProfileInfo user={session?.user as unknown as BetterAuthUser} />
-        <ChangeEmail user={session?.user as unknown as BetterAuthUser} />
+        <ProfileInfo user={user} />
+        <ChangeEmail user={user} />
         <ChangePassword />
       </CardContent>
       </Card>

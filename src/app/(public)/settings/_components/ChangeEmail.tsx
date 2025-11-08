@@ -9,12 +9,14 @@ import { Mail } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface ChangeEmailProps {
   user: BetterAuthUser;
 }
 
 export default function ChangeEmail({ user }: ChangeEmailProps) {
+  const router = useRouter();
   const form = useForm({
     defaultValues: {
       email: user?.email || "",
@@ -37,14 +39,24 @@ export default function ChangeEmail({ user }: ChangeEmailProps) {
         await authClient.changeEmail({
           newEmail: value.email,
         }, {
-          onSuccess: () => {
+          onSuccess: async () => {
             toast.success("Email updated successfully");
+            // Force better-auth to refetch the session from the backend
+            await authClient.getSession({
+              fetchOptions: {
+                cache: 'no-store'
+              }
+            });
+            // Refresh the Next.js page to update server-side data
+            router.refresh();
+          },
+
+          onError: () => {
+            toast.error("Failed to update email");
           },
         });
-        toast.success("Email updated successfully");
       } catch (error) {
         console.error("Failed to update email:", error);
-        toast.error("Failed to update email");
       }
     },
   });

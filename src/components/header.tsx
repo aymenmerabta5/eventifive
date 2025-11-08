@@ -9,7 +9,7 @@ import { useMemo } from "react";
 export default function Header() {
 	const { data: session } = authClient.useSession();
 	const links = useMemo(() => [
-		{ to: "/dashboard", label: "Dashboard", isPublic: false }
+		{ to: "/dashboard", label: "Dashboard", isPublic: false } as const
 	], []);
 
     const filteredLinks = useMemo(() => links.filter(({ isPublic }) => isPublic ? true : session?.user), [links, session]);
@@ -20,8 +20,7 @@ export default function Header() {
 					<Logo />
 					{filteredLinks.map(({ to, label }) => {
 						return (
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							<Link key={to} href={to as any} className="text-muted-foreground transition-colors hover:text-foreground">
+							<Link key={to} href={to} className="relative after:content-[''] after:absolute after:top-8 after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-primary after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100">
 								{label}
 							</Link>
 						);
