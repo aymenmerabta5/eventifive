@@ -5,29 +5,19 @@ import { useForm } from "@tanstack/react-form";
 import { changeEmailSchema } from "@/lib/schemas/schemas";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Mail, Key } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { toast } from "sonner";
-import { orpc } from "@/utils/orpc";
-import { useMutation } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
 
 interface ChangeEmailProps {
   user: BetterAuthUser;
 }
 
 export default function ChangeEmail({ user }: ChangeEmailProps) {
-  const { mutate: changeEmail, isPending } = useMutation(orpc.changeEmailRouter.mutationOptions<typeof changeEmailSchema>({
-    onSuccess: () => {
-      toast.success("Email updated successfully");
-    },
-    onError: () => {
-      toast.error("Failed to update email");
-    },
-  }));
   const form = useForm({
     defaultValues: {
       email: user?.email || "",
-      password: "",
     },
     validators: {
       onSubmit: ({ value }) => {
@@ -44,7 +34,13 @@ export default function ChangeEmail({ user }: ChangeEmailProps) {
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
-        changeEmail(value);
+        await authClient.changeEmail({
+          newEmail: value.email,
+        }, {
+          onSuccess: () => {
+            toast.success("Email updated successfully");
+          },
+        });
         toast.success("Email updated successfully");
       } catch (error) {
         console.error("Failed to update email:", error);
@@ -85,37 +81,14 @@ export default function ChangeEmail({ user }: ChangeEmailProps) {
           </div>
         )}
       </form.Field>
-      <form.Field name="password">
-        {(field) => (
-          <div className="space-y-2">
-            <Label
-              htmlFor={field.name}
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <Key className="size-4" />
-              Current Password
-            </Label>
-            <Input
-              id={field.name}
-              name={field.name}
-              type="password"
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(e.target.value)}
-              placeholder="Enter your current password"
-              className="w-full"
-            />
-          </div>
-        )}
-      </form.Field>
       <form.Subscribe>
         {(state) => (
           <StatefulButton
             type="submit"
             className="mt-6 h-11 w-full rounded-4xl cursor-pointer"
-            disabled={!state.canSubmit || state.isSubmitting || user?.email === state.values.email || isPending}
+            disabled={!state.canSubmit || state.isSubmitting || user?.email === state.values.email}
           >
-            {state.isSubmitting || isPending ? "Updating..." : "Update Email"}
+            {state.isSubmitting ? "Updating..." : "Update Email"}
           </StatefulButton>
         )}
       </form.Subscribe>

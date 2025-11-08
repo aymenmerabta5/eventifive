@@ -7,24 +7,35 @@ import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import type { User as BetterAuthUser } from "better-auth";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import { orpc } from "@/utils/orpc";
+import { useMutation } from "@tanstack/react-query";
 
 interface ProfileInfoProps {
   user: BetterAuthUser;
 }
 
 export default function ProfileInfo({ user }: ProfileInfoProps) {
+  
+  const { mutate: updateProfile } = useMutation(orpc.profileRouter.mutationOptions({
+    onSuccess: () => {
+      toast.success("Profile updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update profile");
+    },
+  }));
+
   const form = useForm({
     defaultValues: {
       name: user?.name || "",
     },
+
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
-
-        toast.success("Profile updated successfully");
+        updateProfile({ name: value.name });
       } catch (error) {
         console.error("Failed to update profile:", error);
-        toast.error("Failed to update profile");
       }
     },
   });

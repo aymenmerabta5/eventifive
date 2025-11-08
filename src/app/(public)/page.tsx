@@ -9,7 +9,6 @@ import GradientTransition from "./_components/GradientTransition";
  
 
 export default function Home() {
-	// const healthCheck = useQuery(orpc.healthCheck.queryOptions());
 
 	return (
 		<div className="flex flex-col">

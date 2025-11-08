@@ -7,6 +7,8 @@ import { Key } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { changePasswordSchema } from "@/lib/schemas/schemas";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { isZeroValueString } from "motion/react";
 
 export default function ChangePassword(){
   const form = useForm({
@@ -29,11 +31,20 @@ export default function ChangePassword(){
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
+        await authClient.changePassword({
+          currentPassword: value.currentPassword,
+          newPassword: value.newPassword,
+        }, {
+          onSuccess: () => {
+            toast.success("Password updated successfully");
+          },
+          onError: (error) => {
+            toast.error("Failed to update password");
+          },
+        });
         // TODO: Implement your backend API call here
-        toast.success("Password updated successfully");
       } catch (error) {
         console.error("Failed to update password:", error);
-        toast.error("Failed to update password");
       }
     },
   });
