@@ -26,7 +26,7 @@ export default function Events() {
 								Manage and organize your scientific events
 							</p>
 						</div>
-						<Link href="/events/add">
+						<Link href="/events">
 							<motion.div
 								whileHover={{ scale: 1.05 }}
 								whileTap={{ scale: 0.95 }}
@@ -66,7 +66,7 @@ export default function Events() {
 								<p className="text-muted-foreground text-sm mb-6">
 									Get started by creating your first event
 								</p>
-								<Link href="/events/add">
+								<Link href="/events">
 									<Button
 										variant="outline"
 										className="rounded-full px-6 py-6"

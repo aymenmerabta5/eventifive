@@ -1,6 +1,8 @@
 "use client"
 
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
+import Link from "next/link"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,6 +22,21 @@ export function NavMain({
     icon?: Icon
   }[]
 }) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
+  const isActive = (url: string) => {
+    if (url === "#") return false
+    const [path, query] = url.split("?")
+    if (pathname !== path) return false
+    if (!query) return true
+    const params = new URLSearchParams(query)
+    for (const [key, value] of params.entries()) {
+      if (searchParams.get(key) !== value) return false
+    }
+    return true
+  }
+  
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -45,10 +62,26 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
+              {item.url !== "#" ? (
+                <SidebarMenuButton 
+                  tooltip={item.title}
+                  asChild
+                  isActive={isActive(item.url)}
+                >
+                  <Link href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton 
+                  tooltip={item.title}
+                  isActive={isActive(item.url)}
+                >
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
