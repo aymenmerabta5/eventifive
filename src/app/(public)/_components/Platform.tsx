@@ -54,7 +54,7 @@ export default function Platform() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Link href="/events/add">
+              <Link href="/events">
                 <Button
                   className="bg-primary dark:bg-white text-white dark:text-[#1a0a2e] hover:bg-primary/90 dark:hover:bg-white/90 rounded-full px-6  text-sm md:text-base font-medium transition-all w-full sm:w-auto py-6"
                 >
