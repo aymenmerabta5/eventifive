@@ -69,3 +69,20 @@ export const verification = pgTable("verification", {
 	createdAt: timestamp("created_at"),
 	updatedAt: timestamp("updated_at"),
 });
+
+export const eventTypeEnum = pgEnum("event_type", ["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"]);
+
+export const event = pgTable("event", {
+	id: text("id").primaryKey(),
+	title: varchar("title", { length: 255 }).notNull(),
+	description: text("description"),
+	type: eventTypeEnum("type").notNull(),
+	startDate: timestamp("start_date").notNull(),
+	endDate: timestamp("end_date").notNull(),
+	location: varchar("location", { length: 255 }),
+	organizerId: text("organizer_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at").notNull(),
+	updatedAt: timestamp("updated_at").notNull(),
+});

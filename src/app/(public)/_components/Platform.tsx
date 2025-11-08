@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import GoToTop from "@/components/go-to-top";
+import Link from "next/link";
 
 export default function Platform() {
   return (
@@ -53,22 +54,26 @@ export default function Platform() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button
-                className="bg-primary dark:bg-white text-white dark:text-[#1a0a2e] hover:bg-primary/90 dark:hover:bg-white/90 rounded-full px-6  text-sm md:text-base font-medium transition-all w-full sm:w-auto py-6"
-              >
-                Create an Event
-              </Button>
+              <Link href="/events/add">
+                <Button
+                  className="bg-primary dark:bg-white text-white dark:text-[#1a0a2e] hover:bg-primary/90 dark:hover:bg-white/90 rounded-full px-6  text-sm md:text-base font-medium transition-all w-full sm:w-auto py-6"
+                >
+                  Create an Event
+                </Button>
+              </Link>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button
-                variant="outline"
-                className="bg-transparent border-2 border-primary dark:border-white text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10  rounded-full px-6 py-6 text-sm md:text-base font-medium transition-all w-full sm:w-auto"
-              >
-                Browse Events
-              </Button>
+              <Link href="/events">
+                <Button
+                  variant="outline"
+                  className="bg-transparent border-2 border-primary dark:border-white text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10  rounded-full px-6 py-6 text-sm md:text-base font-medium transition-all w-full sm:w-auto"
+                >
+                  Browse Events
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
 
