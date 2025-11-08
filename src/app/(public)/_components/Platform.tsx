@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import GoToTop from "@/components/go-to-top";
 
 export default function Platform() {
   return (
@@ -91,6 +92,7 @@ export default function Platform() {
           </motion.div>
         </div>
       </div>
+      <GoToTop />
     </div>
   );
 }
