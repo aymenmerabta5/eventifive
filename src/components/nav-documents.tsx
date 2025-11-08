@@ -7,6 +7,8 @@ import {
   IconTrash,
   type Icon,
 } from "@tabler/icons-react"
+import Link from "next/link"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import {
   DropdownMenu,
@@ -35,6 +37,20 @@ export function NavDocuments({
   }[]
 }) {
   const { isMobile } = useSidebar()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const isActive = (url: string) => {
+    if (url === "#") return false
+    const [path, query] = url.split("?")
+    if (pathname !== path) return false
+    if (!query) return true
+    const params = new URLSearchParams(query)
+    for (const [key, value] of params.entries()) {
+      if (searchParams.get(key) !== value) return false
+    }
+    return true
+  }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -42,12 +58,19 @@ export function NavDocuments({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
+            {item.url !== "#" ? (
+              <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                <Link href={item.url}>
+                  <item.icon />
+                  <span>{item.name}</span>
+                </Link>
+              </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton isActive={isActive(item.url)}>
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
-            </SidebarMenuButton>
+              </SidebarMenuButton>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuAction
