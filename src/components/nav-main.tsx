@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import type { Route } from "next"
 
 export function NavMain({
   items,
@@ -68,7 +69,7 @@ export function NavMain({
                   asChild
                   isActive={isActive(item.url)}
                 >
-                  <Link href={item.url}>
+                  <Link href={item.url as Route}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>
