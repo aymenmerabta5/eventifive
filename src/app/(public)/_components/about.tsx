@@ -43,7 +43,7 @@ export default function About() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white/90 text-center mb-4"
+          className="text-3xl md:text-4xl lg:text-4xl font-bold text-gray-900 dark:text-white/90 text-center mb-4"
         >
           Hosting large events?
         </motion.h1>
@@ -80,7 +80,7 @@ export default function About() {
                 delay: 0.3,
               }}
             >
-              <HandHeart className="h-16 w-16 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <HandHeart className="h-14 w-14 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
             <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Unlock winning strategies with a Strategic Advisor
@@ -107,7 +107,7 @@ export default function About() {
                 delay: 0.4,
               }}
             >
-              <Ticket className="h-16 w-16 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <Ticket className="h-14 w-14 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
             <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Expand your reach with exclusive Eventbrite-sponsored marketing
@@ -134,7 +134,7 @@ export default function About() {
                 delay: 0.5,
               }}
             >
-              <MessageCircle className="h-16 w-16 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <MessageCircle className="h-14 w-14 text-primary dark:text-white/80 group-hover:text-primary dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </motion.div>
             <p className="text-sm md:text-base text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
               Get priority access to phone and 24/7 chat support
