@@ -13,8 +13,10 @@ import {
 import { useSearchParams } from "next/navigation"
 
 import data from "./data.json"
+import { Suspense } from "react"
+import Loader from "@/components/loader"
 
-export default function Page() {
+function Dashboard() {
   const searchParams = useSearchParams()
   const view = searchParams.get("view")
   const showAddEvent = view === "add-event"
@@ -52,5 +54,17 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="relative flex mt-12 items-center justify-center p-4">
+        <Loader />
+      </div>
+    }>
+      <Dashboard />
+    </Suspense>
   )
 }

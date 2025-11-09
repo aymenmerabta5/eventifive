@@ -10,10 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Key } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { toast } from "sonner";
+import Loader from "@/components/loader";
 
-export default function SetPasswordPage() {
+function SetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") as string;
@@ -153,5 +154,17 @@ export default function SetPasswordPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="relative flex mt-12 items-center justify-center p-4">
+        <Loader />
+      </div>
+    }>
+      <SetPasswordForm />
+    </Suspense>
   );
 }
