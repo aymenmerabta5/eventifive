@@ -22,11 +22,11 @@ export const navigationData = {
       url: "/dashboard",
       icon: IconDashboard,
     },
-    {
-      title: "AddEvent",
-      url: "/dashboard?view=add-event",
-      icon: IconListDetails,
-    },
+    // {
+    //   title: "Add Event",
+    //   url: "/dashboard?view=add-event",
+    //   icon: IconListDetails,
+    // },
     {
       title: "Analytics",
       url: "#",

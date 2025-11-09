@@ -23,6 +23,7 @@ body {
   --foreground: oklch(0.3015 0.0572 282.4176);
   --card: oklch(0.9850 0.0080 286.1503);
   --card-foreground: oklch(0.3015 0.0572 282.4176);
+  --about-section: oklch(0.9850 0.0080 220);
   --popover: oklch(0.9850 0.0080 286.1503);
   --popover-foreground: oklch(0.3015 0.0572 282.4176);
   --primary: oklch(0.5417 0.1790 288.0332);
@@ -77,6 +78,7 @@ body {
   --background: oklch(0.1743 0.0227 283.7998);
   --foreground: oklch(0.9185 0.0257 285.8834);
   --card: oklch(0.2284 0.0384 282.9324);
+  --about-section: oklch(0.1200 0.0300 280);
   --card-foreground: oklch(0.9185 0.0257 285.8834);
   --popover: oklch(0.2284 0.0384 282.9324);
   --popover-foreground: oklch(0.9185 0.0257 285.8834);
@@ -129,6 +131,7 @@ body {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-about-section: var(--about-section);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);

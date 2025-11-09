@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 export default function About() {
   return (
     <>
-    <div className="bg-blue-50 dark:bg-(--dark-blue) pb-24 pt-52 px-4 md:px-8 relative overflow-hidden">
+    <div className="bg-about-section pb-24 pt-52 px-4 md:px-8 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -165,7 +165,7 @@ export default function About() {
         
       </div>
     </div>
-    <div className="w-full h-15 bg-linear-to-b from-bg-blue-50 dark:from-bg-(--dark-blue) to-background"></div>
+    <div className="w-full h-16 bg-gradient-to-b from-about-section to-background"></div>
     </>
   );
 }

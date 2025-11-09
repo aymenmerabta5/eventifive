@@ -87,7 +87,7 @@ export default function ChangeEmail({ user }: ChangeEmailProps) {
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
-              placeholder="Enter your full name"
+              placeholder="Enter your email address"
               className="w-full"
             />
           </div>

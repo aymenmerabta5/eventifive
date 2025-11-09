@@ -71,7 +71,7 @@ export default function ChangePassword(){
             <Input
               id={field.name}
               name={field.name}
-              type="text"
+              type="password"
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}

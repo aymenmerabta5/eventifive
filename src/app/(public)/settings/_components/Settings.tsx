@@ -173,7 +173,6 @@ export default function Main() {
       <main className="ml-80 flex-1 p-8 pt-16">
         <div className="relative max-w-4xl">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 left-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-20"></div>
 
           <div className="relative space-y-6">
             <div className="mb-8">

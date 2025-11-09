@@ -11,7 +11,7 @@ const config: NextConfig = {
     reactCompiler: true,
     // cacheComponents: true,
     // Including cacheComponenets later because i need to wrap the entire pages with Suspense lel or i dont know
-    output: "standalone",
+    // output: "standalone", later
 };
 
 export default config;

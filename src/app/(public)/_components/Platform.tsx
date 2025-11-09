@@ -9,7 +9,7 @@ export default function Platform() {
   return (
     <div className="relative w-full overflow-hidden">
       {/* Purple Gradient Background */}
-      <div className="bg-linear-to-b from-secondary/30 via-secondary/50 to-black dark:from-background dark:via-card dark:to-secondary py-24 md:py-32 px-4 md:px-8">
+      <div className="bg-linear-to-b from-secondary/30 via-secondary/50 to-primary/25 dark:from-background dark:via-card dark:to-secondary py-24 md:py-32 px-4 md:px-8">
         <div className="max-w-6xl mx-auto relative z-10">
           {/* Badge */}
           <motion.div
@@ -87,12 +87,12 @@ export default function Platform() {
             <p className="text-muted-foreground dark:text-muted-foreground text-xs md:text-sm text-center mb-6 uppercase tracking-wider">
               Trusted by universities and research institutions worldwide
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 lg:gap-12 opacity-80 dark:opacity-70">
+            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 lg:gap-12 opacity-80 dark:opacity-70 text-black">
               {/* Logo placeholders - you can replace these with actual logo images */}
-              <div className="text-foreground/90 dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">University Constantine 2</div>
-              <div className="text-foreground/90 dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Research Laboratories</div>
-              <div className="text-foreground/90 dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Professional Associations</div>
-              <div className="text-foreground/90 dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Scientific Committees</div>
+              <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">University Constantine 2</div>
+              <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Research Laboratories</div>
+              <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Professional Associations</div>
+              <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Scientific Committees</div>
             </div>
           </motion.div>
         </div>
