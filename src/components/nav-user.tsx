@@ -29,6 +29,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import type { User as BetterAuthUser } from "better-auth";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function NavUser({
   user,
@@ -36,7 +38,7 @@ export function NavUser({
   user: BetterAuthUser | undefined
 }) {
   const { isMobile } = useSidebar()
-
+  const router = useRouter();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -111,7 +113,10 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              authClient.signOut();
+              router.push("/");
+            }}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
