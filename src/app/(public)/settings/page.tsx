@@ -5,7 +5,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 export default function ProfilePage() {
   return (
     <div className="container mx-auto min-h-screen">
-      <SidebarProvider
+      {/* Removing sidebar for now to be fixed later when i have time */}
+      {/* <SidebarProvider
         style={
           {
             "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -13,9 +14,9 @@ export default function ProfilePage() {
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="inset" />
+        <AppSidebar variant="inset" /> */}
           <Settings />
-      </SidebarProvider>
+      {/* </SidebarProvider> */}
     </div>
   );
 }
