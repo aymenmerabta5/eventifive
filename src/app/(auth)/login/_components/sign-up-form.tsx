@@ -11,9 +11,11 @@ import { Card } from "../../../../components/ui/card";
 import { UserPlus } from "lucide-react";
 import Turnstile, { useTurnstile } from "react-turnstile";
 import { env } from "@/env";
-import { useState, useTransition } from "react";
+import { useState, useTransition, Activity } from "react";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { Button as StatefulButton } from "../../../../components/ui/stateful-button";
+import { Loader2 } from "lucide-react";
+import { signUpSchema } from "@/lib/schemas/schemas";
 
 export default function SignUpForm({
   onSwitchToSignIn,
@@ -23,7 +25,7 @@ export default function SignUpForm({
 
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPendingSocial, startTransitionSocial] = useTransition();
   const { isPending: isSessionPending } = authClient.useSession();
   const turnstile = useTurnstile();
   const form = useForm({
@@ -33,7 +35,10 @@ export default function SignUpForm({
       name: "",
     },
     onSubmit: async ({ value }) => {
-      startTransition(async () => {
+      if (!token) {
+        toast.error("Please solve the captcha");
+        return;
+      }
         await authClient.signUp.email(
         {
           email: value.email,
@@ -50,20 +55,16 @@ export default function SignUpForm({
             router.push("/dashboard");
             toast.success("Sign up successful");
           },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onError: (error: any) => {
-            toast.error(error.error.message || error.error.statusText);
+          onError: () => {
+            toast.error("An error occurred while signing up");
+            turnstile?.reset();
+            setToken(null);
           },
         },
       );
-    });
   },
     validators: {
-      onSubmit: z.object({
-        name: z.string().min(2, "Name must be at least 2 characters"),
-        email: z.string().email("Invalid email address"),
-        password: z.string().min(8, "Password must be at least 8 characters"),
-      }),
+      onSubmit: signUpSchema,
     },
   });
 
@@ -219,7 +220,8 @@ export default function SignUpForm({
             variant="outline"
             className="rounded-3xl px-4"
             onClick={() =>
-              authClient.signIn.social(
+              startTransitionSocial(async () => {
+                await authClient.signIn.social(
                 {
                   provider: "google",
                 },
@@ -232,9 +234,14 @@ export default function SignUpForm({
                   },
                 },
               )
-            }
+            })}
           >
-            <SiGoogle className="me-3" />
+            <Activity mode={isPendingSocial ? "visible" : "hidden"}>
+              <Loader2 className="animate-spin size-4" />
+            </Activity>
+            <Activity mode={isPendingSocial ? "hidden" : "visible"}>
+              <SiGoogle className="me-3" />
+            </Activity>
             Sign in with Google
           </Button>
 

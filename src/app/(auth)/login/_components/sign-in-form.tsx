@@ -15,13 +15,14 @@ import { env } from "@/env";
 import { Activity, useState, useTransition } from "react";
 import { Button as StatefulButton } from "../../../../components/ui/stateful-button";
 import { Button } from "../../../../components/ui/button";
+import { signInSchema } from "@/lib/schemas/schemas";
 
 export default function SignInForm({
   onSwitchToSignUp,
 }: {
   onSwitchToSignUp: () => void;
 }) {
-  const [isPending, startTransition] = useTransition();
+  const [isPendingSocial, startTransitionSocial] = useTransition();
   const [token, setToken] = useState<string | null>(null);
   const turnstile = useTurnstile();
   const router = useRouter();
@@ -37,7 +38,6 @@ export default function SignInForm({
         toast.error("Please solve the captcha");
         return;
       }
-      startTransition(async () => {
         await authClient.signIn.email(
         {
           email: value.email,
@@ -55,19 +55,15 @@ export default function SignInForm({
           },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onError: (error: any) => {
-            toast.error(error.error.message || error.error.statusText);
+            toast.error(error.error?.message || "An error occurred while signing in");
             turnstile?.reset();
             setToken(null);
           },
         },
       );
-    });
   },
     validators: {
-      onSubmit: z.object({
-        email: z.string().email("Invalid email address"),
-        password: z.string().min(8, "Password must be at least 8 characters"),
-      }),
+      onSubmit: signInSchema,
     },
   });
 
@@ -196,7 +192,8 @@ export default function SignInForm({
             variant="outline"
             className="rounded-3xl px-4"
             onClick={() =>
-              authClient.signIn.social(
+              startTransitionSocial(async () => {
+                await authClient.signIn.social(
                 {
                   provider: "google",
                 },
@@ -210,11 +207,14 @@ export default function SignInForm({
                 },
               )
             }
+            )}
           >
-            <Activity mode={isPending ? "visible" : "hidden"}>
+            <Activity mode={isPendingSocial ? "visible" : "hidden"}>
               <Loader2 className="animate-spin size-4" />
             </Activity>
-            <SiGoogle className="me-3" />
+            <Activity mode={isPendingSocial ? "hidden" : "visible"}>
+              <SiGoogle className="me-3" />
+            </Activity>
             Sign in with Google
           </Button>
 

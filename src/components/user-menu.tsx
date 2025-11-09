@@ -24,7 +24,7 @@ export default function UserMenu() {
 
 	if (!session) {
 		return (
-			<Button variant="outline" asChild>
+			<Button variant="outline" className="rounded-4xl" asChild>
 				<Link href="/login">Sign In</Link>
 			</Button>
 		);
