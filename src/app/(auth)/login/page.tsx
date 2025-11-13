@@ -2,8 +2,9 @@
 
 import SignInForm from "@/app/(auth)/login/_components/sign-in-form";
 import SignUpForm from "@/app/(auth)/login/_components/sign-up-form";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import ReturnBack from "@/components/return-back";
+import Loader from "@/components/loader";
 
 export default function LoginPage() {
 	const [showSignIn, setShowSignIn] = useState<boolean>(true);
@@ -11,12 +12,16 @@ export default function LoginPage() {
 	return showSignIn ? (
 		<>
 			<ReturnBack />
-			<SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
+			<Suspense fallback={<Loader />}>
+				<SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
+			</Suspense>
 		</>
 	) : (
 		<>
 			<ReturnBack />
-			<SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
+			<Suspense fallback={<Loader />}>
+				<SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
+			</Suspense>
 		</>
 	);
 }

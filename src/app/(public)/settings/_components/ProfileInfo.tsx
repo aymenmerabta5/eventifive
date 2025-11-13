@@ -9,6 +9,7 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
+import Editor from "@/components/rich-text-editor/Editor";
 
 interface ProfileInfoProps {
   user: BetterAuthUser;
@@ -74,6 +75,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             </div>
           )}
         </form.Field>
+        <Editor />
 
         {/* Submit Button */}
         <form.Subscribe>
