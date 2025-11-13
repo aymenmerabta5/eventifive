@@ -12,7 +12,7 @@ import { orpc } from "@/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Type, FileText } from "lucide-react";
-import { z } from "zod";
+import { createEventSchema } from "@/lib/schemas/schemas";
 
 const eventTypeOptions = [
 	{ value: "congress", label: "Congress" },
@@ -61,23 +61,7 @@ export function AddEventCard() {
 			}
 		},
 		validators: {
-			onSubmit: (data) => z.object({
-				title: z.string().min(1, "Title is required").max(255, "Title must be less than 255 characters"),
-				description: z.string().optional(),
-				type: z.enum(["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"], {
-					errorMap: () => ({ message: "Please select a valid event type" })
-				}),
-				startDate: z.string().min(1, "Start date is required"),
-				endDate: z.string().min(1, "End date is required"),
-				location: z.string().max(255, "Location must be less than 255 characters").optional(),
-			}).refine((data) => {
-				const start = new Date(data.startDate);
-				const end = new Date(data.endDate);
-				return end >= start;
-			}, {
-				message: "End date must be after start date",
-				path: ["endDate"],
-			}),
+			onSubmit: (data) => createEventSchema.safeParse(data),
 		},
 	});
 
