@@ -7,6 +7,7 @@ import { authClient } from "@/lib/auth-client";
 import { useMemo, useState } from "react";
 import { useScroll, useMotionValueEvent, motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import type { Route } from "next";
 
 export default function Header() {
 	const { data: session } = authClient.useSession();
@@ -54,7 +55,7 @@ export default function Header() {
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
 							>
-								<Link href={to} className="relative after:content-[''] after:absolute after:top-8 after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-primary after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100">
+								<Link href={to as Route} className="relative after:content-[''] after:absolute after:top-8 after:left-0 after:bottom-0 after:w-full after:h-[3px] after:bg-primary after:scale-x-0 after:origin-left after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100">
 									{label}
 								</Link>
 							</motion.div>
