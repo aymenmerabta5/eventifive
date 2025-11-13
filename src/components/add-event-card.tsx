@@ -61,7 +61,12 @@ export function AddEventCard() {
 			}
 		},
 		validators: {
-			onSubmit: (data) => createEventSchema.safeParse(data),
+			onSubmit: ({ value }) => {
+				const result = createEventSchema.safeParse(value);
+				if (!result.success) {
+					return result.error.formErrors.fieldErrors;
+				}
+			},
 		},
 	});
 
