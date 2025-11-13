@@ -17,7 +17,8 @@
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "init": "tsx "
   },
   "dependencies": {
     "@arcjet/inspect": "1.0.0-beta.14",
