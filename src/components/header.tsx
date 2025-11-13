@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export default function Header() {
 	const { data: session } = authClient.useSession();
 	const links = useMemo(() => [
-		{ to: "/dashboard", label: "Dashboard", isPublic: false } as const
+		{ to: "/dashboard", label: "Dashboard", isPublic: false } as const,
 	], []);
 	const { scrollY } = useScroll();
 	const [isScrolled, setIsScrolled] = useState(false);

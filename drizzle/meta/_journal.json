@@ -8,6 +8,13 @@
       "when": 1762608405465,
       "tag": "0000_curly_human_fly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1763042253474,
+      "tag": "0001_supreme_nick_fury",
+      "breakpoints": true
     }
   ]
 }
