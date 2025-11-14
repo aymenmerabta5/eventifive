@@ -71,7 +71,7 @@ export default function Platform() {
                   variant="outline"
                   className="bg-transparent border-2 border-primary dark:border-primary text-primary dark:text-primary hover:bg-primary/10 dark:hover:bg-primary/10  rounded-full px-6 py-6 text-sm md:text-base font-medium transition-all w-full sm:w-auto"
                 >
-                  Browse Event
+                  Browse Events
                 </Button>
               </Link>
             </motion.div>
