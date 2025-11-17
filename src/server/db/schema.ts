@@ -86,3 +86,23 @@ export const event = pgTable("event", {
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const fileStatusEnum = pgEnum("file_status", ["pending", "completed", "failed"]);
+
+export const fileTypeEnum = pgEnum("file_type", ["image", "document"]);
+
+export const files = pgTable("files", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	eventId: text("event_id").references(() => event.id, { onDelete: "cascade" }),
+	s3Key: varchar("s3_key", { length: 500 }).notNull().unique(),
+	fileName: varchar("file_name", { length: 255 }).notNull(),
+	fileType: fileTypeEnum("file_type").notNull(),
+	fileSize: integer("file_size").notNull(),
+	contentType: varchar("content_type", { length: 100 }).notNull(),
+	status: fileStatusEnum("status").notNull().default("pending"),
+	createdAt: timestamp("created_at").notNull(),
+	updatedAt: timestamp("updated_at").notNull(),
+});
