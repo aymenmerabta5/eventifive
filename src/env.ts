@@ -50,6 +50,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK: z.string().min(1),
+    NEXT_PUBLIC_WEBSOCKET_URL: z.string().url(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -75,6 +76,7 @@ export const env = createEnv({
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+    NEXT_PUBLIC_WEBSOCKET_URL: process.env.NEXT_PUBLIC_WEBSOCKET_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
