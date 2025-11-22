@@ -51,8 +51,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
   });
   if (!editor) return null;
   return (
-    <div className="border-border my-12 flex items-center gap-2 rounded-lg border p-2">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1 p-2">
+      <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Toggle
@@ -227,8 +227,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
           <TooltipContent>Ordered List</TooltipContent>
         </Tooltip>
       </div>
-      <div className="w-px h-8 bg-border" />
-      <div className="flex items-center gap-2">
+      <div className="w-px h-6 bg-border mx-2" />
+      <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Toggle

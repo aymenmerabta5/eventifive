@@ -5,7 +5,7 @@ import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { RPCHandler } from "@orpc/server/fetch";
 import { onError } from "@orpc/server";
-import { NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
 const rpcHandler = new RPCHandler(appRouter, {
 	interceptors: [
@@ -14,6 +14,7 @@ const rpcHandler = new RPCHandler(appRouter, {
 		}),
 	],
 });
+
 const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
 		new OpenAPIReferencePlugin({
@@ -48,3 +49,4 @@ export const POST = handleRequest;
 export const PUT = handleRequest;
 export const PATCH = handleRequest;
 export const DELETE = handleRequest;
+
