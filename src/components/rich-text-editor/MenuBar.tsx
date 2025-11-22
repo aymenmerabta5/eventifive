@@ -7,6 +7,7 @@ import {
   Heading2Icon,
   Heading3Icon,
   Heading4Icon,
+  TextIcon,
   ListIcon,
   ListOrderedIcon,
   AlignCenterIcon,
@@ -109,6 +110,25 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
             </Toggle>
           </TooltipTrigger>
           <TooltipContent>Strike</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Toggle
+              size="sm"
+              variant="outline"
+              pressed={editorState?.isParagraph}
+              onPressedChange={() => {
+                editor.chain().focus().setParagraph().run();
+              }}
+              className={cn(
+                "cursor-pointer",
+                editorState?.isParagraph && "bg-primary text-primary-foreground",
+              )}
+            >
+              <TextIcon className="h-4 w-4" />
+            </Toggle>
+          </TooltipTrigger>
+          <TooltipContent>Paragraph</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>

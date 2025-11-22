@@ -12,7 +12,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, token }, _request) => {
       await sendEmail(
         user.email as unknown as string,
         "Reset your password",
@@ -24,12 +24,10 @@ export const auth = betterAuth({
           from: env.RESEND_SENDER_EMAIL,
         },
       );
-    console.log(url);
-    console.log(token);
     },
     autoSignIn: true,
     resetPasswordTokenExpiresIn: 3600,
-    onPasswordReset: async ({ user }, request) => {
+    onPasswordReset: async ({ user }, _request) => {
       console.log(`Password for user ${user.email} has been reset.`);
     },
 
@@ -37,6 +35,13 @@ export const auth = betterAuth({
   user: {
     changeEmail: {
       enabled: true,
+    },
+    additionalFields: {
+      biography: {
+        type: "string", // Using string instead of json because better-auth maps additionalFields to basic types
+        required: false,
+        input: false, // We handle updates manually via our own API
+      },
     }
   },
   socialProviders: {

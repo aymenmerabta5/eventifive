@@ -22,7 +22,8 @@ export const changePasswordSchema = z.object({
 })
 
 export const updateProfileSchema = z.object({
-    name: z.string().min(1, "Name is required")
+    name: z.string().min(1, "Name is required"),
+    biography: z.any().optional(),
 })
 
 export const createEventSchema = z.object({

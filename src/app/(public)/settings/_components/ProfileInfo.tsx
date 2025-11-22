@@ -2,17 +2,18 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { User } from "lucide-react";
+import { User, BookTextIcon } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
-import type { User as BetterAuthUser } from "better-auth";
+import type { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
 import Editor from "@/components/rich-text-editor/Editor";
+import type { JSONContent } from "@tiptap/react";
 
 interface ProfileInfoProps {
-  user: BetterAuthUser;
+  user: typeof authClient.$Infer.Session.user;
 }
 
 export default function ProfileInfo({ user }: ProfileInfoProps) {
@@ -29,12 +30,14 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   const form = useForm({
     defaultValues: {
       name: user?.name || "",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      biography: (user as any).biography || undefined,
     },
 
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
-        updateProfile({ name: value.name });
+        updateProfile({ name: value.name, biography: value.biography });
       } catch (error) {
         console.error("Failed to update profile:", error);
       }
@@ -75,7 +78,20 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             </div>
           )}
         </form.Field>
-        <Editor />
+        <form.Field name="biography">
+          {(field) => (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <BookTextIcon className="size-4" /> Biography
+              </Label>
+              <Editor
+                content={user.biography as unknown as JSONContent}
+                value={field.state.value}
+                onChange={(value) => field.handleChange(value)}
+              />
+            </div>
+          )}
+        </form.Field>
 
         {/* Submit Button */}
         <form.Subscribe>
@@ -83,7 +99,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             <StatefulButton
               type="submit"
               className="mt-6 h-11 w-full rounded-4xl cursor-pointer"
-              disabled={!state.canSubmit || state.isSubmitting || user?.name === state.values.name}
+              disabled={!state.canSubmit || state.isSubmitting}
             >
               {state.isSubmitting ? "Updating..." : "Update Profile"}
             </StatefulButton>
