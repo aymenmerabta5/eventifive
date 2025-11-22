@@ -1,11 +1,11 @@
 "use client"
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
-import { AddEventCard } from "@/components/add-event-card"
+import { AppSidebar } from "./_components/app-sidebar"
+import { ChartAreaInteractive } from "./_components/chart-area-interactive"
+import { DataTable } from "./_components/data-table"
+import { SectionCards } from "./_components/section-cards"
+import { SiteHeader } from "./_components/site-header"
+import { AddEventCard } from "./_components/add-event-card"
 import {
   SidebarInset,
   SidebarProvider,

@@ -80,6 +80,7 @@
     "react-turnstile": "^1.1.4",
     "recharts": "2.15.4",
     "resend": "^6.4.1",
+    "server-only": "^0.0.1",
     "simplex-noise": "^4.0.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",

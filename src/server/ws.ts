@@ -1,8 +1,9 @@
+import 'dotenv/config'
 import { WebSocketServer } from 'ws'
 import { RPCHandler } from '@orpc/server/ws'
 import { appRouter } from './orpc/routers/index'
 import { onError } from '@orpc/server'
-import { auth } from './better-auth'
+import { auth } from './better-auth/config-ws'
 
 const wss = new WebSocketServer({ port: 8081 })
 
@@ -42,4 +43,3 @@ wss.on('connection', (ws, req) => {
     })
   })()
 })
-
