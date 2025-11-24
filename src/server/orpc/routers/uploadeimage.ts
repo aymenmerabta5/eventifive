@@ -12,8 +12,6 @@ const r2 = new S3Client({
     },
 });
 
-
-
 export const POST =async(request: NextRequest) => {
     const formData = await request.formData();
     const file=formData.get("file") as File;
