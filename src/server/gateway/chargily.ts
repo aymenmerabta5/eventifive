@@ -1,10 +1,12 @@
 import { env } from "@/env";
 import { ChargilyClient } from '@chargily/chargily-pay';
 
-export const client = new ChargilyClient({
-    api_key: env.CHARGILY_SK,
-    mode: env.NODE_ENV === 'production' ? 'live' : 'test',
-});
+export const client = env.CHARGILY_SK
+    ? new ChargilyClient({
+          api_key: env.CHARGILY_SK,
+          mode: env.NODE_ENV === 'production' ? 'live' : 'test',
+      })
+    : null;
 
 
 // this prices are the actual prices from chargily dashboard, if you are using this project with new api please go and fill them or we will lately add an automatic way to do this

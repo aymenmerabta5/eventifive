@@ -41,7 +41,10 @@ export const env = createEnv({
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     S3_BUCKET_NAME: z.string().min(1),
-    CHARGILY_SK: z.string().min(1),
+    CHARGILY_SK:
+      process.env.NODE_ENV === "production"
+        ? z.string().min(1)
+        : z.string().min(1).optional(),
   },
 
   /**
@@ -51,8 +54,11 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK: z.string().min(1),
-    NEXT_PUBLIC_WEBSOCKET_URL: z.string().url(),
-    NEXT_PUBLIC_CHARGILY_PK: z.string().min(1),
+    NEXT_PUBLIC_WEBSOCKET_URL: z.string().url().default("ws://localhost:8081"),
+    NEXT_PUBLIC_CHARGILY_PK:
+      process.env.NODE_ENV === "production"
+        ? z.string().min(1)
+        : z.string().min(1).optional(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -79,7 +85,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
     NEXT_PUBLIC_WEBSOCKET_URL: process.env.NEXT_PUBLIC_WEBSOCKET_URL,
-    CHARGILY_SK: process.env.CHARGILY_API_KEY,
+    CHARGILY_SK: process.env.CHARGILY_SK,
     NEXT_PUBLIC_CHARGILY_PK: process.env.NEXT_PUBLIC_CHARGILY_PK,
   },
   /**
