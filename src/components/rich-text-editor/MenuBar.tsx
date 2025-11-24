@@ -7,6 +7,7 @@ import {
   Heading2Icon,
   Heading3Icon,
   Heading4Icon,
+  TextIcon,
   ListIcon,
   ListOrderedIcon,
   AlignCenterIcon,
@@ -51,8 +52,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
   });
   if (!editor) return null;
   return (
-    <div className="border-border my-12 flex items-center gap-2 rounded-lg border p-2">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1 p-2">
+      <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Toggle
@@ -109,6 +110,25 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
             </Toggle>
           </TooltipTrigger>
           <TooltipContent>Strike</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Toggle
+              size="sm"
+              variant="outline"
+              pressed={editorState?.isParagraph}
+              onPressedChange={() => {
+                editor.chain().focus().setParagraph().run();
+              }}
+              className={cn(
+                "cursor-pointer",
+                editorState?.isParagraph && "bg-primary text-primary-foreground",
+              )}
+            >
+              <TextIcon className="h-4 w-4" />
+            </Toggle>
+          </TooltipTrigger>
+          <TooltipContent>Paragraph</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -227,8 +247,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
           <TooltipContent>Ordered List</TooltipContent>
         </Tooltip>
       </div>
-      <div className="w-px h-8 bg-border" />
-      <div className="flex items-center gap-2">
+      <div className="w-px h-6 bg-border mx-2" />
+      <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Toggle

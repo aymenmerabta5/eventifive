@@ -1,9 +1,11 @@
-import { createORPCClient } from "@orpc/client";
+import { createORPCClient, DynamicLink } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { AppRouterClient } from "@/server/orpc/routers/index";
+import { RPCLink as WebSocketRPCLink } from '@orpc/client/websocket'
+import { env } from "@/env";
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -20,7 +22,7 @@ export const queryClient = new QueryClient({
 	}),
 });
 
-export const link = new RPCLink({
+const httpLink = new RPCLink({
 	url: `${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/api/rpc`,
 	fetch(url, options) {
 		return fetch(url, {
@@ -36,6 +38,19 @@ export const link = new RPCLink({
 		const { headers } = await import("next/headers");
 		return Object.fromEntries(await headers());
 	},
+});
+
+const websocket = new WebSocket(`ws://${env.NEXT_PUBLIC_WEBSOCKET_URL}`);
+
+const webSocketLink = new WebSocketRPCLink({
+	websocket
+});
+
+export const link = new DynamicLink((options, path) => {
+	if (path[0] === 'websocketsRouter') {
+		return webSocketLink;
+	}
+	return httpLink;
 });
 
 export const client: AppRouterClient = createORPCClient(link);

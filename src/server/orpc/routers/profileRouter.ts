@@ -17,14 +17,14 @@ export const profileRouter = protectedProcedure
 .output(outputUpdateProfileSchema)
 .handler(async ({ context, input }) => {
     const { session } = context;
-    const { name } = input;
+    const { name, biography } = input;
     const userData = await db.query.user.findFirst({
         where: eq(user.id, session.user.id),
     });
     if (!userData) {
         throw new ORPCError("USER_NOT_FOUND");
     }
-    await db.update(user).set({ name }).where(eq(user.id, session.user.id));
+    await db.update(user).set({ name, biography }).where(eq(user.id, session.user.id));
     
     return {
         status: "success" as const,

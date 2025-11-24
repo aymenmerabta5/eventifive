@@ -1,6 +1,6 @@
 import Settings from "./_components/Settings";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/app/dashboard/_components/app-sidebar";
 
 export default function ProfilePage() {
   return (

@@ -1,3 +1,6 @@
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { db } from "@/server/db";
 import { roles } from "./schema";
 import { eq } from "drizzle-orm";
@@ -15,7 +18,7 @@ export async function initializeDatabase() {
 	}
 }
 
-async function seedRoles() {
+export async function seedRoles() {
 	console.log("Seeding roles...");
 
 	const rolesList = [
