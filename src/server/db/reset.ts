@@ -1,0 +1,39 @@
+import { config } from "dotenv";
+config({ path: ".env" });
+
+const resetDatabase = async () => {
+  const { db } = await import("./index");
+  const { sql } = await import("drizzle-orm");
+
+  try {
+    const typesResult = await db.execute<{ typname: string }>(sql`
+      SELECT typname 
+      FROM pg_type 
+      WHERE typtype = 'e' 
+      AND typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public');
+    `);
+    for (const type of typesResult) {
+      await db.execute(sql`DROP TYPE IF EXISTS "${sql.raw(type.typname)}" CASCADE;`);
+      console.log(`Dropped type: ${type.typname}`);
+    }
+
+    const tablesResult = await db.execute<{ table_name: string }>(sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE';
+    `);
+
+    for (const table of tablesResult) {
+      await db.execute(sql`DROP TABLE IF EXISTS "${sql.raw(table.table_name)}" CASCADE;`);
+      console.log(`Dropped table: ${table.table_name}`);
+    }
+
+    console.log("Database reset successfully: all tables and types dropped");
+  } catch (error) {
+    console.error("Error resetting database:", error);
+    throw error;
+  }
+};
+
+resetDatabase().catch(console.error);

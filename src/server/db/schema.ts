@@ -127,19 +127,18 @@ export const account = pgTable("account", {
   accessTokenExpiresAt: timestamp("access_token_expires_at"),
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
-  passwordHash: text("password_hash"),
+  password: text("password"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(), // email or user id
-  token: text("token").notNull(),
-  purpose: text("purpose").notNull(), // "email_verification", "password_reset"
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  usedAt: timestamp("used_at"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 // ---------------------------
@@ -377,10 +376,37 @@ export const payment = pgTable("payment", {
     .notNull()
     .references(() => eventRegistration.id, { onDelete: "cascade" }),
   amountCents: integer("amount_cents").notNull(),
-  currency: varchar("currency", { length: 10 }).notNull().default("USD"),
+  currency: varchar("currency", { length: 10 }).notNull().default("DZD"),
   status: paymentStatusEnum("status").notNull().default("pending"),
   provider: varchar("provider", { length: 100 }),
   providerData: jsonb("provider_data"),
   paidAt: timestamp("paid_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// messaging section we may support group chats in another world xD
+
+export const conversations = pgTable("conversations", {
+  id: text("id").primaryKey(),
+  userId1: text("user_id_1")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  userId2: text("user_id_2")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const messages = pgTable("message", {
+  id: text("id").primaryKey(),
+  conversationId: text("conversation_id")
+    .notNull()
+    .references(() => conversations.id, { onDelete: "cascade" }),
+  senderId: text("sender_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

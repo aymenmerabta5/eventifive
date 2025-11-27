@@ -15,6 +15,13 @@
       "when": 1763396295119,
       "tag": "0001_steep_shockwave",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764258212847,
+      "tag": "0002_keen_misty_knight",
+      "breakpoints": true
     }
   ]
 }
