@@ -8,12 +8,13 @@ import { useMemo, useState } from "react";
 import { useScroll, useMotionValueEvent, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import type { Route } from "next";
+import { MessageCircle } from "lucide-react"
 
 export default function Header() {
 	const { data: session } = authClient.useSession();
 	const links = useMemo(() => [
 		{ to: "/dashboard", label: "Dashboard", isPublic: false } as const,
-		{ to: "/pricing", label: "Pricing", isPublic: true } as const
+		{ to: "/pricing", label: "Pricing", isPublic: true } as const,
 	], []);
 	const { scrollY } = useScroll();
 	const [isScrolled, setIsScrolled] = useState(false);
@@ -68,6 +69,9 @@ export default function Header() {
 					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.5, delay: 0.4 }}
 				>
+					<Link href={"/messages" as Route} className="rounded-full p-3 cursor-pointer text-muted-foreground transition-colors bg-muted/50 hover:bg-muted/70">
+						<MessageCircle className="size-5" />
+					</Link>
 					<ModeToggle />
 					<UserMenu />
 				</motion.div>
