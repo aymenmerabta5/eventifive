@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import type { Route } from "next";
 
 export interface Event {
-    id: number;
+    id: string;
     title: string;
-    category: string;
-    date: string;
-    time: string;
-    location: string;
-    description: string;
+    type: "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium";
+    startDate: Date;
+    endDate: Date;
+    location: string | null;
+    description: string | null;
 }
 
 export interface EventRowProps {
