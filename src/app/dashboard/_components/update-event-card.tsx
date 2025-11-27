@@ -11,9 +11,8 @@ import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { Calendar, MapPin, Type, FileText, Edit } from "lucide-react";
-import { createEventSchema } from "@/lib/schemas/schemas";
-import { Button } from "@/components/ui/button";
+import { Calendar, MapPin, Type, FileText } from "lucide-react";
+import { updateEventSchema } from "@/lib/schemas/schemas";
 
 const eventTypeOptions = [
 	{ value: "congress", label: "Congress" },
@@ -24,31 +23,40 @@ const eventTypeOptions = [
 	{ value: "symposium", label: "Symposium" },
 ] as const;
 
-export function AddEventCard() {
+export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; initialValues?: {
+	title?: string;
+	description?: string;
+	type?: "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium";
+	startDate?: string;
+	endDate?: string;
+	location?: string;
+}}) {
 	const router = useRouter();
 	
-	const { mutate: createEvent } = useMutation(orpc.eventRouter.mutationOptions({
+	const { mutate: updateEvent } = useMutation(orpc.updateEventRouter.mutationOptions({
 		onSuccess: (data) => {
-			toast.success(data.message || "Event created successfully");
+			toast.success(data.message || "Event updated successfully");
 			router.push("/events");
 		},
 		onError: (error) => {
-			toast.error(error.message || "Failed to create event");
+			toast.error(error.message || "Failed to update event");
 		},
 	}));
 
 	const form = useForm({
 		defaultValues: {
-			title: "",
-			description: "",
-			type: "" as "" | "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium",
-			startDate: "",
-			endDate: "",
-			location: "",
+			eventId: eventId || "",
+			title: initialValues?.title || "",
+			description: initialValues?.description || "",
+			type: (initialValues?.type || "") as "" | "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium",
+			startDate: initialValues?.startDate || "",
+			endDate: initialValues?.endDate || "",
+			location: initialValues?.location || "",
 		},
 		onSubmit: async ({ value }) => {
 			try {
-				createEvent({
+				updateEvent({
+					eventId: value.eventId,
 					title: value.title,
 					description: value.description || undefined,
 					type: value.type as "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium",
@@ -57,13 +65,13 @@ export function AddEventCard() {
 					location: value.location || undefined,
 				});
 			} catch (error) {
-				console.error("Failed to create event:", error);
-				toast.error("Failed to create event");
+				console.error("Failed to update event:", error);
+				toast.error("Failed to update event");
 			}
 		},
 		validators: {
 			onSubmit: ({ value }) => {
-				const result = createEventSchema.safeParse(value);
+				const result = updateEventSchema.safeParse(value);
 				if (!result.success) {
 					return result.error.formErrors.fieldErrors;
 				}
@@ -74,22 +82,10 @@ export function AddEventCard() {
 	return (
 		<Card className="shadow-lg">
 			<CardHeader>
-				<div className="flex items-center justify-between">
-					<div>
-						<CardTitle className="text-2xl md:text-3xl font-bold">Create New Event</CardTitle>
-						<CardDescription>
-							Fill in the details below to create a new scientific event
-						</CardDescription>
-					</div>
-					<Button
-						variant="outline"
-						onClick={() => router.push("/dashboard?view=update-event")}
-						className="flex items-center gap-2"
-					>
-						<Edit className="size-4" />
-						<span className="hidden sm:inline">Update Event</span>
-					</Button>
-				</div>
+				<CardTitle className="text-2xl md:text-3xl font-bold">Update Event</CardTitle>
+				<CardDescription>
+					Update the details below to modify the scientific event
+				</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<form
@@ -100,6 +96,41 @@ export function AddEventCard() {
 					}}
 					className="space-y-6"
 				>
+					{/* Event ID Field - Hidden if provided as prop */}
+					{!eventId && (
+						<form.Field name="eventId">
+							{(field) => (
+								<div className="space-y-2">
+									<Label
+										htmlFor={field.name}
+										className="flex items-center gap-2 text-sm font-medium"
+									>
+										<FileText className="size-4" />
+										Event ID *
+									</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="text"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Enter event ID"
+										className="w-full"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p
+											key={error}
+											className="text-destructive text-sm"
+										>
+											{error}
+										</p>
+									))}
+								</div>
+							)}
+						</form.Field>
+					)}
+
 					{/* Title Field */}
 					<form.Field name="title">
 						{(field) => (
@@ -309,7 +340,7 @@ export function AddEventCard() {
 								className="w-full h-11 rounded-4xl cursor-pointer"
 								disabled={!state.canSubmit || state.isSubmitting}
 							>
-								{state.isSubmitting ? "Creating..." : "Create Event"}
+								{state.isSubmitting ? "Updating..." : "Update Event"}
 							</StatefulButton>
 						)}
 					</form.Subscribe>
