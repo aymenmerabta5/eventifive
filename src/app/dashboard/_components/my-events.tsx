@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, Plus, RefreshCcw } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, Plus, RefreshCcw, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 type MyEventsResponse = Awaited<ReturnType<typeof client.myEventsRouter>>;
 type AdminEvent = MyEventsResponse["events"][number];
@@ -83,6 +85,14 @@ export function MyEvents() {
 		void refetch();
 	}, [refetch]);
 
+	const handleUpdate = useCallback((event: AdminEvent) => {
+		
+	}, []);
+
+	const handleDelete = useCallback((event: AdminEvent) => {
+
+	}, []);
+
 	if (isPending) {
 		return (
 			<Card className="border-dashed">
@@ -137,12 +147,6 @@ export function MyEvents() {
 							)}
 							Refresh
 						</Button>
-						{/*<Button asChild>
-							<Link href="/dashboard?view=add-event" className="flex items-center gap-2">
-								<Plus className="size-4" />
-								New event
-							</Link>
-						</Button>*/}
 					</div>
 				</div>
 			</div>
@@ -209,6 +213,7 @@ export function MyEvents() {
 									<TableHead>Schedule</TableHead>
 									<TableHead>Location</TableHead>
 									<TableHead>Status</TableHead>
+									<TableHead className="w-[50px]"></TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -239,11 +244,35 @@ export function MyEvents() {
 											<TableCell>
 												<Badge variant={status === "Upcoming" ? "default" : "outline"}>{status}</Badge>
 											</TableCell>
+											<TableCell>
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="ghost" className="h-8 w-8">
+															<MoreHorizontal className="h-4 w-4" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuLabel>Actions</DropdownMenuLabel>
+														<DropdownMenuSeparator />
+														<DropdownMenuItem onClick={() => handleUpdate(event)}>
+															<Pencil className="mr-2 h-4 w-4" />
+															Update
+														</DropdownMenuItem>
+														<DropdownMenuItem 
+															onClick={() => handleDelete(event)}
+															className="text-destructive focus:text-destructive"
+														>
+															<Trash2 className="mr-2 h-4 w-4" />
+															Delete
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</TableCell>
 										</TableRow>
 									);
 								})}
 							</TableBody>
-							<TableCaption>Showing {events.length} event(s) created by you.</TableCaption>
+							<TableCaption>You have created {events.length} event(s).</TableCaption>
 						</Table>
 					</CardContent>
 				</Card>

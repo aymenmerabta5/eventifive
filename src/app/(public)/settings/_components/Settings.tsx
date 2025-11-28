@@ -176,7 +176,7 @@ export default function Main() {
 
           <div className="relative space-y-6">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold bg-linear-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-white/80">
                 Account Settings
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
