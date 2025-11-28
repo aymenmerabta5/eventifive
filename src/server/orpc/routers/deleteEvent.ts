@@ -20,10 +20,6 @@ export const deleteEventRouter = protectedProcedure
     .handler(async ({ context, input }) => {
         const { session } = context;
 
-        if (!session?.user) {
-            throw new ORPCError("UNAUTHORIZED");
-        }
-
         const { eventId } = input;
 
         try {
