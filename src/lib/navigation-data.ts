@@ -33,8 +33,8 @@ export const navigationData = {
       icon: IconChartBar,
     },
     {
-      title: "Projects",
-      url: "#",
+      title: "My Events",
+      url: "/dashboard?view=my-events",
       icon: IconFolder,
     },
     {

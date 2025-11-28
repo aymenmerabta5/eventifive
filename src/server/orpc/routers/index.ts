@@ -7,6 +7,7 @@ import { uploadImageRouter } from "./uploadImage";
 import { getProfileImageRouter } from "./getProfileImage";
 import { websocketsRouter } from "./websockets";
 import { listEventsRouter } from "./listEvents";
+import { myEventsRouter } from "./myEvents";
 
 export const appRouter = {
 	profileRouter,
@@ -17,6 +18,7 @@ export const appRouter = {
 	getProfileImageRouter,
 	websocketsRouter,
 	listEventsRouter,
+	myEventsRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

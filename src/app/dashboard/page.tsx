@@ -7,6 +7,7 @@ import { SectionCards } from "./_components/section-cards"
 import { SiteHeader } from "./_components/site-header"
 import { AddEventCard } from "./_components/add-event-card"
 import { UpdateEventCard } from "./_components/update-event-card"
+import { MyEvents } from "./_components/my-events"
 import {
   SidebarInset,
   SidebarProvider,
@@ -22,6 +23,7 @@ function Dashboard() {
   const view = searchParams.get("view")
   const showAddEvent = view === "add-event"
   const showUpdateEvent = view === "update-event"
+  const showMyEvents = view === "my-events"
 
   return (
     <SidebarProvider
@@ -45,6 +47,10 @@ function Dashboard() {
               ) : showUpdateEvent ? (
                 <div className="px-4 lg:px-6">
                   <UpdateEventCard />
+                </div>
+              ) : showMyEvents ? (
+                <div className="px-4 lg:px-6">
+                  <MyEvents />
                 </div>
               ) : (
                 <>
