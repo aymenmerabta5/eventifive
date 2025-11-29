@@ -11,9 +11,8 @@ import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { Calendar, MapPin, Type, FileText, Edit } from "lucide-react";
+import { Calendar, MapPin, Type, FileText } from "lucide-react";
 import { createEventSchema } from "@/lib/schemas/schemas";
-import { Button } from "@/components/ui/button";
 
 const eventTypeOptions = [
 	{ value: "congress", label: "Congress" },
@@ -81,14 +80,6 @@ export function AddEventCard() {
 							Fill in the details below to create a new scientific event
 						</CardDescription>
 					</div>
-					<Button
-						variant="outline"
-						onClick={() => router.push("/dashboard?view=update-event")}
-						className="flex items-center gap-2"
-					>
-						<Edit className="size-4" />
-						<span className="hidden sm:inline">Update Event</span>
-					</Button>
 				</div>
 			</CardHeader>
 			<CardContent>
