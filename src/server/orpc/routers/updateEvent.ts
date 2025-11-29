@@ -24,11 +24,6 @@ export const updateEventRouter = protectedProcedure
     .output(outputUpdateEventSchema)
     .handler(async ({ context, input }) => {
         const { session } = context;
-        
-        if (!session?.user) {
-            throw new ORPCError("UNAUTHORIZED");
-        }
-
         try {
             const { eventId, title, description, type, startDate, endDate, location } = input;
             
