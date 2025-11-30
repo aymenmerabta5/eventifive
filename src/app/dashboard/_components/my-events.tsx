@@ -2,14 +2,14 @@
 
 import { useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { client } from "@/utils/orpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, Plus, RefreshCcw, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2 } from "lucide-react";
 
 type MyEventsResponse = Awaited<ReturnType<typeof client.myEventsRouter>>;
 type AdminEvent = MyEventsResponse["events"][number];
@@ -58,6 +58,8 @@ const getEventStatus = (event: AdminEvent) => {
 };
 
 export function MyEvents() {
+	const router = useRouter();
+
 	const {
 		data,
 		isPending,
@@ -86,8 +88,12 @@ export function MyEvents() {
 	}, [refetch]);
 
 	const handleUpdate = useCallback((event: AdminEvent) => {
-		
-	}, []);
+		const params = new URLSearchParams({
+			view: "update-event",
+			eventId: event.id,
+		});
+		router.push(`/dashboard?${params.toString()}`);
+	}, [router]);
 
 	const handleDelete = useCallback((event: AdminEvent) => {
 
