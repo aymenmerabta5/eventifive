@@ -1,97 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ConversationList } from "./_components/ConversationList";
 import { MessageView } from "./_components/MessageView";
 import { EmptyState } from "./_components/EmptyState";
 import { cn } from "@/lib/utils";
-
-// TODO: replace all of this with orpc realtime data later
-const mockConversations = [
-	{
-		id: "1",
-		name: "Sarah Chen",
-		avatar: null,
-		lastMessage: "Thanks for the event details! I'll be there.",
-		timestamp: new Date(Date.now() - 1000 * 60 * 5),
-		unread: 2,
-		online: true,
-	},
-	{
-		id: "2",
-		name: "Alex Rivera",
-		avatar: null,
-		lastMessage: "Can we discuss the keynote speaker?",
-		timestamp: new Date(Date.now() - 1000 * 60 * 30),
-		unread: 0,
-		online: true,
-	},
-	{
-		id: "3",
-		name: "Jordan Park",
-		avatar: null,
-		lastMessage: "The venue looks amazing!",
-		timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-		unread: 0,
-		online: false,
-	},
-	{
-		id: "4",
-		name: "Event Planning Team",
-		avatar: null,
-		lastMessage: "Meeting scheduled for tomorrow",
-		timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-		unread: 5,
-		online: false,
-	},
-];
-
-const mockMessages = [
-	{
-		id: "m1",
-		senderId: "other",
-		content: "Hey! I saw the event you're organizing. Looks incredible!",
-		timestamp: new Date(Date.now() - 1000 * 60 * 60),
-	},
-	{
-		id: "m2",
-		senderId: "me",
-		content: "Thanks! We've been working really hard on it. Are you planning to attend?",
-		timestamp: new Date(Date.now() - 1000 * 60 * 55),
-	},
-	{
-		id: "m3",
-		senderId: "other",
-		content: "Definitely! I've already registered. Quick question though - is there parking available at the venue?",
-		timestamp: new Date(Date.now() - 1000 * 60 * 50),
-	},
-	{
-		id: "m4",
-		senderId: "me",
-		content: "Yes! There's a parking garage right next to the venue. First 3 hours are free for event attendees.",
-		timestamp: new Date(Date.now() - 1000 * 60 * 45),
-	},
-	{
-		id: "m5",
-		senderId: "other",
-		content: "Perfect! That's really helpful.",
-		timestamp: new Date(Date.now() - 1000 * 60 * 10),
-	},
-	{
-		id: "m6",
-		senderId: "other",
-		content: "Thanks for the event details! I'll be there.",
-		timestamp: new Date(Date.now() - 1000 * 60 * 5),
-	},
-];
+import { authClient } from "@/lib/auth-client";
+import {
+	useConversations,
+	useMessageSubscription,
+	type RealtimeMessage,
+} from "./_lib";
+import { Loader2 } from "lucide-react";
 
 export default function MessagesPage() {
+	const { data: session } = authClient.useSession();
+	const currentUser = session?.user;
+
 	const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 	const [isMobileConversationOpen, setIsMobileConversationOpen] = useState(false);
 
-	const selectedConversation = mockConversations.find(
+	const {
+		data: conversations,
+		isPending: isLoadingConversations,
+		error: conversationsError,
+	} = useConversations();
+
+	const selectedConversation = conversations?.find(
 		(c) => c.id === selectedConversationId
 	);
+
+	const handleNewMessage = useCallback((message: RealtimeMessage) => {
+		console.log("New message received:", message);
+	}, []);
+
+	useMessageSubscription({
+		currentUserId: currentUser?.id ?? "",
+		onNewMessage: handleNewMessage,
+	});
 
 	const handleSelectConversation = (id: string) => {
 		setSelectedConversationId(id);
@@ -102,6 +48,42 @@ export default function MessagesPage() {
 		setIsMobileConversationOpen(false);
 	};
 
+	const handleConversationCreated = (conversationId: string) => {
+		setSelectedConversationId(conversationId);
+		setIsMobileConversationOpen(true);
+	};
+
+	if (!currentUser) {
+		return (
+			<div className="flex h-screen items-center justify-center bg-background">
+				<div className="text-center">
+					<p className="text-muted-foreground">Please sign in to view messages</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (isLoadingConversations) {
+		return (
+			<div className="flex h-screen items-center justify-center bg-background">
+				<Loader2 className="size-8 animate-spin text-muted-foreground" />
+			</div>
+		);
+	}
+
+	if (conversationsError) {
+		return (
+			<div className="flex h-screen items-center justify-center bg-background">
+				<div className="text-center">
+					<p className="text-destructive">Failed to load conversations</p>
+					<p className="text-sm text-muted-foreground mt-1">
+						{conversationsError.message}
+					</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="flex h-screen bg-background">
 			<div
@@ -111,21 +93,23 @@ export default function MessagesPage() {
 				)}
 			>
 				<ConversationList
-					conversations={mockConversations}
+					conversations={conversations ?? []}
 					selectedId={selectedConversationId}
 					onSelect={handleSelectConversation}
+					onConversationCreated={handleConversationCreated}
 				/>
 			</div>
 
 			<div
-				className={`flex-1 ${
+				className={cn(
+					"flex-1",
 					!isMobileConversationOpen ? "hidden md:flex" : "flex"
-				}`}
+				)}
 			>
 				{selectedConversation ? (
 					<MessageView
 						conversation={selectedConversation}
-						messages={mockMessages}
+						currentUser={currentUser}
 						onBack={handleBackToList}
 					/>
 				) : (
@@ -135,4 +119,3 @@ export default function MessagesPage() {
 		</div>
 	);
 }
-

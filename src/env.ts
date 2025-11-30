@@ -45,8 +45,8 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string().min(1)
         : z.string().min(1).optional(),
-    REDIS_REST_URL: z.string().url(),
-    REDIS_REST_TOKEN: z.string().min(1),
+    // Native Redis URL for pub/sub (from Upstash: rediss://default:password@endpoint:port)
+    REDIS_URL: z.string().min(1),
   },
 
   /**
@@ -89,8 +89,7 @@ export const env = createEnv({
     NEXT_PUBLIC_WEBSOCKET_URL: process.env.NEXT_PUBLIC_WEBSOCKET_URL,
     CHARGILY_SK: process.env.CHARGILY_SK,
     NEXT_PUBLIC_CHARGILY_PK: process.env.NEXT_PUBLIC_CHARGILY_PK,
-    REDIS_REST_URL: process.env.REDIS_REST_URL,
-    REDIS_REST_TOKEN: process.env.REDIS_REST_TOKEN,
+    REDIS_URL: process.env.REDIS_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

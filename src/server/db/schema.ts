@@ -410,3 +410,58 @@ export const messages = pgTable("message", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// ---------------------------
+// INFERRED TYPES
+// ---------------------------
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+
+// User types
+export type User = InferSelectModel<typeof user>;
+export type NewUser = InferInsertModel<typeof user>;
+
+// Event types
+export type Event = InferSelectModel<typeof event>;
+export type NewEvent = InferInsertModel<typeof event>;
+
+// Submission types
+export type Submission = InferSelectModel<typeof submission>;
+export type NewSubmission = InferInsertModel<typeof submission>;
+
+// Review types
+export type Review = InferSelectModel<typeof review>;
+export type NewReview = InferInsertModel<typeof review>;
+
+// File types
+export type File = InferSelectModel<typeof files>;
+export type NewFile = InferInsertModel<typeof files>;
+
+// Conversation types
+export type Conversation = InferSelectModel<typeof conversations>;
+export type NewConversation = InferInsertModel<typeof conversations>;
+
+// Message types
+export type Message = InferSelectModel<typeof messages>;
+export type NewMessage = InferInsertModel<typeof messages>;
+
+// ---------------------------
+// ENUM VALUE ARRAYS (for use in zod schemas and UI)
+// ---------------------------
+export const eventTypeValues = eventTypeEnum.enumValues;
+export const submissionTypeValues = submissionTypeEnum.enumValues;
+export const submissionStatusValues = submissionStatusEnum.enumValues;
+export const reviewRecommendationValues = reviewRecommendationEnum.enumValues;
+export const fileTypeValues = fileTypeEnum.enumValues;
+export const fileStatusValues = fileStatusEnum.enumValues;
+export const paymentStatusValues = paymentStatusEnum.enumValues;
+export const roleValues = rolesEnum.enumValues;
+
+// Enum types (union types derived from the arrays)
+export type EventType = (typeof eventTypeValues)[number];
+export type SubmissionType = (typeof submissionTypeValues)[number];
+export type SubmissionStatus = (typeof submissionStatusValues)[number];
+export type ReviewRecommendation = (typeof reviewRecommendationValues)[number];
+export type FileType = (typeof fileTypeValues)[number];
+export type FileStatus = (typeof fileStatusValues)[number];
+export type PaymentStatus = (typeof paymentStatusValues)[number];
+export type Role = (typeof roleValues)[number];

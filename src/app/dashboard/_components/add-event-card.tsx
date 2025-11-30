@@ -25,15 +25,21 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Type, FileText } from "lucide-react";
 import { createEventSchema } from "@/lib/schemas/schemas";
+import { eventTypeValues, type EventType } from "@/server/db/schema";
 
-const eventTypeOptions = [
-  { value: "congress", label: "Congress" },
-  { value: "seminar", label: "Seminar" },
-  { value: "workshop", label: "Workshop" },
-  { value: "scientific_meeting", label: "Scientific Meeting" },
-  { value: "conference", label: "Conference" },
-  { value: "symposium", label: "Symposium" },
-] as const;
+const eventTypeLabels: Record<EventType, string> = {
+  congress: "Congress",
+  seminar: "Seminar",
+  workshop: "Workshop",
+  scientific_meeting: "Scientific Meeting",
+  conference: "Conference",
+  symposium: "Symposium",
+};
+
+const eventTypeOptions = eventTypeValues.map((value) => ({
+  value,
+  label: eventTypeLabels[value],
+}));
 
 export function AddEventCard() {
   const router = useRouter();
@@ -54,14 +60,7 @@ export function AddEventCard() {
     defaultValues: {
       title: "",
       description: "",
-      type: "" as
-        | ""
-        | "congress"
-        | "seminar"
-        | "workshop"
-        | "scientific_meeting"
-        | "conference"
-        | "symposium",
+      type: "" as "" | EventType,
       startDate: "",
       endDate: "",
       location: "",
@@ -71,13 +70,7 @@ export function AddEventCard() {
         createEvent({
           title: value.title,
           description: value.description || undefined,
-          type: value.type as
-            | "congress"
-            | "seminar"
-            | "workshop"
-            | "scientific_meeting"
-            | "conference"
-            | "symposium",
+          type: value.type as EventType,
           startDate: value.startDate,
           endDate: value.endDate,
           location: value.location || undefined,

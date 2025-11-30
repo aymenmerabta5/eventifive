@@ -1,6 +1,6 @@
 import { publicProcedure } from "../index";
 import { db } from "@/server/db";
-import { event } from "@/server/db/schema";
+import { event, eventTypeValues, type Event, type EventType } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
@@ -9,7 +9,7 @@ const eventSchema = z.object({
     id: z.string(),
     title: z.string(),
     description: z.string().nullable(),
-    type: z.enum(["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"]),
+    type: z.enum(eventTypeValues),
     startDate: z.date(),
     endDate: z.date(),
     location: z.string().nullable(),
@@ -27,10 +27,8 @@ const outputListEventsSchema = z.object({
     symposium: z.array(eventSchema).max(3),
 });
 
-type EventType = "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium";
-
 type GroupedEvents = {
-    [K in EventType]: typeof event.$inferSelect[];
+    [K in EventType]: Event[];
 };
 
 export const listEventsRouter = publicProcedure
@@ -38,7 +36,7 @@ export const listEventsRouter = publicProcedure
     .output(outputListEventsSchema)
     .handler(async () => {
         try {
-            const eventTypes = ["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"] as const;
+            const eventTypes = eventTypeValues;
             
             const grouped: GroupedEvents = {
                 congress: [],

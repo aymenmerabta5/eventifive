@@ -2,25 +2,15 @@ import EventCard from "./EventCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Route } from "next";
+import type { Event } from "@/server/db/schema";
 
-export interface Event {
-  id: string;
-  title: string;
-  type:
-    | "congress"
-    | "seminar"
-    | "workshop"
-    | "scientific_meeting"
-    | "conference"
-    | "symposium";
-  startDate: Date;
-  endDate: Date;
-  location: string | null;
-  description: string | null;
-}
+type EventCardData = Pick<
+  Event,
+  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "description"
+>;
 
 export interface EventRowProps {
-  events: Event[] | readonly Event[];
+  events: EventCardData[] | readonly EventCardData[];
   title: string;
   description: string;
   route: Route | string;

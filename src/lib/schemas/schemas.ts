@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { eventTypeValues } from "@/server/db/schema";
 
 export const resetPasswordSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -29,7 +30,7 @@ export const updateProfileSchema = z.object({
 export const createEventSchema = z.object({
     title: z.string().min(1, "Title is required").max(255, "Title must be less than 255 characters"),
     description: z.string().optional(),
-    type: z.enum(["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"], {
+    type: z.enum(eventTypeValues, {
         errorMap: () => ({ message: "Please select a valid event type" })
     }),
     startDate: z.string().min(1, "Start date is required"),
@@ -48,7 +49,7 @@ export const updateEventSchema = z.object({
     eventId: z.string().min(1, "Event ID is required"),
     title: z.string().min(1, "Title is required").max(255, "Title must be less than 255 characters"),
     description: z.string().optional(),
-    type: z.enum(["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"], {
+    type: z.enum(eventTypeValues, {
         errorMap: () => ({ message: "Please select a valid event type" })
     }),
     startDate: z.string().min(1, "Start date is required"),

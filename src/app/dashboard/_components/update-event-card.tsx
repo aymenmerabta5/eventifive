@@ -14,25 +14,28 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Calendar, MapPin, Type, FileText, Loader2 } from "lucide-react";
 import { updateEventSchema } from "@/lib/schemas/schemas";
+import { eventTypeValues, type EventType } from "@/server/db/schema";
 
 type MyEventsResponse = Awaited<ReturnType<typeof client.myEventsRouter>>;
-type AdminEvent = MyEventsResponse["events"][number];
 
-const eventTypeOptions = [
-	{ value: "congress", label: "Congress" },
-	{ value: "seminar", label: "Seminar" },
-	{ value: "workshop", label: "Workshop" },
-	{ value: "scientific_meeting", label: "Scientific Meeting" },
-	{ value: "conference", label: "Conference" },
-	{ value: "symposium", label: "Symposium" },
-] as const;
+const eventTypeLabels: Record<EventType, string> = {
+	congress: "Congress",
+	seminar: "Seminar",
+	workshop: "Workshop",
+	scientific_meeting: "Scientific Meeting",
+	conference: "Conference",
+	symposium: "Symposium",
+};
 
-type EventTypeValue = typeof eventTypeOptions[number]["value"];
+const eventTypeOptions = eventTypeValues.map((value) => ({
+	value,
+	label: eventTypeLabels[value],
+}));
 
 type UpdateEventInitialValues = {
 	title?: string;
 	description?: string;
-	type?: EventTypeValue;
+	type?: EventType;
 	startDate?: string;
 	endDate?: string;
 	location?: string;
@@ -89,19 +92,19 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 				eventId: resolvedEventId,
 				title: initialValues.title ?? "",
 				description: initialValues.description ?? "",
-				type: (initialValues.type ?? "") as "" | EventTypeValue,
+				type: (initialValues.type ?? "") as "" | EventType,
 				startDate: initialValues.startDate ?? "",
 				endDate: initialValues.endDate ?? "",
 				location: initialValues.location ?? "",
 			};
 		}
-		
+
 		if (event) {
 			return {
 				eventId: resolvedEventId,
 				title: event.title ?? "",
 				description: event.description ?? "",
-				type: event.type as "" | EventTypeValue,
+				type: event.type as "" | EventType,
 				startDate: toDateTimeLocalInput(event.startDate),
 				endDate: toDateTimeLocalInput(event.endDate),
 				location: event.location ?? "",
@@ -112,7 +115,7 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 			eventId: resolvedEventId,
 			title: "",
 			description: "",
-			type: "" as "" | EventTypeValue,
+			type: "" as "" | EventType,
 			startDate: "",
 			endDate: "",
 			location: "",
@@ -137,7 +140,7 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 					eventId: value.eventId,
 					title: value.title,
 					description: value.description || undefined,
-					type: value.type as "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium",
+					type: value.type as EventType,
 					startDate: value.startDate,
 					endDate: value.endDate,
 					location: value.location || undefined,

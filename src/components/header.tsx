@@ -5,10 +5,18 @@ import UserMenu from "./user-menu";
 import Logo from "@/components/logo";
 import { authClient } from "@/lib/auth-client";
 import { useMemo, useState } from "react";
-import { useScroll, useMotionValueEvent, motion } from "motion/react";
+import { useScroll, useMotionValueEvent, motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import type { Route } from "next";
-import { MessageCircle } from "lucide-react"
+import { MessageCircle } from "lucide-react";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
 	const { data: session } = authClient.useSession();
@@ -18,7 +26,8 @@ export default function Header() {
 	], []);
 	const { scrollY } = useScroll();
 	const [isScrolled, setIsScrolled] = useState(false);
-	
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
 	useMotionValueEvent(scrollY, "change", (latest) => {
 		setIsScrolled(latest > 120);
 	});
@@ -40,7 +49,8 @@ export default function Header() {
 			transition={{ duration: 0.3, ease: "easeInOut" }}
 		>
 			<div className="container mx-auto px-4 flex items-center justify-between">
-				<nav className="flex items-center gap-8 text-lg">
+				{/* Desktop Navigation */}
+				<nav className="hidden md:flex items-center gap-8 text-lg">
 					<motion.div
 						initial={{ opacity: 0, x: -20 }}
 						animate={{ opacity: 1, x: 0 }}
@@ -63,8 +73,20 @@ export default function Header() {
 						);
 					})}
 				</nav>
-				<motion.div 
-					className="flex items-center gap-3"
+
+				{/* Mobile Logo */}
+				<motion.div
+					className="md:hidden"
+					initial={{ opacity: 0, x: -20 }}
+					animate={{ opacity: 1, x: 0 }}
+					transition={{ duration: 0.5, delay: 0.2 }}
+				>
+					<Logo />
+				</motion.div>
+
+				{/* Desktop Right Section */}
+				<motion.div
+					className="hidden md:flex items-center gap-3"
 					initial={{ opacity: 0, x: 20 }}
 					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.5, delay: 0.4 }}
@@ -75,6 +97,112 @@ export default function Header() {
 					<ModeToggle />
 					<UserMenu />
 				</motion.div>
+
+				{/* Mobile Menu */}
+				<div className="flex md:hidden items-center gap-2">
+					<Link href={"/messages" as Route} className="rounded-full p-2.5 cursor-pointer text-muted-foreground transition-colors bg-muted/50 hover:bg-muted/70">
+						<MessageCircle className="size-4" />
+					</Link>
+					<Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+						<SheetTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="relative size-10"
+								aria-label="Toggle menu"
+							>
+								<div className="flex flex-col justify-center items-center">
+									<motion.span
+										className="absolute h-0.5 w-5 bg-current rounded-full"
+										animate={{
+											rotate: mobileMenuOpen ? 45 : 0,
+											y: mobileMenuOpen ? 0 : -4,
+										}}
+										transition={{ duration: 0.2, ease: "easeInOut" }}
+									/>
+									<motion.span
+										className="absolute h-0.5 w-5 bg-current rounded-full"
+										animate={{
+											opacity: mobileMenuOpen ? 0 : 1,
+											scaleX: mobileMenuOpen ? 0 : 1,
+										}}
+										transition={{ duration: 0.2, ease: "easeInOut" }}
+									/>
+									<motion.span
+										className="absolute h-0.5 w-5 bg-current rounded-full"
+										animate={{
+											rotate: mobileMenuOpen ? -45 : 0,
+											y: mobileMenuOpen ? 0 : 4,
+										}}
+										transition={{ duration: 0.2, ease: "easeInOut" }}
+									/>
+								</div>
+							</Button>
+						</SheetTrigger>
+						<SheetContent side="right" className="w-full h-full bg-background/95 backdrop-blur-xl border-none p-0">
+							<div className="flex flex-col h-full">
+								<SheetHeader className="p-6 pb-0">
+									<SheetTitle className="text-left sr-only">Menu</SheetTitle>
+									<div className="flex justify-between items-center">
+										<Logo />
+										{/* Close button is handled by SheetPrimitive, but we can add a custom one or rely on the default top-right X */}
+									</div>
+								</SheetHeader>
+								<nav className="flex-1 flex flex-col justify-center items-center gap-8 p-6">
+									<AnimatePresence>
+										{mobileMenuOpen && (
+											<>
+												{filteredLinks.map(({ to, label }, index) => (
+													<motion.div
+														key={to}
+														initial={{ opacity: 0, y: 20 }}
+														animate={{ opacity: 1, y: 0 }}
+														exit={{ opacity: 0, y: 20 }}
+														transition={{
+															duration: 0.4,
+															delay: index * 0.1,
+															ease: [0.22, 1, 0.36, 1],
+														}}
+													>
+														<Link
+															href={to as Route}
+															onClick={() => setMobileMenuOpen(false)}
+															className="relative group text-4xl font-bold tracking-tight text-foreground/80 hover:text-foreground transition-colors"
+														>
+															<span className="relative z-10">{label}</span>
+															<motion.span
+																className="absolute -bottom-2 left-0 w-0 h-1 bg-primary rounded-full group-hover:w-full transition-all duration-300 ease-out"
+															/>
+														</Link>
+													</motion.div>
+												))}
+												
+												<motion.div
+													initial={{ opacity: 0, y: 20 }}
+													animate={{ opacity: 1, y: 0 }}
+													exit={{ opacity: 0, y: 20 }}
+													transition={{
+														duration: 0.4,
+														delay: filteredLinks.length * 0.1,
+														ease: "easeOut",
+													}}
+													className="flex items-center gap-6 mt-8"
+												>
+													<ModeToggle />
+													<UserMenu />
+												</motion.div>
+											</>
+										)}
+									</AnimatePresence>
+								</nav>
+								
+								<div className="p-6 text-center text-sm text-muted-foreground">
+									© {new Date().getFullYear()} Eventifive. All rights reserved.
+								</div>
+							</div>
+						</SheetContent>
+					</Sheet>
+				</div>
 			</div>
 		</motion.header>
 	);

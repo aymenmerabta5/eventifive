@@ -1,22 +1,15 @@
 import { publicProcedure } from "../index";
 import { db } from "@/server/db";
-import { event } from "@/server/db/schema";
+import { event, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { eq, desc, asc, and, or, ilike, sql } from "drizzle-orm";
+import { eq, desc, asc, and, sql } from "drizzle-orm";
 
 const eventSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string().nullable(),
-  type: z.enum([
-    "congress",
-    "seminar",
-    "workshop",
-    "scientific_meeting",
-    "conference",
-    "symposium",
-  ]),
+  type: z.enum(eventTypeValues),
   startDate: z.date(),
   endDate: z.date(),
   location: z.string().nullable(),
@@ -26,14 +19,7 @@ const eventSchema = z.object({
 });
 
 const inputSchema = z.object({
-  eventType: z.enum([
-    "congress",
-    "seminar",
-    "workshop",
-    "scientific_meeting",
-    "conference",
-    "symposium",
-  ]),
+  eventType: z.enum(eventTypeValues),
   page: z.number().int().min(0).default(0),
   limit: z.number().int().positive().max(50).default(9),
   search: z.string().optional(),

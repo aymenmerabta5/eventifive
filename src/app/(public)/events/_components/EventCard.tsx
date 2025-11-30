@@ -2,23 +2,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { IconCalendar, IconClock, IconMapPin } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import type { Event } from "@/server/db/schema";
+
+type EventCardData = Pick<
+  Event,
+  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "description"
+>;
 
 export interface EventCardProps {
-  event: {
-    readonly id: string;
-    readonly title: string;
-    readonly type:
-      | "congress"
-      | "seminar"
-      | "workshop"
-      | "scientific_meeting"
-      | "conference"
-      | "symposium";
-    readonly startDate: Date;
-    readonly endDate: Date;
-    readonly location: string | null;
-    readonly description: string | null;
-  };
+  event: Readonly<EventCardData>;
 }
 
 export default function EventCard({ event }: EventCardProps) {

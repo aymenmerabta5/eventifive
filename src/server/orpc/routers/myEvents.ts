@@ -1,6 +1,6 @@
 import { protectedProcedure } from "../index";
 import { db } from "@/server/db";
-import { event, roles, userRoles } from "@/server/db/schema";
+import { event, eventTypeValues } from "@/server/db/schema";
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 
@@ -8,7 +8,7 @@ const eventSchema = z.object({
 	id: z.string(),
 	title: z.string(),
 	description: z.string().nullable(),
-	type: z.enum(["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"]),
+	type: z.enum(eventTypeValues),
 	startDate: z.date(),
 	endDate: z.date(),
 	location: z.string().nullable(),

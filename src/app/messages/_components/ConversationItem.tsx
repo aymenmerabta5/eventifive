@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import type { Conversation } from "./ConversationList";
+import type { Conversation } from "../_lib/types";
 
 interface ConversationItemProps {
 	conversation: Conversation;
@@ -42,6 +42,8 @@ export function ConversationItem({
 	isSelected,
 	onClick,
 }: ConversationItemProps) {
+	const { otherUser, lastMessage, updatedAt } = conversation;
+
 	return (
 		<button
 			onClick={onClick}
@@ -53,54 +55,30 @@ export function ConversationItem({
 		>
 			<div className="relative shrink-0">
 				<Avatar className="size-12">
-					{conversation.avatar && (
-						<AvatarImage src={conversation.avatar} alt={conversation.name} />
+					{otherUser.image && (
+						<AvatarImage src={otherUser.image} alt={otherUser.name} />
 					)}
 					<AvatarFallback className="bg-primary/10 text-primary font-medium">
-						{getInitials(conversation.name)}
+						{getInitials(otherUser.name)}
 					</AvatarFallback>
 				</Avatar>
-				{conversation.online && (
-					<span className="absolute bottom-0 right-0 size-3 bg-emerald-500 border-2 border-card rounded-full" />
-				)}
 			</div>
 
-			{/* Content */}
 			<div className="flex-1 min-w-0">
 				<div className="flex items-center justify-between gap-2">
-					<span
-						className={cn(
-							"font-medium truncate",
-							conversation.unread > 0
-								? "text-foreground"
-								: "text-foreground/90"
-						)}
-					>
-						{conversation.name}
+					<span className="font-medium truncate text-foreground">
+						{otherUser.name}
 					</span>
 					<span className="text-xs text-muted-foreground shrink-0">
-						{formatTimestamp(conversation.timestamp)}
+						{formatTimestamp(updatedAt)}
 					</span>
 				</div>
 				<div className="flex items-center justify-between gap-2 mt-0.5">
-					<p
-						className={cn(
-							"text-sm truncate",
-							conversation.unread > 0
-								? "text-foreground/80 font-medium"
-								: "text-muted-foreground"
-						)}
-					>
-						{conversation.lastMessage}
+					<p className="text-sm truncate text-muted-foreground">
+						{lastMessage?.content ?? "No messages yet"}
 					</p>
-					{conversation.unread > 0 && (
-						<span className="shrink-0 min-w-5 h-5 px-1.5 flex items-center justify-center bg-primary text-primary-foreground text-xs font-medium rounded-full">
-							{conversation.unread > 99 ? "99+" : conversation.unread}
-						</span>
-					)}
 				</div>
 			</div>
 		</button>
 	);
 }
-

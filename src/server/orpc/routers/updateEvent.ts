@@ -1,6 +1,6 @@
 import { protectedProcedure } from "../index";
 import { db } from "@/server/db";
-import { event } from "@/server/db/schema";
+import { event, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
@@ -12,7 +12,7 @@ const outputUpdateEventSchema = z.object({
     eventId: z.string().optional(),
     title: z.string().optional(),
     description: z.string().optional(),
-    type: z.enum(["congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"]).optional(),
+    type: z.enum(eventTypeValues).optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
     location: z.string().optional(),

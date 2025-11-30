@@ -2,23 +2,17 @@
 
 import { cn } from "@/lib/utils";
 import { Check, CheckCheck } from "lucide-react";
-
-export interface Message {
-	id: string;
-	senderId: string;
-	content: string;
-	timestamp: Date;
-	status?: "sent" | "delivered" | "read";
-}
+import type { Message } from "../_lib/types";
 
 interface MessageBubbleProps {
 	message: Message;
+	isMe: boolean;
 	isFirstInGroup: boolean;
 	isLastInGroup: boolean;
 }
 
 function formatTime(date: Date): string {
-	return date.toLocaleTimeString("en-US", {
+	return new Date(date).toLocaleTimeString("en-US", {
 		hour: "numeric",
 		minute: "2-digit",
 		hour12: true,
@@ -27,11 +21,10 @@ function formatTime(date: Date): string {
 
 export function MessageBubble({
 	message,
+	isMe,
 	isFirstInGroup,
 	isLastInGroup,
 }: MessageBubbleProps) {
-	const isMe = message.senderId === "me";
-
 	return (
 		<div
 			className={cn(
@@ -66,7 +59,7 @@ export function MessageBubble({
 					{message.content}
 				</p>
 
-				{/* Timestamp and status */}
+				{/* Timestamp */}
 				<div
 					className={cn(
 						"flex items-center gap-1 mt-1",
@@ -79,15 +72,11 @@ export function MessageBubble({
 							isMe ? "text-primary-foreground/70" : "text-muted-foreground"
 						)}
 					>
-						{formatTime(message.timestamp)}
+						{formatTime(message.createdAt)}
 					</span>
-					{isMe && message.status && (
+					{isMe && (
 						<span className="text-primary-foreground/70">
-							{message.status === "read" ? (
-								<CheckCheck className="size-3.5" />
-							) : (
-								<Check className="size-3.5" />
-							)}
+							<Check className="size-3.5" />
 						</span>
 					)}
 				</div>
@@ -96,3 +85,4 @@ export function MessageBubble({
 	);
 }
 
+export type { Message };

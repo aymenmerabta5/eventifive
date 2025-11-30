@@ -2,11 +2,11 @@ import { z } from "zod";
 import { protectedProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
-import { files } from "@/server/db/schema";
+import { files, fileTypeValues, fileStatusValues } from "@/server/db/schema";
 import { eq, and, desc, isNull } from "drizzle-orm";
 
 const inputListFilesSchema = z.object({
-	fileType: z.enum(["image", "document"]).optional(),
+	fileType: z.enum(fileTypeValues).optional(),
 	eventId: z.string().optional(),
 	limit: z.number().int().positive().max(100).optional().default(50),
 	offset: z.number().int().min(0).optional().default(0),
@@ -15,10 +15,10 @@ const inputListFilesSchema = z.object({
 const fileSchema = z.object({
 	id: z.string(),
 	fileName: z.string(),
-	fileType: z.enum(["image", "document"]),
+	fileType: z.enum(fileTypeValues),
 	fileSize: z.number(),
 	contentType: z.string(),
-	status: z.enum(["pending", "completed", "failed"]),
+	status: z.enum(fileStatusValues),
 	eventId: z.string().nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),

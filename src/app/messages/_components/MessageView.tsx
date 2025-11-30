@@ -1,16 +1,23 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Video, MoreVertical } from "lucide-react";
-import { MessageBubble, type Message } from "./MessageBubble";
+import { ArrowLeft, Phone, Video, MoreVertical, Loader2 } from "lucide-react";
+import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
-import type { Conversation } from "./ConversationList";
+import { useMessages, useSendMessage } from "../_lib/hooks";
+import type { Conversation, Message } from "../_lib/types";
+
+interface CurrentUser {
+	id: string;
+	name: string;
+	image?: string | null;
+}
 
 interface MessageViewProps {
 	conversation: Conversation;
-	messages: Message[];
+	currentUser: CurrentUser;
 	onBack: () => void;
 }
 
@@ -23,8 +30,31 @@ function getInitials(name: string): string {
 		.slice(0, 2);
 }
 
-export function MessageView({ conversation, messages, onBack }: MessageViewProps) {
+export function MessageView({
+	conversation,
+	currentUser,
+	onBack,
+}: MessageViewProps) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+	const {
+		data: messagesData,
+		isPending: isLoadingMessages,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useMessages(conversation.id);
+
+	const sendMessage = useSendMessage();
+
+	// Flatten pages into single array, reversed for chronological order
+	const messages = useMemo(() => {
+		if (!messagesData?.pages) return [];
+		return messagesData.pages
+			.flatMap((page) => page.messages)
+			.reverse(); // API returns newest first, we want oldest first
+	}, [messagesData]);
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -32,21 +62,40 @@ export function MessageView({ conversation, messages, onBack }: MessageViewProps
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [messages]);
+	}, [messages.length]);
 
-	const handleSendMessage = (content: string) => {
-		// TODO: I will implement ORPC to send message there 
-		console.log("Send message:", content);
+	const handleSendMessage = async (content: string) => {
+		await sendMessage.mutateAsync({
+			conversationId: conversation.id,
+			content,
+			currentUserId: currentUser.id,
+			currentUserName: currentUser.name,
+			currentUserImage: currentUser.image ?? null,
+		});
 	};
 
-	const groupedMessages = messages.reduce((groups, message) => {
-		const date = message.timestamp.toDateString();
-		if (!groups[date]) {
-			groups[date] = [];
+	const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+		const { scrollTop } = e.currentTarget;
+		// Load more when scrolled near top
+		if (scrollTop < 100 && hasNextPage && !isFetchingNextPage) {
+			fetchNextPage();
 		}
-		groups[date].push(message);
-		return groups;
-	}, {} as Record<string, Message[]>);
+	};
+
+	// Group messages by date
+	const groupedMessages = useMemo(() => {
+		return messages.reduce(
+			(groups, message) => {
+				const date = new Date(message.createdAt).toDateString();
+				if (!groups[date]) {
+					groups[date] = [];
+				}
+				groups[date].push(message);
+				return groups;
+			},
+			{} as Record<string, Message[]>
+		);
+	}, [messages]);
 
 	const formatDateHeader = (dateString: string): string => {
 		const date = new Date(dateString);
@@ -67,10 +116,12 @@ export function MessageView({ conversation, messages, onBack }: MessageViewProps
 		});
 	};
 
+	const { otherUser } = conversation;
+
 	return (
 		<div className="flex flex-col h-full w-full bg-background">
+			{/* Header */}
 			<div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-
 				<Button
 					variant="ghost"
 					size="icon"
@@ -82,29 +133,19 @@ export function MessageView({ conversation, messages, onBack }: MessageViewProps
 
 				<div className="relative">
 					<Avatar className="size-10">
-						{conversation.avatar && (
-							<AvatarImage src={conversation.avatar} alt={conversation.name} />
+						{otherUser.image && (
+							<AvatarImage src={otherUser.image} alt={otherUser.name} />
 						)}
 						<AvatarFallback className="bg-primary/10 text-primary font-medium text-sm">
-							{getInitials(conversation.name)}
+							{getInitials(otherUser.name)}
 						</AvatarFallback>
 					</Avatar>
-					{conversation.online && (
-						<span className="absolute bottom-0 right-0 size-2.5 bg-emerald-500 border-2 border-card rounded-full" />
-					)}
 				</div>
 
 				<div className="flex-1 min-w-0">
 					<h2 className="font-semibold text-foreground truncate">
-						{conversation.name}
+						{otherUser.name}
 					</h2>
-					<p className="text-xs text-muted-foreground">
-						{conversation.online ? (
-							<span className="text-emerald-500">Online</span>
-						) : (
-							"Offline"
-						)}
-					</p>
 				</div>
 
 				<div className="flex items-center gap-1">
@@ -132,45 +173,74 @@ export function MessageView({ conversation, messages, onBack }: MessageViewProps
 				</div>
 			</div>
 
-			<div className="flex-1 overflow-y-auto px-4 py-4">
+			{/* Messages */}
+			<div
+				ref={messagesContainerRef}
+				className="flex-1 overflow-y-auto px-4 py-4"
+				onScroll={handleScroll}
+			>
 				<div className="max-w-3xl mx-auto space-y-6">
-					{Object.entries(groupedMessages).map(([date, dateMessages]) => (
-						<div key={date}>
-							<div className="flex items-center justify-center mb-4">
-								<div className="px-3 py-1 bg-muted rounded-full">
-									<span className="text-xs font-medium text-muted-foreground">
-										{formatDateHeader(date)}
-									</span>
+					{/* Load more indicator */}
+					{isFetchingNextPage && (
+						<div className="flex justify-center py-2">
+							<Loader2 className="size-5 animate-spin text-muted-foreground" />
+						</div>
+					)}
+
+					{isLoadingMessages ? (
+						<div className="flex justify-center py-8">
+							<Loader2 className="size-6 animate-spin text-muted-foreground" />
+						</div>
+					) : messages.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+							<p className="text-sm">No messages yet</p>
+							<p className="text-xs mt-1">
+								Send a message to start the conversation
+							</p>
+						</div>
+					) : (
+						Object.entries(groupedMessages).map(([date, dateMessages]) => (
+							<div key={date}>
+								<div className="flex items-center justify-center mb-4">
+									<div className="px-3 py-1 bg-muted rounded-full">
+										<span className="text-xs font-medium text-muted-foreground">
+											{formatDateHeader(date)}
+										</span>
+									</div>
+								</div>
+
+								<div className="space-y-1">
+									{dateMessages.map((message, index) => {
+										const prevMessage = dateMessages[index - 1];
+										const nextMessage = dateMessages[index + 1];
+										const isFirstInGroup =
+											!prevMessage || prevMessage.senderId !== message.senderId;
+										const isLastInGroup =
+											!nextMessage || nextMessage.senderId !== message.senderId;
+
+										return (
+											<MessageBubble
+												key={message.id}
+												message={message}
+												isMe={message.senderId === currentUser.id}
+												isFirstInGroup={isFirstInGroup}
+												isLastInGroup={isLastInGroup}
+											/>
+										);
+									})}
 								</div>
 							</div>
-
-							<div className="space-y-1">
-								{dateMessages.map((message, index) => {
-									const prevMessage = dateMessages[index - 1];
-									const nextMessage = dateMessages[index + 1];
-									const isFirstInGroup =
-										!prevMessage || prevMessage.senderId !== message.senderId;
-									const isLastInGroup =
-										!nextMessage || nextMessage.senderId !== message.senderId;
-
-									return (
-										<MessageBubble
-											key={message.id}
-											message={message}
-											isFirstInGroup={isFirstInGroup}
-											isLastInGroup={isLastInGroup}
-										/>
-									);
-								})}
-							</div>
-						</div>
-					))}
+						))
+					)}
 					<div ref={messagesEndRef} />
 				</div>
 			</div>
 
-			<MessageInput onSend={handleSendMessage} />
+			{/* Input */}
+			<MessageInput
+				onSend={handleSendMessage}
+				disabled={sendMessage.isPending}
+			/>
 		</div>
 	);
 }
-

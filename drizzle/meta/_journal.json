@@ -22,6 +22,13 @@
       "when": 1764258212847,
       "tag": "0002_keen_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764540707523,
+      "tag": "0003_mute_blob",
+      "breakpoints": true
     }
   ]
 }

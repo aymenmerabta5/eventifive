@@ -1,10 +1,6 @@
 import { config } from "dotenv";
 config({ path: ".env" });
 
-import { db } from "@/server/db";
-import { roles } from "./schema";
-import { eq } from "drizzle-orm";
-
 export async function initializeDatabase() {
 	try {
 		console.log("Starting database initialization...");
@@ -19,6 +15,9 @@ export async function initializeDatabase() {
 }
 
 export async function seedRoles() {
+	const { db } = await import("@/server/db");
+	const  { roles } = await import("./schema");
+    const { eq } = await import("drizzle-orm");
 	console.log("Seeding roles...");
 
 	const rolesList = [
@@ -50,6 +49,8 @@ export async function seedRoles() {
 }
 
 export async function checkDatabaseHealth() {
+	const { db } = await import("@/server/db");
+	const { roles } = await import("./schema");
 	try {
 		const rolesCount = await db.select().from(roles);
 		console.log(`Database health check: ${rolesCount.length} roles found`);
@@ -59,3 +60,10 @@ export async function checkDatabaseHealth() {
 		return false;
 	}
 }
+
+initializeDatabase()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(error);
+		process.exit(1);
+	});
