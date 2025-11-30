@@ -1,0 +1,120 @@
+---
+globs: "**/*.ts, **/*.tsx"
+alwaysApply: false
+description: TypeScript best practices and patterns
+---
+
+# TEACHING REQUIREMENT
+
+When writing TypeScript, explain:
+- Why type safety matters and how it prevents bugs
+- The difference between types and interfaces
+- When to use generics and why
+- How to properly handle null/undefined
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# TypeScript Rules
+
+## Strict Mode is Enabled
+
+This project uses strict TypeScript. Never use `any` without justification.
+
+## Import Aliases
+
+```typescript
+// TEACHING: Always use path aliases for cleaner imports
+// Configured in tsconfig.json: "@/*" → "src/*"
+
+// GOOD
+import { db } from "@/server/db";
+import { Button } from "@/components/ui/button";
+
+// BAD - relative paths are harder to refactor
+import { db } from "../../../server/db";
+```
+
+## Type Definitions
+
+```typescript
+// TEACHING: Prefer 'type' for object shapes, 'interface' for extendable contracts
+// Types can do unions, interfaces can be augmented
+
+// Use type for data shapes
+type Event = {
+  id: string;
+  title: string;
+  date: Date;
+};
+
+// Use interface for contracts that might be extended
+interface Repository<T> {
+  find(id: string): Promise<T | null>;
+  save(item: T): Promise<void>;
+}
+
+// TEACHING: Use Zod schemas for runtime validation + type inference
+import { z } from "zod";
+
+const EventSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  date: z.coerce.date(),
+  description: z.string().optional(),
+});
+
+// TEACHING: Infer types from Zod schemas - single source of truth
+type EventInput = z.infer<typeof EventSchema>;
+```
+
+## Handling Nullability
+
+```typescript
+// TEACHING: TypeScript strict mode requires explicit null handling
+// This prevents "cannot read property of undefined" errors
+
+// BAD - assumes user exists
+function getUserName(user: User | null) {
+  return user.name; // Error: user might be null
+}
+
+// GOOD - handle the null case
+function getUserName(user: User | null) {
+  return user?.name ?? "Anonymous";
+}
+
+// GOOD - early return pattern
+function getUserName(user: User | null) {
+  if (!user) return "Anonymous";
+  return user.name; // TypeScript knows user is not null here
+}
+```
+
+## Generics
+
+```typescript
+// TEACHING: Generics let you write reusable, type-safe code
+// The type flows through your function
+
+// TEACHING: Simple generic - T is inferred from usage
+function first<T>(arr: T[]): T | undefined {
+  return arr[0];
+}
+
+const num = first([1, 2, 3]); // type: number | undefined
+const str = first(["a", "b"]); // type: string | undefined
+
+// TEACHING: Constrained generic - T must have certain properties
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+## Common Pitfalls
+
+1. **Never use `any`** - use `unknown` if type is truly unknown
+2. **Never use `!` (non-null assertion)** without certainty
+3. **Always handle Promise rejections** with try/catch or .catch()
+4. **Never ignore TypeScript errors** - fix them or understand why
+5. **Use `satisfies`** for type checking without widening

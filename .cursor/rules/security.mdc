@@ -1,0 +1,147 @@
+---
+globs:
+alwaysApply: false
+description: Security best practices and vulnerability prevention
+---
+
+# TEACHING REQUIREMENT
+
+When writing code with security implications, explain:
+- What vulnerability you're preventing
+- How the attack would work without this protection
+- Why this specific mitigation is effective
+- OWASP references when applicable
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Security Rules
+
+## CRITICAL: OWASP Top 10 Awareness
+
+Always be aware of and protect against:
+
+1. **Injection** (SQL, Command, XSS)
+2. **Broken Authentication**
+3. **Sensitive Data Exposure**
+4. **XML External Entities (XXE)**
+5. **Broken Access Control**
+6. **Security Misconfiguration**
+7. **Cross-Site Scripting (XSS)**
+8. **Insecure Deserialization**
+9. **Using Components with Known Vulnerabilities**
+10. **Insufficient Logging & Monitoring**
+
+## SQL Injection Prevention
+
+```typescript
+// TEACHING: Drizzle ORM uses parameterized queries by default
+// User input is NEVER concatenated into SQL strings
+
+// SAFE - Drizzle handles parameterization
+const events = await db
+  .select()
+  .from(event)
+  .where(eq(event.id, userInput)); // userInput is parameterized
+
+// DANGEROUS - Never do this
+const events = await db.execute(
+  sql`SELECT * FROM events WHERE id = ${userInput}` // Still safe with sql tag
+);
+
+// EXTREMELY DANGEROUS - Raw string concatenation
+// await db.execute(`SELECT * FROM events WHERE id = '${userInput}'`); // NEVER DO THIS
+```
+
+## XSS Prevention
+
+```typescript
+// TEACHING: React escapes content by default, but dangerouslySetInnerHTML bypasses this
+
+// SAFE - React escapes this automatically
+<div>{userContent}</div>
+
+// DANGEROUS - Only use with sanitized content
+<div dangerouslySetInnerHTML={{ __html: userContent }} /> // Avoid unless absolutely necessary
+
+// If you MUST render HTML, sanitize it first:
+import DOMPurify from "dompurify";
+<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userContent) }} />
+```
+
+## Authentication & Authorization
+
+```typescript
+// TEACHING: Always verify BOTH authentication AND authorization
+
+export const deleteEvent = protectedProcedure
+  .input(z.object({ eventId: z.string().uuid() }))
+  .handler(async ({ context, input }) => {
+    // TEACHING: First, verify the event exists
+    const event = await db.query.event.findFirst({
+      where: eq(eventTable.id, input.eventId),
+    });
+
+    if (!event) {
+      throw new Error("Event not found");
+    }
+
+    // TEACHING: Then verify the user OWNS this resource
+    // This prevents IDOR (Insecure Direct Object Reference)
+    if (event.organizerId !== context.session.user.id) {
+      throw new Error("You don't have permission to delete this event");
+    }
+
+    await db.delete(eventTable).where(eq(eventTable.id, input.eventId));
+  });
+```
+
+## Sensitive Data Handling
+
+```typescript
+// TEACHING: Never log or expose sensitive data
+
+// BAD - Logging sensitive info
+console.log("User logged in:", { email, password }); // Never log passwords!
+
+// GOOD - Log only safe identifiers
+console.log("User logged in:", { userId: user.id });
+
+// TEACHING: Never return sensitive fields to client
+const user = await db.query.user.findFirst({ ... });
+
+// BAD - Exposes password hash
+return user;
+
+// GOOD - Explicitly select safe fields
+return {
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  // password hash is NOT included
+};
+```
+
+## Environment Variables
+
+```typescript
+// TEACHING: Sensitive values must NEVER be in code or client bundles
+
+// Server-only secrets (no NEXT_PUBLIC_ prefix)
+const dbUrl = process.env.DATABASE_URL;
+const authSecret = process.env.BETTER_AUTH_SECRET;
+
+// Client-safe values (NEXT_PUBLIC_ prefix)
+const turnstileKey = process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK;
+
+// TEACHING: Env validation in src/env.ts ensures all required vars exist
+```
+
+## File Upload Security
+
+1. **Validate file types** - Check MIME type AND extension
+2. **Limit file size** - Prevent DoS via large uploads
+3. **Use presigned URLs** - Never accept file data directly in API
+4. **Scan for malware** if handling user uploads
+5. **Never execute** uploaded files

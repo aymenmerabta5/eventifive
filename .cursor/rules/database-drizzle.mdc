@@ -1,0 +1,94 @@
+---
+globs: src/server/db/**/*.ts, drizzle.config.ts
+alwaysApply: false
+description: Rules for Drizzle ORM database development
+---
+
+# TEACHING REQUIREMENT
+
+When writing database code, explain:
+- Why we use Drizzle ORM over raw SQL or other ORMs
+- How schema definitions translate to SQL
+- Query optimization and N+1 problem prevention
+- Transaction usage and when it's necessary
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Drizzle ORM Rules
+
+## Schema Location
+
+- **Single source of truth**: `src/server/db/schema.ts`
+- **Connection**: `src/server/db/index.ts`
+- **Table prefix**: All tables use `eventifive_*` prefix
+
+## Schema Best Practices
+
+```typescript
+// TEACHING: Always define relations for type-safe joins
+// Relations don't create DB constraints, they enable Drizzle's relational queries
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+
+export const event = pgTable("eventifive_event", {
+  // TEACHING: uuid with defaultRandom() is better than serial for distributed systems
+  id: uuid("id").defaultRandom().primaryKey(),
+  // TEACHING: Always use timestamp with timezone for proper date handling
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  // TEACHING: Use text() for variable-length strings, varchar() only when you need length limits
+  title: text("title").notNull(),
+});
+
+// TEACHING: Define relations separately - this enables .with() queries
+export const eventRelations = relations(event, ({ many, one }) => ({
+  submissions: many(submission),
+  organizer: one(user, {
+    fields: [event.organizerId],
+    references: [user.id],
+  }),
+}));
+```
+
+## Query Patterns
+
+```typescript
+import { db } from "@/server/db";
+import { event } from "@/server/db/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
+
+// TEACHING: Simple select with WHERE clause
+const events = await db.select().from(event).where(eq(event.organizerId, userId));
+
+// TEACHING: Use .limit() and .offset() for pagination - never fetch all records
+const paginatedEvents = await db
+  .select()
+  .from(event)
+  .where(eq(event.isPublic, true))
+  .orderBy(desc(event.createdAt))
+  .limit(10)
+  .offset(page * 10);
+
+// TEACHING: Use transactions for multiple related operations
+await db.transaction(async (tx) => {
+  await tx.insert(event).values({ ... });
+  await tx.insert(eventSettings).values({ ... });
+  // If any fails, all are rolled back
+});
+```
+
+## Migration Commands
+
+- `pnpm db:push` - Quick development iteration (no migration files)
+- `pnpm db:generate` - Generate migration files for production
+- `pnpm db:migrate` - Run pending migrations
+- `pnpm db:studio` - Visual database browser
+
+## Common Pitfalls
+
+1. **Never use raw SQL** unless absolutely necessary - lose type safety
+2. **Always paginate** large result sets
+3. **Use transactions** for related inserts/updates
+4. **Index foreign keys** and frequently queried columns
+5. **Never store sensitive data** without encryption

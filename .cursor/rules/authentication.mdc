@@ -1,0 +1,96 @@
+---
+globs: src/server/better-auth/**/*.ts, src/lib/auth-client.ts, src/app/api/auth/**/*.ts
+alwaysApply: false
+description: Rules for Better Auth authentication
+---
+
+# TEACHING REQUIREMENT
+
+When writing auth code, explain:
+- Session management and why it matters for security
+- The difference between server and client auth checks
+- Token handling and security implications
+- Why we use Better Auth instead of NextAuth
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Better Auth Rules
+
+## CRITICAL: Never Use NextAuth
+
+This project uses **Better Auth**, NOT NextAuth. Never suggest NextAuth patterns.
+
+## File Locations
+
+- **Server config**: `src/server/better-auth/config.ts`
+- **WebSocket config**: `src/server/better-auth/config-ws.ts`
+- **Client**: `src/lib/auth-client.ts`
+- **API route**: `src/app/api/auth/[...all]/route.ts`
+
+## Server-Side Auth Check
+
+```typescript
+// TEACHING: Server components can directly check session
+// This runs on the server, so session data is secure
+import { auth } from "@/server/better-auth/config";
+
+export default async function ProtectedPage() {
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
+  // TEACHING: Always handle the unauthenticated case
+  if (!session) {
+    redirect("/login");
+  }
+
+  // session.user is now available and typed
+  return <div>Welcome, {session.user.name}</div>;
+}
+```
+
+## Client-Side Auth
+
+```typescript
+// TEACHING: Client hooks re-render when auth state changes
+// Use these in client components for reactive UI
+"use client";
+
+import { authClient } from "@/lib/auth-client";
+
+export function UserMenu() {
+  // TEACHING: useSession() returns loading state too - always handle it
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) return <Skeleton />;
+  if (!session) return <LoginButton />;
+
+  return <UserDropdown user={session.user} />;
+}
+```
+
+## Protected API Routes (oRPC)
+
+```typescript
+// TEACHING: protectedProcedure automatically validates session
+// If no valid session, it returns 401 before your handler runs
+import { protectedProcedure } from "../index";
+
+export const mySecureRoute = protectedProcedure
+  .route({ method: "POST", path: "/secure-action" })
+  .handler(async ({ context }) => {
+    // TEACHING: context.session is guaranteed to exist here
+    const userId = context.session.user.id;
+    // ...
+  });
+```
+
+## Security Best Practices
+
+1. **Never trust client data** - always verify session server-side
+2. **Use protectedProcedure** for all authenticated endpoints
+3. **Never expose user IDs** in URLs when not necessary
+4. **Always validate ownership** before modifying resources
+5. **Use Cloudflare Turnstile** for public forms (login, signup)

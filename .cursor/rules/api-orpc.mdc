@@ -1,0 +1,67 @@
+---
+globs: src/server/orpc/**/*.ts, src/app/api/rpc/**/*.ts
+alwaysApply: false
+description: Rules for oRPC API development
+---
+
+# TEACHING REQUIREMENT
+
+When writing oRPC code, explain:
+- What procedures are and why they're type-safe
+- The difference between public and protected procedures
+- How input/output schemas provide runtime validation
+- Why this pattern is better than raw API routes
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# oRPC API Development Rules
+
+## Structure
+
+- **Router definition**: `src/server/orpc/routers/index.ts` exports `appRouter`
+- **Context**: `src/server/orpc/context.ts` provides session and request context
+- **API endpoint**: `src/app/api/rpc/[[...rest]]/route.ts`
+
+## Procedures
+
+- `publicProcedure` - No authentication required
+- `protectedProcedure` - Requires authenticated session (use for user-specific operations)
+
+## Creating a New Route
+
+```typescript
+// TEACHING: This pattern chains method → input → output → handler
+// Each step adds type safety that flows through the entire chain
+import { protectedProcedure } from "../index";
+import { z } from "zod";
+
+export const myRouter = protectedProcedure
+  // TEACHING: .route() defines HTTP method and path
+  .route({ method: "POST", path: "/my-feature" })
+  // TEACHING: .input() validates incoming data at runtime AND provides TypeScript types
+  .input(z.object({ data: z.string() }))
+  // TEACHING: .output() ensures your response matches the expected shape
+  .output(z.object({ success: z.boolean() }))
+  // TEACHING: handler receives typed context and input - full autocomplete!
+  .handler(async ({ context, input }) => {
+    const userId = context.session.user.id;
+    return { success: true };
+  });
+```
+
+## Adding to App Router
+
+After creating a router, add it to `src/server/orpc/routers/index.ts`:
+
+```typescript
+export const appRouter = router({
+  // ... existing routers
+  myFeature: myRouter,
+});
+```
+
+## WebSocket RPC
+
+WebSocket handlers are in `src/server/realtime/ws.ts` on port 8081.

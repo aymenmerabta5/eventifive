@@ -1,0 +1,196 @@
+---
+globs:
+alwaysApply: false
+description: Error handling and logging best practices
+---
+
+# TEACHING REQUIREMENT
+
+When handling errors, explain:
+- Why proper error handling matters for UX and debugging
+- The difference between expected and unexpected errors
+- How to provide helpful error messages
+- Logging best practices
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Error Handling Rules
+
+## Error Categories
+
+```typescript
+// TEACHING: Distinguish between expected and unexpected errors
+
+// Expected errors - User can fix these
+// - Validation failures
+// - Resource not found
+// - Permission denied
+// - Rate limiting
+
+// Unexpected errors - System issues
+// - Database connection failed
+// - External API down
+// - Out of memory
+// - Programming bugs
+```
+
+## API Error Handling (oRPC)
+
+```typescript
+// TEACHING: Return appropriate HTTP status codes
+// Clients rely on these to handle errors correctly
+
+import { ORPCError } from "@orpc/server";
+
+export const getEvent = publicProcedure
+  .input(z.object({ id: z.string().uuid() }))
+  .handler(async ({ input }) => {
+    const event = await db.query.event.findFirst({
+      where: eq(eventTable.id, input.id),
+    });
+
+    // TEACHING: 404 for missing resources
+    if (!event) {
+      throw new ORPCError({
+        code: "NOT_FOUND",
+        message: "Event not found",
+      });
+    }
+
+    // TEACHING: 403 for permission issues
+    if (event.isPrivate) {
+      throw new ORPCError({
+        code: "FORBIDDEN",
+        message: "You don't have access to this event",
+      });
+    }
+
+    return event;
+  });
+```
+
+## Client-Side Error Handling
+
+```typescript
+// TEACHING: Always handle errors gracefully in UI
+"use client";
+
+import { toast } from "sonner";
+
+async function handleSubmit(data: FormData) {
+  try {
+    await createEvent(data);
+    toast.success("Event created!");
+  } catch (error) {
+    // TEACHING: Show user-friendly message, log technical details
+    if (error instanceof ORPCError) {
+      toast.error(error.message); // User-friendly message from server
+    } else {
+      toast.error("Something went wrong. Please try again.");
+      console.error("Unexpected error:", error); // For debugging
+    }
+  }
+}
+```
+
+## Error Boundaries
+
+```typescript
+// TEACHING: Error boundaries catch render errors
+// Without them, one broken component crashes the whole app
+
+"use client";
+
+import { Component, ReactNode } from "react";
+
+class ErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    // TEACHING: Log to error tracking service in production
+    console.error("Error boundary caught:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
+// Usage
+<ErrorBoundary fallback={<ErrorFallback />}>
+  <RiskyComponent />
+</ErrorBoundary>
+```
+
+## Logging Best Practices
+
+```typescript
+// TEACHING: Logs are for debugging, not user communication
+
+// BAD - Too vague
+console.error("Error occurred");
+
+// BAD - Exposes sensitive data
+console.error("Login failed for:", { email, password });
+
+// GOOD - Contextual, safe
+console.error("Event creation failed:", {
+  userId: context.session.user.id,
+  eventData: { title: input.title }, // Only non-sensitive fields
+  error: error.message,
+});
+
+// TEACHING: Use appropriate log levels
+console.log()   // General info (development)
+console.warn()  // Potential issues
+console.error() // Actual errors
+```
+
+## Form Validation Errors
+
+```typescript
+// TEACHING: Show validation errors inline, near the field
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const form = useForm({
+  resolver: zodResolver(EventSchema),
+});
+
+// In the form
+<FormField
+  control={form.control}
+  name="title"
+  render={({ field, fieldState }) => (
+    <FormItem>
+      <FormLabel>Title</FormLabel>
+      <FormControl>
+        <Input {...field} />
+      </FormControl>
+      {/* TEACHING: Error message appears right below the field */}
+      <FormMessage>{fieldState.error?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+```
+
+## Never Do
+
+1. **Never swallow errors** silently (empty catch blocks)
+2. **Never expose stack traces** to users
+3. **Never log sensitive data** (passwords, tokens, PII)
+4. **Never use generic messages** for validation errors
+5. **Never blame the user** - say "Invalid email" not "You entered wrong email"

@@ -1,0 +1,161 @@
+---
+globs:
+alwaysApply: false
+description: Performance optimization guidelines
+---
+
+# TEACHING REQUIREMENT
+
+When optimizing code, explain:
+- What the performance problem is and how to measure it
+- Why this optimization helps
+- The tradeoffs involved
+- How to verify the improvement
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Performance Rules
+
+## Next.js Optimization
+
+### Server Components (Default)
+
+```typescript
+// TEACHING: Server Components reduce client JS bundle
+// Data fetching happens on server, HTML is sent to client
+
+// GOOD - Server Component fetches data
+export default async function EventsPage() {
+  // This runs on server, no client JS needed
+  const events = await db.select().from(event);
+  return <EventList events={events} />;
+}
+
+// TEACHING: Only add "use client" when you NEED client features
+// Each "use client" adds to JS bundle
+```
+
+### Dynamic Imports
+
+```typescript
+// TEACHING: Lazy load heavy components to reduce initial bundle
+
+import dynamic from "next/dynamic";
+
+// TEACHING: This component won't load until it's needed
+const HeavyChart = dynamic(() => import("@/components/chart"), {
+  loading: () => <Skeleton className="h-64" />,
+  ssr: false, // Skip server rendering if component needs browser APIs
+});
+```
+
+### Image Optimization
+
+```typescript
+// TEACHING: Always use next/image for automatic optimization
+// It handles lazy loading, responsive sizes, and modern formats
+
+import Image from "next/image";
+
+// GOOD - Optimized
+<Image
+  src="/hero.jpg"
+  alt="Hero image"
+  width={1200}
+  height={600}
+  priority // Add for above-the-fold images
+/>
+
+// BAD - No optimization
+<img src="/hero.jpg" alt="Hero image" />
+```
+
+## Database Performance
+
+```typescript
+// TEACHING: N+1 queries are the most common performance killer
+// Fetch related data in ONE query, not loops
+
+// BAD - N+1 problem (1 query + N queries for each event)
+const events = await db.select().from(event);
+for (const e of events) {
+  e.organizer = await db.select().from(user).where(eq(user.id, e.organizerId));
+}
+
+// GOOD - Single query with join
+const events = await db.query.event.findMany({
+  with: {
+    organizer: true, // Drizzle handles the join
+  },
+});
+
+// TEACHING: Always add indexes for frequently queried columns
+// Check slow queries with: EXPLAIN ANALYZE <query>
+```
+
+## React Performance
+
+```typescript
+// TEACHING: React Compiler handles most optimizations automatically
+// But these patterns still matter:
+
+// 1. Keep state as local as possible
+// BAD - State too high, re-renders everything
+function App() {
+  const [searchQuery, setSearchQuery] = useState("");
+  return (
+    <div>
+      <SearchInput value={searchQuery} onChange={setSearchQuery} />
+      <ExpensiveComponent /> {/* Re-renders on every keystroke! */}
+    </div>
+  );
+}
+
+// GOOD - State colocated with usage
+function SearchSection() {
+  const [searchQuery, setSearchQuery] = useState("");
+  return <SearchInput value={searchQuery} onChange={setSearchQuery} />;
+}
+
+function App() {
+  return (
+    <div>
+      <SearchSection />
+      <ExpensiveComponent /> {/* Only renders once */}
+    </div>
+  );
+}
+```
+
+## Caching Strategies
+
+```typescript
+// TEACHING: Cache expensive operations appropriately
+
+// Next.js fetch caching (server)
+const data = await fetch(url, {
+  next: { revalidate: 3600 }, // Cache for 1 hour
+});
+
+// Redis caching (via Upstash)
+import { redis } from "@/server/realtime/redis";
+
+async function getCachedData(key: string) {
+  const cached = await redis.get(key);
+  if (cached) return cached;
+
+  const fresh = await expensiveOperation();
+  await redis.set(key, fresh, { ex: 3600 }); // Expire in 1 hour
+  return fresh;
+}
+```
+
+## Measuring Performance
+
+1. **Lighthouse** - Overall web vitals
+2. **React DevTools Profiler** - Component render times
+3. **Network tab** - Bundle sizes, request waterfalls
+4. **`console.time()`** - Quick timing measurements
+5. **Database EXPLAIN** - Query analysis

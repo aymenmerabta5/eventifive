@@ -1,0 +1,57 @@
+---
+globs:
+alwaysApply: true
+---
+
+# TEACHING REQUIREMENT
+
+When writing code, you MUST:
+1. **Explain WHY** you're writing the code this way
+2. **Teach the concepts** behind each significant piece of code
+3. **Point out patterns** and best practices being used
+4. **Warn about pitfalls** and common mistakes to avoid
+5. **Reference documentation** when using framework-specific features
+
+Every code block should be accompanied by educational context. Help the user LEARN, not just copy-paste.
+
+## CRITICAL: End of Message Notice
+
+At the END of EVERY message you send to the user, you MUST include this notice in uppercase:
+
+**NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+To understand the structure of the project well you can visit CLAUDE.md
+
+---
+
+# Eventifive Project Rules
+
+## Project Overview
+
+Eventifive is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, and real-time messaging.
+
+## Tech Stack
+
+- **Next.js 16** with App Router, React 19, Turbopack, React Compiler
+- **TypeScript** with strict mode and path aliases (`@/*` → `src/*`)
+- **oRPC** - Type-safe API layer (NOT tRPC - use oRPC patterns)
+- **Better Auth** - Authentication (NOT NextAuth - use Better Auth patterns)
+- **Drizzle ORM** with PostgreSQL
+- **WebSocket** server on port 8081 for real-time features
+- **Tailwind CSS 4** with shadcn/ui components
+- **Redis** via Upstash for pub/sub and caching
+
+## Critical Rules
+
+1. **Use pnpm** (version 10+) as the package manager - never npm or yarn
+2. **Use oRPC** for API routes - never suggest tRPC
+3. **Use Better Auth** for authentication - never suggest NextAuth
+4. **Use `@/*` path aliases** for all imports from `src/`
+5. **Database tables use prefix** `eventifive_*`
+6. **This is proprietary** - do not share code externally
+
+## Code Quality Commands
+
+- `pnpm check` - Run both ESLint and TypeScript (preferred)
+- `pnpm lint:fix` - Auto-fix ESLint errors
+- `pnpm format:write` - Format with Prettier

@@ -1,0 +1,125 @@
+---
+globs:
+alwaysApply: false
+description: Git workflow and commit standards
+---
+
+# TEACHING REQUIREMENT
+
+When discussing git, explain:
+- Why good commit messages matter
+- How to write atomic commits
+- Branch naming and PR conventions
+- How to handle merge conflicts properly
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Git Workflow Rules
+
+## Commit Message Format
+
+```
+type(scope): subject
+
+body (optional)
+
+footer (optional)
+```
+
+### Types
+
+- `feat` - New feature
+- `fix` - Bug fix
+- `refactor` - Code change that neither fixes bug nor adds feature
+- `docs` - Documentation only
+- `style` - Formatting, no code change
+- `test` - Adding tests
+- `chore` - Maintenance tasks
+
+### Examples
+
+```bash
+# TEACHING: Good commit messages explain WHY, not just WHAT
+# The diff shows what changed, the message explains why
+
+# GOOD
+feat(events): add search functionality to event listing
+
+Users can now filter events by title, date, and category.
+This improves discoverability for large event catalogs.
+
+# BAD - Too vague
+fix: fixed bug
+
+# BAD - Describes what (obvious from diff), not why
+feat: add SearchBar component
+```
+
+## Branch Naming
+
+```bash
+# TEACHING: Branch names should be scannable and searchable
+# Format: type/short-description
+
+feature/event-search
+fix/login-redirect-loop
+refactor/auth-middleware
+```
+
+## Atomic Commits
+
+```bash
+# TEACHING: Each commit should be ONE logical change
+# If you use "and" in your commit message, split it
+
+# BAD - Two unrelated changes
+git commit -m "feat: add search and fix header styling"
+
+# GOOD - Split into two commits
+git commit -m "feat(events): add search functionality"
+git commit -m "fix(header): correct mobile menu alignment"
+```
+
+## Before Pushing
+
+```bash
+# TEACHING: Always verify before pushing
+pnpm check          # Lint + TypeScript
+git diff --staged   # Review your changes
+git log --oneline -5 # Check recent commits make sense
+```
+
+## Pull Request Guidelines
+
+1. **Title**: Same format as commit messages
+2. **Description**: What changed and why
+3. **Screenshots**: For UI changes
+4. **Testing**: How to verify the change works
+5. **Breaking changes**: Call out clearly
+
+## Handling Conflicts
+
+```bash
+# TEACHING: When you have conflicts, understand BOTH changes
+# Don't just pick one side blindly
+
+git fetch origin main
+git rebase origin/main
+
+# If conflicts:
+# 1. Open conflicted files
+# 2. Understand what both sides intended
+# 3. Write the CORRECT merged result (might be neither side exactly)
+# 4. git add <resolved-files>
+# 5. git rebase --continue
+```
+
+## Never Do
+
+1. **Never force push** to main/master
+2. **Never commit** secrets or .env files
+3. **Never commit** node_modules
+4. **Never rewrite** shared branch history
+5. **Never ignore** failing CI checks

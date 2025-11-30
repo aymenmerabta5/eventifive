@@ -1,0 +1,97 @@
+---
+globs: "**/*.test.ts, **/*.test.tsx, **/*.spec.ts"
+alwaysApply: false
+description: Testing and code quality standards
+---
+
+# TEACHING REQUIREMENT
+
+When writing tests or discussing quality, explain:
+- Why this test matters and what it protects against
+- The testing pyramid and where this test fits
+- How to write maintainable tests
+- What makes good vs bad test coverage
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Testing & Code Quality Rules
+
+## Code Quality Commands
+
+```bash
+# TEACHING: Run these before committing
+pnpm check        # ESLint + TypeScript - catches most issues
+pnpm lint:fix     # Auto-fix ESLint errors
+pnpm format:write # Format with Prettier
+pnpm typecheck    # TypeScript only
+```
+
+## Pre-Commit Checklist
+
+1. **No TypeScript errors** - `pnpm typecheck`
+2. **No ESLint errors** - `pnpm lint`
+3. **Code is formatted** - `pnpm format:write`
+4. **No console.log** left in production code
+5. **No commented-out code** - delete it, git has history
+6. **No TODO without ticket** - link to issue tracker
+
+## Writing Good Tests
+
+```typescript
+// TEACHING: Tests should be readable stories, not code dumps
+// Follow Arrange-Act-Assert pattern
+
+describe("Event Creation", () => {
+  // TEACHING: Test name should describe behavior, not implementation
+  it("should create event with valid data", async () => {
+    // Arrange - Set up test data
+    const eventData = {
+      title: "Tech Conference 2025",
+      date: new Date("2025-06-15"),
+    };
+
+    // Act - Perform the action
+    const result = await createEvent(eventData);
+
+    // Assert - Verify the outcome
+    expect(result.id).toBeDefined();
+    expect(result.title).toBe(eventData.title);
+  });
+
+  // TEACHING: Test error cases too, not just happy paths
+  it("should reject event without title", async () => {
+    const eventData = { date: new Date() };
+
+    await expect(createEvent(eventData)).rejects.toThrow("Title is required");
+  });
+});
+```
+
+## What to Test
+
+1. **Business logic** - Core domain rules
+2. **API handlers** - Input validation, auth, responses
+3. **Complex utilities** - Edge cases, transformations
+4. **User flows** - Critical paths (signup, checkout)
+
+## What NOT to Test
+
+1. **Framework code** - Next.js, React internals
+2. **Third-party libraries** - They have their own tests
+3. **Trivial getters/setters** - No logic to test
+4. **Implementation details** - Test behavior, not code structure
+
+## Code Review Checklist
+
+When reviewing code, check for:
+
+- [ ] Does it solve the stated problem?
+- [ ] Is it the simplest solution?
+- [ ] Are there any security issues?
+- [ ] Is error handling appropriate?
+- [ ] Are edge cases handled?
+- [ ] Is the code readable without comments?
+- [ ] Are there any performance concerns?
+- [ ] Does it follow project conventions?

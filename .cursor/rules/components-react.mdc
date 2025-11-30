@@ -1,0 +1,119 @@
+---
+globs: src/components/**/*.tsx, src/app/**/*.tsx
+alwaysApply: false
+description: Rules for React components and UI development
+---
+
+# TEACHING REQUIREMENT
+
+When writing React code, explain:
+- Server vs Client components and when to use each
+- Why we use specific patterns (composition, hooks, etc.)
+- Performance implications of your choices
+- Accessibility considerations
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# React & Component Rules
+
+## Server vs Client Components
+
+```typescript
+// TEACHING: Server Components (default in App Router)
+// - Can directly fetch data, access DB, read files
+// - Cannot use hooks, browser APIs, or event handlers
+// - Render on server, send HTML to client (faster initial load)
+
+// This is a Server Component by default
+export default async function EventList() {
+  // TEACHING: Direct DB access is fine here - runs on server only
+  const events = await db.select().from(event);
+  return <ul>{events.map(e => <li key={e.id}>{e.title}</li>)}</ul>;
+}
+
+// TEACHING: Client Components - add "use client" directive
+// - Can use hooks, state, effects, event handlers
+// - Bundle is sent to client (increases JS payload)
+"use client";
+
+export function LikeButton({ eventId }: { eventId: string }) {
+  // TEACHING: useState only works in Client Components
+  const [liked, setLiked] = useState(false);
+  return <button onClick={() => setLiked(!liked)}>Like</button>;
+}
+```
+
+## Component Organization
+
+- **UI primitives**: `src/components/ui/` (shadcn/ui components)
+- **Feature components**: `src/components/[feature]/`
+- **Page-specific**: Co-locate with page in `src/app/`
+
+## Styling with Tailwind CSS 4
+
+```typescript
+// TEACHING: Use Tailwind utilities, avoid inline styles
+// Tailwind purges unused styles, so bundle stays small
+
+// GOOD - Tailwind utilities
+<button className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md">
+
+// BAD - Inline styles (not purged, harder to maintain)
+<button style={{ backgroundColor: 'blue', padding: '8px 16px' }}>
+
+// TEACHING: Use cn() utility for conditional classes
+import { cn } from "@/lib/utils";
+
+<div className={cn(
+  "base-classes here",
+  isActive && "active-classes",
+  variant === "outline" && "border border-input"
+)}>
+```
+
+## shadcn/ui Components
+
+```typescript
+// TEACHING: shadcn/ui components are copied to src/components/ui/
+// You OWN this code - customize freely, don't treat as external lib
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// TEACHING: Compose shadcn components, don't wrap unnecessarily
+export function CreateEventDialog({ open, onOpenChange }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Event</DialogTitle>
+        </DialogHeader>
+        {/* Form content */}
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+## Performance Rules
+
+1. **Minimize "use client"** - Keep client components small and leaf-level
+2. **Avoid prop drilling** - Use composition or context
+3. **Lazy load** heavy components with `dynamic()`
+4. **Memoize expensive** calculations with `useMemo`
+5. **Use React Compiler** - It handles most optimizations automatically
+
+## Accessibility
+
+1. **Always use semantic HTML** - `<button>`, `<nav>`, `<main>`, etc.
+2. **Add aria-labels** to icon-only buttons
+3. **Ensure keyboard navigation** works
+4. **Test with screen readers** for important flows
