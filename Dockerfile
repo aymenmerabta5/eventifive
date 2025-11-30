@@ -1,6 +1,8 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:25-alpine3.21
+#TODO: Offff i will see this image vulnerbility "1 high vulnerability" we need to fix it as soon as possible
+
+FROM node:25.2.1-alpine3.21
 
 # Install dependencies only when needed
 FROM base AS deps
