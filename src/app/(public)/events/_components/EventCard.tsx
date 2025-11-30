@@ -7,7 +7,13 @@ export interface EventCardProps {
   event: {
     readonly id: string;
     readonly title: string;
-    readonly type: "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium";
+    readonly type:
+      | "congress"
+      | "seminar"
+      | "workshop"
+      | "scientific_meeting"
+      | "conference"
+      | "symposium";
     readonly startDate: Date;
     readonly endDate: Date;
     readonly location: string | null;
@@ -73,7 +79,9 @@ export default function EventCard({ event }: EventCardProps) {
           </div>
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
             <IconClock className="text-primary size-4 shrink-0" />
-            <span className="font-medium">{formatTime(event.startDate, event.endDate)}</span>
+            <span className="font-medium">
+              {formatTime(event.startDate, event.endDate)}
+            </span>
           </div>
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
             <IconMapPin className="text-primary size-4 shrink-0" />

@@ -5,16 +5,20 @@ import { client } from "@/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
 
 export default function EventsPage() {
-  const { data: events, isLoading, error } = useQuery({
+  const {
+    data: events,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["events"],
     queryFn: () => client.listEventsRouter(),
   });
 
   if (isLoading) {
     return (
-      <div className="bg-background min-h-screen flex items-center justify-center">
+      <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="border-primary mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"></div>
           <p className="text-muted-foreground">Loading events...</p>
         </div>
       </div>
@@ -23,10 +27,12 @@ export default function EventsPage() {
 
   if (error) {
     return (
-      <div className="bg-background min-h-screen flex items-center justify-center">
+      <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-center">
           <p className="text-destructive text-lg">Failed to load events</p>
-          <p className="text-muted-foreground text-sm mt-2">Please try again later</p>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Please try again later
+          </p>
         </div>
       </div>
     );
@@ -36,7 +42,7 @@ export default function EventsPage() {
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
         <div className="mb-10 text-center">
-          <h1 className="text-5xl font-bold text-foreground mb-3 bg-linear-to-r bg-clip-text md:text-5xl">
+          <h1 className="text-foreground mb-3 bg-linear-to-r bg-clip-text text-5xl font-bold md:text-5xl">
             Upcoming Events
           </h1>
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
@@ -69,14 +75,15 @@ export default function EventsPage() {
               route="/events/workshop"
             />
           )}
-          {events?.scientific_meeting && events.scientific_meeting.length > 0 && (
-            <EventRow
-              events={events.scientific_meeting}
-              title="Scientific Meeting"
-              description="Join us for an exciting scientific meeting featuring cutting-edge research presentations and networking opportunities with leading experts in the field."
-              route="/events/scientific-meeting"
-            />
-          )}
+          {events?.scientific_meeting &&
+            events.scientific_meeting.length > 0 && (
+              <EventRow
+                events={events.scientific_meeting}
+                title="Scientific Meeting"
+                description="Join us for an exciting scientific meeting featuring cutting-edge research presentations and networking opportunities with leading experts in the field."
+                route="/events/scientific-meeting"
+              />
+            )}
           {events?.conference && events.conference.length > 0 && (
             <EventRow
               events={events.conference}

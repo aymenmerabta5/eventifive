@@ -7,6 +7,7 @@ import { uploadImageRouter } from "./uploadImage";
 import { getProfileImageRouter } from "./getProfileImage";
 import { websocketsRouter } from "./websockets";
 import { listEventsRouter } from "./listEvents";
+import { listEventsByTypeRouter } from "./listEventsByType";
 import { myEventsRouter } from "./myEvents";
 
 export const appRouter = {
@@ -18,6 +19,7 @@ export const appRouter = {
 	getProfileImageRouter,
 	websocketsRouter,
 	listEventsRouter,
+	listEventsByTypeRouter,
 	myEventsRouter,
 };
 export type AppRouter = typeof appRouter;
