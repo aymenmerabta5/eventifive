@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { IconSearch } from "@tabler/icons-react";
+import { IconArrowLeft, IconSearch } from "@tabler/icons-react";
+import Link from "next/link";
 
 function formatEventTypeTitle(eventType: string): string {
   return eventType
@@ -116,14 +117,22 @@ export default function EventTypePageClient({
   return (
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-        <div className="mb-10 text-center">
-          <h1 className="text-foreground mb-3 bg-linear-to-r bg-clip-text text-5xl font-bold md:text-5xl">
-            {formatEventTypeTitle(eventTypeParam)}
-          </h1>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-            Discover and join our exciting{" "}
-            {formatEventTypeTitle(eventTypeParam).toLowerCase()} events.
-          </p>
+        <div className="mb-10 relative">
+          <Link 
+            href="/events"
+            className="absolute left-0 top-0 inline-flex items-center justify-center rounded-lg border-2 border-border bg-background p-2 text-foreground transition-all duration-200 hover:border-primary hover:bg-primary/10 hover:text-primary"
+          >
+            <IconArrowLeft className="size-6" />
+          </Link>
+          <div className="text-center">
+            <h1 className="text-foreground mb-3 bg-linear-to-r bg-clip-text text-5xl font-bold md:text-5xl">
+              {formatEventTypeTitle(eventTypeParam)}
+            </h1>
+            <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+              Discover and join our exciting{" "}
+              {formatEventTypeTitle(eventTypeParam).toLowerCase()} events.
+            </p>
+          </div>
         </div>
 
         {/* Search and Filter Bar */}
