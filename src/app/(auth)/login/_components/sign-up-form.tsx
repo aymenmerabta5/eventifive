@@ -8,7 +8,7 @@ import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
 import { useRouter } from "next/navigation";
 import { Card } from "../../../../components/ui/card";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Eye, EyeOff } from "lucide-react";
 import Turnstile, { useTurnstile } from "react-turnstile";
 import { env } from "@/env";
 import { useState, useTransition, Activity } from "react";
@@ -24,6 +24,7 @@ export default function SignUpForm({
 }) {
 
   const [token, setToken] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [isPendingSocial, startTransitionSocial] = useTransition();
   const { isPending: isSessionPending } = authClient.useSession();
@@ -162,16 +163,30 @@ export default function SignUpForm({
                   <Label htmlFor={field.name} className="text-sm font-medium">
                     Password
                   </Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    className="h-11"
-                    placeholder="Enter your password"
-                  />
+                  <div className="relative">
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type={showPassword ? "text" : "password"}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="h-11 pr-10"
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                   {field.state.meta.errors.map((error) => (
                     <p
                       key={error?.message}

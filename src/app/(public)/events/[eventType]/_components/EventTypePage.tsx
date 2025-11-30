@@ -1,17 +1,17 @@
 "use client";
 
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { client } from "@/utils/orpc";
-import EventCard from '../../_components/EventCard';
+import EventCard from "../../_components/EventCard";
 
 function formatEventTypeTitle(eventType: string): string {
   return eventType
     .replace("-", " ")
     .replace(/_/g, " ")
     .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
 
@@ -19,7 +19,13 @@ export default function EventTypePageClient({
   eventType,
   eventTypeParam,
 }: {
-  eventType: "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium";
+  eventType:
+    | "congress"
+    | "seminar"
+    | "workshop"
+    | "scientific_meeting"
+    | "conference"
+    | "symposium";
   eventTypeParam: string;
 }) {
   const fetchEvents = async ({ pageParam = 0 }: { pageParam?: number }) => {
@@ -33,7 +39,7 @@ export default function EventTypePageClient({
 
   const { data, error, status, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      queryKey: ['events', eventType],
+      queryKey: ["events", eventType],
       queryFn: fetchEvents,
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage.nextPage,
@@ -47,7 +53,7 @@ export default function EventTypePageClient({
     }
   }, [fetchNextPage, inView]);
 
-  if (status === 'pending') {
+  if (status === "pending") {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -58,7 +64,7 @@ export default function EventTypePageClient({
     );
   }
 
-  if (status === 'error') {
+  if (status === "error") {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -79,13 +85,17 @@ export default function EventTypePageClient({
             {formatEventTypeTitle(eventTypeParam)}
           </h1>
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-            Discover and join our exciting {formatEventTypeTitle(eventTypeParam).toLowerCase()} events.
+            Discover and join our exciting{" "}
+            {formatEventTypeTitle(eventTypeParam).toLowerCase()} events.
           </p>
         </div>
         <div className="flex flex-col gap-2">
           {data.pages.map((page) => {
             return (
-              <div key={page.currentPage} className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div
+                key={page.currentPage}
+                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+              >
                 {page.data.map((event) => {
                   return <EventCard key={event.id} event={event} />;
                 })}
@@ -94,7 +104,9 @@ export default function EventTypePageClient({
           })}
           <div ref={ref} className="py-4 text-center">
             {isFetchingNextPage && (
-              <div className="text-muted-foreground">Loading more events...</div>
+              <div className="text-muted-foreground">
+                Loading more events...
+              </div>
             )}
           </div>
         </div>
@@ -102,4 +114,3 @@ export default function EventTypePageClient({
     </div>
   );
 }
-
