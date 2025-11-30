@@ -1,10 +1,19 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { client } from "@/utils/orpc";
 import EventCard from "../../_components/EventCard";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { IconSearch } from "@tabler/icons-react";
 
 function formatEventTypeTitle(eventType: string): string {
   return eventType
@@ -28,22 +37,49 @@ export default function EventTypePageClient({
     | "symposium";
   eventTypeParam: string;
 }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title_asc" | "title_desc">("newest");
+  const [showLoading, setShowLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const fetchEvents = async ({ pageParam = 0 }: { pageParam?: number }) => {
     const result = await client.listEventsByTypeRouter({
       eventType,
       page: pageParam,
       limit: 9,
+      search: debouncedSearchTerm || undefined,
+      sortBy,
     });
     return result;
   };
 
   const { data, error, status, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      queryKey: ["events", eventType],
+      queryKey: ["events", eventType, debouncedSearchTerm, sortBy],
       queryFn: fetchEvents,
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage.nextPage,
     });
+
+  useEffect(() => {
+    if (status === "pending") {
+      setShowLoading(true);
+      const timer = setTimeout(() => {
+        setShowLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoading(false);
+    }
+  }, [status]);
 
   const { ref, inView } = useInView();
 
@@ -53,7 +89,7 @@ export default function EventTypePageClient({
     }
   }, [fetchNextPage, inView]);
 
-  if (status === "pending") {
+  if (status === "pending" || showLoading) {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -89,26 +125,77 @@ export default function EventTypePageClient({
             {formatEventTypeTitle(eventTypeParam).toLowerCase()} events.
           </p>
         </div>
-        <div className="flex flex-col gap-2">
-          {data.pages.map((page) => {
-            return (
-              <div
-                key={page.currentPage}
-                className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-              >
-                {page.data.map((event) => {
-                  return <EventCard key={event.id} event={event} />;
-                })}
-              </div>
-            );
-          })}
-          <div ref={ref} className="py-4 text-center">
-            {isFetchingNextPage && (
-              <div className="text-muted-foreground">
-                Loading more events...
-              </div>
-            )}
+
+        {/* Search and Filter Bar */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-md">
+            <IconSearch className="text-muted-foreground absolute left-3 top-1/2 size-5 -translate-y-1/2" />
+            <Input
+              type="text"
+              placeholder="Search events by title, description, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground text-sm whitespace-nowrap">Sort by:</span>
+            <Select
+              value={sortBy}
+              onValueChange={(value: "newest" | "oldest" | "title_asc" | "title_desc") =>
+                setSortBy(value)
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="oldest">Oldest First</SelectItem>
+                <SelectItem value="title_asc">Title (A-Z)</SelectItem>
+                <SelectItem value="title_desc">Title (Z-A)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {data.pages.length > 0 && data.pages[0] && data.pages[0].data.length > 0 ? (
+            <>
+              {data.pages.map((page) => {
+                return (
+                  <div
+                    key={page.currentPage}
+                    className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                  >
+                    {page.data.map((event) => {
+                      return <EventCard key={event.id} event={event} />;
+                    })}
+                  </div>
+                );
+              })}
+              <div ref={ref} className="py-4 text-center">
+                {isFetchingNextPage && (
+                  <div className="text-muted-foreground">
+                    Loading more events...
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex min-h-[400px] items-center justify-center">
+              <div className="text-center">
+                <p className="text-muted-foreground text-lg font-medium">
+                  No events found
+                </p>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {debouncedSearchTerm
+                    ? "Try adjusting your search terms or filters."
+                    : "There are no events available at the moment."}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
