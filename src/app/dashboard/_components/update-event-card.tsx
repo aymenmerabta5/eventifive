@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { client, orpc } from "@/utils/orpc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Calendar, MapPin, Type, FileText, Loader2 } from "lucide-react";
 import { updateEventSchema } from "@/lib/schemas/schemas";
@@ -53,6 +53,8 @@ const toDateTimeLocalInput = (value?: Date | string | null) => {
 export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; initialValues?: UpdateEventInitialValues }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	// TEACHING: Access the query client to invalidate cached data after mutations
+	const queryClient = useQueryClient();
 	const routeEventId = searchParams?.get("eventId") ?? "";
 	const resolvedEventId = eventId || routeEventId || "";
 	const needsFetch = !initialValues && Boolean(resolvedEventId);
@@ -125,6 +127,10 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 	const { mutate: updateEvent } = useMutation(orpc.updateEventRouter.mutationOptions({
 		onSuccess: (data) => {
 			toast.success(data.message || "Event updated successfully");
+			// TEACHING: After updating an event, we MUST invalidate the cache
+			// This ensures the events list shows the updated data immediately
+			// The "void" keyword tells TypeScript we're intentionally not awaiting this Promise
+			void queryClient.invalidateQueries({ queryKey: ["my-events"] });
 			router.push("/dashboard");
 		},
 		onError: (error) => {

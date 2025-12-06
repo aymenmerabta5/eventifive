@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Type, FileText } from "lucide-react";
 import { createEventSchema } from "@/lib/schemas/schemas";
@@ -43,11 +43,18 @@ const eventTypeOptions = eventTypeValues.map((value) => ({
 
 export function AddEventCard() {
   const router = useRouter();
+  // TEACHING: useQueryClient gives us access to React Query's cache
+  // We need this to invalidate (mark as stale) cached data after mutations
+  const queryClient = useQueryClient();
 
   const { mutate: createEvent } = useMutation(
     orpc.eventRouter.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message || "Event created successfully");
+        // TEACHING: invalidateQueries marks the cached data as stale
+        // This forces React Query to refetch when the component using this query mounts
+        // Without this, the "my-events" list would still show old data from cache!
+        void queryClient.invalidateQueries({ queryKey: ["my-events"] });
         router.push("/events");
       },
       onError: (error) => {
