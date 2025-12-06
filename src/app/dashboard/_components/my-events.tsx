@@ -1,7 +1,7 @@
 "use client";
-
+import { orpc } from "@/utils/orpc";
 import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { client } from "@/utils/orpc";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,16 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/comp
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+// TEACHING: Import types directly from the schema instead of inferring from API response
+// This gives us reliable, explicit types rather than depending on complex generic inference
+// The Event type is the source of truth - it's what Drizzle generates from your schema
+import type { Event, EventType } from "@/server/db/schema";
 
-type MyEventsResponse = Awaited<ReturnType<typeof client.myEventsRouter>>;
-type AdminEvent = MyEventsResponse["events"][number];
+// TEACHING: Using the schema's Event type directly is more reliable than
+// Awaited<ReturnType<...>> which can sometimes resolve to 'unknown' with complex generics
+type AdminEvent = Event;
+
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
 	dateStyle: "medium",
@@ -23,7 +30,9 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 	dateStyle: "medium",
 });
 
-const eventTypeLabels: Record<AdminEvent["type"], string> = {
+// TEACHING: Use EventType from schema for the Record key type
+// This ensures the record has exactly the keys that exist in your enum
+const eventTypeLabels: Record<EventType, string> = {
 	congress: "Congress",
 	seminar: "Seminar",
 	workshop: "Workshop",
@@ -31,6 +40,7 @@ const eventTypeLabels: Record<AdminEvent["type"], string> = {
 	conference: "Conference",
 	symposium: "Symposium",
 };
+
 
 const formatDateTime = (value: Date | string) => dateTimeFormatter.format(new Date(value));
 const formatDate = (value: Date | string) => dateFormatter.format(new Date(value));
@@ -59,18 +69,36 @@ const getEventStatus = (event: AdminEvent) => {
 
 export function MyEvents() {
 	const router = useRouter();
+	const queryClient = useQueryClient();
 
+	// TEACHING: Define the expected response type for better type safety
+	// When oRPC's type inference doesn't flow through properly, we can
+	// explicitly type the useQuery hook with generics <TData, TError>
+	type MyEventsResponse = { events: AdminEvent[]; total: number };
+	
 	const {
 		data,
 		isPending,
 		error,
 		refetch,
 		isRefetching,
-	} = useQuery({
+	} = useQuery<MyEventsResponse>({
 		queryKey: ["my-events"],
-		queryFn: () => client.myEventsRouter(),
+		queryFn: () => client.myEventsRouter() as Promise<MyEventsResponse>,
 		staleTime: 1000 * 60,
 	});
+
+	const { mutate: deleteEvent } = useMutation(
+		orpc.deleteEventRouter.mutationOptions({
+			onSuccess: () => {
+				toast.success("Event deleted successfully");
+				void queryClient.invalidateQueries({ queryKey: ["my-events"] });
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to delete event");
+			},
+		}),
+	);
 
 	const events = useMemo(() => data?.events ?? [], [data?.events]);
 	const totalEvents = data?.total ?? 0;
@@ -96,8 +124,8 @@ export function MyEvents() {
 	}, [router]);
 
 	const handleDelete = useCallback((event: AdminEvent) => {
-
-	}, []);
+		deleteEvent({ eventId: event.id });
+	}, [deleteEvent]);
 
 	if (isPending) {
 		return (
