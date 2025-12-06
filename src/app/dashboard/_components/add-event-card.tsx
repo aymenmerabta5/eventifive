@@ -1,9 +1,11 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
+import { useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import {
   Card,
@@ -26,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Type, FileText } from "lucide-react";
 import { createEventSchema } from "@/lib/schemas/schemas";
 import { eventTypeValues, type EventType } from "@/server/db/schema";
+import Image from "next/image";
 
 const eventTypeLabels: Record<EventType, string> = {
   congress: "Congress",
