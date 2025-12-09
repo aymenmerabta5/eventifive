@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../index";
+import { protectedProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
@@ -16,7 +16,7 @@ const outputGetProfileImageSchema = z.object({
 });
 
 export const getProfileImageRouter = protectedProcedure
-	.route({ method: "POST", path: "/get-profile-image" })
+	.route({ method: "POST", path: "/profile/get-image" })
 	.input(inputGetProfileImageSchema)
 	.output(outputGetProfileImageSchema)
 	.handler(async ({ context, input }) => {
@@ -30,10 +30,7 @@ export const getProfileImageRouter = protectedProcedure
 
 		try {
 			// Fetch user profile
-			const [userProfile] = await db
-				.select()
-				.from(user)
-				.where(eq(user.id, targetUserId));
+			const [userProfile] = await db.select().from(user).where(eq(user.id, targetUserId));
 
 			if (!userProfile) {
 				throw new ORPCError("NOT_FOUND", {
@@ -48,9 +45,7 @@ export const getProfileImageRouter = protectedProcedure
 			}
 
 			// Generate presigned download URL
-			const { downloadUrl, expiresAt } = await generatePresignedDownloadUrl(
-				userProfile.image,
-			);
+			const { downloadUrl, expiresAt } = await generatePresignedDownloadUrl(userProfile.image);
 
 			return {
 				downloadUrl,
@@ -62,11 +57,7 @@ export const getProfileImageRouter = protectedProcedure
 			}
 			console.error("Error getting profile image:", error);
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
-				message:
-					error instanceof Error
-						? error.message
-						: "Failed to get profile image",
+				message: error instanceof Error ? error.message : "Failed to get profile image",
 			});
 		}
 	});
-

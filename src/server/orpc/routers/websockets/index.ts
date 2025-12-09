@@ -4,10 +4,22 @@ import { getMessagesRouter } from "./getMessages";
 import { createConversationRouter } from "./createConversation";
 import { subscribeMessagesRouter } from "./subscribeMessages";
 
-export const websocketsRouter = {
-	sendMessage: sendMessageRouter,
-	getConversations: getConversationsRouter,
-	getMessages: getMessagesRouter,
+export const messagesRouter = {
+	send: sendMessageRouter,
+	listConversations: getConversationsRouter,
+	listMessages: getMessagesRouter,
 	createConversation: createConversationRouter,
-	subscribeMessages: subscribeMessagesRouter,
+	subscribe: subscribeMessagesRouter,
+};
+
+// Export with the old name for backwards compatibility
+export const websocketsRouter = messagesRouter;
+
+// Re-export individual routers for backwards compatibility
+export {
+	sendMessageRouter,
+	getConversationsRouter,
+	getMessagesRouter,
+	createConversationRouter,
+	subscribeMessagesRouter,
 };

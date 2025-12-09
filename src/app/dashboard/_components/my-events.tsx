@@ -84,12 +84,12 @@ export function MyEvents() {
 		isRefetching,
 	} = useQuery<MyEventsResponse>({
 		queryKey: ["my-events"],
-		queryFn: () => client.myEventsRouter() as Promise<MyEventsResponse>,
+		queryFn: () => client.events.myEvents() as Promise<MyEventsResponse>,
 		staleTime: 1000 * 60,
 	});
 
 	const { mutate: deleteEvent } = useMutation(
-		orpc.deleteEventRouter.mutationOptions({
+		orpc.events.delete.mutationOptions({
 			onSuccess: () => {
 				toast.success("Event deleted successfully");
 				void queryClient.invalidateQueries({ queryKey: ["my-events"] });

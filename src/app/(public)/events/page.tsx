@@ -11,7 +11,7 @@ export default function EventsPage() {
     error,
   } = useQuery({
     queryKey: ["events"],
-    queryFn: () => client.listEventsRouter(),
+    queryFn: () => client.events.list(),
   });
 
   if (isLoading) {

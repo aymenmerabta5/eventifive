@@ -4,8 +4,11 @@ import { syncPlansRouter } from "./syncPlans";
 import { getUserSubscriptionRouter } from "./getUserSubscription";
 
 export const subscriptionRouter = {
-  list: listPlansRouter,
-  create: createPlanRouter,
-  sync: syncPlansRouter,
-  current: getUserSubscriptionRouter,
+	listPlans: listPlansRouter,
+	createPlan: createPlanRouter,
+	syncPlans: syncPlansRouter,
+	getCurrent: getUserSubscriptionRouter,
 };
+
+// Re-export individual routers for backwards compatibility
+export { listPlansRouter, createPlanRouter, syncPlansRouter, getUserSubscriptionRouter };

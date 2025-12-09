@@ -51,7 +51,7 @@ export function AddEventCard() {
   const queryClient = useQueryClient();
 
   const { mutate: createEvent } = useMutation(
-    orpc.eventRouter.mutationOptions({
+    orpc.events.create.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message || "Event created successfully");
         // TEACHING: invalidateQueries marks the cached data as stale

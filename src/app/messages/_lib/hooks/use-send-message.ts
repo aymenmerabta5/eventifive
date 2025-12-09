@@ -46,7 +46,7 @@ export function useSendMessage() {
 			});
 
 			// Actually send the message
-			const response = await client.websocketsRouter.sendMessage({
+			const response = await client.messages.send({
 				conversationId,
 				content,
 			});

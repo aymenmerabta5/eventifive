@@ -8,7 +8,15 @@ export const filesRouter = {
 	requestUpload: requestUploadRouter,
 	confirmUpload: confirmUploadRouter,
 	getDownloadUrl: getDownloadUrlRouter,
-	listFiles: listFilesRouter,
-	deleteFile: deleteFileRouter,
+	list: listFilesRouter,
+	delete: deleteFileRouter,
 };
 
+// Re-export individual routers for backwards compatibility
+export {
+	requestUploadRouter,
+	confirmUploadRouter,
+	getDownloadUrlRouter,
+	listFilesRouter,
+	deleteFileRouter,
+};

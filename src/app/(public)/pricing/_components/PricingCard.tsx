@@ -52,7 +52,7 @@ export default function PricingCard() {
     isLoading,
     error,
   } = useQuery(
-    orpc.subscriptionRouter.list.queryOptions({
+    orpc.subscription.listPlans.queryOptions({
       input: { includeInactive: false },
     })
   );
@@ -60,7 +60,7 @@ export default function PricingCard() {
   // Create checkout mutation
   const createCheckout = useMutation({
     mutationFn: async (priceId: string) => {
-      const result = await orpc.paymentRouter.createCheckout.call({
+      const result = await orpc.payment.createCheckout.call({
         priceId,
       });
       return result;

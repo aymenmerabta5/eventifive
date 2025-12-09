@@ -26,7 +26,7 @@ export function SubscriptionStatus() {
     isLoading,
     error,
   } = useQuery(
-    orpc.subscriptionRouter.current.queryOptions({
+    orpc.subscription.getCurrent.queryOptions({
       input: {},
     })
   );

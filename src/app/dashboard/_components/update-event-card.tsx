@@ -16,7 +16,7 @@ import { Calendar, MapPin, Type, FileText, Loader2 } from "lucide-react";
 import { updateEventSchema } from "@/lib/schemas/schemas";
 import { eventTypeValues, type EventType } from "@/server/db/schema";
 
-type MyEventsResponse = Awaited<ReturnType<typeof client.myEventsRouter>>;
+type MyEventsResponse = Awaited<ReturnType<typeof client.events.myEvents>>;
 
 const eventTypeLabels: Record<EventType, string> = {
 	congress: "Congress",
@@ -66,7 +66,7 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 		error: prefillError,
 	} = useQuery({
 		queryKey: ["my-events"],
-		queryFn: () => client.myEventsRouter(),
+		queryFn: () => client.events.myEvents(),
 		enabled: needsFetch,
 		staleTime: 1000 * 60,
 	});
@@ -124,7 +124,7 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 		};
 	}, [resolvedEventId, initialValues, event]);
 
-	const { mutate: updateEvent } = useMutation(orpc.updateEventRouter.mutationOptions({
+	const { mutate: updateEvent } = useMutation(orpc.events.update.mutationOptions({
 		onSuccess: (data) => {
 			toast.success(data.message || "Event updated successfully");
 			// TEACHING: After updating an event, we MUST invalidate the cache

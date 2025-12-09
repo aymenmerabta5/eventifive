@@ -23,15 +23,15 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   const [isUploading, setIsUploading] = useState(false);
 
   const { data: profileImage, isLoading: isLoadingImage } = useQuery({
-    queryKey: ["getProfileImageRouter", user?.id],
-    queryFn: () => client.getProfileImageRouter({ userId: user?.id }),
+    queryKey: ["profile.getImage", user?.id],
+    queryFn: () => client.profile.getImage({ userId: user?.id }),
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
 
   const { mutate: updateProfile } = useMutation(
-    orpc.profileRouter.mutationOptions({
+    orpc.profile.update.mutationOptions({
       onSuccess: () => {
         toast.success("Profile updated successfully");
       },
@@ -87,7 +87,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 
       toast.success("Profile image updated successfully!");
       queryClient.invalidateQueries({
-        queryKey: ["getProfileImageRouter"],
+        queryKey: ["profile.getImage"],
       });
     } catch (error: any) {
       console.error("Upload error:", error);

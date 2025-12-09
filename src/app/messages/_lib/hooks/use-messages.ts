@@ -14,7 +14,7 @@ export function useMessages(conversationId: string | null) {
 			if (!conversationId) {
 				return { messages: [], nextCursor: null };
 			}
-			const response = await client.websocketsRouter.getMessages({
+			const response = await client.messages.listMessages({
 				conversationId,
 				cursor: pageParam,
 				limit: 50,

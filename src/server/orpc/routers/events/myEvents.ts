@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../index";
+import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
 import { event, eventTypeValues } from "@/server/db/schema";
 import { z } from "zod";
@@ -42,4 +42,3 @@ export const myEventsRouter = protectedProcedure
 			total: events.length,
 		};
 	});
-

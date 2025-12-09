@@ -52,7 +52,7 @@ export default function EventTypePageClient({
   }, [searchTerm]);
 
   const fetchEvents = async ({ pageParam = 0 }: { pageParam?: number }) => {
-    const result = await client.listEventsByTypeRouter({
+    const result = await client.events.listByType({
       eventType,
       page: pageParam,
       limit: 9,

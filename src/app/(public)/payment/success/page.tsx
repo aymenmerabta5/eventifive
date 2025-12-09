@@ -13,7 +13,7 @@ function PaymentSuccessContent() {
   const paymentId = searchParams.get("paymentId");
 
   const { data: paymentStatus, isLoading } = useQuery({
-    ...orpc.paymentRouter.getStatus.queryOptions({
+    ...orpc.payment.getStatus.queryOptions({
       input: { paymentId: paymentId ?? "" },
     }),
     enabled: !!paymentId,
