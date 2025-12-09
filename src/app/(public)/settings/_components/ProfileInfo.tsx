@@ -13,13 +13,15 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { useRef, useState } from "react";
-import { env } from "@/env";
+import { queryClient } from "@/utils/orpc";
+import { useRouter } from "next/navigation";
 
 interface ProfileInfoProps {
   user: typeof authClient.$Infer.Session.user;
 }
 
 export default function ProfileInfo({ user }: ProfileInfoProps) {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -91,6 +93,10 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       await authClient.getSession({
         query: { disableCookieCache: true, forceRefresh: true },
       });
+      queryClient.invalidateQueries({
+        queryKey: ["profile.getImage", user?.id],
+      });
+      router.refresh();
     } catch (error: any) {
       console.error("Upload error:", error);
       toast.error(error.message || "Failed to upload image");

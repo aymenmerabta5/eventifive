@@ -12,7 +12,7 @@ When writing code, you MUST:
 4. **Warn about pitfalls** and common mistakes to avoid
 5. **Reference documentation** when using framework-specific features
 
-Every code block should be accompanied by educational context. Help the user LEARN, not just copy-paste.
+Dont write teachings in the code itself you must explain it to the user only!
 
 ## CRITICAL: End of Message Notice
 

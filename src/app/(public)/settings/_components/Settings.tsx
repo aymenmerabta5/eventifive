@@ -22,24 +22,18 @@ const tabs = [
     label: "Profile",
     icon: User,
     description: "Manage your personal info",
-    gradient: "from-violet-500 to-purple-600",
-    bgGlow: "bg-violet-500/20",
   },
   {
     id: "email",
     label: "Email",
     icon: Mail,
     description: "Email & notifications",
-    gradient: "from-violet-500 to-purple-600",
-    bgGlow: "bg-violet-500/20",
   },
   {
     id: "security",
     label: "Security",
     icon: Lock,
     description: "Password & protection",
-    gradient: "from-violet-500 to-purple-600",
-    bgGlow: "bg-violet-500/20",
   },
 ] as const;
 
@@ -101,7 +95,7 @@ export default function Main() {
         <div
           className={cn(
             "absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full blur-3xl transition-colors duration-1000",
-            currentTab.bgGlow
+            "bg-violet-500/20"
           )}
         />
         <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
@@ -122,7 +116,7 @@ export default function Main() {
             {/* Animated icon container */}
             <div className="relative">
               <div className="absolute inset-0 animate-pulse rounded-2xl bg-primary/20 blur-xl" />
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/25">
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary/80 shadow-lg shadow-primary/25">
                 <Settings className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
@@ -161,7 +155,7 @@ export default function Main() {
                 >
                   {/* Gradient border effect for active state */}
                   {isActive && (
-                    <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
+                    <div className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-r from-primary/20 via-primary/10 to-transparent" />
                   )}
 
                   {/* Icon with gradient background */}
@@ -169,7 +163,7 @@ export default function Main() {
                     className={cn(
                       "relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
                       isActive
-                        ? `bg-gradient-to-br ${tab.gradient} shadow-lg`
+                        ? `bg-linear-to-br from-violet-500 to-purple-600 shadow-lg`
                         : "bg-muted group-hover:scale-105"
                     )}
                   >
@@ -178,7 +172,7 @@ export default function Main() {
                       <div
                         className={cn(
                           "absolute inset-0 -z-10 rounded-xl blur-xl opacity-50",
-                          `bg-gradient-to-br ${tab.gradient}`
+                          `bg-linear-to-br from-violet-500 to-purple-600`
                         )}
                       />
                     )}
@@ -243,11 +237,11 @@ export default function Main() {
               {activeTab === "profile" && (
                 <Card className="overflow-hidden border-0 bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl rounded-3xl ">
                   {/* Gradient top border */}
-                  <div className={cn("h-1 w-full bg-gradient-to-r", currentTab.gradient)} />
+                  <div className={cn("h-1 w-full bg-linear-to-r from-violet-500 to-purple-600")} />
 
                   <CardHeader className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg", currentTab.gradient)}>
+                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br shadow-lg from-violet-500 to-purple-600")}>
                         <User className="h-6 w-6 text-white" />
                       </div>
                       <div>
@@ -276,11 +270,11 @@ export default function Main() {
             >
               {activeTab === "email" && (
                 <Card className="overflow-hidden border-0 bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl rounded-3xl">
-                  <div className={cn("h-1 w-full bg-gradient-to-r", currentTab.gradient)} />
+                  <div className={cn("h-1 w-full bg-linear-to-r from-violet-500 to-purple-600")} />
 
                   <CardHeader className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg", currentTab.gradient)}>
+                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br shadow-lg from-violet-500 to-purple-600")}>
                         <Mail className="h-6 w-6 text-white" />
                       </div>
                       <div>
@@ -309,11 +303,11 @@ export default function Main() {
             >
               {activeTab === "security" && (
                 <Card className="overflow-hidden border-0 bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl rounded-3xl">
-                  <div className={cn("h-1 w-full bg-gradient-to-r", currentTab.gradient)} />
+                  <div className={cn("h-1 w-full bg-linear-to-r from-violet-500 to-purple-600")} />
 
                   <CardHeader className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg", currentTab.gradient)}>
+                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br shadow-lg from-violet-500 to-purple-600")}>
                         <Lock className="h-6 w-6 text-white" />
                       </div>
                       <div>
