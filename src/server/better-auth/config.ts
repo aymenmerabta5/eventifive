@@ -42,6 +42,17 @@ export const auth = betterAuth({
         required: false,
         input: false, // We handle updates manually via our own API
       },
+      institution: {
+        type: "string",
+        required: false,
+        input: false,
+      },
+      researchDomain: {
+        type: "string",
+        required: false,
+        input: false,
+        fieldName: "researchDomain",
+      },
     }
   },
   socialProviders: {

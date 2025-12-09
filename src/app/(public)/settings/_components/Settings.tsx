@@ -16,8 +16,6 @@ import { User, Mail, Lock, Settings, ChevronRight, Shield, Bell } from "lucide-r
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-// TEACHING: Tab configuration with additional metadata for richer UI
-// Adding colors per tab creates visual variety and helps users identify sections
 const tabs = [
   {
     id: "profile",
@@ -32,16 +30,16 @@ const tabs = [
     label: "Email",
     icon: Mail,
     description: "Email & notifications",
-    gradient: "from-blue-500 to-cyan-500",
-    bgGlow: "bg-blue-500/20",
+    gradient: "from-violet-500 to-purple-600",
+    bgGlow: "bg-violet-500/20",
   },
   {
     id: "security",
     label: "Security",
     icon: Lock,
     description: "Password & protection",
-    gradient: "from-emerald-500 to-teal-500",
-    bgGlow: "bg-emerald-500/20",
+    gradient: "from-violet-500 to-purple-600",
+    bgGlow: "bg-violet-500/20",
   },
 ] as const;
 
@@ -61,7 +59,7 @@ export default function Main() {
       <div className="relative min-h-screen overflow-hidden bg-background">
         {/* Animated background */}
         <div className="pointer-events-none fixed inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
           <div className="absolute top-0 left-1/4 h-[500px] w-[500px] animate-pulse rounded-full bg-primary/5 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] animate-pulse rounded-full bg-primary/5 blur-3xl" />
         </div>
@@ -90,14 +88,14 @@ export default function Main() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-screen overflow-hidden">
       {/* TEACHING: Multi-layer background creates depth and visual interest
           - Base radial gradient for ambient color
           - Floating orbs with blur for atmosphere
           - Grid pattern for subtle texture */}
       <div className="pointer-events-none fixed inset-0">
         {/* Radial gradient from top */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
 
         {/* Floating gradient orbs - these create depth */}
         <div

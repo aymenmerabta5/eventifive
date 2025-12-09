@@ -2,17 +2,18 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { User, BookTextIcon, Camera, Loader2, Upload } from "lucide-react";
+import { User, BookTextIcon, Camera, Loader2, Upload, Building2, FlaskConical } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { orpc, queryClient, client } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { useRef, useState } from "react";
+import { env } from "@/env";
 
 interface ProfileInfoProps {
   user: typeof authClient.$Infer.Session.user;
@@ -22,13 +23,13 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const { data: profileImage, isLoading: isLoadingImage } = useQuery({
+  const { data: imageData, isLoading: isLoadingImage } = useQuery(orpc.profile.getImage.queryOptions({
+    input: { userId: user?.id },
     queryKey: ["profile.getImage", user?.id],
-    queryFn: () => client.profile.getImage({ userId: user?.id }),
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,
     retry: false,
-  });
+  }));
 
   const { mutate: updateProfile } = useMutation(
     orpc.profile.update.mutationOptions({
@@ -86,8 +87,9 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       }
 
       toast.success("Profile image updated successfully!");
-      queryClient.invalidateQueries({
-        queryKey: ["profile.getImage"],
+      // Refresh the Better Auth session to get the updated image
+      await authClient.getSession({
+        query: { disableCookieCache: true, forceRefresh: true },
       });
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -116,13 +118,19 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   const form = useForm({
     defaultValues: {
       name: user?.name || "",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      biography: (user as any).biography || undefined,
+      biography: user?.biography || undefined,
+      institution: user?.institution || "",
+      researchDomain: user?.researchDomain || "",
     },
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
-        updateProfile({ name: value.name, biography: value.biography });
+        updateProfile({
+          name: value.name,
+          biography: value.biography,
+          institution: value.institution || undefined,
+          researchDomain: value.researchDomain || undefined,
+        });
       } catch (error) {
         console.error("Failed to update profile:", error);
       }
@@ -131,25 +139,22 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
 
   return (
     <div className="space-y-8">
-      {/* TEACHING: Profile Photo Section
-          Using a horizontal layout with photo on left, info on right
-          Creates visual hierarchy and uses space more efficiently */}
       <div className="flex flex-col sm:flex-row sm:items-start gap-6 pb-8 border-b border-border/50">
         {/* Avatar with upload overlay */}
         <div className="relative group shrink-0">
           <div className="relative">
             {/* Decorative ring */}
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute -inset-1 rounded-full bg-linear-to-br from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
             <Avatar className="relative h-24 w-24 sm:h-28 sm:w-28 ring-2 ring-border/50 transition-all duration-300 group-hover:ring-primary/30">
-              {profileImage?.downloadUrl && (
+              {user?.image !== "" && (
                 <AvatarImage
-                  src={profileImage.downloadUrl}
+                  src={user?.image ? imageData?.downloadUrl : ""}
                   alt={user?.name || "Profile"}
                   className="object-cover"
                 />
               )}
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xl sm:text-2xl font-semibold">
+              <AvatarFallback className="bg-linear-to-br from-primary to-primary/70 text-primary-foreground text-xl sm:text-2xl font-semibold">
                 {isLoadingImage ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
@@ -214,9 +219,6 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
           
         </div>
       </div>
-
-      {/* TEACHING: Form Section
-          Using a clean, spacious form layout with clear visual hierarchy */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -248,6 +250,62 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
               />
               <p className="text-xs text-muted-foreground">
                 This is how your name will appear across the platform.
+              </p>
+            </div>
+          )}
+        </form.Field>
+
+        {/* Institution Field */}
+        <form.Field name="institution">
+          {(field) => (
+            <div className="space-y-2">
+              <Label
+                htmlFor={field.name}
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
+                <Building2 className="size-4 text-muted-foreground" />
+                Institution
+              </Label>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="text"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                placeholder="Enter your institution or organization"
+                className="h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your university, company, or research organization.
+              </p>
+            </div>
+          )}
+        </form.Field>
+
+        {/* Research Domain Field */}
+        <form.Field name="researchDomain">
+          {(field) => (
+            <div className="space-y-2">
+              <Label
+                htmlFor={field.name}
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
+                <FlaskConical className="size-4 text-muted-foreground" />
+                Research Domain
+              </Label>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="text"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                placeholder="Enter your research domain or field of expertise"
+                className="h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your area of research or professional expertise.
               </p>
             </div>
           )}

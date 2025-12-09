@@ -25,11 +25,11 @@ export default function Header() {
 		{ to: "/pricing", label: "Pricing", isPublic: true } as const,
 	], []);
 	const { scrollY } = useScroll();
-	const [isScrolled, setIsScrolled] = useState(false);
-	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [isScrolled, setIsScrolled] = useState<boolean>(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
 	useMotionValueEvent(scrollY, "change", (latest) => {
-		setIsScrolled(latest > 120);
+		setIsScrolled(latest > 60);
 	});
 	
     const filteredLinks = useMemo(() => links.filter(({ isPublic }) => isPublic ? true : session?.user), [links, session]);

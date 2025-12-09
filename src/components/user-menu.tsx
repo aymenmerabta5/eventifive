@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IconSettings, IconLogout } from "@tabler/icons-react";
+import { env } from "@/env";
 
 export default function UserMenu() {
 	const router = useRouter();
@@ -35,7 +36,7 @@ export default function UserMenu() {
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" className="relative h-10 w-10 rounded-full">
 					<Avatar className="h-10 w-10">
-						<AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
+						<AvatarImage src={session.user.image.startsWith("https://lh3.googleusercontent.com") ? session.user.image : `${env.NEXT_PUBLIC_S3_ENDPOINT}/${session.user.image}`} alt={session.user.name || ""} />
 						<AvatarFallback>
 							{session.user.name
 								? session.user.name.charAt(0).toUpperCase()

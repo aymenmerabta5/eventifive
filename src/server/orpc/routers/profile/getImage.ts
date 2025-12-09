@@ -44,7 +44,12 @@ export const getProfileImageRouter = protectedProcedure
 				});
 			}
 
-			// Generate presigned download URL
+			if (userProfile.image.startsWith("https://lh3.googleusercontent.com")) {
+				return {
+					downloadUrl: userProfile.image,
+					expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+				}
+			}
 			const { downloadUrl, expiresAt } = await generatePresignedDownloadUrl(userProfile.image);
 
 			return {

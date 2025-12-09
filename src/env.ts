@@ -37,7 +37,6 @@ export const env = createEnv({
     ARCJET_API: z.string().min(1),
     
     // Cloudflare R2
-    S3_ENDPOINT: z.string().url(),
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     S3_BUCKET_NAME: z.string().min(1),
@@ -61,6 +60,7 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string().min(1)
         : z.string().min(1).optional(),
+    NEXT_PUBLIC_S3_ENDPOINT: z.string().url(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -82,7 +82,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK: process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK,
     ARCJET_API: process.env.ARCJET_API,
-    S3_ENDPOINT: process.env.S3_ENDPOINT,
+    NEXT_PUBLIC_S3_ENDPOINT: process.env.NEXT_PUBLIC_S3_ENDPOINT,
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
