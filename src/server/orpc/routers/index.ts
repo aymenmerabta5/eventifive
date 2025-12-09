@@ -10,6 +10,8 @@ import { websocketsRouter } from "./websockets";
 import { listEventsRouter } from "./listEvents";
 import { listEventsByTypeRouter } from "./listEventsByType";
 import { myEventsRouter } from "./myEvents";
+import { paymentRouter } from "./payment";
+import { subscriptionRouter } from "./subscription";
 
 export const appRouter = {
 	profileRouter,
@@ -23,6 +25,8 @@ export const appRouter = {
 	listEventsRouter,
 	listEventsByTypeRouter,
 	myEventsRouter,
+	paymentRouter,
+	subscriptionRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

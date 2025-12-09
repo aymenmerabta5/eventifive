@@ -69,6 +69,18 @@ export const paymentStatusEnum = pgEnum("payment_status", [
   "refunded",
 ]);
 
+export const billingPeriodEnum = pgEnum("billing_period", [
+  "monthly",
+  "yearly",
+]);
+
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "pending",
+  "active",
+  "cancelled",
+  "expired",
+]);
+
 // ---------------------------
 // USERS, ROLES, AUTH
 // ---------------------------
@@ -350,6 +362,56 @@ export const workshopRegistration = pgTable("workshop_registration", {
 });
 
 // ---------------------------
+// SUBSCRIPTION PLANS & PRICING
+// ---------------------------
+export const subscriptionPlan = pgTable("subscription_plan", {
+  id: text("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 255 }).notNull(),
+  description: text("description"),
+  features: jsonb("features").$type<string[]>(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  chargilyProductId: varchar("chargily_product_id", { length: 100 }),
+  chargilySyncedAt: timestamp("chargily_synced_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const subscriptionPrice = pgTable("subscription_price", {
+  id: text("id").primaryKey(),
+  planId: text("plan_id")
+    .notNull()
+    .references(() => subscriptionPlan.id, { onDelete: "cascade" }),
+  billingPeriod: billingPeriodEnum("billing_period").notNull(),
+  amountCents: integer("amount_cents").notNull(),
+  currency: varchar("currency", { length: 10 }).notNull().default("DZD"),
+  chargilyPriceId: varchar("chargily_price_id", { length: 100 }),
+  chargilySyncedAt: timestamp("chargily_synced_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const userSubscription = pgTable("user_subscription", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  planId: text("plan_id")
+    .notNull()
+    .references(() => subscriptionPlan.id),
+  priceId: text("price_id")
+    .notNull()
+    .references(() => subscriptionPrice.id),
+  status: subscriptionStatusEnum("status").notNull().default("pending"),
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+  cancelledAt: timestamp("cancelled_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ---------------------------
 // EVENT REGISTRATION & PAYMENT
 // ---------------------------
 export const eventRegistration = pgTable("event_registration", {
@@ -372,13 +434,26 @@ export const eventRegistration = pgTable("event_registration", {
 
 export const payment = pgTable("payment", {
   id: text("id").primaryKey(),
-  registrationId: integer("registration_id")
+  // Either for event registration or subscription (one should be set)
+  registrationId: integer("registration_id").references(
+    () => eventRegistration.id,
+    { onDelete: "cascade" }
+  ),
+  subscriptionId: text("subscription_id").references(
+    () => userSubscription.id,
+    { onDelete: "cascade" }
+  ),
+  userId: text("user_id")
     .notNull()
-    .references(() => eventRegistration.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   amountCents: integer("amount_cents").notNull(),
   currency: varchar("currency", { length: 10 }).notNull().default("DZD"),
   status: paymentStatusEnum("status").notNull().default("pending"),
-  provider: varchar("provider", { length: 100 }),
+  provider: varchar("provider", { length: 100 }).notNull().default("chargily"),
+  // Chargily-specific fields
+  chargilyCheckoutId: varchar("chargily_checkout_id", { length: 100 }),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  failureReason: text("failure_reason"),
   providerData: jsonb("provider_data"),
   paidAt: timestamp("paid_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -444,6 +519,26 @@ export type NewConversation = InferInsertModel<typeof conversations>;
 export type Message = InferSelectModel<typeof messages>;
 export type NewMessage = InferInsertModel<typeof messages>;
 
+// Subscription plan types
+export type SubscriptionPlan = InferSelectModel<typeof subscriptionPlan>;
+export type NewSubscriptionPlan = InferInsertModel<typeof subscriptionPlan>;
+
+// Subscription price types
+export type SubscriptionPrice = InferSelectModel<typeof subscriptionPrice>;
+export type NewSubscriptionPrice = InferInsertModel<typeof subscriptionPrice>;
+
+// User subscription types
+export type UserSubscription = InferSelectModel<typeof userSubscription>;
+export type NewUserSubscription = InferInsertModel<typeof userSubscription>;
+
+// Payment types
+export type Payment = InferSelectModel<typeof payment>;
+export type NewPayment = InferInsertModel<typeof payment>;
+
+// Event registration types
+export type EventRegistration = InferSelectModel<typeof eventRegistration>;
+export type NewEventRegistration = InferInsertModel<typeof eventRegistration>;
+
 // ---------------------------
 // ENUM VALUE ARRAYS (for use in zod schemas and UI)
 // ---------------------------
@@ -455,6 +550,8 @@ export const fileTypeValues = fileTypeEnum.enumValues;
 export const fileStatusValues = fileStatusEnum.enumValues;
 export const paymentStatusValues = paymentStatusEnum.enumValues;
 export const roleValues = rolesEnum.enumValues;
+export const billingPeriodValues = billingPeriodEnum.enumValues;
+export const subscriptionStatusValues = subscriptionStatusEnum.enumValues;
 
 // Enum types (union types derived from the arrays)
 export type EventType = (typeof eventTypeValues)[number];
@@ -465,3 +562,5 @@ export type FileType = (typeof fileTypeValues)[number];
 export type FileStatus = (typeof fileStatusValues)[number];
 export type PaymentStatus = (typeof paymentStatusValues)[number];
 export type Role = (typeof roleValues)[number];
+export type BillingPeriod = (typeof billingPeriodValues)[number];
+export type SubscriptionStatus = (typeof subscriptionStatusValues)[number];

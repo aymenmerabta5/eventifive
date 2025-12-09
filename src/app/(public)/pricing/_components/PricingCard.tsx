@@ -2,83 +2,143 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "motion/react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { orpc } from "@/utils/orpc";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import type { PlanOutput } from "@/lib/schemas/payment";
 
-interface Feature {
-  text: string;
-  included?: boolean;
+function formatPrice(amountCents: number): string {
+  return (amountCents).toLocaleString("fr-DZ");
 }
 
-interface PricingTier {
-  name: string;
-  description: string;
-  monthlyPrice: string;
-  yearlyPrice: string;
-  buttonText: string;
-  buttonVariant: "default" | "secondary" | "outline";
-  features: Feature[];
-  popular?: boolean;
+function PricingCardSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {[1, 2, 3].map((i) => (
+        <Card key={i} className="relative flex flex-col animate-pulse">
+          <CardHeader className="space-y-4">
+            <div className="h-8 bg-muted rounded w-24" />
+            <div className="h-16 bg-muted rounded" />
+            <div className="h-12 bg-muted rounded w-32" />
+          </CardHeader>
+          <CardContent className="flex-1 space-y-6">
+            <div className="h-10 bg-muted rounded" />
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((j) => (
+                <div key={j} className="h-6 bg-muted rounded" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }
 
-const pricingTiers: PricingTier[] = [
-  {
-    name: "Basic",
-    description: "Perfect for trying out our event generator.",
-    monthlyPrice: "1000",
-    yearlyPrice: "9000",
-    buttonText: "Get started",
-    buttonVariant: "outline",
-    features: [
-      { text: "Up to 10 events per month", included: true },
-      { text: "Basic event templates", included: true },
-      { text: "Email support", included: true },
-      { text: "Event analytics", included: false },
-      { text: "Custom branding", included: false },
-      { text: "API access", included: false },
-      { text: "Priority support", included: false },
-    ],
-  },
-  {
-    name: "Standard",
-    description: "Perfect for small businesses and organizations that require a more comprehensive event management solution.",
-    monthlyPrice: "9.99",
-    yearlyPrice: "8.49",
-    buttonText: "Get started",
-    buttonVariant: "default",
-    features: [
-      { text: "Up to 100 events per month", included: true },
-      { text: "Premium event templates", included: true },
-      { text: "Priority email support", included: true },
-      { text: "Advanced event analytics", included: true },
-      { text: "Custom branding", included: true },
-      { text: "API access", included: false },
-      { text: "Dedicated account manager", included: false },
-    ],
-    popular: true,
-  },
-  {
-    name: "Premium",
-    description: "Perfect for large businesses and organizations that require a fully customizable event management solution.",
-    monthlyPrice: "2000",
-    yearlyPrice: "18000",
-    buttonText: "Contact sale",
-    buttonVariant: "outline",
-    features: [
-      { text: "Unlimited events", included: true },
-      { text: "All premium templates", included: true },
-      { text: "24/7 phone & email support", included: true },
-      { text: "Real-time analytics & reporting", included: true },
-      { text: "Full custom branding", included: true },
-      { text: "Full API access", included: true },
-      { text: "Dedicated account manager", included: true },
-    ],
-  },
-];
-
-export default function PracingCard() {
+export default function PricingCard() {
   const [isYearly, setIsYearly] = useState(false);
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
+
+  // Fetch plans from database
+  const {
+    data: plans,
+    isLoading,
+    error,
+  } = useQuery(
+    orpc.subscriptionRouter.list.queryOptions({
+      input: { includeInactive: false },
+    })
+  );
+
+  // Create checkout mutation
+  const createCheckout = useMutation({
+    mutationFn: async (priceId: string) => {
+      const result = await orpc.paymentRouter.createCheckout.call({
+        priceId,
+      });
+      return result;
+    },
+    onSuccess: (data) => {
+      // Redirect to Chargily checkout page
+      window.location.href = data.checkoutUrl;
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create checkout");
+      setLoadingPriceId(null);
+    },
+  });
+
+  const handleSubscribe = async (plan: PlanOutput) => {
+    const price = plan.prices.find(
+      (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly")
+    );
+
+    if (!price) {
+      toast.error("Price not available for this billing period");
+      return;
+    }
+
+    // Check if price is synced to Chargily
+    if (!price.chargilyPriceId) {
+      toast.error("This plan is not yet available for purchase");
+      return;
+    }
+
+    // If not logged in, redirect to login with return URL
+    if (!session?.user) {
+      const returnUrl = `/pricing?priceId=${price.id}&yearly=${isYearly}`;
+      router.push(`/login?returnTo=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+
+    // Create checkout
+    setLoadingPriceId(price.id);
+    createCheckout.mutate(price.id);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-7xl mx-auto p-4 space-y-7">
+        <div className="flex items-center justify-center gap-4">
+          <div className="h-12 w-48 bg-muted rounded-full animate-pulse" />
+        </div>
+        <PricingCardSkeleton />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-7xl mx-auto p-4 text-center">
+        <p className="text-destructive">
+          Failed to load pricing plans. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  if (!plans || plans.length === 0) {
+    return (
+      <div className="w-full max-w-7xl mx-auto p-4 text-center">
+        <p className="text-muted-foreground">
+          No pricing plans available at the moment.
+        </p>
+      </div>
+    );
+  }
+
+  // Sort plans by sortOrder
+  const sortedPlans = [...plans].sort((a, b) => a.sortOrder - b.sortOrder);
+
+  // Mark middle plan as popular (if 3 plans)
+  const popularIndex = sortedPlans.length === 3 ? 1 : -1;
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 space-y-7">
@@ -89,7 +149,7 @@ export default function PracingCard() {
             initial={false}
             animate={{
               x: isYearly ? "calc(100% + 8px)" : "4px",
-              width: isYearly ? "88px" : "88px"
+              width: isYearly ? "88px" : "88px",
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
@@ -117,81 +177,96 @@ export default function PracingCard() {
       </div>
       <div className="text-center">
         <span className="text-sm text-muted-foreground">
-          Save up to 15% by paying yearly
+          Save up to 25% by paying yearly
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {pricingTiers.map((tier, index) => (
-        <Card
-          key={index}
-          className={`relative flex flex-col ${
-            tier.popular
-              ? "border-primary shadow-lg scale-105 bg-background/70 backdrop-blur-sm"
-              : "border-border "
-          }`}
-        >
-          {tier.popular && (
-            <div className="absolute -top-3 right-6">
-              <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                Popular
-              </span>
-            </div>
-          )}
-          
-          <CardHeader className="space-y-4">
-            <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
-            <p className="text-sm text-muted-foreground min-h-[60px]">
-              {tier.description}
-            </p>
-            
-            <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold">
-                {isYearly ? tier.yearlyPrice : tier.monthlyPrice}
-              </span>
-              <span className="text-2xl font-medium text-muted-foreground">DA</span>
-                  {isYearly ? <span className="text-muted-foreground">/year</span> 
-                    : <span className="text-muted-foreground">/month</span>}
-            </div>
-          </CardHeader>
+        {sortedPlans.map((plan, index) => {
+          const isPopular = index === popularIndex;
+          const price = plan.prices.find(
+            (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly")
+          );
+          const isLoading = loadingPriceId === price?.id;
+          const isAvailable = !!price?.chargilyPriceId;
 
-          <CardContent className="flex-1 space-y-6">
-            <Button
-              variant={tier.buttonVariant}
-              className={`w-full ${
-                tier.popular ? "bg-primary hover:bg-primary/90" : ""
+          return (
+            <Card
+              key={plan.id}
+              className={`relative flex flex-col ${
+                isPopular
+                  ? "border-primary shadow-lg scale-105 bg-background/70 backdrop-blur-sm"
+                  : "border-border"
               }`}
             >
-              {tier.buttonText}
-            </Button>
-
-            <div className="space-y-3">
-              {tier.features.map((feature, featureIndex) => (
-                <div key={featureIndex} className="flex items-start gap-3">
-                  <div className={`rounded-full p-1 mt-0.5 ${
-                    feature.included !== false
-                      ? "bg-primary/10"
-                      : "bg-muted"
-                  }`}>
-                    {feature.included !== false ? (
-                      <Check className="h-4 w-4 text-primary" />
-                    ) : (
-                      <X className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                  <span className={`text-sm flex-1 ${
-                    feature.included !== false
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}>
-                    {feature.text}
+              {isPopular && (
+                <div className="absolute -top-3 right-6">
+                  <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                    Popular
                   </span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+              )}
+
+              <CardHeader className="space-y-4">
+                <CardTitle className="text-2xl font-bold">
+                  {plan.displayName}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground min-h-[60px]">
+                  {plan.description}
+                </p>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold">
+                    {price ? formatPrice(price.amountCents) : "N/A"}
+                  </span>
+                  <span className="text-2xl font-medium text-muted-foreground">
+                    DA
+                  </span>
+                  {isYearly ? (
+                    <span className="text-muted-foreground">/year</span>
+                  ) : (
+                    <span className="text-muted-foreground">/month</span>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent className="flex-1 space-y-6">
+                <Button
+                  variant={isPopular ? "default" : "outline"}
+                  className={`w-full ${
+                    isPopular ? "bg-primary hover:bg-primary/90" : ""
+                  }`}
+                  onClick={() => handleSubscribe(plan)}
+                  disabled={isLoading || !isAvailable}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : !isAvailable ? (
+                    "Coming Soon"
+                  ) : (
+                    "Get Started"
+                  )}
+                </Button>
+
+                <div className="space-y-3">
+                  {plan.features?.map((feature, featureIndex) => (
+                    <div key={featureIndex} className="flex items-start gap-3">
+                      <div className="rounded-full p-1 mt-0.5 bg-primary/10">
+                        <Check className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="text-sm flex-1 text-foreground">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

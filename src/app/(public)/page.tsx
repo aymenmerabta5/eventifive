@@ -4,7 +4,7 @@
 import { Suspense } from "react";
 import { Hero } from "./_components/Hero";
 import WhoWeAre from "./_components/WhoWeAre";
-import About from "./_components/about";
+import About from "./_components/About";
 import Platform from "./_components/Platform";
 import GradientTransition from "./_components/GradientTransition";
 import Loader from "@/components/loader";

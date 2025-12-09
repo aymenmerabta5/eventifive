@@ -29,6 +29,13 @@
       "when": 1764540707523,
       "tag": "0003_mute_blob",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1765280485649,
+      "tag": "0004_absent_black_knight",
+      "breakpoints": true
     }
   ]
 }
