@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cd:*)",
       "Bash(pnpm typecheck:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(pnpm tsc:*)"
     ],
     "deny": [],
     "ask": []

@@ -9,29 +9,22 @@ import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { useRef, useState } from "react";
-import { queryClient } from "@/utils/orpc";
 import { useRouter } from "next/navigation";
+import { useProfileImage } from "@/hooks/use-profile-image";
 
 interface ProfileInfoProps {
   user: typeof authClient.$Infer.Session.user;
 }
 
 export default function ProfileInfo({ user }: ProfileInfoProps) {
+  const { imageUrl, isLoading: isLoadingImage, invalidateImage } = useProfileImage();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  const { data: imageData, isLoading: isLoadingImage } = useQuery(orpc.profile.getImage.queryOptions({
-    input: { userId: user?.id },
-    queryKey: ["profile.getImage", user?.id],
-    enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-  }));
 
   const { mutate: updateProfile } = useMutation(
     orpc.profile.update.mutationOptions({
@@ -93,9 +86,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       await authClient.getSession({
         query: { disableCookieCache: true, forceRefresh: true },
       });
-      queryClient.invalidateQueries({
-        queryKey: ["profile.getImage", user?.id],
-      });
+      invalidateImage();
       router.refresh();
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -153,9 +144,9 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             <div className="absolute -inset-1 rounded-full bg-linear-to-br from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
             <Avatar className="relative h-24 w-24 sm:h-28 sm:w-28 ring-2 ring-border/50 transition-all duration-300 group-hover:ring-primary/30">
-              {user?.image !== "" && (
+              {user?.image && imageUrl && (
                 <AvatarImage
-                  src={user?.image ? imageData?.downloadUrl : ""}
+                  src={imageUrl}
                   alt={user?.name || "Profile"}
                   className="object-cover"
                 />
