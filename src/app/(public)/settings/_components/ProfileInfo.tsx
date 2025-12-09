@@ -2,7 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { User, BookTextIcon, Camera, Loader2 } from "lucide-react";
+import { User, BookTextIcon, Camera, Loader2, Upload } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { authClient } from "@/lib/auth-client";
@@ -14,28 +14,21 @@ import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { useRef, useState } from "react";
 
-
 interface ProfileInfoProps {
   user: typeof authClient.$Infer.Session.user;
 }
 
 export default function ProfileInfo({ user }: ProfileInfoProps) {
- 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
- 
   const { data: profileImage, isLoading: isLoadingImage } = useQuery({
     queryKey: ["getProfileImageRouter", user?.id],
     queryFn: () => client.getProfileImageRouter({ userId: user?.id }),
-    // Only fetch if user exists
     enabled: !!user?.id,
-    // Keep the image URL fresh for 5 minutes
     staleTime: 5 * 60 * 1000,
-    // Don't show error toast for "no image" case
     retry: false,
   });
-
 
   const { mutate: updateProfile } = useMutation(
     orpc.profileRouter.mutationOptions({
@@ -48,63 +41,54 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
     })
   );
 
- 
   const handleImageUpload = async (file: File) => {
-    // VALIDATE file before upload
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Please upload a valid image (JPEG, PNG, GIF, or WebP)");
       return;
     }
-  
-    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error("Image must be less than 5MB");
       return;
     }
-  
+
     setIsUploading(true);
-  
+
     try {
-      // Build FormData
       const formData = new FormData();
       formData.append("file", file);
-  
-  
+
       const response = await fetch("/api/upload-image", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
-  
-      // SAFELY read response (supports dev overlay double-read)
+
       let responseText = "";
       let responseData: any = null;
-  
+
       try {
         responseText = await response.clone().text();
         responseData = JSON.parse(responseText);
       } catch {
         responseData = null;
       }
-  
+
       if (!response.ok) {
         const errorMessage =
           responseData?.message ||
           responseText ||
           response.statusText ||
           "Failed to upload image";
-  
         throw new Error(errorMessage);
       }
-  
+
       toast.success("Profile image updated successfully!");
-  
-      // Refresh image immediately
       queryClient.invalidateQueries({
         queryKey: ["getProfileImageRouter"],
       });
-  
     } catch (error: any) {
       console.error("Upload error:", error);
       toast.error(error.message || "Failed to upload image");
@@ -112,18 +96,14 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       setIsUploading(false);
     }
   };
-  
 
-  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       handleImageUpload(file);
     }
-    // Reset the input so the same file can be selected again
     e.target.value = "";
   };
-
 
   const userInitials =
     user?.name
@@ -139,7 +119,6 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       biography: (user as any).biography || undefined,
     },
-
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
@@ -151,44 +130,50 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   });
 
   return (
-    <>
-      
-      <div className="flex flex-col items-center gap-4 pb-8">
-        <div className="relative group">
-         
-          <Avatar className="h-28 w-28 ring-4 ring-primary/20 transition-all group-hover:ring-primary/40">
-            {profileImage?.downloadUrl && (
-              <AvatarImage
-                src={profileImage.downloadUrl}
-                alt={user?.name || "Profile"}
-                className="object-cover"
-              />
-            )}
-            <AvatarFallback className="bg-linear-to-br from-primary to-primary/80 text-primary-foreground text-2xl font-bold">
-              {isLoadingImage ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
-                userInitials
+    <div className="space-y-8">
+      {/* TEACHING: Profile Photo Section
+          Using a horizontal layout with photo on left, info on right
+          Creates visual hierarchy and uses space more efficiently */}
+      <div className="flex flex-col sm:flex-row sm:items-start gap-6 pb-8 border-b border-border/50">
+        {/* Avatar with upload overlay */}
+        <div className="relative group shrink-0">
+          <div className="relative">
+            {/* Decorative ring */}
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <Avatar className="relative h-24 w-24 sm:h-28 sm:w-28 ring-2 ring-border/50 transition-all duration-300 group-hover:ring-primary/30">
+              {profileImage?.downloadUrl && (
+                <AvatarImage
+                  src={profileImage.downloadUrl}
+                  alt={user?.name || "Profile"}
+                  className="object-cover"
+                />
               )}
-            </AvatarFallback>
-          </Avatar>
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xl sm:text-2xl font-semibold">
+                {isLoadingImage ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  userInitials
+                )}
+              </AvatarFallback>
+            </Avatar>
 
-        
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
-            aria-label="Change profile picture"
-          >
-            {isUploading ? (
-              <Loader2 className="h-8 w-8 text-white animate-spin" />
-            ) : (
-              <Camera className="h-8 w-8 text-white" />
-            )}
-          </button>
+            {/* Upload overlay */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 opacity-0 transition-all duration-200 group-hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
+              aria-label="Change profile picture"
+            >
+              {isUploading ? (
+                <Loader2 className="h-6 w-6 text-white animate-spin" />
+              ) : (
+                <Camera className="h-6 w-6 text-white" />
+              )}
+            </button>
+          </div>
 
-         
           <input
             ref={fileInputRef}
             type="file"
@@ -199,16 +184,46 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
           />
         </div>
 
-        
+        {/* Photo info and upload button */}
+        <div className="flex-1 space-y-3">
+          <div>
+            <h3 className="font-medium text-foreground">Profile Photo</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              This will be displayed on your profile and in comments.
+            </p>
+          </div>
+          
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border/50 bg-background hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4" />
+                Upload new photo
+              </>
+            )}
+          </button>
+          
+        </div>
       </div>
 
+      {/* TEACHING: Form Section
+          Using a clean, spacious form layout with clear visual hierarchy */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
-        className="border-border space-y-4 border-t pt-8"
+        className="space-y-6"
       >
         {/* Full Name Field */}
         <form.Field name="name">
@@ -216,9 +231,9 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             <div className="space-y-2">
               <Label
                 htmlFor={field.name}
-                className="flex items-center gap-2 text-sm font-medium"
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
               >
-                <User className="size-4" />
+                <User className="size-4 text-muted-foreground" />
                 Full Name
               </Label>
               <Input
@@ -229,39 +244,52 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 placeholder="Enter your full name"
-                className="w-full"
+                className="h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
               />
+              <p className="text-xs text-muted-foreground">
+                This is how your name will appear across the platform.
+              </p>
             </div>
           )}
         </form.Field>
+
+        {/* Biography Field */}
         <form.Field name="biography">
           {(field) => (
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-sm font-medium">
-                <BookTextIcon className="size-4" /> Biography
+              <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <BookTextIcon className="size-4 text-muted-foreground" />
+                Biography
               </Label>
-              <Editor
-                content={user.biography as unknown as JSONContent}
-                value={field.state.value}
-                onChange={(value) => field.handleChange(value)}
-              />
+              <div className="rounded-lg border border-border/50 bg-background/50 overflow-hidden focus-within:border-primary/50 transition-colors">
+                <Editor
+                  content={user.biography as unknown as JSONContent}
+                  value={field.state.value}
+                  onChange={(value) => field.handleChange(value)}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Tell others about yourself. This will be visible on your public profile.
+              </p>
             </div>
           )}
         </form.Field>
 
         {/* Submit Button */}
-        <form.Subscribe>
-          {(state) => (
-            <StatefulButton
-              type="submit"
-              className="mt-6 h-11 w-full rounded-4xl cursor-pointer"
-              disabled={!state.canSubmit || state.isSubmitting}
-            >
-              {state.isSubmitting ? "Updating..." : "Update Profile"}
-            </StatefulButton>
-          )}
-        </form.Subscribe>
+        <div className="flex justify-end pt-4 border-t border-border/50">
+          <form.Subscribe>
+            {(state) => (
+              <StatefulButton
+                type="submit"
+                className="h-11 px-8 rounded-lg font-medium cursor-pointer"
+                disabled={!state.canSubmit || state.isSubmitting}
+              >
+                {state.isSubmitting ? "Saving changes..." : "Save changes"}
+              </StatefulButton>
+            )}
+          </form.Subscribe>
+        </div>
       </form>
-    </>
+    </div>
   );
 }
