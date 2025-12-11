@@ -49,6 +49,13 @@ export default async function EventDetailPage({
 			minute: "2-digit",
 		});
 	};
+
+	const now = new Date();
+	const eventStart = new Date(event.startDate);
+	const delayDate = new Date();
+	delayDate.setDate(now.getDate() + 7);
+	const isEventMoreThan7DaysAway = eventStart > delayDate;
+
 	return (
 		<main className="relative min-h-screen bg-slate-50 dark:bg-slate-950">
 			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -184,7 +191,7 @@ export default async function EventDetailPage({
 						</dl>
 					</section>
 				</article>
-				<ParticipationOptions />
+				{isEventMoreThan7DaysAway && <ParticipationOptions />}
 			</div>
 		</main>
 	);
