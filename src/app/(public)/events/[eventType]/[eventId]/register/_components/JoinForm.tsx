@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -10,26 +10,26 @@ import { client } from "@/utils/orpc";
 import { toast } from "sonner";
 
 interface JoinFormProps {
-	eventId: string;
+  eventId: string;
 }
 
 export default function JoinForm({ eventId }: JoinFormProps) {
-	const { data: session, isPending } = authClient.useSession();
-	const user = session?.user;
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [researchDomain, setResearchDomain] = useState("");
-	const [file, setFile] = useState<File | null>(null);
-	const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [researchDomain, setResearchDomain] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-	useEffect(() => {
-		if (!user) return;
+  useEffect(() => {
+    if (!user) return;
 
-		setName(user.name ?? "");
-		setEmail(user.email ?? "");
-		setResearchDomain((user as any).researchDomain ?? "");
-	}, [user]);
+    setName(user.name ?? "");
+    setEmail(user.email ?? "");
+    setResearchDomain((user as any).researchDomain ?? "");
+  }, [user]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] ?? null;
@@ -92,7 +92,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
 
   if (isPending || !user) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center px-4">
+      <div className="bg-gradient-to-b from-background via-muted/60 to-background flex min-h-screen items-center justify-center px-4">
         <p className="text-muted-foreground text-sm">
           Loading your information...
         </p>
@@ -101,93 +101,115 @@ export default function JoinForm({ eventId }: JoinFormProps) {
   }
 
   return (
-    <div className="bg-background min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-3xl space-y-8">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            Submit committee registration
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-            Share your details and upload your supporting file so we can review
-            your application for the committee.
-          </p>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-background via-muted/60 to-background">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(16,185,129,0.12),_transparent_55%)]" />
 
-        <Card className="border-border/60 shadow-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base font-semibold">
-              Your information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
+        <div className="w-full max-w-3xl space-y-8">
+          <div className="space-y-3 text-center">
+            <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              Submit committee registration
+            </h1>
+            <p className="text-balance text-sm text-muted-foreground sm:text-base">
+              Share your details and upload your supporting file so we can review your application for the committee.
+            </p>
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={email}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="researchDomain">Research domain</Label>
-                <Input
-                  id="researchDomain"
-                  name="researchDomain"
-                  type="text"
-                  value={researchDomain}
-                  onChange={(event) => setResearchDomain(event.target.value)}
-                  placeholder="Enter your research domain or area of expertise"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="file">Upload file</Label>
-                <Input
-                  id="file"
-                  name="file"
-                  type="file"
-                  onChange={handleFileChange}
-                />
-                {file && (
-                  <p className="text-xs text-muted-foreground">
-                    Selected file: {file.name}
-                  </p>
-                )}
-                {!file && (
-                  <p className="text-xs text-muted-foreground">
-                    You can upload publication list, or any relevant document.
-                  </p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting}
+          <Card className="border-border/60 bg-background/80 shadow-xl shadow-black/5 backdrop-blur">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center justify-between text-base font-semibold">
+                <span>Your information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-6"
+                noValidate
               >
-                {isSubmitting ? "Submitting..." : "Submit registration"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      placeholder="Enter your full name"
+                      autoComplete="name"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={email}
+                      readOnly
+                      className="bg-muted/60"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      We&apos;ll use this email to contact you about your application.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="researchDomain">Research domain</Label>
+                  <Input
+                    id="researchDomain"
+                    name="researchDomain"
+                    type="text"
+                    value={researchDomain}
+                    onChange={(event) => setResearchDomain(event.target.value)}
+                    placeholder="Your research domain or area of expertise"
+                    autoComplete="organization-title"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Example: Artificial Intelligence, Human-Computer
+                    Interaction, Data Science…
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="file">Upload supporting file</Label>
+                  <Input
+                    id="file"
+                    name="file"
+                    type="file"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                  />
+                  {file && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected file:{" "}
+                      <span className="font-medium text-foreground">
+                        {file.name}
+                      </span>
+                    </p>
+                  )}
+                  {!file && (
+                    <p className="text-xs text-muted-foreground">
+                      You can upload a publication list, or any relevant document.
+                    </p>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto sm:min-w-[220px]"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit registration"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
