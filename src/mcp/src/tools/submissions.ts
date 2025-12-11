@@ -16,7 +16,7 @@ import {
 export function registerSubmissionTools(server: McpServer) {
   // Create a single submission
   server.registerTool(
-    "create_submission",
+    "eventifive_create_submission",
     {
       description: "Create a test submission for an event",
       inputSchema: z.object({
@@ -155,7 +155,7 @@ export function registerSubmissionTools(server: McpServer) {
 
   // Create multiple submissions
   server.registerTool(
-    "create_submissions_bulk",
+    "eventifive_create_submissions_bulk",
     {
       description: "Create multiple test submissions for an event",
       inputSchema: z.object({
@@ -284,7 +284,7 @@ export function registerSubmissionTools(server: McpServer) {
 
   // List submissions for an event
   server.registerTool(
-    "list_submissions",
+    "eventifive_list_submissions",
     {
       description: "List submissions for an event",
       inputSchema: z.object({

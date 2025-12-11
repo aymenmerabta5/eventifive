@@ -9,7 +9,7 @@ import { hashPassword } from "../utils/password.js";
 export function registerUserTools(server: McpServer) {
   // Create a single user
   server.registerTool(
-    "create_user",
+    "eventifive_create_user",
     {
       description: "Create a test user with email/password authentication",
       inputSchema: z.object({
@@ -89,7 +89,7 @@ export function registerUserTools(server: McpServer) {
 
   // Create multiple users at once
   server.registerTool(
-    "create_users_bulk",
+    "eventifive_create_users_bulk",
     {
       description: "Create multiple test users at once",
       inputSchema: z.object({
@@ -176,7 +176,7 @@ export function registerUserTools(server: McpServer) {
 
   // List existing users
   server.registerTool(
-    "list_users",
+    "eventifive_list_users",
     {
       description: "List existing users in the database",
       inputSchema: z.object({

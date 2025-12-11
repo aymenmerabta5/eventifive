@@ -15,7 +15,7 @@ import {
 export function registerReviewTools(server: McpServer) {
   // Create a review for a submission
   server.registerTool(
-    "create_review",
+    "eventifive_create_review",
     {
       description: "Create a review for a submission",
       inputSchema: z.object({
@@ -152,7 +152,7 @@ export function registerReviewTools(server: McpServer) {
 
   // Create multiple reviews for submissions
   server.registerTool(
-    "create_reviews_for_event",
+    "eventifive_create_reviews_for_event",
     {
       description: "Create reviews for all submissions of an event",
       inputSchema: z.object({
@@ -289,7 +289,7 @@ export function registerReviewTools(server: McpServer) {
 
   // List reviews for a submission
   server.registerTool(
-    "list_reviews",
+    "eventifive_list_reviews",
     {
       description: "List reviews for a submission",
       inputSchema: z.object({

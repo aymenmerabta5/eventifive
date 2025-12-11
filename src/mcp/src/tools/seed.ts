@@ -20,7 +20,7 @@ import { hashPassword } from "../utils/password.js";
 export function registerSeedTools(server: McpServer) {
   // Seed a complete event scenario
   server.registerTool(
-    "seed_complete_event",
+    "eventifive_seed_complete_event",
     {
       description: "Create a complete test scenario with users, an event, submissions, and reviews",
       inputSchema: z.object({
@@ -244,7 +244,7 @@ export function registerSeedTools(server: McpServer) {
 
   // Quick seed for testing
   server.registerTool(
-    "quick_seed",
+    "eventifive_quick_seed",
     {
       description: "Create minimal test data: 1 user, 1 event, 1 submission",
       inputSchema: z.object({

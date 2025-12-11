@@ -9,7 +9,7 @@ import { event, user, eventTypeValues } from "../schema.js";
 export function registerEventTools(server: McpServer) {
   // Create a single event
   server.registerTool(
-    "create_event",
+    "eventifive_create_event",
     {
       description: "Create a test event",
       inputSchema: z.object({
@@ -116,7 +116,7 @@ export function registerEventTools(server: McpServer) {
 
   // List existing events
   server.registerTool(
-    "list_events",
+    "eventifive_list_events",
     {
       description: "List existing events in the database",
       inputSchema: z.object({
@@ -170,7 +170,7 @@ export function registerEventTools(server: McpServer) {
 
   // Get event details
   server.registerTool(
-    "get_event",
+    "eventifive_get_event",
     {
       description: "Get details of a specific event",
       inputSchema: z.object({
