@@ -40,7 +40,11 @@ const httpLink = new RPCLink({
 	},
 });
 
-const websocket = new WebSocket(`ws://${env.NEXT_PUBLIC_WEBSOCKET_URL}`);
+// Handle both full URLs (ws://host:port) and host:port format
+const websocketUrl = env.NEXT_PUBLIC_WEBSOCKET_URL.startsWith('ws://') || env.NEXT_PUBLIC_WEBSOCKET_URL.startsWith('wss://')
+	? env.NEXT_PUBLIC_WEBSOCKET_URL
+	: `ws://${env.NEXT_PUBLIC_WEBSOCKET_URL}`;
+const websocket = new WebSocket(websocketUrl);
 
 const webSocketLink = new WebSocketRPCLink({
 	websocket

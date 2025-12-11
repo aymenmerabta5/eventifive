@@ -93,7 +93,7 @@ NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK="your-turnstile-public-key"
 ARCJET_API="your-arcjet-key"
 
 # File Storage (Cloudflare R2)
-S3_ENDPOINT="https://your-account-id.r2.cloudflarestorage.com"
+NEXT_PUBLIC_S3_ENDPOINT="https://your-account-id.r2.cloudflarestorage.com"
 S3_BUCKET_NAME="your-bucket-name"
 AWS_ACCESS_KEY_ID="your-r2-access-key"
 AWS_SECRET_ACCESS_KEY="your-r2-secret-key"
