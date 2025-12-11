@@ -1,9 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
-import { IconMicrophone, IconUsers, IconPresentation } from "@tabler/icons-react";
+import { IconMicrophone, IconUsers, IconPresentation, IconUpload } from "@tabler/icons-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function ParticipationOptions() {
+	const { eventType, eventId } = useParams<{ eventType: string; eventId: string }>();
+
 	return (
 		<section className="mt-16">
 			<div className="mb-12">
@@ -86,9 +90,14 @@ export default function ParticipationOptions() {
 						<p className="text-muted-foreground mb-6 text-sm leading-relaxed">
 							We invite dedicated professionals and leaders who can contribute to organizing committees, scientific committees, or program committees to help shape the event's content, review submissions, and ensure its success.
 						</p>
-						<button className="w-full rounded-lg border-2 border-border bg-background px-6 py-3 text-sm font-semibold uppercase tracking-wider text-foreground shadow-sm transition-all hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md">
-							Join Committers
-						</button>
+						<div className="mt-10 flex justify-center">
+							<Link
+								href={`/events/${eventType}/${eventId}/register`}
+								className="inline-flex w-full max-w-xs items-center justify-center rounded-lg border-2 border-border bg-background px-6 py-3 text-sm font-semibold uppercase tracking-wider text-foreground text-center shadow-sm transition-all hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md"
+							>
+								<span>Join Committers</span>
+							</Link>
+						</div>
 					</div>
 				</motion.div>
 			</div>
