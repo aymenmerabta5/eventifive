@@ -1,6 +1,7 @@
+import { notFound } from "next/navigation";
 import EventTypePageClient from "./_components/EventTypePage";
 
-// Map URL eventType to database eventType
+// Map URL eventType to database eventType, tolerating hyphens/underscores and casing
 function mapEventType(
   urlType: string,
 ):
@@ -10,6 +11,7 @@ function mapEventType(
   | "scientific_meeting"
   | "conference"
   | "symposium" {
+  const slug = urlType.toLowerCase().replace(/_/g, "-");
   const mapping: Record<
     string,
     | "congress"
@@ -27,9 +29,9 @@ function mapEventType(
     symposium: "symposium",
   };
 
-  const mapped = mapping[urlType];
+  const mapped = mapping[slug];
   if (!mapped) {
-    throw new Error(`Invalid event type: ${urlType}`);
+    notFound();
   }
   return mapped;
 }
@@ -37,10 +39,14 @@ function mapEventType(
 export default async function EventTypePage({
   params,
 }: {
-  params: { eventType: string };
+  params: Promise<{ eventType: string }>;
 }) {
   const { eventType: eventTypeParam } = await params;
   const eventType = mapEventType(eventTypeParam);
+  if (!eventType) {
+    // Signal 404 for unsupported slugs
+    notFound();
+  }
 
   return (
     <EventTypePageClient

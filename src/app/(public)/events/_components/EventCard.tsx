@@ -3,6 +3,7 @@ import { IconCalendar, IconClock, IconMapPin } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import type { Event } from "@/server/db/schema";
+import Link from "next/link";
 
 type EventCardData = Pick<
   Event,
@@ -33,6 +34,7 @@ export default function EventCard({ event }: EventCardProps) {
     });
     return `${start} - ${end}`;
   };
+  const typeSlug = event.type.replace("_", "-");
 
   return (
     <Card
@@ -87,10 +89,11 @@ export default function EventCard({ event }: EventCardProps) {
           {event.description || "No description available"}
         </p>
         <Button
+          asChild
           className="group-hover:bg-primary group-hover:text-primary-foreground w-full font-semibold transition-colors"
           variant="outline"
         >
-          View Details
+          <Link href={`/events/${typeSlug}/${event.id}`}>View Details</Link>
         </Button>
       </CardContent>
     </Card>
