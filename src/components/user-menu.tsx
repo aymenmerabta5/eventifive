@@ -12,7 +12,7 @@ import { Skeleton } from "./ui/skeleton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { IconSettings, IconLogout } from "@tabler/icons-react";
+import { IconSettings, IconLogout, IconUser } from "@tabler/icons-react";
 import { useProfileImage } from "@/hooks/use-profile-image";
 
 export default function UserMenu() {
@@ -56,6 +56,12 @@ export default function UserMenu() {
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild>
+					<Link href={`/users/${session.user.id}`} className="flex items-center cursor-pointer">
+						<IconUser className="mr-2 h-4 w-4" />
+						<span>View Profile</span>
+					</Link>
+				</DropdownMenuItem>
 				<DropdownMenuItem asChild>
 					<Link href="/settings" className="flex items-center cursor-pointer">
 						<IconSettings className="mr-2 h-4 w-4" />

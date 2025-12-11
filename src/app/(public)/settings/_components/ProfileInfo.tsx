@@ -2,7 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { User, BookTextIcon, Camera, Loader2, Upload, Building2, FlaskConical } from "lucide-react";
+import { User, BookTextIcon, Camera, Loader2, Upload, Building2, FlaskConical, ExternalLink } from "lucide-react";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth-client";
@@ -15,6 +15,8 @@ import type { JSONContent } from "@tiptap/react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProfileImage } from "@/hooks/use-profile-image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface ProfileInfoProps {
   user: typeof authClient.$Infer.Session.user;
@@ -195,24 +197,39 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             </p>
           </div>
           
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border/50 bg-background hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4" />
-                Upload new photo
-              </>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border/50 bg-background hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Upload new photo
+                </>
+              )}
+            </button>
+            
+            {user?.id && (
+              <Button
+                asChild
+                variant="outline"
+                className="inline-flex items-center gap-2"
+              >
+                <Link href={`/users/${user.id}`}>
+                  <ExternalLink className="h-4 w-4" />
+                  View Public Profile
+                </Link>
+              </Button>
             )}
-          </button>
+          </div>
           
         </div>
       </div>
