@@ -1,11 +1,11 @@
 import JoinForm from "./_components/JoinForm";
 
-export default function EventRegisterPage({
+export default async function EventJoinPage({
   params,
 }: {
-  params: { eventType: string; eventId: string };
+  params: Promise<{ eventType: string; eventId: string }>;
 }) {
-  const { eventId } = params;
+  const { eventId } = await params;
 
   return <JoinForm eventId={eventId} />;
 }
