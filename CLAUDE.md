@@ -178,6 +178,83 @@ Use the files router pattern in `src/server/orpc/routers/files/`:
 2. Client uploads directly to R2
 3. `confirmUpload` - Mark upload complete in DB
 
+## MCP Server (Test Data Generation)
+
+The project includes an MCP (Model Context Protocol) server for generating test data via AI assistants like Claude/Cursor.
+
+### Location
+`src/mcp/` - Standalone TypeScript package with its own dependencies
+
+### MCP Commands
+```bash
+cd src/mcp
+pnpm install        # Install MCP dependencies
+pnpm build          # Compile TypeScript to dist/
+pnpm dev            # Watch mode for development
+```
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `create_user` | Create a test user with email/password auth |
+| `create_users_bulk` | Create multiple users at once |
+| `list_users` | List all users in the database |
+| `create_event` | Create an event with organizer |
+| `list_events` | List all events |
+| `get_event` | Get event details by ID |
+| `create_submission` | Create a submission for an event |
+| `create_submissions_bulk` | Create multiple submissions |
+| `list_submissions` | List submissions for an event |
+| `create_review` | Create a review for a submission |
+| `create_reviews_for_event` | Create reviews for all event submissions |
+| `list_reviews` | List reviews for a submission |
+| `seed_complete_event` | Create complete test scenario (users, event, submissions, reviews) |
+| `quick_seed` | Create minimal test data (1 user, 1 event, 1 submission) |
+
+### Cursor/Claude Desktop Integration
+
+Add to your MCP config (e.g., `~/.cursor/mcp.json` or Claude Desktop config):
+```json
+{
+  "mcpServers": {
+    "eventifive": {
+      "command": "node",
+      "args": ["path/to/eventifive/src/mcp/dist/index.js"],
+      "env": {
+        "DATABASE_URL": "your-postgresql-connection-string"
+      }
+    }
+  }
+}
+```
+
+### MCP Architecture
+```
+src/mcp/
+├── src/
+│   ├── index.ts           # MCP server entry point (stdio transport)
+│   ├── db.ts              # Database connection
+│   ├── schema.ts          # Local copy of Drizzle schema
+│   ├── utils/
+│   │   └── password.ts    # Password hashing utility
+│   └── tools/
+│       ├── users.ts       # User creation tools
+│       ├── events.ts      # Event creation tools
+│       ├── submissions.ts # Submission creation tools
+│       ├── reviews.ts     # Review creation tools
+│       └── seed.ts        # Bulk seeding tools
+├── dist/                  # Compiled output (gitignored)
+├── package.json
+└── tsconfig.json
+```
+
+### Key Dependencies
+- `@modelcontextprotocol/sdk` - MCP TypeScript SDK
+- `drizzle-orm` + `postgres` - Database access
+- `@faker-js/faker` - Realistic test data generation
+- `zod` v4 - Input validation
+
 ## Notes
 
 - This is a proprietary project - do not share code externally
