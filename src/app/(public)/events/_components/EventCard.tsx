@@ -36,6 +36,13 @@ export default function EventCard({ event }: EventCardProps) {
   };
   const typeSlug = event.type.replace("_", "-");
 
+  const now = new Date();
+  const eventStart = new Date(event.startDate);
+  const delayDate = new Date();
+  delayDate.setDate(now.getDate() + 7);
+
+  const isInactive = eventStart > delayDate; 
+
   return (
     <Card
       key={event.id}
@@ -66,6 +73,11 @@ export default function EventCard({ event }: EventCardProps) {
         </CardTitle>
 
         {/* Event Details */}
+        {isInactive && (
+          <p className="text-muted-foreground">
+            We still waiting for you to submit your committee registration.
+          </p>
+        )}
         <div className="flex flex-col gap-2.5 pt-2">
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
             <IconCalendar className="text-primary size-4 shrink-0" />
