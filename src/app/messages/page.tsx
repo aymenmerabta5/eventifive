@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ConversationList } from "./_components/ConversationList";
 import { MessageView } from "./_components/MessageView";
 import { EmptyState } from "./_components/EmptyState";
@@ -12,6 +12,7 @@ import {
 	type RealtimeMessage,
 } from "./_lib";
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function MessagesPage() {
 	const { data: session } = authClient.useSession();
@@ -19,6 +20,11 @@ export default function MessagesPage() {
 
 	const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 	const [isMobileConversationOpen, setIsMobileConversationOpen] = useState(false);
+	const searchParams = useSearchParams();
+	const conversationIdFromParams = searchParams.get("conversationId");
+	const [pendingConversationId, setPendingConversationId] = useState<string | null>(
+		conversationIdFromParams
+	);
 
 	const {
 		data: conversations,
@@ -38,6 +44,21 @@ export default function MessagesPage() {
 		currentUserId: currentUser?.id ?? "",
 		onNewMessage: handleNewMessage,
 	});
+
+	useEffect(() => {
+		setPendingConversationId(conversationIdFromParams);
+	}, [conversationIdFromParams]);
+
+	useEffect(() => {
+		if (!pendingConversationId || !conversations) return;
+
+		const exists = conversations.some((conversation) => conversation.id === pendingConversationId);
+		if (exists) {
+			setSelectedConversationId(pendingConversationId);
+			setIsMobileConversationOpen(true);
+			setPendingConversationId(null);
+		}
+	}, [conversations, pendingConversationId]);
 
 	const handleSelectConversation = (id: string) => {
 		setSelectedConversationId(id);
