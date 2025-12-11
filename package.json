@@ -22,7 +22,8 @@
     "db:seed": "tsx src/server/db/seed.ts",
     "db:seed:plans": "tsx src/server/db/seedPlans.ts",
     "db:reset": "tsx src/server/db/reset.ts",
-    "db:init": "pnpm db:generate && pnpm db:push && pnpm db:seed && pnpm db:seed:plans"
+    "db:init": "pnpm db:generate && pnpm db:push && pnpm db:seed && pnpm db:seed:plans",
+    "mcp:build": "pnpm --filter @eventifive/mcp build"
   },
   "dependencies": {
     "@arcjet/inspect": "1.0.0-beta.14",
