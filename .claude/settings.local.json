@@ -4,7 +4,9 @@
       "Bash(cd:*)",
       "Bash(pnpm typecheck:*)",
       "Bash(mkdir:*)",
-      "Bash(pnpm tsc:*)"
+      "Bash(pnpm tsc:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

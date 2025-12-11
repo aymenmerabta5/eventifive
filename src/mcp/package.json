@@ -1,0 +1,37 @@
+{
+  "name": "@eventifive/mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Eventifive test data generation",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "eventifive-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "eventifive",
+    "test-data"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0",
+  "dependencies": {
+    "@faker-js/faker": "^9.3.0",
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.41.0",
+    "postgres": "^3.4.4",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.24",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.9.3"
+  }
+}
