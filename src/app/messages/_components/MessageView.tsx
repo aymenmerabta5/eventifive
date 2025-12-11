@@ -3,11 +3,19 @@
 import { useRef, useEffect, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Video, MoreVertical, Loader2 } from "lucide-react";
+import {
+	ArrowLeft,
+	Phone,
+	Video,
+	MoreVertical,
+	Loader2,
+	UserRound,
+} from "lucide-react";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
 import { useMessages, useSendMessage } from "../_lib/hooks";
 import type { Conversation, Message } from "../_lib/types";
+import Link from "next/link";
 
 interface CurrentUser {
 	id: string;
@@ -149,6 +157,17 @@ export function MessageView({
 				</div>
 
 				<div className="flex items-center gap-1">
+					<Button
+						variant="outline"
+						size="sm"
+						asChild
+						className="hidden sm:inline-flex"
+					>
+						<Link href={`/users/${otherUser.id}`} aria-label="View profile">
+							<UserRound className="size-4 mr-2" />
+							View profile
+						</Link>
+					</Button>
 					<Button
 						variant="ghost"
 						size="icon"
