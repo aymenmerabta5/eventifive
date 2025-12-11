@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { client } from "@/utils/orpc";
 import type { Event } from "@/server/db/schema";
-import { IconCalendar, IconClock, IconMapPin, IconMail, IconTag, IconUpload } from "@tabler/icons-react";
+import { IconCalendar, IconClock, IconMapPin, IconMail, IconTag, IconArrowLeft } from "@tabler/icons-react";
+import ParticipationOptions from "./_components/Testimonials";
 
 function mapEventType(urlType: string) {
 	const mapping: Record<string, Event["type"]> = {
@@ -62,89 +63,87 @@ export default async function EventDetailPage({
 					Back to Events
 				</Link>
 
-				<article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-
-					<header className="border-b border-slate-200 bg-slate-50 px-8 py-10 dark:border-slate-800 dark:bg-slate-900/50 sm:px-12 sm:py-14">
+				<article className="overflow-hidden rounded-lg border-2 border-border bg-card shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20">
+					<header className="border-b border-border bg-card/50 px-8 py-10 sm:px-12 sm:py-14">
 						<div className="space-y-6">
-							<div className="inline-flex items-center gap-2 rounded border border-slate-300 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-widest text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+							<div className="inline-flex items-center gap-2 rounded-lg border-2 border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground">
 								{event.type.replace("_", " ")}
 							</div>
-							<h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl lg:text-6xl">
+							<h1 className="text-foreground text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
 								{event.title}
 							</h1>
 						</div>
 					</header>
-					<section className="border-b border-slate-200 bg-white px-8 py-8 dark:border-slate-800 dark:bg-slate-900 sm:px-12">
+					<section className="border-b border-border bg-card px-8 py-8 sm:px-12">
 						<div className="grid gap-8 sm:grid-cols-2">
 							<div className="space-y-3">
-								<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
-									<IconCalendar className="h-4 w-4" strokeWidth={2} />
+								<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+									<IconCalendar className="h-4 w-4 text-primary" strokeWidth={2} />
 									Start Date & Time
 								</div>
 								<div className="space-y-1">
-									<p className="text-xl font-semibold text-slate-900 dark:text-slate-50">
+									<p className="text-xl font-semibold text-foreground">
 										{formatDate(event.startDate)}
 									</p>
-									<p className="flex items-center gap-1.5 text-base text-slate-600 dark:text-slate-400">
-										<IconClock className="h-4 w-4" strokeWidth={2} />
+									<p className="flex items-center gap-1.5 text-base text-muted-foreground">
+										<IconClock className="h-4 w-4 text-primary" strokeWidth={2} />
 										{formatTime(event.startDate)}
 									</p>
 								</div>
 							</div>
 							<div className="space-y-3">
-								<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
-									<IconCalendar className="h-4 w-4" strokeWidth={2} />
+								<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+									<IconCalendar className="h-4 w-4 text-primary" strokeWidth={2} />
 									End Date & Time
 								</div>
 								<div className="space-y-1">
-									<p className="text-xl font-semibold text-slate-900 dark:text-slate-50">
+									<p className="text-xl font-semibold text-foreground">
 										{formatDate(event.endDate)}
 									</p>
-									<p className="flex items-center gap-1.5 text-base text-slate-600 dark:text-slate-400">
-										<IconClock className="h-4 w-4" strokeWidth={2} />
+									<p className="flex items-center gap-1.5 text-base text-muted-foreground">
+										<IconClock className="h-4 w-4 text-primary" strokeWidth={2} />
 										{formatTime(event.endDate)}
 									</p>
 								</div>
 							</div>
 						</div>
 					</section>
-					<section className="bg-white px-8 py-8 dark:bg-slate-900 sm:px-12">
-						<h2 className="mb-6 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+					<section className="bg-card px-8 py-8 sm:px-12">
+						<h2 className="mb-6 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
 							Event Details
 						</h2>
 						<dl className="grid gap-6 sm:grid-cols-2">
-
-							<div className="flex gap-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700">
-								<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-slate-400 dark:text-slate-600" strokeWidth={2} />
+							<div className="flex gap-4 border-l-2 border-primary/30 pl-4">
+								<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
 								<div className="space-y-1">
-									<dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+									<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 										Type
 									</dt>
-									<dd className="text-base font-medium capitalize text-slate-900 dark:text-slate-50">
+									<dd className="text-base font-medium capitalize text-foreground">
 										{event.type.replace("_", " ")}
 									</dd>
 								</div>
 							</div>
-							<div className="flex gap-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700">
-								<IconMapPin className="mt-0.5 h-5 w-5 shrink-0 text-slate-400 dark:text-slate-600" strokeWidth={2} />
+							<div className="flex gap-4 border-l-2 border-primary/30 pl-4">
+								<IconMapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
 								<div className="space-y-1">
-									<dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+									<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 										Location
 									</dt>
-									<dd className="text-base font-medium text-slate-900 dark:text-slate-50">
+									<dd className="text-base font-medium text-foreground">
 										{event.location ?? "To be announced"}
 									</dd>
 								</div>
 							</div>
-							<div className="flex gap-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700">
-								<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-slate-400 dark:text-slate-600" strokeWidth={2} />
+							<div className="flex gap-4 border-l-2 border-primary/30 pl-4 sm:col-span-2">
+								<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
 								<div className="space-y-1">
-									<dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+									<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 										Description
 									</dt>
-									<dd className="text-base font-medium capitalize text-slate-900 dark:text-slate-50">
+									<dd className="text-base font-medium text-foreground">
 										{event.description && (
-											<p className="max-w-3xl text-lg leading-relaxed text-slate-600 dark:text-slate-400 text-white">
+											<p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
 												{event.description}
 											</p>
 										)}
@@ -152,16 +151,16 @@ export default async function EventDetailPage({
 								</div>
 							</div>
 							{event.contactEmail && (
-								<div className="flex gap-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700">
-									<IconMail className="mt-0.5 h-5 w-5 shrink-0 text-slate-400 dark:text-slate-600" strokeWidth={2} />
+								<div className="flex gap-4 border-l-2 border-primary/30 pl-4">
+									<IconMail className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
 									<div className="space-y-1">
-										<dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+										<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 											Contact
 										</dt>
 										<dd>
 											<a
 												href={`mailto:${event.contactEmail}`}
-												className="text-base font-medium text-slate-900 underline decoration-slate-300 underline-offset-2 transition-colors hover:text-slate-700 hover:decoration-slate-400 dark:text-slate-50 dark:decoration-slate-700 dark:hover:text-slate-200 dark:hover:decoration-slate-600"
+												className="text-base font-medium text-foreground underline decoration-border underline-offset-2 transition-colors hover:text-primary hover:decoration-primary"
 											>
 												{event.contactEmail}
 											</a>
@@ -170,13 +169,13 @@ export default async function EventDetailPage({
 								</div>
 							)}
 							{event.theme && (
-								<div className={`flex gap-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700 ${!event.contactEmail ? 'sm:col-span-2' : ''}`}>
-									<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-slate-400 dark:text-slate-600" strokeWidth={2} />
+								<div className={`flex gap-4 border-l-2 border-primary/30 pl-4 ${!event.contactEmail ? 'sm:col-span-2' : ''}`}>
+									<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
 									<div className="space-y-1">
-										<dt className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+										<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 											Theme
 										</dt>
-										<dd className="text-base font-medium text-slate-900 dark:text-slate-50">
+										<dd className="text-base font-medium text-foreground">
 											{event.theme}
 										</dd>
 									</div>
@@ -185,12 +184,7 @@ export default async function EventDetailPage({
 						</dl>
 					</section>
 				</article>
-				<div className="mt-10 flex justify-center">
-					<button className="group inline-flex items-center gap-3 rounded-lg border-2 border-slate-300 bg-white px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-slate-700 shadow-sm transition-all hover:border-slate-400 hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800">
-						<IconUpload className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" strokeWidth={2} />
-						<span>Upload Files</span>
-					</button>
-				</div>
+				<ParticipationOptions />
 			</div>
 		</main>
 	);
