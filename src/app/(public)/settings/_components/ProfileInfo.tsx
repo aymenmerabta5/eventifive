@@ -65,7 +65,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       });
 
       let responseText = "";
-      let responseData: any = null;
+      let responseData: unknown = null;
 
       try {
         responseText = await response.clone().text();
@@ -75,8 +75,16 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       }
 
       if (!response.ok) {
+        const messageFromJson =
+          typeof responseData === "object" &&
+          responseData !== null &&
+          "message" in responseData &&
+          typeof (responseData as { message?: unknown }).message === "string"
+            ? (responseData as { message: string }).message
+            : undefined;
+
         const errorMessage =
-          responseData?.message ||
+          messageFromJson ||
           responseText ||
           response.statusText ||
           "Failed to upload image";
@@ -86,13 +94,13 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       toast.success("Profile image updated successfully!");
       // Refresh the Better Auth session to get the updated image
       await authClient.getSession({
-        query: { disableCookieCache: true, forceRefresh: true },
+        query: { disableCookieCache: true },
       });
       invalidateImage();
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Upload error:", error);
-      toast.error(error.message || "Failed to upload image");
+      toast.error(error instanceof Error ? error.message : "Failed to upload image");
     } finally {
       setIsUploading(false);
     }
@@ -117,7 +125,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   const form = useForm({
     defaultValues: {
       name: user?.name || "",
-      biography: user?.biography || undefined,
+      biography: user?.biography as unknown as JSONContent | undefined,
       institution: user?.institution || "",
       researchDomain: user?.researchDomain || "",
     },

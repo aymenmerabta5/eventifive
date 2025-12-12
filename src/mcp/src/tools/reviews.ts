@@ -215,7 +215,11 @@ export function registerReviewTools(server: McpServer) {
           const reviewerCount = Math.min(input.reviewsPerSubmission || 2, availableReviewers.length);
 
           for (let i = 0; i < reviewerCount; i++) {
-            const reviewerId = availableReviewers[i % availableReviewers.length].id;
+            const reviewer = availableReviewers[i % availableReviewers.length];
+            if (!reviewer) {
+              throw new Error("No reviewers available for this submission.");
+            }
+            const reviewerId = reviewer.id;
             const reviewId = uuidv4();
             const score = Math.floor(Math.random() * 5) + 5;
             const recommendation =
