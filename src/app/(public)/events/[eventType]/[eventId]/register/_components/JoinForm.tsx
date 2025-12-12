@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { client } from "@/utils/orpc";
 import { toast } from "sonner";
 import {
   User,
@@ -41,9 +40,11 @@ export default function JoinForm({ eventId }: JoinFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [researchDomain, setResearchDomain] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const addMoreFiles = files.length < 3;
 
   useEffect(() => {
     if (!user) return;
@@ -53,18 +54,43 @@ export default function JoinForm({ eventId }: JoinFormProps) {
     setResearchDomain((user as any).researchDomain ?? "");
   }, [user]);
 
+  const addFiles = (incoming: File[]) => {
+    if (incoming.length === 0) return;
+
+    setFiles((prev) => {
+      const available = Math.max(0, 3 - prev.length);
+      if (available <= 0) return prev;
+
+      const next = [...prev, ...incoming.slice(0, available)];
+      if (incoming.length > available) {
+        toast.error("You can upload a maximum of 3 files.");
+      }
+      return next;
+    });
+  };
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0] ?? null;
-    setFile(selectedFile);
+    if (!addMoreFiles) {
+      toast.error("You can upload a maximum of 3 files.");
+      event.target.value = "";
+      return;
+    }
+
+    const selected = Array.from(event.target.files ?? []);
+    addFiles(selected);
+    event.target.value = "";
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
-    const droppedFile = event.dataTransfer.files?.[0] ?? null;
-    if (droppedFile) {
-      setFile(droppedFile);
+    if (!addMoreFiles) {
+      toast.error("You can upload a maximum of 3 files.");
+      return;
     }
+
+    const dropped = Array.from(event.dataTransfer.files ?? []);
+    addFiles(dropped);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -76,16 +102,16 @@ export default function JoinForm({ eventId }: JoinFormProps) {
     setIsDragOver(false);
   };
 
-  const clearFile = () => {
-    setFile(null);
+  const removeFileAt = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!file) {
-      toast.error("Please select a file to upload.");
+    if (files.length === 0) {
+      toast.error("Please select at least 1 file to upload.");
       return;
     }
 
@@ -97,31 +123,29 @@ export default function JoinForm({ eventId }: JoinFormProps) {
     setIsSubmitting(true);
 
     try {
-      const uploadRequest = await client.files.requestUpload({
-        fileName: file.name,
-        fileSize: file.size,
-        contentType: file.type,
-        eventId,
-      });
+      for (const file of files) {
+        const formData = new FormData();
+        formData.set("file", file);
+        formData.set("eventId", eventId);
 
-      const uploadResponse = await fetch(uploadRequest.uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type || "application/octet-stream",
-        },
-        body: file,
-      });
+        const uploadResponse = await fetch("/api/upload-file", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload file. Please try again.");
+        const uploadJson = (await uploadResponse.json()) as {
+          message?: string;
+          fileId?: string;
+          documentKey?: string;
+        };
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadJson.message || "Failed to upload file.");
+        }
       }
 
-      await client.files.confirmUpload({
-        fileId: uploadRequest.fileId,
-      });
-
       toast.success("Your registration file has been uploaded successfully.");
-      setFile(null);
+      setFiles([]);
     } catch (error) {
       console.error("Error during registration upload:", error);
       toast.error(
@@ -276,7 +300,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
                   Supporting document
                 </Label>
 
-                {!file ? (
+                {files.length === 0 ? (
                   <div
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
@@ -295,51 +319,63 @@ export default function JoinForm({ eventId }: JoinFormProps) {
                       Drag and drop your file here
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      or click to browse from your computer
+                      or click to browse from your computer (max 3 files)
                     </p>
                     <Input
                       id="file"
                       name="file"
                       type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       onChange={handleFileChange}
                       className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
                     <p className="mt-4 text-xs text-muted-foreground">
-                      PDF, DOC, DOCX up to 10MB
+                      PDF, DOC, DOCX up to 10MB each
                     </p>
                   </div>
                 ) : (
                   <Card className="bg-muted/30">
-                    <CardContent className="flex items-center gap-4 p-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                        <FileText className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate font-medium text-sm">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-500/10 text-green-600"
-                        >
-                          <CheckCircle2 className="mr-1 h-3 w-3" />
-                          Ready
-                        </Badge>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={clearFile}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
+                    <CardContent className="space-y-3 p-4">
+                      {files.map((file, index) => (
+                        <div key={`${file.name}-${file.size}-${index}`} className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                            <FileText className="h-6 w-6 text-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium">{file.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => removeFileAt(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {addMoreFiles ? (
+                        <div className="relative flex items-center justify-center rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                          <span>Add more files (up to 3)</span>
+                          <Input
+                            id="file-more"
+                            name="file-more"
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            onChange={handleFileChange}
+                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                          />
+                        </div>
+                      ) : null}
                     </CardContent>
                   </Card>
                 )}
@@ -352,7 +388,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
                 <Button
                   type="submit"
                   className="w-full sm:w-auto sm:min-w-[200px]"
-                  disabled={isSubmitting || !file}
+                  disabled={isSubmitting || files.length === 0}
                 >
                   {isSubmitting ? (
                     <>
