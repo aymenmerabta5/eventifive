@@ -6,6 +6,7 @@ import { listEventsRouter } from "./list";
 import { listEventsByTypeRouter } from "./listByType";
 import { myEventsRouter } from "./myEvents";
 import { getEventRouter } from "./get";
+import { invitesRouter } from "./invites";
 
 export const eventsRouter = {
 	create: createEventRouter,
@@ -16,6 +17,7 @@ export const eventsRouter = {
 	listByType: listEventsByTypeRouter,
 	myEvents: myEventsRouter,
 	get: getEventRouter,
+	invites: invitesRouter,
 };
 
 // Re-export individual routers for backwards compatibility

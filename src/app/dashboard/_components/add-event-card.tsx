@@ -30,6 +30,7 @@ import { Calendar, MapPin, Type, FileText, Image as ImageIcon, Link2 } from "luc
 import { createDraftEventSchema } from "@/lib/schemas/schemas";
 import { eventTypeValues, type EventType } from "@/server/db/schema";
 import { StepProgress } from "@/components/step-progress";
+import { useQuery } from "@tanstack/react-query";
 
 const eventTypeLabels: Record<EventType, string> = {
   congress: "Congress",
@@ -63,17 +64,17 @@ async function uploadToPresignedUrl(file: File, uploadUrl: string) {
 
 export function AddEventCard() {
   const router = useRouter();
-  // TEACHING: useQueryClient gives us access to React Query's cache
-  // We need this to invalidate (mark as stale) cached data after mutations
   const queryClient = useQueryClient();
 
   const [step, setStep] = useState<WizardStep>("details");
   const [eventId, setEventId] = useState<string | null>(null);
-
-  // Step 1 uploads (we upload them only after the draft is created in Step 2)
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [bannerImage, setBannerImage] = useState<File | null>(null);
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
+  const [speakerEmail, setSpeakerEmail] = useState("");
+  const [speakerAffiliation, setSpeakerAffiliation] = useState("");
+  const [speakerBio, setSpeakerBio] = useState("");
+  const [reviewerEmail, setReviewerEmail] = useState("");
 
   const createDraftMutation = useMutation(
     orpc.events.createDraft.mutationOptions({
@@ -112,19 +113,53 @@ export function AddEventCard() {
       {
         key: "invites",
         label: "Invite people",
-        description: "Share links to speakers and viewers",
+        description: "Invite speakers + reviewers",
       },
       {
         key: "review",
-        label: "Reviewer approvals",
-        description: "Coming soon",
+        label: "Approvals",
+        description: "Pending / accepted / approve",
       },
     ],
     [],
   );
 
-  // TEACHING: We removed reviewer approval backend to avoid DB migrations.
-  // This step remains as a placeholder in the UI.
+  const invitesQuery = useQuery({
+    ...orpc.events.invites.listForEvent.queryOptions({
+      input: { eventId: eventId ?? "" },
+    }),
+    enabled: !!eventId && step !== "details",
+  });
+
+  const inviteSpeakerMutation = useMutation(
+    orpc.events.invites.inviteSpeaker.mutationOptions({
+      onSuccess: async () => {
+        toast.success("Speaker invited");
+        await invitesQuery.refetch();
+      },
+      onError: (error) => toast.error(error.message || "Failed to invite speaker"),
+    }),
+  );
+
+  const inviteCommitteeMutation = useMutation(
+    orpc.events.invites.inviteCommittee.mutationOptions({
+      onSuccess: async () => {
+        toast.success("Committee member invited");
+        await invitesQuery.refetch();
+      },
+      onError: (error) => toast.error(error.message || "Failed to invite committee member"),
+    }),
+  );
+
+  const approveCommitteeMutation = useMutation(
+    orpc.events.invites.approveCommittee.mutationOptions({
+      onSuccess: async () => {
+        toast.success("Approved");
+        await invitesQuery.refetch();
+      },
+      onError: (error) => toast.error(error.message || "Failed to approve"),
+    }),
+  );
 
   const ensureDraftEventCreatedAndMediaUploaded = async () => {
     const value = form.state.values;
@@ -222,8 +257,6 @@ export function AddEventCard() {
     if (step === "invites") setStep("details");
     if (step === "review") setStep("invites");
   };
-
-  // Invite generation removed (would require DB tables); we provide shareable links instead.
 
   return (
     <Card className="shadow-lg">
@@ -508,16 +541,179 @@ export function AddEventCard() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const url = `${window.location.origin}/events`;
+                        const url = `${window.location.origin}/invites`;
                         void navigator.clipboard.writeText(url);
-                        toast.success("Share link copied.");
+                        toast.success("Invite page link copied.");
                       }}
                     >
                       <Link2 className="mr-2 size-4" />
-                      Copy share link
+                      Copy invites page link
+                    </Button>
+                    <Button
+                      onClick={() => setStep("review")}
+                      disabled={!eventId}
+                      title={!eventId ? "Create the draft event first" : undefined}
+                    >
+                      Go to pending approvals
                     </Button>
                   </div>
                 ) : null}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border p-4">
+                  <div className="text-sm font-medium">Invite speaker</div>
+                  <div className="text-muted-foreground mt-1 text-xs">
+                    Add an existing user (by email). They accept from the{" "}
+                    <span className="font-mono">/invites</span> page.
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
+                        placeholder="speaker@email.com"
+                        type="email"
+                        disabled={!eventId || inviteSpeakerMutation.isPending}
+                        value={speakerEmail}
+                        onChange={(e) => setSpeakerEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Affiliation (optional)</Label>
+                      <Input
+                        placeholder="University / Company"
+                        disabled={!eventId || inviteSpeakerMutation.isPending}
+                        value={speakerAffiliation}
+                        onChange={(e) => setSpeakerAffiliation(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Bio (optional)</Label>
+                      <Textarea
+                        placeholder="Short bio"
+                        disabled={!eventId || inviteSpeakerMutation.isPending}
+                        value={speakerBio}
+                        onChange={(e) => setSpeakerBio(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      className="w-full"
+                      disabled={!eventId || inviteSpeakerMutation.isPending}
+                      onClick={() => {
+                        if (!eventId) return;
+                        const email = speakerEmail.trim();
+                        if (!email) {
+                          toast.error("Speaker email is required");
+                          return;
+                        }
+                        inviteSpeakerMutation.mutate({
+                          eventId,
+                          email,
+                          affiliation: speakerAffiliation.trim() || undefined,
+                          bio: speakerBio.trim() || undefined,
+                        });
+                      }}
+                    >
+                      Invite speaker
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border p-4">
+                  <div className="text-sm font-medium">Invite reviewer</div>
+                  <div className="text-muted-foreground mt-1 text-xs">
+                    Reviewers must already have accounts. They accept from{" "}
+                    <span className="font-mono">/invites</span>, then you approve in step 3.
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
+                        placeholder="reviewer@email.com"
+                        type="email"
+                        disabled={!eventId || inviteCommitteeMutation.isPending}
+                        value={reviewerEmail}
+                        onChange={(e) => setReviewerEmail(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      className="w-full"
+                      disabled={!eventId || inviteCommitteeMutation.isPending}
+                      onClick={() => {
+                        if (!eventId) return;
+                        const email = reviewerEmail.trim();
+                        if (!email) {
+                          toast.error("Reviewer email is required");
+                          return;
+                        }
+                        inviteCommitteeMutation.mutate({
+                          eventId,
+                          email,
+                          type: "reviewer",
+                        });
+                      }}
+                    >
+                      Invite reviewer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <div className="text-sm font-medium">Current invites</div>
+                <div className="text-muted-foreground mt-1 text-xs">
+                  Speakers show pending/accepted. Committee shows reviewer + workshop facilitator.
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {invitesQuery.isPending ? (
+                    <div className="text-muted-foreground text-sm">Loading…</div>
+                  ) : null}
+
+                  {invitesQuery.data ? (
+                    <div className="space-y-3">
+                      <div className="text-sm font-medium">Speakers</div>
+                      {invitesQuery.data.speakers.length === 0 ? (
+                        <div className="text-muted-foreground text-sm">No speakers invited yet.</div>
+                      ) : (
+                        invitesQuery.data.speakers.map((s) => (
+                          <div
+                            key={`speaker-${s.id}`}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                          >
+                            <div className="text-sm">
+                              <span className="font-medium">{s.userEmail}</span>{" "}
+                              <span className="text-muted-foreground">({s.status})</span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+
+                      <div className="mt-4 text-sm font-medium">Committee</div>
+                      {invitesQuery.data.committee.length === 0 ? (
+                        <div className="text-muted-foreground text-sm">
+                          No committee invites yet.
+                        </div>
+                      ) : (
+                        invitesQuery.data.committee.map((c) => (
+                          <div
+                            key={`committee-${c.id}`}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                          >
+                            <div className="text-sm">
+                              <span className="font-medium">{c.userEmail}</span>{" "}
+                              <span className="text-muted-foreground">
+                                ({c.type} / {c.status})
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           ) : null}
@@ -526,11 +722,98 @@ export function AddEventCard() {
             <div className="space-y-6">
               <div className="rounded-lg border p-4">
                 <div className="text-sm font-medium">
-                  Pending approvals (reviewer step)
+                  Pending + accepted committee approvals
                 </div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  This step requires database migrations (invites + approvals tables).
-                  It&apos;s disabled for now to avoid DB changes.
+                  When reviewers/workshop facilitators accept on <span className="font-mono">/invites</span>,
+                  they move to “accepted”. Here, you approve the accepted ones.
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <div className="text-sm font-medium">Reviewer committee</div>
+                <div className="mt-3 space-y-2">
+                  {invitesQuery.isPending ? (
+                    <div className="text-muted-foreground text-sm">Loading…</div>
+                  ) : null}
+
+                  {invitesQuery.data ? (
+                    <>
+                      {invitesQuery.data.committee
+                        .filter((c) => c.type === "reviewer")
+                        .map((c) => (
+                          <div
+                            key={`reviewer-${c.id}`}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                          >
+                            <div className="text-sm">
+                              <span className="font-medium">{c.userEmail}</span>{" "}
+                              <span className="text-muted-foreground">({c.status})</span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              disabled={c.status !== "accepted" || approveCommitteeMutation.isPending}
+                              onClick={() => {
+                                if (!eventId) return;
+                                approveCommitteeMutation.mutate({
+                                  eventId,
+                                  committeeId: c.id,
+                                });
+                              }}
+                            >
+                              Approve accepted
+                            </Button>
+                          </div>
+                        ))}
+                      {invitesQuery.data.committee.filter((c) => c.type === "reviewer").length ===
+                      0 ? (
+                        <div className="text-muted-foreground text-sm">No reviewer invites.</div>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <div className="text-sm font-medium">Workshop-facilitator committee</div>
+                <div className="mt-3 space-y-2">
+                  {invitesQuery.data ? (
+                    <>
+                      {invitesQuery.data.committee
+                        .filter((c) => c.type === "workshop_facilitator")
+                        .map((c) => (
+                          <div
+                            key={`wf-${c.id}`}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                          >
+                            <div className="text-sm">
+                              <span className="font-medium">{c.userEmail}</span>{" "}
+                              <span className="text-muted-foreground">({c.status})</span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              disabled={c.status !== "accepted" || approveCommitteeMutation.isPending}
+                              onClick={() => {
+                                if (!eventId) return;
+                                approveCommitteeMutation.mutate({
+                                  eventId,
+                                  committeeId: c.id,
+                                });
+                              }}
+                            >
+                              Approve accepted
+                            </Button>
+                          </div>
+                        ))}
+                      {invitesQuery.data.committee.filter(
+                        (c) => c.type === "workshop_facilitator",
+                      ).length === 0 ? (
+                        <div className="text-muted-foreground text-sm">
+                          No workshop-facilitator invites.
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
                 </div>
               </div>
             </div>
