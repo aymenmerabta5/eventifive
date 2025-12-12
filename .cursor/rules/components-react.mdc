@@ -73,14 +73,28 @@ import { cn } from "@/lib/utils";
 )}>
 ```
 
-## shadcn/ui Components
+## shadcn/ui Components - ALWAYS USE THESE
 
 ```typescript
 // TEACHING: shadcn/ui components are copied to src/components/ui/
 // You OWN this code - customize freely, don't treat as external lib
+// IMPORTANT: Always use these components instead of building from scratch!
+
+// Available components in src/components/ui/:
+// - Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction
+// - Button (variants: default, secondary, outline, ghost, destructive)
+// - Badge (variants: default, secondary, outline, destructive)
+// - Avatar, AvatarImage, AvatarFallback
+// - Input, Textarea, Label, Checkbox, Select
+// - Dialog, Sheet, Drawer
+// - Table, Tabs, Separator
+// - DropdownMenu, Tooltip
+// - Skeleton (for loading states)
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -101,6 +115,58 @@ export function CreateEventDialog({ open, onOpenChange }) {
     </Dialog>
   );
 }
+
+// GOOD - Use Card components for content sections
+<Card className="rounded-3xl shadow-lg">
+  <CardHeader>
+    <CardTitle>Section Title</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <Badge variant="secondary">Status</Badge>
+  </CardContent>
+</Card>
+
+// BAD - Building cards from scratch with plain divs
+<div className="border rounded-3xl shadow-lg">
+  <div className="px-6 py-4 border-b">
+    <h2>Section Title</h2>
+  </div>
+  <div className="p-6">
+    <span className="px-2 py-1 rounded bg-muted">Status</span>
+  </div>
+</div>
+```
+
+## Color Palette - Use Semantic Colors
+
+```typescript
+// TEACHING: Colors are defined in src/styles/index.css
+// Always use CSS custom properties via Tailwind classes for dark mode support
+
+// Semantic color tokens available:
+// --background / --foreground     - Page background and text
+// --card / --card-foreground      - Card surfaces
+// --primary / --primary-foreground - Primary actions, links
+// --secondary / --secondary-foreground - Secondary elements
+// --muted / --muted-foreground    - Subtle backgrounds, secondary text
+// --accent / --accent-foreground  - Highlighted elements
+// --destructive / --destructive-foreground - Errors, delete actions
+// --border                        - Borders and dividers
+// --input                         - Form input borders
+// --ring                          - Focus rings
+// --chart-1 to --chart-5          - Data visualization
+
+// GOOD - Use semantic Tailwind color classes
+<div className="bg-background text-foreground">
+<div className="bg-card border-border">
+<button className="bg-primary text-primary-foreground">
+<span className="text-muted-foreground">
+<div className="bg-primary/10 text-primary">  // With opacity modifier
+
+// BAD - Hardcoded colors break dark mode and consistency
+<div className="bg-white text-black">
+<div className="bg-gray-100 border-gray-200">
+<button className="bg-purple-600 text-white">
 ```
 
 ## Performance Rules

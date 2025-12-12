@@ -8,11 +8,12 @@ import { useEffect } from 'react'
 
 interface EditorProps {
   value: JSONContent | string | undefined
-  onChange: (value: JSONContent) => void
+  onChange?: (value: JSONContent) => void
   content: JSONContent | undefined
+  readOnly?: boolean
 }
 
-const Editor = ({ value, onChange, content }: EditorProps) => {
+const Editor = ({ value, onChange, content, readOnly = false }: EditorProps) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -41,14 +42,16 @@ const Editor = ({ value, onChange, content }: EditorProps) => {
       }),
     ],
     content,
+    editable: !readOnly,
     editorProps: {
       attributes: {
-        class:
-          'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[150px] p-4 dark:prose-invert',
+        class: readOnly
+          ? 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-4 dark:prose-invert'
+          : 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[150px] p-4 dark:prose-invert',
       },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getJSON())
+      onChange?.(editor.getJSON())
     },
     immediatelyRender: false,
   })
@@ -61,6 +64,10 @@ const Editor = ({ value, onChange, content }: EditorProps) => {
       }
     }
   }, [value, editor])
+
+  if (readOnly) {
+    return <EditorContent editor={editor} />
+  }
 
   return (
     <div className="border rounded-md bg-background">

@@ -10,16 +10,25 @@ import {
 } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TextAlign from "@tiptap/extension-text-align";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardAction,
+} from "@/components/ui/card";
+import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateConversation } from "@/app/messages/_lib/hooks";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 interface UserProfileProps {
   user: {
@@ -63,79 +72,6 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-// Read-only biography viewer component
-function BiographyViewer({
-  content,
-}: {
-  content: JSONContent | string | null | undefined;
-}) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        paragraph: {
-          HTMLAttributes: {
-            class: "leading-relaxed",
-          },
-        },
-        heading: {
-          levels: [1, 2, 3, 4],
-          HTMLAttributes: {
-            class: "font-sans",
-          },
-        },
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-      }),
-      TextAlign.configure({
-        types: ["heading", "paragraph"],
-      }),
-    ],
-    content: content || undefined,
-    editable: false,
-    editorProps: {
-      attributes: {
-        class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-4 dark:prose-invert",
-      },
-    },
-    immediatelyRender: false,
-  });
-
-  useEffect(() => {
-    if (editor && content) {
-      const currentContent = editor.getJSON();
-      const contentToSet =
-        typeof content === "string"
-          ? {
-              type: "doc",
-              content: [
-                {
-                  type: "paragraph",
-                  content: [{ type: "text", text: content }],
-                },
-              ],
-            }
-          : content;
-
-      if (JSON.stringify(currentContent) !== JSON.stringify(contentToSet)) {
-        editor.commands.setContent(contentToSet);
-      }
-    }
-  }, [content, editor]);
-
-  if (!editor) {
-    return null;
-  }
-
-  return <EditorContent editor={editor} />;
-}
-
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   month: "long",
@@ -143,6 +79,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export default function UserProfile({ user }: UserProfileProps) {
+  const { data: session } = authClient.useSession();
   const router = useRouter();
   const createConversation = useCreateConversation();
   const [isContacting, setIsContacting] = useState(false);
@@ -157,9 +94,6 @@ export default function UserProfile({ user }: UserProfileProps) {
     try {
       setIsContacting(true);
       const result = await createConversation.mutateAsync(user.id);
-      toast.success(
-        result.isNew ? "Conversation created" : "Resuming your messages"
-      );
       router.push(`/messages?conversationId=${result.id}`);
     } catch (error) {
       toast.error(
@@ -173,17 +107,17 @@ export default function UserProfile({ user }: UserProfileProps) {
   };
 
   return (
-    <div className="from-background via-background to-primary/5 min-h-screen bg-linear-to-b">
+    <div className="min-h-screen bg-linear-to-b">
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
         {/* Hero */}
-        <div className="border-border/60 from-primary/10 via-background to-background relative overflow-hidden rounded-3xl border bg-linear-to-br shadow-xl">
+        <Card className="border-border/60 from-primary/10 via-background to-background relative overflow-hidden rounded-3xl bg-linear-to-br shadow-xl">
           <div className="pointer-events-none absolute inset-0">
             <div className="bg-primary/15 absolute -top-32 -left-20 h-72 w-72 rounded-full blur-3xl" />
             <div className="bg-primary/10 absolute top-10 right-0 h-60 w-60 rounded-full blur-3xl" />
             <div className="bg-primary/20 absolute bottom-0 left-10 h-32 w-32 rounded-full blur-2xl" />
           </div>
 
-          <div className="relative space-y-8 p-8 sm:p-10 lg:p-12">
+          <CardContent className="relative space-y-8 p-8 sm:p-10 lg:p-12">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
               <div className="flex items-start gap-6">
                 <div className="group relative shrink-0">
@@ -211,22 +145,31 @@ export default function UserProfile({ user }: UserProfileProps) {
 
                   <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
                     {user.researchDomain && (
-                      <span className="bg-primary/10 text-primary inline-flex items-center gap-2 rounded-full px-3 py-1">
+                      <Badge
+                        variant="secondary"
+                        className="bg-primary/10 text-primary gap-2 rounded-full px-3 py-1"
+                      >
                         <IconFlask className="h-4 w-4" />
                         {user.researchDomain}
-                      </span>
+                      </Badge>
                     )}
                     {user.institution && (
-                      <span className="bg-background/60 inline-flex items-center gap-2 rounded-full px-3 py-1">
+                      <Badge
+                        variant="secondary"
+                        className="bg-background/60 text-muted-foreground gap-2 rounded-full px-3 py-1"
+                      >
                         <IconBuilding className="text-primary h-4 w-4" />
                         {user.institution}
-                      </span>
+                      </Badge>
                     )}
-                    <span className="bg-background/60 inline-flex items-center gap-2 rounded-full px-3 py-1">
+                    <Badge
+                      variant="secondary"
+                      className="bg-background/60 text-muted-foreground gap-2 rounded-full px-3 py-1"
+                    >
                       <IconCalendar className="text-primary h-4 w-4" />
                       Member since{" "}
                       {dateFormatter.format(new Date(user.createdAt))}
-                    </span>
+                    </Badge>
                   </div>
 
                   {user.email && (
@@ -245,40 +188,44 @@ export default function UserProfile({ user }: UserProfileProps) {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <div className="border-border/60 bg-background/70 rounded-3xl border shadow-lg backdrop-blur-sm">
-              <div className="border-border/50 flex items-center justify-between border-b px-6 py-4">
+            <Card className="border-border/60 bg-background/70 rounded-3xl shadow-lg backdrop-blur-sm">
+              <CardHeader className="border-border/50 flex-row items-center justify-between border-b px-6 py-4">
                 <div className="flex items-center gap-2">
                   <span className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-xl">
                     <IconBook className="h-5 w-5" />
                   </span>
                   <div>
-                    <h2 className="text-foreground text-lg font-semibold">
+                    <CardTitle className="text-foreground text-lg">
                       Biography
-                    </h2>
-                    <p className="text-muted-foreground text-xs">
+                    </CardTitle>
+                    <CardDescription className="text-xs">
                       A quick snapshot of who you are.
-                    </p>
+                    </CardDescription>
                   </div>
                 </div>
                 {user.emailVerified && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-primary/10 text-primary border-primary/30 p-2"
-                  >
-                    <IconCheck className="mr-1 h-6 w-6" />
-                    Trusted profile
-                  </Badge>
+                  <CardAction>
+                    <Badge
+                      variant="secondary"
+                      className="bg-primary/10 text-primary border-primary/30 p-2"
+                    >
+                      <IconCheck className="mr-1 h-6 w-6" />
+                      Trusted profile
+                    </Badge>
+                  </CardAction>
                 )}
-              </div>
-              <div className="p-6">
+              </CardHeader>
+              <CardContent>
                 {user.biography ? (
-                  <BiographyViewer
-                    content={user.biography as JSONContent | string | null}
+                  <Editor
+                    value={user.biography as JSONContent | string | undefined}
+                    content={user.biography as JSONContent | undefined}
+                    readOnly
                   />
                 ) : (
                   <p className="text-muted-foreground text-sm">
@@ -286,16 +233,16 @@ export default function UserProfile({ user }: UserProfileProps) {
                     connect faster.
                   </p>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="space-y-6">
-            <div className="border-border/60 bg-background/70 space-y-4 rounded-3xl border p-6 shadow-lg backdrop-blur-sm">
-              <h3 className="text-foreground text-lg font-semibold">
-                Contact & identity
-              </h3>
-              <div className="space-y-3">
+            <Card className="border-border/60 bg-background/70 rounded-3xl shadow-lg backdrop-blur-sm">
+              <CardHeader className="px-6 pt-6 pb-0">
+                <CardTitle className="text-lg">Contact & identity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 {user.email && (
                   <div className="flex items-center gap-3 text-sm">
                     <div className="bg-primary/10 text-primary rounded-lg p-2">
@@ -321,8 +268,8 @@ export default function UserProfile({ user }: UserProfileProps) {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-                  {user.email && (
+                <div className={cn("grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2 w-full", session?.user?.id === user.id && "sm:grid-cols-1")}>
+                  {user.email && session?.user?.id !== user.id && (
                     <Button
                       className="rounded-xl shadow-sm transition-all hover:shadow-md"
                       onClick={handleContact}
@@ -343,19 +290,19 @@ export default function UserProfile({ user }: UserProfileProps) {
                   )}
                   <Button
                     variant="secondary"
-                    className="rounded-xl border-dashed"
+                    className="rounded-xl border-dashed w-full"
                   >
                     Share profile
                   </Button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="border-border/60 bg-background/70 space-y-4 rounded-3xl border p-6 shadow-lg backdrop-blur-sm">
-              <h3 className="text-foreground text-lg font-semibold">
-                Recent participation
-              </h3>
-              <div className="space-y-3">
+            <Card className="border-border/60 bg-background/70 rounded-3xl shadow-lg backdrop-blur-sm">
+              <CardHeader className="px-6 pt-6 pb-0">
+                <CardTitle className="text-lg">Recent participation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 {recentEvents.length > 0 ? (
                   recentEvents.map((event) => {
                     const statusToken = {
@@ -424,9 +371,9 @@ export default function UserProfile({ user }: UserProfileProps) {
                       : "Date TBA";
 
                     return (
-                      <div
+                      <Card
                         key={event.id ?? event.title}
-                        className="border-border/50 bg-muted/30 space-y-2 rounded-2xl border px-4 py-3"
+                        className="border-border/50 bg-muted/30 space-y-2 rounded-2xl px-4 py-3"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
@@ -435,35 +382,43 @@ export default function UserProfile({ user }: UserProfileProps) {
                             </p>
                             {roleToken && (
                               <p className="text-muted-foreground flex items-center gap-2 text-xs">
-                                <span
-                                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium ${roleToken.classes}`}
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[11px] ${roleToken.classes}`}
                                 >
                                   {roleToken.label}
-                                </span>
+                                </Badge>
                               </p>
                             )}
                           </div>
                           {statusToken && (
-                            <span
-                              className={`rounded-full border px-3 py-1 text-xs font-medium ${statusToken.classes}`}
+                            <Badge
+                              variant="outline"
+                              className={`text-xs ${statusToken.classes}`}
                             >
                               {statusToken.label}
-                            </span>
+                            </Badge>
                           )}
                         </div>
                         <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-xs">
-                          <span className="bg-background/60 inline-flex items-center gap-1 rounded-full px-2 py-1">
+                          <Badge
+                            variant="secondary"
+                            className="bg-background/60 gap-1 rounded-full"
+                          >
                             <IconCalendar className="text-primary h-3.5 w-3.5" />
                             {formattedDate}
-                          </span>
+                          </Badge>
                           {event.location && (
-                            <span className="bg-background/60 inline-flex items-center gap-1 rounded-full px-2 py-1">
+                            <Badge
+                              variant="secondary"
+                              className="bg-background/60 gap-1 rounded-full"
+                            >
                               <IconBuilding className="text-primary h-3.5 w-3.5" />
                               {event.location}
-                            </span>
+                            </Badge>
                           )}
                         </div>
-                      </div>
+                      </Card>
                     );
                   })
                 ) : (
@@ -472,8 +427,8 @@ export default function UserProfile({ user }: UserProfileProps) {
                     showcase activity.
                   </p>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

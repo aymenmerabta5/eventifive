@@ -127,10 +127,84 @@ Environment validation is handled by `@t3-oss/env-nextjs` in `src/env.ts`.
 - Session authentication handled via Better Auth headers
 - Client connects to `NEXT_PUBLIC_WEBSOCKET_URL`
 
-### Styling
-- Tailwind CSS 4 auto-generated config
-- UI components in `src/components/ui/` follow shadcn/ui patterns
-- Dark mode supported via `next-themes`
+### Styling & UI Components
+
+#### IMPORTANT: Always Use shadcn/ui Components
+When building UI, **always use the predefined shadcn/ui components** from `src/components/ui/` instead of building from scratch:
+
+**Available components:**
+- `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`, `CardAction`
+- `Button` (variants: default, secondary, outline, ghost, destructive)
+- `Badge` (variants: default, secondary, outline, destructive)
+- `Avatar`, `AvatarImage`, `AvatarFallback`
+- `Input`, `Textarea`, `Label`, `Checkbox`, `Select`
+- `Dialog`, `Sheet`, `Drawer`
+- `Table`, `Tabs`, `Separator`
+- `DropdownMenu`, `Tooltip`
+- `Skeleton` (for loading states)
+
+**Example - Building a card section:**
+```typescript
+// GOOD - Use shadcn Card components
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+<Card className="rounded-3xl shadow-lg">
+  <CardHeader>
+    <CardTitle>Section Title</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <Badge variant="secondary">Tag</Badge>
+  </CardContent>
+</Card>
+
+// BAD - Building cards from scratch with divs
+<div className="border rounded-3xl shadow-lg">
+  <div className="px-6 py-4 border-b">
+    <h2>Section Title</h2>
+  </div>
+  <div className="p-6">
+    <span className="px-2 py-1 rounded bg-muted">Tag</span>
+  </div>
+</div>
+```
+
+#### Color Palette (from `src/styles/index.css`)
+Always use the CSS custom properties for colors to ensure consistency and dark mode support:
+
+**Semantic Colors (use these):**
+- `--background` / `--foreground` - Page background and text
+- `--card` / `--card-foreground` - Card surfaces
+- `--primary` / `--primary-foreground` - Primary actions, links
+- `--secondary` / `--secondary-foreground` - Secondary elements
+- `--muted` / `--muted-foreground` - Subtle backgrounds, secondary text
+- `--accent` / `--accent-foreground` - Highlighted elements
+- `--destructive` / `--destructive-foreground` - Errors, delete actions
+- `--border` - Borders and dividers
+- `--input` - Form input borders
+- `--ring` - Focus rings
+
+**Usage in Tailwind:**
+```typescript
+// GOOD - Use semantic color classes
+<div className="bg-background text-foreground">
+<div className="bg-card border-border">
+<button className="bg-primary text-primary-foreground">
+<span className="text-muted-foreground">
+<div className="bg-primary/10 text-primary"> // With opacity
+
+// BAD - Hardcoded colors
+<div className="bg-white text-black">
+<div className="bg-gray-100 border-gray-200">
+<button className="bg-purple-600 text-white">
+```
+
+**Chart Colors:** `--chart-1` through `--chart-5` for data visualization
+
+#### Tailwind CSS 4
+- Auto-generated config from `src/styles/index.css`
+- Dark mode supported via `next-themes` and `.dark` class
+- Use `cn()` utility from `@/lib/utils` for conditional classes
 
 ### Type Safety
 - All API routes type-safe via oRPC

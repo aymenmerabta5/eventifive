@@ -16,7 +16,7 @@ export default function EventsPage() {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="border-primary mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"></div>
           <p className="text-muted-foreground">Loading events...</p>
@@ -27,7 +27,7 @@ export default function EventsPage() {
 
   if (error) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <p className="text-destructive text-lg">Failed to load events</p>
           <p className="text-muted-foreground mt-2 text-sm">
@@ -39,7 +39,7 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
         <div className="mb-10 text-center">
           <h1 className="text-foreground mb-3 bg-linear-to-r bg-clip-text text-5xl font-bold md:text-5xl">

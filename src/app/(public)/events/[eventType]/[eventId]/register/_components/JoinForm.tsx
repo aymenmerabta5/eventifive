@@ -2,12 +2,33 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
 import { client } from "@/utils/orpc";
 import { toast } from "sonner";
+import {
+  User,
+  Mail,
+  FlaskConical,
+  FileUp,
+  CheckCircle2,
+  Loader2,
+  FileText,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface JoinFormProps {
   eventId: string;
@@ -22,6 +43,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
   const [researchDomain, setResearchDomain] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -34,6 +56,28 @@ export default function JoinForm({ eventId }: JoinFormProps) {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] ?? null;
     setFile(selectedFile);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    const droppedFile = event.dataTransfer.files?.[0] ?? null;
+    if (droppedFile) {
+      setFile(droppedFile);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const clearFile = () => {
+    setFile(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -83,7 +127,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "An unexpected error occurred while uploading your file.",
+          : "An unexpected error occurred while uploading your file."
       );
     } finally {
       setIsSubmitting(false);
@@ -92,124 +136,240 @@ export default function JoinForm({ eventId }: JoinFormProps) {
 
   if (isPending || !user) {
     return (
-      <div className="bg-gradient-to-b from-background via-muted/60 to-background flex min-h-screen items-center justify-center px-4">
-        <p className="text-muted-foreground text-sm">
-          Loading your information...
-        </p>
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <Card className="w-full max-w-3xl">
+          <CardHeader>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-background via-muted/60 to-background">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(16,185,129,0.12),_transparent_55%)]" />
+    <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
+      <div className="w-full max-w-3xl space-y-8">
+        {/* Header Section */}
+        <div className="space-y-4 text-center">
+          <Badge variant="secondary" className="px-4 py-1.5">
+            <FileUp className="mr-2 h-3.5 w-3.5" />
+            Committee Registration
+          </Badge>
+          <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+            Submit your application
+          </h1>
+          <p className="mx-auto max-w-xl text-balance text-muted-foreground">
+            Share your details and upload your supporting file so we can review
+            your application for the committee.
+          </p>
+        </div>
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
-        <div className="w-full max-w-3xl space-y-8">
-          <div className="space-y-3 text-center">
-            <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-              Submit committee registration
-            </h1>
-            <p className="text-balance text-sm text-muted-foreground sm:text-base">
-              Share your details and upload your supporting file so we can review your application for the committee.
-            </p>
-          </div>
+        {/* Main Form Card */}
+        <Card className="border-border/60 shadow-xl backdrop-blur">
+          <CardHeader className="pb-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Your Information</CardTitle>
+                <CardDescription>
+                  Please verify your details below
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
 
-          <Card className="border-border/60 bg-background/80 shadow-xl shadow-black/5 backdrop-blur">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center justify-between text-base font-semibold">
-                <span>Your information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-6"
-                noValidate
-              >
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
-                      placeholder="Enter your full name"
-                      autoComplete="name"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={email}
-                      readOnly
-                      className="bg-muted/60"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      We&apos;ll use this email to contact you about your application.
-                    </p>
-                  </div>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              {/* Personal Info Grid */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="name"
+                    className="flex items-center gap-2 text-sm font-medium"
+                  >
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    Full name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Enter your full name"
+                    autoComplete="name"
+                    className="h-11"
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="researchDomain">Research domain</Label>
+                  <Label
+                    htmlFor="email"
+                    className="flex items-center gap-2 text-sm font-medium"
+                  >
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    Email
+                    <Badge variant="outline" className="ml-auto text-[10px]">
+                      Verified
+                    </Badge>
+                  </Label>
                   <Input
-                    id="researchDomain"
-                    name="researchDomain"
-                    type="text"
-                    value={researchDomain}
-                    onChange={(event) => setResearchDomain(event.target.value)}
-                    placeholder="Your research domain or area of expertise"
-                    autoComplete="organization-title"
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    readOnly
+                    className="h-11 bg-muted/50"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Example: Artificial Intelligence, Human-Computer
-                    Interaction, Data Science…
+                    We&apos;ll use this email to contact you about your
+                    application.
                   </p>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="file">Upload supporting file</Label>
-                  <Input
-                    id="file"
-                    name="file"
-                    type="file"
-                    onChange={handleFileChange}
-                    className="cursor-pointer"
-                  />
-                  {file && (
-                    <p className="text-xs text-muted-foreground">
-                      Selected file:{" "}
-                      <span className="font-medium text-foreground">
-                        {file.name}
-                      </span>
-                    </p>
-                  )}
-                  {!file && (
-                    <p className="text-xs text-muted-foreground">
-                      You can upload a publication list, or any relevant document.
-                    </p>
-                  )}
-                </div>
+              <Separator />
 
+              {/* Research Domain */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="researchDomain"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
+                  <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                  Research domain
+                </Label>
+                <Input
+                  id="researchDomain"
+                  name="researchDomain"
+                  type="text"
+                  value={researchDomain}
+                  onChange={(event) => setResearchDomain(event.target.value)}
+                  placeholder="Your research domain or area of expertise"
+                  autoComplete="organization-title"
+                  className="h-11"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Example: Artificial Intelligence, Human-Computer Interaction,
+                  Data Science…
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* File Upload Area */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <FileUp className="h-4 w-4 text-muted-foreground" />
+                  Supporting document
+                </Label>
+
+                {!file ? (
+                  <div
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    className={cn(
+                      "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all",
+                      isDragOver
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50 hover:bg-muted/30"
+                    )}
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                      <FileUp className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="mt-4 text-sm font-medium">
+                      Drag and drop your file here
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      or click to browse from your computer
+                    </p>
+                    <Input
+                      id="file"
+                      name="file"
+                      type="file"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                    />
+                    <p className="mt-4 text-xs text-muted-foreground">
+                      PDF, DOC, DOCX up to 10MB
+                    </p>
+                  </div>
+                ) : (
+                  <Card className="bg-muted/30">
+                    <CardContent className="flex items-center gap-4 p-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                        <FileText className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate font-medium text-sm">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-500/10 text-green-600"
+                        >
+                          <CheckCircle2 className="mr-1 h-3 w-3" />
+                          Ready
+                        </Badge>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={clearFile}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              <CardFooter className="flex-col gap-4 px-0 pt-4 sm:flex-row sm:justify-between">
+                <p className="text-xs text-muted-foreground">
+                  By submitting, you agree to our terms and conditions.
+                </p>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto sm:min-w-[220px]"
-                  disabled={isSubmitting}
+                  className="w-full sm:w-auto sm:min-w-[200px]"
+                  disabled={isSubmitting || !file}
                 >
-                  {isSubmitting ? "Submitting..." : "Submit registration"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                      Submit application
+                    </>
+                  )}
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+              </CardFooter>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

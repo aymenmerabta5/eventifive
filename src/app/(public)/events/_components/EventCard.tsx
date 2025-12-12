@@ -1,9 +1,16 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { IconCalendar, IconClock, IconMapPin } from "@tabler/icons-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  IconArrowUpRight,
+  IconCalendar,
+  IconClock,
+  IconMapPin,
+} from "@tabler/icons-react";
 import Image from "next/image";
 import type { Event } from "@/server/db/schema";
 import Link from "next/link";
+import type { Route } from "next";
 
 type EventCardData = Pick<
   Event,
@@ -14,100 +21,145 @@ export interface EventCardProps {
   event: Readonly<EventCardData>;
 }
 
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const timeFormatter = new Intl.DateTimeFormat("en-US", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function formatDate(date: Date) {
+  return dateFormatter.format(new Date(date));
+}
+
+function formatTimeRange(startDate: Date, endDate: Date) {
+  const start = timeFormatter.format(new Date(startDate));
+  const end = timeFormatter.format(new Date(endDate));
+  return `${start} – ${end}`;
+}
+
 export default function EventCard({ event }: EventCardProps) {
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (startDate: Date, endDate: Date) => {
-    const start = new Date(startDate).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const end = new Date(endDate).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    return `${start} - ${end}`;
-  };
-  const typeSlug = event.type.replace("_", "-");
-
   const now = new Date();
-  const eventStart = new Date(event.startDate);
-  const delayDate = new Date();
-  delayDate.setDate(now.getDate() + 7);
+  const startDate = new Date(event.startDate);
+  const endDate = new Date(event.endDate);
 
-  const isInactive = eventStart > delayDate; 
+  const weekFromNow = new Date(now);
+  weekFromNow.setDate(now.getDate() + 7);
+  const showCommitteeReminder = startDate > weekFromNow;
+
+  const typeSlug = event.type.replaceAll("_", "-");
+  const typeLabel = event.type.replaceAll("_", " ").toUpperCase();
+
+  const isUpcoming = now < startDate;
+  const isLive = now >= startDate && now <= endDate;
+  const isEnded = now > endDate;
+
+  const statusLabel = isLive
+    ? "Live"
+    : isEnded
+      ? "Ended"
+      : isUpcoming
+        ? "Upcoming"
+        : "Scheduled";
+
+  const statusClassName = isLive
+    ? "border-primary/30 bg-primary/10 text-primary"
+    : isEnded
+      ? "border-border bg-muted/50 text-muted-foreground"
+      : "border-border/60 bg-background/70 text-foreground";
 
   return (
     <Card
-      key={event.id}
-      className="group hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20 overflow-hidden border-2 transition-all duration-300 hover:shadow-xl"
+      className="group relative overflow-hidden rounded-2xl border bg-card/60 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/15"
     >
-      {/* Image Section */}
-      <div className="from-primary/20 to-primary/5 relative h-56 w-full overflow-hidden bg-linear-to-br">
+      <div className="from-primary/20 to-primary/5 relative aspect-video w-full overflow-hidden bg-linear-to-br">
         <Image
           src={"/download.jpg"}
           alt={event.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
-        {/* Gradient Overlay */}
-        <div className="from-background/80 via-background/20 absolute inset-0 bg-linear-to-t to-transparent" />
-        {/* Category Badge */}
+        <div className="absolute inset-0 bg-transparent dark:bg-linear-to-t dark:from-background/90 dark:via-background/25 dark:to-transparent" />
+
+        <div className="absolute -top-24 -right-24 size-56 rounded-full bg-primary/15 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          <Badge
+            variant="secondary"
+            className="bg-background/80 text-foreground backdrop-blur supports-backdrop-filter:bg-background/60"
+          >
+            {typeLabel}
+          </Badge>
+        </div>
+
         <div className="absolute top-4 right-4">
-          <span className="bg-primary/90 text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-sm">
-            {event.type.replace("_", " ").toUpperCase()}
-          </span>
+          <Badge variant="outline" className={statusClassName}>
+            {statusLabel}
+          </Badge>
         </div>
       </div>
 
-      {/* Content Section */}
-      <CardHeader className="space-y-3 pb-4">
-        <CardTitle className="text-foreground group-hover:text-primary line-clamp-2 text-xl font-bold transition-colors">
-          {event.title}
+      <CardHeader className="space-y-2 pb-4">
+        <CardTitle className="text-foreground line-clamp-2 text-xl font-semibold tracking-tight">
+          <Link
+            href={`/events/${typeSlug}/${event.id}` as Route}
+            className="hover:text-primary focus-visible:ring-ring rounded-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            {event.title}
+          </Link>
         </CardTitle>
 
-        {/* Event Details */}
-        {isInactive && (
-          <p className="text-muted-foreground">
-            We still waiting for you to submit your committee registration.
-          </p>
+        {showCommitteeReminder && (
+          <div className="bg-muted/40 text-muted-foreground rounded-lg border border-border/60 px-3 py-2 text-xs leading-relaxed">
+            <span className="text-foreground font-medium">Action needed:</span>{" "}
+            submit committee registration.
+          </div>
         )}
-        <div className="flex flex-col gap-2.5 pt-2">
-          <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
-            <IconCalendar className="text-primary size-4 shrink-0" />
-            <span className="font-medium">{formatDate(event.startDate)}</span>
-          </div>
-          <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
-            <IconClock className="text-primary size-4 shrink-0" />
-            <span className="font-medium">
-              {formatTime(event.startDate, event.endDate)}
-            </span>
-          </div>
-          <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
-            <IconMapPin className="text-primary size-4 shrink-0" />
-            <span className="font-medium">{event.location || "TBA"}</span>
-          </div>
-        </div>
       </CardHeader>
 
       <CardContent className="space-y-4 pt-0">
+        <div className="grid gap-2.5">
+          <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
+            <IconCalendar aria-hidden="true" className="text-primary size-4 shrink-0" />
+            <span className="font-medium">{formatDate(startDate)}</span>
+          </div>
+          <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
+            <IconClock aria-hidden="true" className="text-primary size-4 shrink-0" />
+            <span className="font-medium">
+              {formatTimeRange(startDate, endDate)}
+            </span>
+          </div>
+          <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
+            <IconMapPin aria-hidden="true" className="text-primary size-4 shrink-0" />
+            <span className="font-medium">{event.location || "TBA"}</span>
+          </div>
+        </div>
+
         <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
-          {event.description || "No description available"}
+          {event.description || "No description available."}
         </p>
+      </CardContent>
+
+      <CardFooter className="pt-0">
         <Button
           asChild
-          className="group-hover:bg-primary group-hover:text-primary-foreground w-full font-semibold transition-colors"
           variant="outline"
+          className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary/40 w-full justify-between font-semibold transition-colors"
         >
-          <Link href={`/events/${typeSlug}/${event.id}`}>View Details</Link>
+          <Link href={`/events/${typeSlug}/${event.id}` as Route}>
+            <span>View details</span>
+            <IconArrowUpRight
+              aria-hidden="true"
+              className="size-4 opacity-70 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
+          </Link>
         </Button>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }

@@ -23,7 +23,8 @@ export default function Header() {
 	const links = useMemo(() => [
 		{ to: "/dashboard", label: "Dashboard", isPublic: false } as const,
 		{ to: "/pricing", label: "Pricing", isPublic: true } as const,
-	], []);
+		{ to: "/events", label: "Events", isPublic: true} as const,
+ 	], []);
 	const { scrollY } = useScroll();
 	const [isScrolled, setIsScrolled] = useState<boolean>(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);

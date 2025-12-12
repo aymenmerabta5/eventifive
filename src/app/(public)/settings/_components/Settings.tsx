@@ -7,12 +7,13 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import ProfileInfo from "./ProfileInfo";
 import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
-import { User, Mail, Lock, Settings, ChevronRight, Shield, Bell } from "lucide-react";
+import { User, Mail, Lock, Settings, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -44,72 +45,33 @@ export default function Main() {
   const user = session?.user;
   const [activeTab, setActiveTab] = useState<TabId>("profile");
 
-  // Get current tab data for dynamic styling
-  const currentTab = tabs.find((t) => t.id === activeTab) ?? tabs[0];
-
   // Loading skeleton with matching design
   if (isPending || !user) {
     return (
-      <div className="relative min-h-screen overflow-hidden bg-background">
-        {/* Animated background */}
-        <div className="pointer-events-none fixed inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
-          <div className="absolute top-0 left-1/4 h-[500px] w-[500px] animate-pulse rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] animate-pulse rounded-full bg-primary/5 blur-3xl" />
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mb-16 space-y-4">
+          <Skeleton className="h-12 w-72" />
+          <Skeleton className="h-6 w-[450px]" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-16 space-y-4">
-            <Skeleton className="h-12 w-72" />
-            <Skeleton className="h-6 w-[450px]" />
+        <div className="grid gap-10 lg:grid-cols-[320px_1fr]">
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton
+                key={i}
+                className="h-20 w-full rounded-2xl"
+                style={{ animationDelay: `${i * 100}ms` }}
+              />
+            ))}
           </div>
-
-          <div className="grid gap-30 lg:grid-cols-[320px_1fr]">
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton
-                  key={i}
-                  className="h-20 w-full rounded-2xl"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                />
-              ))}
-            </div>
-            <Skeleton className="h-[500px] w-full rounded-3xl" />
-          </div>
+          <Skeleton className="h-[500px] w-full rounded-3xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* TEACHING: Multi-layer background creates depth and visual interest
-          - Base radial gradient for ambient color
-          - Floating orbs with blur for atmosphere
-          - Grid pattern for subtle texture */}
-      <div className="pointer-events-none fixed inset-0">
-        {/* Radial gradient from top */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
-
-        {/* Floating gradient orbs - these create depth */}
-        <div
-          className={cn(
-            "absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full blur-3xl transition-colors duration-1000",
-            "bg-violet-500/20"
-          )}
-        />
-        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
-
-        {/* Subtle grid pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.015]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Header with gradient accent */}
         <header className="mb-16">
           <div className="flex items-center gap-4 mb-4">
@@ -213,14 +175,16 @@ export default function Main() {
             })}
 
             {/* Decorative element below nav */}
-            <div className="relative mt-6 rounded-2xl border border-dashed border-border/50 p-4">
-              <p className="text-xs text-muted-foreground text-center">
-                Need help?{" "}
-                <span className="text-primary cursor-pointer hover:underline">
-                  Contact support
-                </span>
-              </p>
-            </div>
+            <Card className="mt-6 border-dashed border-border/50">
+              <CardContent className="p-4 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Need help?{" "}
+                  <Button variant="link" className="h-auto p-0 text-xs">
+                    Contact support
+                  </Button>
+                </p>
+              </CardContent>
+            </Card>
           </nav>
 
           {/* Content Area with animation */}
@@ -327,6 +291,5 @@ export default function Main() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

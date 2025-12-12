@@ -4,9 +4,13 @@ import { client } from "@/utils/orpc";
 import type { Event } from "@/server/db/schema";
 import { IconCalendar, IconClock, IconMapPin, IconMail, IconTag } from "@tabler/icons-react";
 import ParticipationOptions from "./Testimonials";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 function mapEventType(urlType: string) {
-	const mapping: Record<string, Event["type"]> = {
+	const mapping: Partial<Record<string, Event["type"]>> = {
 		congress: "congress",
 		seminar: "seminar",
 		workshop: "workshop",
@@ -33,7 +37,7 @@ export default async function EventDetailPage({
 		notFound();
 	}
 
-	const formatDate = (date: Date) => {
+	const formatDate = (date: Date | string) => {
 		return new Date(date).toLocaleDateString("en-US", {
 			weekday: "long",
 			year: "numeric",
@@ -42,7 +46,7 @@ export default async function EventDetailPage({
 		});
 	};
 
-	const formatTime = (date: Date) => {
+	const formatTime = (date: Date | string) => {
 		return new Date(date).toLocaleTimeString("en-US", {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -56,144 +60,170 @@ export default async function EventDetailPage({
 	const isEventMoreThan7DaysAway = eventStart > delayDate;
 
 	return (
-		<main className="relative min-h-screen bg-slate-50 dark:bg-slate-950">
-			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
+		<main className="relative min-h-screen">
+			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.25)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.25)_1px,transparent_1px)] bg-size-[24px_24px]" />
 
 			<div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-				<h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl lg:text-6xl text-center">
-					Event Details
-				</h1>
-				<Link
-					href="/events"
-					className="group mb-8 inline-flex  gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-				>
-					<span className="transition-transform group-hover:-translate-x-0.5">←</span>
-					Back to Events
-				</Link>
-
-				<article className="overflow-hidden rounded-lg border-2 border-border bg-card shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20">
-					<header className="border-b border-border bg-card/50 px-8 py-10 sm:px-12 sm:py-14">
-						<div className="space-y-6">
-							<div className="inline-flex items-center gap-2 rounded-lg border-2 border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-widest text-foreground">
-								{event.type.replace("_", " ")}
-							</div>
-							<h1 className="text-foreground text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-								{event.title}
-							</h1>
-						</div>
-					</header>
-					<section className="border-b border-border bg-card px-8 py-8 sm:px-12">
-						<div className="grid gap-8 sm:grid-cols-2">
-							<div className="space-y-3">
-								<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-									<IconCalendar className="h-4 w-4 text-primary" strokeWidth={2} />
-									Start Date & Time
-								</div>
-								<div className="space-y-1">
-									<p className="text-xl font-semibold text-foreground">
-										{formatDate(event.startDate)}
-									</p>
-									<p className="flex items-center gap-1.5 text-base text-muted-foreground">
-										<IconClock className="h-4 w-4 text-primary" strokeWidth={2} />
-										{formatTime(event.startDate)}
-									</p>
-								</div>
-							</div>
-							<div className="space-y-3">
-								<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-									<IconCalendar className="h-4 w-4 text-primary" strokeWidth={2} />
-									End Date & Time
-								</div>
-								<div className="space-y-1">
-									<p className="text-xl font-semibold text-foreground">
-										{formatDate(event.endDate)}
-									</p>
-									<p className="flex items-center gap-1.5 text-base text-muted-foreground">
-										<IconClock className="h-4 w-4 text-primary" strokeWidth={2} />
-										{formatTime(event.endDate)}
-									</p>
-								</div>
-							</div>
-						</div>
-					</section>
-					<section className="bg-card px-8 py-8 sm:px-12">
-						<h2 className="mb-6 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+				<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<div className="space-y-2">
+						<h1 className="text-center text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-left sm:text-5xl">
 							Event Details
-						</h2>
-						<dl className="grid gap-6 sm:grid-cols-2">
-							<div className="flex gap-4 border-l-2 border-primary/30 pl-4">
-								<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
-								<div className="space-y-1">
-									<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+						</h1>
+						<p className="text-center text-sm text-muted-foreground sm:text-left">
+							Discover dates, location, and key information about this event.
+						</p>
+					</div>
+					<Button variant="outline" asChild className="group gap-2">
+						<Link href="/events" aria-label="Back to events list">
+							<span aria-hidden className="transition-transform group-hover:-translate-x-0.5">
+								←
+							</span>
+							Back to Events
+						</Link>
+					</Button>
+				</div>
+
+				<Card className="overflow-hidden">
+					<CardHeader className="border-b bg-card/50">
+						<div className="space-y-4">
+							<Badge variant="secondary" className="w-fit capitalize">
+								{event.type.replaceAll("_", " ")}
+							</Badge>
+							<CardTitle className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+								{event.title}
+							</CardTitle>
+							<div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+								<div className="inline-flex items-center gap-2">
+									<IconMapPin className="size-4 text-primary" strokeWidth={2} />
+									<span>{event.location ?? "To be announced"}</span>
+								</div>
+								<div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
+								<div className="inline-flex items-center gap-2">
+									<IconCalendar className="size-4 text-primary" strokeWidth={2} />
+									<span>
+										{formatDate(event.startDate)} · {formatTime(event.startDate)} —{" "}
+										{formatDate(event.endDate)} · {formatTime(event.endDate)}
+									</span>
+								</div>
+							</div>
+						</div>
+					</CardHeader>
+
+					<CardContent className="pt-6">
+						<section aria-labelledby="schedule-heading" className="space-y-4">
+							<h2
+								id="schedule-heading"
+								className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+							>
+								Schedule
+							</h2>
+							<div className="grid gap-4 sm:grid-cols-2">
+								<div className="rounded-lg border bg-card p-4">
+									<div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+										<IconCalendar className="size-4 text-primary" strokeWidth={2} />
+										Start
+									</div>
+									<div className="space-y-1">
+										<p className="text-base font-semibold text-foreground">
+											{formatDate(event.startDate)}
+										</p>
+										<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+											<IconClock className="size-4 text-primary" strokeWidth={2} />
+											{formatTime(event.startDate)}
+										</p>
+									</div>
+								</div>
+
+								<div className="rounded-lg border bg-card p-4">
+									<div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+										<IconCalendar className="size-4 text-primary" strokeWidth={2} />
+										End
+									</div>
+									<div className="space-y-1">
+										<p className="text-base font-semibold text-foreground">
+											{formatDate(event.endDate)}
+										</p>
+										<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+											<IconClock className="size-4 text-primary" strokeWidth={2} />
+											{formatTime(event.endDate)}
+										</p>
+									</div>
+								</div>
+							</div>
+						</section>
+
+						<div className="my-6 h-px w-full bg-border" aria-hidden />
+
+						<section aria-labelledby="details-heading" className="space-y-4">
+							<h2
+								id="details-heading"
+								className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+							>
+								Details
+							</h2>
+							<dl className="grid gap-4 sm:grid-cols-2">
+								<div className="rounded-lg border bg-card p-4">
+									<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+										<IconTag className="size-4 text-primary" strokeWidth={2} />
 										Type
 									</dt>
-									<dd className="text-base font-medium capitalize text-foreground">
-										{event.type.replace("_", " ")}
+									<dd className="text-sm text-muted-foreground capitalize">
+										{event.type.replaceAll("_", " ")}
 									</dd>
 								</div>
-							</div>
-							<div className="flex gap-4 border-l-2 border-primary/30 pl-4">
-								<IconMapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
-								<div className="space-y-1">
-									<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+
+								<div className="rounded-lg border bg-card p-4">
+									<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+										<IconMapPin className="size-4 text-primary" strokeWidth={2} />
 										Location
 									</dt>
-									<dd className="text-base font-medium text-foreground">
+									<dd className="text-sm text-muted-foreground">
 										{event.location ?? "To be announced"}
 									</dd>
 								</div>
-							</div>
-							<div className="flex gap-4 border-l-2 border-primary/30 pl-4 sm:col-span-2">
-								<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
-								<div className="space-y-1">
-									<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+
+								<div className="rounded-lg border bg-card p-4 sm:col-span-2">
+									<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+										<IconTag className="size-4 text-primary" strokeWidth={2} />
 										Description
 									</dt>
-									<dd className="text-base font-medium text-foreground">
-										{event.description && (
-											<p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
-												{event.description}
-											</p>
-										)}
+									<dd className="text-sm leading-relaxed text-muted-foreground">
+										{event.description ?? "No description provided."}
 									</dd>
 								</div>
-							</div>
-							{event.contactEmail && (
-								<div className="flex gap-4 border-l-2 border-primary/30 pl-4">
-									<IconMail className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
-									<div className="space-y-1">
-										<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+
+								{event.contactEmail && (
+									<div className="rounded-lg border bg-card p-4">
+										<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+											<IconMail className="size-4 text-primary" strokeWidth={2} />
 											Contact
 										</dt>
 										<dd>
-											<a
-												href={`mailto:${event.contactEmail}`}
-												className="text-base font-medium text-foreground underline decoration-border underline-offset-2 transition-colors hover:text-primary hover:decoration-primary"
-											>
-												{event.contactEmail}
-											</a>
+											<Button variant="link" asChild className="h-auto p-0 text-sm">
+												<a href={`mailto:${event.contactEmail}`}>{event.contactEmail}</a>
+											</Button>
 										</dd>
 									</div>
-								</div>
-							)}
-							{event.theme && (
-								<div
-									className={`flex gap-4 border-l-2 border-primary/30 pl-4 ${
-										!event.contactEmail ? "sm:col-span-2" : ""
-									}`}
-								>
-									<IconTag className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
-									<div className="space-y-1">
-										<dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+								)}
+
+								{event.theme && (
+									<div
+										className={cn(
+											"rounded-lg border bg-card p-4",
+											!event.contactEmail && "sm:col-span-2",
+										)}
+									>
+										<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+											<IconTag className="size-4 text-primary" strokeWidth={2} />
 											Theme
 										</dt>
-										<dd className="text-base font-medium text-foreground">{event.theme}</dd>
+										<dd className="text-sm text-muted-foreground">{event.theme}</dd>
 									</div>
-								</div>
-							)}
-						</dl>
-					</section>
-				</article>
+								)}
+							</dl>
+						</section>
+					</CardContent>
+				</Card>
 				{isEventMoreThan7DaysAway && <ParticipationOptions />}
 			</div>
 		</main>
