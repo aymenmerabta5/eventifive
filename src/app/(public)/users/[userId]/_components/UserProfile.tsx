@@ -7,6 +7,7 @@ import {
   IconMail,
   IconCalendar,
   IconCheck,
+  IconShare,
 } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -40,7 +41,7 @@ interface UserProfileProps {
     imageUrl: string | null;
     institution: string | null;
     researchDomain: string | null;
-    biography: any;
+    biography?: any;
     createdAt: Date;
     updatedAt: Date;
     recentEvents?: {
@@ -103,6 +104,16 @@ export default function UserProfile({ user }: UserProfileProps) {
       );
     } finally {
       setIsContacting(false);
+    }
+  };
+
+  const handleShareProfile = async () => {
+    const profileUrl = `${window.location.origin}/users/${user.id}`;
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      toast.success("Profile link copied to clipboard");
+    } catch {
+      toast.error("Failed to copy link");
     }
   };
 
@@ -291,7 +302,9 @@ export default function UserProfile({ user }: UserProfileProps) {
                   <Button
                     variant="secondary"
                     className="rounded-xl border-dashed w-full"
+                    onClick={handleShareProfile}
                   >
+                    <IconShare className="mr-2 h-4 w-4" />
                     Share profile
                   </Button>
                 </div>
