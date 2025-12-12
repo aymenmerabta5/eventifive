@@ -4,7 +4,6 @@ config({ path: ".env" });
 const resetDatabase = async () => {
   const { db } = await import("./index");
   const { sql } = await import("drizzle-orm");
-
   try {
     const typesResult = await db.execute<{ typname: string }>(sql`
       SELECT typname 
