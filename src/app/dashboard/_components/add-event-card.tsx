@@ -328,7 +328,7 @@ export function AddEventCard() {
                       className="flex items-center gap-2 text-sm font-medium"
                     >
                       <FileText className="size-4" />
-                      Small Description *
+                      Event Description *
                     </Label>
                     <Textarea
                       id={field.name}
