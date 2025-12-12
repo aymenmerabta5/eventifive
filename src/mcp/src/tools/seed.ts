@@ -70,7 +70,11 @@ export function registerSeedTools(server: McpServer) {
         }
 
         // 2. Create event (first user is organizer)
-        const organizerId = createdUsers[0].id;
+        const organizer = createdUsers[0];
+        if (!organizer) {
+          throw new Error("No users were created. Cannot create an event.");
+        }
+        const organizerId = organizer.id;
         const eventId = uuidv4();
         const startDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
         const endDate = new Date(startDate.getTime() + 3 * 24 * 60 * 60 * 1000);
@@ -162,7 +166,11 @@ export function registerSeedTools(server: McpServer) {
           const reviewerCount = Math.min(reviewsPerSubmission, availableReviewers.length);
 
           for (let i = 0; i < reviewerCount; i++) {
-            const reviewerId = availableReviewers[i].id;
+            const reviewer = availableReviewers[i];
+            if (!reviewer) {
+              throw new Error("No reviewers available for this submission.");
+            }
+            const reviewerId = reviewer.id;
             const score = Math.floor(Math.random() * 5) + 5;
             const recommendation =
               score >= 8

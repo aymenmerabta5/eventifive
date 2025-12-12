@@ -159,6 +159,7 @@ export const verification = pgTable("verification", {
 export const event = pgTable("event", {
   id: text("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
+  // Short description (legacy field used across public listings)
   description: text("description"),
   type: eventTypeEnum("type").notNull(),
   startDate: timestamp("start_date").notNull(),

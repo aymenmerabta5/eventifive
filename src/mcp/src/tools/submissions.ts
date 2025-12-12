@@ -214,8 +214,17 @@ export function registerSubmissionTools(server: McpServer) {
 
         for (let i = 0; i < input.count; i++) {
           const submissionId = uuidv4();
-          const submitterId = users[i % users.length].id;
-          const submissionType = input.type || types[Math.floor(Math.random() * types.length)];
+          const submitter = users[i % users.length];
+          if (!submitter) {
+            throw new Error("No users available to assign as submitter.");
+          }
+          const submitterId = submitter.id;
+
+          const randomType = types[Math.floor(Math.random() * types.length)];
+          if (!randomType) {
+            throw new Error("No submission types configured.");
+          }
+          const submissionType = input.type ?? randomType;
 
           const title = `${faker.science.chemicalElement().name} ${faker.company.buzzNoun()}: A ${faker.company.buzzAdjective()} Approach`;
 

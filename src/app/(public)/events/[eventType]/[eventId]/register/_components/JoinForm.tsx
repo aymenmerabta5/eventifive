@@ -50,7 +50,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
 
     setName(user.name ?? "");
     setEmail(user.email ?? "");
-    setResearchDomain((user as any).researchDomain ?? "");
+    setResearchDomain((user as { researchDomain?: string | null }).researchDomain ?? "");
   }, [user]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {

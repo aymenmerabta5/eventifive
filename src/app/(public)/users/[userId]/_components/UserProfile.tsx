@@ -41,7 +41,7 @@ interface UserProfileProps {
     imageUrl: string | null;
     institution: string | null;
     researchDomain: string | null;
-    biography?: any;
+    biography?: unknown;
     createdAt: Date;
     updatedAt: Date;
     recentEvents?: {

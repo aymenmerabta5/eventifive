@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { event, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { eq } from "drizzle-orm/expressions"; 
+import { eq } from "drizzle-orm";
 
 const inputSchema = z.object({
 	id: z.string().uuid(),
@@ -31,7 +31,11 @@ export const getEventRouter = publicProcedure
 	.output(eventSchema)
 	.handler(async ({ input }) => {
 		try {
-			const [found] = await db.select().from(event).where(eq(event.id, input.id)).limit(1);
+			const [found] = await db
+				.select()
+				.from(event)
+				.where(eq(event.id, input.id))
+				.limit(1);
 
 			if (!found) {
 				throw new ORPCError("NOT_FOUND", { message: "Event not found" });

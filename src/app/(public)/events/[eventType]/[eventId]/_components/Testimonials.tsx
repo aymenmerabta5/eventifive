@@ -15,7 +15,7 @@ export default function ParticipationOptions() {
 					Join Us
 				</h1>
 				<p className="text-muted-foreground mt-4 text-sm font-semibold uppercase tracking-widest text-center">
-					We're here to help you make your event a success
+					We&apos;re here to help you make your event a success
 				</p>
 			</div>
 
@@ -88,7 +88,7 @@ export default function ParticipationOptions() {
 							</h3>
 						</div>
 						<p className="text-muted-foreground mb-6 text-sm leading-relaxed">
-							We invite dedicated professionals and leaders who can contribute to organizing committees, scientific committees, or program committees to help shape the event's content, review submissions, and ensure its success.
+							We invite dedicated professionals and leaders who can contribute to organizing committees, scientific committees, or program committees to help shape the event&apos;s content, review submissions, and ensure its success.
 						</p>
 						<div className="mt-10 flex justify-center">
 							<Link
