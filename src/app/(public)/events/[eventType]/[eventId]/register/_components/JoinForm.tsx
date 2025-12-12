@@ -41,10 +41,14 @@ export default function JoinForm({ eventId }: JoinFormProps) {
   const [email, setEmail] = useState("");
   const [researchDomain, setResearchDomain] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [uploadedCount, setUploadedCount] = useState<number>(0);
+  const [isLoadingQuota, setIsLoadingQuota] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const addMoreFiles = files.length < 3;
+  const maxFiles = 3;
+  const remainingSlots = Math.max(0, maxFiles - uploadedCount - files.length);
+  const addMoreFiles = remainingSlots > 0;
 
   useEffect(() => {
     if (!user) return;
@@ -54,16 +58,51 @@ export default function JoinForm({ eventId }: JoinFormProps) {
     setResearchDomain((user as any).researchDomain ?? "");
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    setIsLoadingQuota(true);
+
+    fetch(`/api/upload-file?eventId=${encodeURIComponent(eventId)}`)
+      .then(async (res) => {
+        const json = (await res.json()) as {
+          uploadedCount?: number;
+          maxFiles?: number;
+          message?: string;
+        };
+        if (!res.ok)
+          throw new Error(json.message || "Failed to load upload quota");
+        return json;
+      })
+      .then((json) => {
+        if (cancelled) return;
+        setUploadedCount(Number(json.uploadedCount ?? 0));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("Error fetching upload quota:", err);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsLoadingQuota(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, user]);
+
   const addFiles = (incoming: File[]) => {
     if (incoming.length === 0) return;
 
     setFiles((prev) => {
-      const available = Math.max(0, 3 - prev.length);
+      const available = Math.max(0, maxFiles - uploadedCount - prev.length);
       if (available <= 0) return prev;
 
       const next = [...prev, ...incoming.slice(0, available)];
       if (incoming.length > available) {
-        toast.error("You can upload a maximum of 3 files.");
+        toast.error("You can upload a maximum of 3 files for this event.");
       }
       return next;
     });
@@ -110,6 +149,11 @@ export default function JoinForm({ eventId }: JoinFormProps) {
     event.preventDefault();
     event.stopPropagation();
 
+    if (name.trim().length === 0) {
+      toast.error("Please enter your full name.");
+      return;
+    }
+
     if (files.length === 0) {
       toast.error("Please select at least 1 file to upload.");
       return;
@@ -120,13 +164,22 @@ export default function JoinForm({ eventId }: JoinFormProps) {
       return;
     }
 
+    if (uploadedCount + files.length > maxFiles) {
+      toast.error("You can upload a maximum of 3 files for this event.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      for (const file of files) {
+      for (const [index, file] of files.entries()) {
         const formData = new FormData();
         formData.set("file", file);
         formData.set("eventId", eventId);
+        if (index === 0) {
+          formData.set("name", name);
+          formData.set("researchDomain", researchDomain);
+        }
 
         const uploadResponse = await fetch("/api/upload-file", {
           method: "POST",
@@ -146,6 +199,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
 
       toast.success("Your registration file has been uploaded successfully.");
       setFiles([]);
+      setUploadedCount((prev) => Math.min(maxFiles, prev + files.length));
     } catch (error) {
       console.error("Error during registration upload:", error);
       toast.error(
@@ -299,6 +353,11 @@ export default function JoinForm({ eventId }: JoinFormProps) {
                   <FileUp className="h-4 w-4 text-muted-foreground" />
                   Supporting document
                 </Label>
+                <p className="text-xs text-muted-foreground">
+                  {isLoadingQuota
+                    ? "Checking upload limit…"
+                    : `${uploadedCount}/${maxFiles} already uploaded for this event`}
+                </p>
 
                 {files.length === 0 ? (
                   <div
