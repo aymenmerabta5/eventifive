@@ -26,8 +26,6 @@ import {
 	XCircle,
 	Loader2,
 	AlertCircle,
-	ChevronDown,
-	ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,12 +40,9 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 	const { data: session, isPending: isSessionPending } = authClient.useSession();
 	const user = session?.user;
 
-	const [fileRecommendations, setFileRecommendations] = useState<
-		Record<string, ReviewRecommendation>
-	>({});
+	const [recommendation, setRecommendation] = useState<ReviewRecommendation | undefined>(undefined);
 	const [comments, setComments] = useState("");
 	const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
-	const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
 	const {
 		data: submission,
 		isLoading,
@@ -96,24 +91,12 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 			onSettled: () => setDownloadingFileId(null),
 		});
 	};
-
-	const toggleFileExpansion = (fileId: string) => {
-		setExpandedFiles((prev) => {
-			const newSet = new Set(prev);
-			if (newSet.has(fileId)) {
-				newSet.delete(fileId);
-			} else {
-				newSet.add(fileId);
-			}
-			return newSet;
-		});
-	};
 	const submitReviewMutation = useMutation(
 		orpc.reviews.create.mutationOptions({
 			onSuccess: () => {
 				toast.success("Review submitted successfully");
 				setComments("");
-				setFileRecommendations({});
+				setRecommendation(undefined);
 			},
 			onError: (error) => {
 				console.error("Error submitting review:", error);
@@ -127,17 +110,8 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 	);
 
 	const handleSubmitReview = () => {
-		if (!submission?.files || submission.files.length === 0) {
-			toast.error("No files to review");
-			return;
-		}
-
-		const allFilesReviewed = submission.files.every(
-			(file: any) => fileRecommendations[file.id],
-		);
-
-		if (!allFilesReviewed) {
-			toast.error("Please provide a recommendation for each file");
+		if (!recommendation) {
+			toast.error("Please provide a recommendation for this submission");
 			return;
 		}
 
@@ -146,24 +120,9 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 			return;
 		}
 
-		const recommendationPriority: Record<ReviewRecommendation, number> = {
-			reject: 2,
-			accept: 1,
-		};
-
-		const recommendations = Object.values(fileRecommendations).filter(
-			(r): r is ReviewRecommendation => r !== undefined,
-		);
-
-		const aggregatedRecommendation = recommendations.reduce((prev, curr) => {
-			return recommendationPriority[curr] > recommendationPriority[prev]
-				? curr
-				: prev;
-		}, recommendations[0] as ReviewRecommendation);
-
 		submitReviewMutation.mutate({
 			submissionId,
-			recommendation: aggregatedRecommendation,
+			recommendation,
 			comments: comments.trim() || undefined,
 		});
 	};
@@ -291,131 +250,50 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 
 						{/* Files Section */}
 						<div className="space-y-3">
-							<Label className="text-sm font-medium">Files & Reviews</Label>
+							<Label className="text-sm font-medium">Files</Label>
 							{submission.files && submission.files.length > 0 ? (
 								<div className="space-y-3">
-									{submission.files.map((file: any) => {
-										const isExpanded = expandedFiles.has(file.id);
-										const fileRecommendation = fileRecommendations[file.id];
-
-										return (
-											<Card
-												key={file.id}
-												className="overflow-hidden bg-muted/30 transition-colors hover:bg-muted/50"
-											>
-												{/* File Header */}
-												<CardContent className="flex items-center gap-4 p-4">
-													<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-														<FileText className="h-6 w-6 text-primary" />
-													</div>
-													<div className="flex-1 min-w-0">
-														<p className="truncate font-medium text-sm">
-															{file.fileName}
-														</p>
-														<p className="text-xs text-muted-foreground">
-															{(file.fileSize / 1024 / 1024).toFixed(2)} MB ·{" "}
-															{file.contentType}
-														</p>
-														{file.purpose && (
-															<Badge variant="outline" className="mt-1 text-xs">
-																{file.purpose}
-															</Badge>
+									{submission.files.map((file: any) => (
+										<Card
+											key={file.id}
+											className="overflow-hidden bg-muted/30 transition-colors hover:bg-muted/50"
+										>
+											<CardContent className="flex items-center gap-4 p-4">
+												<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+													<FileText className="h-6 w-6 text-primary" />
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="truncate font-medium text-sm">
+														{file.fileName}
+													</p>
+													<p className="text-xs text-muted-foreground">
+														{(file.fileSize / 1024 / 1024).toFixed(2)} MB ·{" "}
+														{file.contentType}
+													</p>
+													{file.purpose && (
+														<Badge variant="outline" className="mt-1 text-xs">
+															{file.purpose}
+														</Badge>
+													)}
+												</div>
+												<div className="flex items-center gap-2">
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => handleDownload(file.id, file.fileName)}
+														disabled={downloadingFileId === file.id}
+													>
+														{downloadingFileId === file.id ? (
+															<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+														) : (
+															<Download className="mr-2 h-4 w-4" />
 														)}
-														{fileRecommendation && (
-															<div className="mt-2">
-																<Badge
-																	variant={
-																		fileRecommendation === "accept"
-																			? "default"
-																			: "destructive"
-																	}
-																	className="text-xs"
-																>
-																	{
-																		recommendationOptions.find(
-																			(opt) => opt.value === fileRecommendation,
-																		)?.label
-																	}
-																</Badge>
-															</div>
-														)}
-													</div>
-													<div className="flex items-center gap-2">
-														<Button
-															variant="outline"
-															size="sm"
-															onClick={() => handleDownload(file.id, file.fileName)}
-															disabled={downloadingFileId === file.id}
-														>
-															{downloadingFileId === file.id ? (
-																<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-															) : (
-																<Download className="mr-2 h-4 w-4" />
-															)}
-															Download
-														</Button>
-														<Button
-															variant="ghost"
-															size="sm"
-															onClick={() => toggleFileExpansion(file.id)}
-															className="h-9 w-9 p-0"
-														>
-															{isExpanded ? (
-																<ChevronUp className="h-4 w-4" />
-															) : (
-																<ChevronDown className="h-4 w-4" />
-															)}
-														</Button>
-													</div>
-												</CardContent>
-
-												{/* Review Section (Expandable) */}
-												{isExpanded && (
-													<>
-														<Separator />
-														<CardContent className="space-y-4 p-4 pt-4">
-															{/* Recommendation Selection */}
-															<div className="space-y-3">
-																<Label className="text-sm font-medium">
-																	Recommendation for this file *
-																</Label>
-																<div className="grid gap-2 sm:grid-cols-2">
-																	{recommendationOptions.map((option) => {
-																		const Icon = option.icon;
-																		const isSelected =
-																			fileRecommendation === option.value;
-																		return (
-																			<Button
-																				key={option.value}
-																				type="button"
-																				variant={
-																					isSelected ? option.variant : "outline"
-																				}
-																				size="sm"
-																				className={cn(
-																					"h-auto flex-col gap-1.5 p-3 text-xs",
-																					isSelected && "ring-2 ring-ring",
-																				)}
-																				onClick={() => {
-																					setFileRecommendations((prev) => ({
-																						...prev,
-																						[file.id]: option.value,
-																					}));
-																				}}
-																			>
-																				<Icon className="h-4 w-4" />
-																				<span>{option.label}</span>
-																			</Button>
-																		);
-																	})}
-																</div>
-															</div>
-														</CardContent>
-													</>
-												)}
-											</Card>
-										);
-									})}
+														Download
+													</Button>
+												</div>
+											</CardContent>
+										</Card>
+									))}
 								</div>
 							) : (
 								<p className="text-sm text-muted-foreground">
@@ -434,7 +312,46 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 							Provide overall feedback about the submission (optional)
 						</CardDescription>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="space-y-6">
+						{/* Recommendation Section */}
+						<div className="space-y-3">
+							<Label className="text-sm font-medium">
+								Recommendation *
+							</Label>
+							<div className="grid gap-2 sm:grid-cols-2">
+								{recommendationOptions.map((option) => {
+									const Icon = option.icon;
+									const isSelected = recommendation === option.value;
+									return (
+										<Button
+											key={option.value}
+											type="button"
+											variant={isSelected ? option.variant : "outline"}
+											size="sm"
+											className={cn(
+												"h-auto flex-col gap-1.5 p-3 text-xs",
+												isSelected && "ring-2 ring-ring",
+											)}
+											onClick={() => setRecommendation(option.value)}
+										>
+											<Icon className="h-4 w-4" />
+											<span>{option.label}</span>
+										</Button>
+									);
+								})}
+							</div>
+							{recommendation && (
+								<div className="rounded-lg bg-muted/50 p-3">
+									<p className="text-sm text-muted-foreground">
+										You have selected to <strong>{recommendation === "accept" ? "accept" : "reject"}</strong> this submission.
+									</p>
+								</div>
+							)}
+						</div>
+
+						<Separator />
+
+						{/* Comments Section */}
 						<div className="space-y-2">
 							<Label htmlFor="comments" className="text-sm font-medium">
 								Overall Comments
@@ -461,12 +378,7 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 							type="button"
 							onClick={handleSubmitReview}
 							disabled={
-								submitReviewMutation.isPending ||
-								!submission?.files ||
-								submission.files.length === 0 ||
-								!submission.files.every(
-									(file: any) => fileRecommendations[file.id],
-								)
+								submitReviewMutation.isPending || !recommendation
 							}
 							className="w-full sm:w-auto sm:min-w-[200px]"
 						>
