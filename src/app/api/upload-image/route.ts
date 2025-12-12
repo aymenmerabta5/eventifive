@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const userProfile=await db.select().from(user).where(eq(user.id, session.user.id));
-    if(userProfile[0]?.image && userProfile[0]?.image !== ""){
+    if(userProfile[0]?.image && userProfile[0]?.image !== "" && userProfile[0]?.image !== "https://lh3.googleusercontent.com"){
         await s3Client.send(
             new DeleteObjectCommand({
                 Bucket: env.S3_BUCKET_NAME,
