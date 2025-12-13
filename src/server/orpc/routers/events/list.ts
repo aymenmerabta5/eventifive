@@ -1,10 +1,12 @@
 import { publicProcedure } from "../../index";
 import { db } from "@/server/db";
-import { event, eventTypeValues, type Event, type EventType } from "@/server/db/schema";
+import { event, eventTypeValues, type EventType } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
+import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
+// TEACHING: eventSchema now includes imageUrl for the presigned S3 URL
 const eventSchema = z.object({
 	id: z.string(),
 	title: z.string(),
@@ -16,6 +18,7 @@ const eventSchema = z.object({
 	organizerId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
+	imageUrl: z.string().nullable(),
 });
 
 const outputListEventsSchema = z.object({
@@ -27,8 +30,12 @@ const outputListEventsSchema = z.object({
 	symposium: z.array(eventSchema).max(3),
 });
 
+// TEACHING: We define a type for events with imageUrl
+// This is the shape returned to clients, not the raw DB shape
+type EventWithImageUrl = z.infer<typeof eventSchema>;
+
 type GroupedEvents = {
-	[K in EventType]: Event[];
+	[K in EventType]: EventWithImageUrl[];
 };
 
 export const listEventsRouter = publicProcedure
@@ -47,7 +54,7 @@ export const listEventsRouter = publicProcedure
 				symposium: [],
 			};
 
-			// Fetch 3 events for each type
+			// Fetch 3 events for each type and generate image URLs
 			await Promise.all(
 				eventTypes.map(async (type) => {
 					const events = await db
@@ -57,7 +64,28 @@ export const listEventsRouter = publicProcedure
 						.orderBy(desc(event.startDate))
 						.limit(3);
 
-					grouped[type] = events;
+					// TEACHING: Generate presigned URLs for each event's image
+					const eventsWithUrls = await Promise.all(
+						events.map(async (evt) => {
+							let imageUrl: string | null = null;
+
+							if (evt.image) {
+								try {
+									const { downloadUrl } = await generatePresignedDownloadUrl(evt.image);
+									imageUrl = downloadUrl;
+								} catch (error) {
+									console.error(`Failed to generate image URL for event ${evt.id}:`, error);
+								}
+							}
+
+							return {
+								...evt,
+								imageUrl,
+							};
+						})
+					);
+
+					grouped[type] = eventsWithUrls;
 				})
 			);
 

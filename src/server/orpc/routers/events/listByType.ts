@@ -4,7 +4,11 @@ import { event, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq, desc, asc, and, sql } from "drizzle-orm";
+import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
+// TEACHING: We add imageUrl to the output schema
+// This is the presigned URL that the client can use to display the image
+// It's separate from the raw S3 key stored in the database
 const eventSchema = z.object({
 	id: z.string(),
 	title: z.string(),
@@ -16,6 +20,7 @@ const eventSchema = z.object({
 	organizerId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
+	imageUrl: z.string().nullable(),
 });
 
 const inputSchema = z.object({
@@ -80,6 +85,31 @@ export const listEventsByTypeRouter = publicProcedure
 				.limit(limit)
 				.offset(offset);
 
+			// TEACHING: Generate presigned URLs for each event's image
+			// We use Promise.all to fetch all URLs in parallel for better performance
+			// If an event has no image, we return null for the imageUrl
+			const eventsWithImageUrls = await Promise.all(
+				events.map(async (evt) => {
+					let imageUrl: string | null = null;
+
+					if (evt.image) {
+						try {
+							const { downloadUrl } = await generatePresignedDownloadUrl(evt.image);
+							imageUrl = downloadUrl;
+						} catch (error) {
+							// TEACHING: If image URL generation fails, log but don't fail the whole request
+							// The event card will show a fallback/placeholder image
+							console.error(`Failed to generate image URL for event ${evt.id}:`, error);
+						}
+					}
+
+					return {
+						...evt,
+						imageUrl,
+					};
+				})
+			);
+
 			// Check if there are more pages
 			const nextPageEvents = await db
 				.select()
@@ -89,7 +119,7 @@ export const listEventsByTypeRouter = publicProcedure
 				.offset(offset + limit);
 
 			return {
-				data: events,
+				data: eventsWithImageUrls,
 				currentPage: page,
 				nextPage: nextPageEvents.length > 0 ? page + 1 : null,
 			};

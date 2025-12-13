@@ -164,6 +164,8 @@ export const event = pgTable("event", {
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
   location: varchar("location", { length: 255 }),
+  image: varchar("image", { length: 255 }),
+  
   theme: varchar("theme", { length: 255 }),
   contactEmail: text("contact_email"),
   organizerId: text("organizer_id")

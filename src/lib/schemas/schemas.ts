@@ -38,6 +38,7 @@ export const createEventSchema = z.object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().max(255, "Location must be less than 255 characters").optional(),
+    image: z.string().optional(),
     
 }).refine((data) => {
     const start = new Date(data.startDate);

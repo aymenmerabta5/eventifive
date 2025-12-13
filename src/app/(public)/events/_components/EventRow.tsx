@@ -5,10 +5,13 @@ import { IconArrowRight } from "@tabler/icons-react";
 import type { Route } from "next";
 import type { Event } from "@/server/db/schema";
 
+// TEACHING: Extended to include imageUrl for S3 presigned URLs
 type EventCardData = Pick<
   Event,
   "id" | "title" | "type" | "startDate" | "endDate" | "location" | "description"
->;
+> & {
+  imageUrl?: string | null;
+};
 
 export interface EventRowProps {
   events: EventCardData[] | readonly EventCardData[];

@@ -3,6 +3,7 @@ import { db } from "@/server/db";
 import { event, eventTypeValues } from "@/server/db/schema";
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
+import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 const eventSchema = z.object({
 	id: z.string(),
@@ -17,6 +18,7 @@ const eventSchema = z.object({
 	organizerId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
+	imageUrl: z.string().nullable(),
 });
 
 const outputSchema = z.object({
@@ -37,8 +39,29 @@ export const myEventsRouter = protectedProcedure
 			.where(eq(event.organizerId, userId))
 			.orderBy(desc(event.createdAt));
 
+		// TEACHING: Generate presigned URLs for each event's image
+		const eventsWithUrls = await Promise.all(
+			events.map(async (evt) => {
+				let imageUrl: string | null = null;
+
+				if (evt.image) {
+					try {
+						const { downloadUrl } = await generatePresignedDownloadUrl(evt.image);
+						imageUrl = downloadUrl;
+					} catch (error) {
+						console.error(`Failed to generate image URL for event ${evt.id}:`, error);
+					}
+				}
+
+				return {
+					...evt,
+					imageUrl,
+				};
+			})
+		);
+
 		return {
-			events,
-			total: events.length,
+			events: eventsWithUrls,
+			total: eventsWithUrls.length,
 		};
 	});

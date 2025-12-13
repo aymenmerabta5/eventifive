@@ -4,11 +4,11 @@ import { event, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 const inputSchema = z.object({
 	id: z.string().uuid(),
 });
-
 
 const eventSchema = z.object({
 	id: z.string(),
@@ -23,6 +23,7 @@ const eventSchema = z.object({
 	organizerId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
+	imageUrl: z.string().nullable(),
 });
 
 export const getEventRouter = publicProcedure
@@ -41,7 +42,20 @@ export const getEventRouter = publicProcedure
 				throw new ORPCError("NOT_FOUND", { message: "Event not found" });
 			}
 
-			return found;
+			let imageUrl: string | null = null;
+			if (found.image) {
+				try {
+					const { downloadUrl } = await generatePresignedDownloadUrl(found.image);
+					imageUrl = downloadUrl;
+				} catch (error) {
+					console.error(`Failed to generate image URL for event ${found.id}:`, error);
+				}
+			}
+
+			return {
+				...found,
+				imageUrl,
+			};
 		} catch (error) {
 			if (error instanceof ORPCError) {
 				throw error;

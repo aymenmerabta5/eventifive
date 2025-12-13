@@ -13,6 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { useRef, useState } from "react";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useProfileImage } from "@/hooks/use-profile-image";
 import Link from "next/link";
@@ -231,7 +232,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
                 variant="outline"
                 className="inline-flex items-center gap-2"
               >
-                <Link href={`/users/${user.id}`}>
+                <Link href={`/users/${user.id}` as Route}>
                   <ExternalLink className="h-4 w-4" />
                   View Public Profile
                 </Link>
