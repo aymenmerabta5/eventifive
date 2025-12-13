@@ -3,7 +3,7 @@
 **Version:** 0.1.0  
 **Status:** Private / Proprietary
 
-Eventifive is a modern event management platform built with Next.js 16 and the latest web technologies.
+Eventifive is a modern event management platform built with Next.js 16 and the latest web technologies. Features include event management, submission/review workflows, payment processing, subscription plans, and real-time messaging.
 
 ## 🔒 License
 
@@ -204,10 +204,19 @@ This project uses [Better Auth](https://www.better-auth.com/) for authentication
 - **Email/Password authentication** with email verification
 - **Google OAuth** social login
 - **Password reset** via email (Resend integration)
-- **Session management** with secure cookies
+- **Session management** with secure cookies and device tracking
+- **Multi-device session control** - view and revoke sessions from any device
 - **CAPTCHA protection** with Cloudflare Turnstile
 - **Type-safe auth client** for React components
 - Separate configurations for HTTP and WebSocket servers
+
+### Session Management
+
+Users can manage their active sessions from settings:
+- View all logged-in devices with browser/OS info
+- See IP addresses and last activity time
+- Revoke individual sessions or logout everywhere
+- Device type detection (mobile, tablet, desktop)
 
 ## 🗄️ Database Management
 
@@ -225,8 +234,14 @@ The project uses Drizzle ORM with PostgreSQL:
 - Reviews and Review Assignments
 - Program Sessions, Rooms, and Workshops
 - Event Registration and Payments
+- Subscription Plans and User Subscriptions
 - File Storage metadata
 - Messaging (conversations and messages)
+
+**Database Enums:**
+- `paymentStatusEnum`: unpaid, pending, paid, refunded
+- `billingPeriodEnum`: monthly, yearly
+- `subscriptionStatusEnum`: pending, active, cancelled, expired
 
 ## 🔌 API Layer (oRPC)
 
@@ -267,10 +282,30 @@ Cloudflare R2 integration for file uploads:
 
 Chargily payment gateway for Algerian market:
 
-- Event registration payments
-- DZD currency support
-- Webhook handling for payment status
+- **Event registration payments** - Pay to join events with configurable pricing
+- **Subscription payments** - Monthly and yearly billing plans
+- **DZD currency support** - Amounts in whole units (not cents)
+- **Webhook handling** for payment status updates
+- **Automatic price sync** - Products/prices synced to Chargily on demand
 - Optional in development mode
+
+### Payment Flow
+
+1. User initiates checkout (event registration or subscription)
+2. API syncs price to Chargily if needed
+3. Creates checkout session, returns URL
+4. User redirected to Chargily payment page
+5. After payment, redirected to success/failure URL
+6. Payment status updated via webhook or polling
+
+### Subscription Plans
+
+Three-tier subscription system:
+- **Basic** - Essential features
+- **Standard** - Advanced features
+- **Premium** - Full access
+
+Plans support monthly and yearly billing (25% yearly discount).
 
 ## 🎨 UI Components
 
@@ -290,6 +325,8 @@ UI components are built with:
 - Event creation and organization
 - Speaker and committee management
 - Event registration with payment processing
+- Event image uploads with presigned URLs
+- Configurable event pricing (free or paid)
 
 **Submission System:**
 - Abstract and paper submissions (oral, poster, workshop, demo)
@@ -310,9 +347,11 @@ UI components are built with:
 - Session-to-submission assignments
 
 **User System:**
-- Role-based access control (super_admin, admin, communicator, scientific_committee_member, participant, speaker, workshop_facilitator)
+- Role-based access control (super_admin, admin, user)
 - User profiles with institution and research domain
 - Biography management with rich text
+- Session management across multiple devices
+- Subscription status tracking
 
 **Messaging:**
 - Direct user-to-user conversations

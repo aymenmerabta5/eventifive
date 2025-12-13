@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Eventifive is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, and real-time messaging.
+Eventifive is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, subscriptions, real-time messaging, and session management.
 
 ## Development Commands
 
@@ -66,8 +66,35 @@ Eventifive is a modern event management platform built with Next.js 16, supporti
 #### Database (Drizzle ORM)
 - **Schema**: `src/server/db/schema.ts` - single source of truth for all tables
 - **Connection**: `src/server/db/index.ts` - database client instance
-- **Key entities**: users, roles, events, submissions, reviews, payments, files, messages
+- **Key entities**: users, roles, events, submissions, reviews, payments, subscriptions, files, messages
 - **Table prefix**: `eventifive_*` (configured in drizzle.config.ts)
+
+#### Payment System (Chargily)
+- **Payment router**: `src/server/orpc/routers/payment/` - checkout and payment status
+- **Subscription router**: `src/server/orpc/routers/subscription/` - plan management
+- **Gateway integration**: `src/server/gateway/chargily.ts` - Chargily API client
+- **Event sync**: `src/server/gateway/chargilySyncEvent.ts` - sync event prices to Chargily
+- **Subscription sync**: `src/server/gateway/chargilySync.ts` - sync subscription plans
+- **Payment schemas**: `src/lib/schemas/payment.ts` - Zod validation schemas
+
+**Key payment endpoints:**
+- `payment.createCheckout` - Create subscription payment checkout
+- `payment.createEventCheckout` - Create event registration payment checkout
+- `payment.getStatus` - Check payment status by checkout ID
+- `payment.list` - List user's payment history
+
+**Key subscription endpoints:**
+- `subscription.listPlans` - List all subscription plans
+- `subscription.createPlan` - Create new subscription plan
+- `subscription.syncPlans` - Sync plans with Chargily
+- `subscription.getCurrent` - Get current user subscription
+
+#### Session Management
+- **Session tracking**: `src/lib/session-parser.ts` - Parse user agent for device info
+- **Session UI**: `src/app/(public)/settings/_components/SessionManagement.tsx`
+- **Features**: View active sessions, revoke sessions, logout everywhere
+- **Device detection**: Browser, OS, device type (mobile/tablet/desktop)
+- **Session table**: Enhanced with `ipAddress` and `userAgent` fields
 
 #### Route Groups
 - `(public)` - Public pages (landing, events listing, pricing)
@@ -79,6 +106,11 @@ Eventifive is a modern event management platform built with Next.js 16, supporti
 - **Client**: `src/server/bucket/s3Client.ts`
 - **Presigned URLs**: `src/server/bucket/presignedUrls.ts`
 - **File router**: `src/server/orpc/routers/files/` - upload/download/delete operations
+- **Upload endpoints**:
+  - `/api/upload-event-image` - Event image uploads (10MB limit)
+  - `/api/upload-file` - Submission file uploads
+  - `/api/upload-image` - Profile image uploads
+- **Storage structure**: `{userId}/events/{eventId}/{fileId}` for event images
 
 #### Real-time Features
 - **WebSocket server**: `src/server/realtime/ws.ts` on port 8081
@@ -251,6 +283,49 @@ Use the files router pattern in `src/server/orpc/routers/files/`:
 1. `requestUpload` - Get presigned URL
 2. Client uploads directly to R2
 3. `confirmUpload` - Mark upload complete in DB
+
+### Payment Integration
+```typescript
+// Create event checkout
+const checkout = await client.payment.createEventCheckout({
+  eventId: "event-id",
+  successUrl: "/payment/success",
+  failureUrl: "/payment/failure",
+});
+
+// Redirect user to checkout.checkoutUrl
+window.location.href = checkout.checkoutUrl;
+
+// Check payment status
+const status = await client.payment.getStatus({ checkoutId: checkout.checkoutId });
+```
+
+### Subscription Plans
+```typescript
+// List available plans
+const plans = await client.subscription.listPlans();
+
+// Get user's current subscription
+const subscription = await client.subscription.getCurrent();
+```
+
+## Database Schema
+
+### Key Enums
+- `paymentStatusEnum`: unpaid, pending, paid, refunded
+- `billingPeriodEnum`: monthly, yearly
+- `subscriptionStatusEnum`: pending, active, cancelled, expired
+
+### New Tables (v0.1.0+)
+- `subscriptionPlan` - Subscription plan definitions with features
+- `subscriptionPrice` - Pricing for plans (monthly/yearly billing periods)
+- `userSubscription` - User's active subscription with period tracking
+- `payment` - Payment records for both event registrations and subscriptions
+
+### Currency Handling
+- Amounts stored in whole currency units (e.g., 5000 DZD, not cents)
+- Default currency: DZD (Algerian Dinar)
+- Chargily integration syncs products/prices automatically
 
 ## MCP Server (Test Data Generation)
 
