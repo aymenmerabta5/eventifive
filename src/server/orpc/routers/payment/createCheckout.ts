@@ -100,7 +100,7 @@ export const createCheckoutRouter = protectedProcedure
       id: paymentId,
       subscriptionId,
       userId,
-      amountCents: price.amountCents,
+      amount: price.amount,
       currency: price.currency,
       status: "pending",
       provider: "chargily",

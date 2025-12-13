@@ -11,7 +11,7 @@ interface PlanSeed {
   sortOrder: number;
   prices: {
     billingPeriod: "monthly" | "yearly";
-    amountCents: number;
+    amount: number;
     currency: string;
   }[];
 }
@@ -28,8 +28,8 @@ const INITIAL_PLANS: PlanSeed[] = [
     ],
     sortOrder: 0,
     prices: [
-      { billingPeriod: "monthly", amountCents: 1000, currency: "DZD" }, // 1000 DZD
-      { billingPeriod: "yearly", amountCents: 9000, currency: "DZD" }, // 9000 DZD (25% off)
+      { billingPeriod: "monthly", amount: 1000, currency: "DZD" }, // 1000 DZD
+      { billingPeriod: "yearly", amount: 9000, currency: "DZD" }, // 9000 DZD (25% off)
     ],
   },
   {
@@ -46,8 +46,8 @@ const INITIAL_PLANS: PlanSeed[] = [
     ],
     sortOrder: 1,
     prices: [
-      { billingPeriod: "monthly", amountCents: 2000, currency: "DZD" }, // 2000 DZD
-      { billingPeriod: "yearly", amountCents: 18000, currency: "DZD" }, // 18000 DZD (25% off)
+      { billingPeriod: "monthly", amount: 2000, currency: "DZD" }, // 2000 DZD
+      { billingPeriod: "yearly", amount: 18000, currency: "DZD" }, // 18000 DZD (25% off)
     ],
   },
   {
@@ -66,8 +66,8 @@ const INITIAL_PLANS: PlanSeed[] = [
     ],
     sortOrder: 2,
     prices: [
-      { billingPeriod: "monthly", amountCents: 5000, currency: "DZD" }, // 5000 DZD
-      { billingPeriod: "yearly", amountCents: 45000, currency: "DZD" }, // 45000 DZD (25% off)
+      { billingPeriod: "monthly", amount: 5000, currency: "DZD" }, // 5000 DZD
+      { billingPeriod: "yearly", amount: 45000, currency: "DZD" }, // 45000 DZD (25% off)
     ],
   },
 ];
@@ -125,7 +125,7 @@ export async function seedPlans(): Promise<{
         id: uuidv4(),
         planId,
         billingPeriod: priceData.billingPeriod,
-        amountCents: priceData.amountCents,
+        amount: priceData.amount,
         currency: priceData.currency,
         createdAt: now,
         updatedAt: now,

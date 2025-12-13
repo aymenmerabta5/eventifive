@@ -36,6 +36,20 @@
       "when": 1765280485649,
       "tag": "0004_absent_black_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1765583863782,
+      "tag": "0005_jazzy_frightful_four",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1765587949909,
+      "tag": "0006_misty_jetstream",
+      "breakpoints": true
     }
   ]
 }

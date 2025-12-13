@@ -63,7 +63,7 @@ export const getUserSubscriptionRouter = protectedProcedure
       price: {
         id: subscription.price.id,
         billingPeriod: subscription.price.billingPeriod,
-        amountCents: subscription.price.amountCents,
+        amount: subscription.price.amount,
         currency: subscription.price.currency,
       },
     };

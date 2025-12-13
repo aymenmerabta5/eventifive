@@ -26,7 +26,7 @@ import { orpc } from "@/utils/orpc";
 import { client } from "@/utils/orpc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { Calendar, MapPin, Type, FileText, Image as ImageIcon, Link2 } from "lucide-react";
+import { Calendar, MapPin, Type, FileText, Image as ImageIcon, Link2, DollarSign } from "lucide-react";
 import { createDraftEventSchema } from "@/lib/schemas/schemas";
 import { eventTypeValues, type EventType } from "@/server/db/schema";
 import { StepProgress } from "@/components/step-progress";
@@ -92,6 +92,8 @@ export function AddEventCard() {
       startDate: "",
       endDate: "",
       location: "",
+      priceAmount: 0,
+      priceCurrency: "DZD",
     },
     validators: {
       onSubmit: ({ value }) => {
@@ -176,6 +178,8 @@ export function AddEventCard() {
       startDate: parsed.data.startDate,
       endDate: parsed.data.endDate,
       location: parsed.data.location,
+      priceAmount: parsed.data.priceAmount,
+      priceCurrency: parsed.data.priceCurrency,
     });
 
     if (!created.eventId) {
@@ -518,6 +522,41 @@ export function AddEventCard() {
                       placeholder="Enter event location"
                       className="w-full"
                     />
+                    {field.state.meta.errors.map((error) => (
+                      <p key={error} className="text-destructive text-sm">
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </form.Field>
+
+              {/* Price Field */}
+              <form.Field name="priceAmount">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor={field.name}
+                      className="flex items-center gap-2 text-sm font-medium"
+                    >
+                      <DollarSign className="size-4" />
+                      Registration Price (DZD)
+                    </Label>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="number"
+                      min="0"
+                      step="100"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(parseInt(e.target.value) || 0)}
+                      placeholder="0 for free event"
+                      className="w-full"
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      Enter 0 for a free event (e.g., 5000 = 5000 DZD)
+                    </p>
                     {field.state.meta.errors.map((error) => (
                       <p key={error} className="text-destructive text-sm">
                         {error}

@@ -94,6 +94,8 @@ export function registerSeedTools(server: McpServer) {
           theme: faker.company.catchPhrase(),
           contactEmail: faker.internet.email(),
           organizerId,
+          priceAmount: 0,
+          priceCurrency: "DZD",
           createdAt: now,
           updatedAt: now,
         });
@@ -308,6 +310,8 @@ export function registerSeedTools(server: McpServer) {
           theme: "Testing and Development",
           contactEmail: userEmail,
           organizerId: userId,
+          priceAmount: 0,
+          priceCurrency: "DZD",
           createdAt: now,
           updatedAt: now,
         });

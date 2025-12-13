@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { IconMicrophone, IconUsers, IconPresentation, IconUpload } from "@tabler/icons-react";
 import Link from "next/link";
+import type { Route } from "next";
 import { useParams } from "next/navigation";
 
 export default function ParticipationOptions() {
@@ -92,7 +93,7 @@ export default function ParticipationOptions() {
 						</p>
 						<div className="mt-10 flex justify-center">
 							<Link
-								href={`/events/${eventType}/${eventId}/register`}
+								href={`/events/${eventType}/${eventId}/register` as Route}
 								className="inline-flex w-full max-w-xs items-center justify-center rounded-lg border-2 border-border bg-background px-6 py-3 text-sm font-semibold uppercase tracking-wider text-foreground text-center shadow-sm transition-all hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md"
 							>
 								<span>Join Committers</span>

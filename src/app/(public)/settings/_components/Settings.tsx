@@ -13,7 +13,8 @@ import { authClient } from "@/lib/auth-client";
 import ProfileInfo from "./ProfileInfo";
 import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
-import { User, Mail, Lock, Settings, ChevronRight } from "lucide-react";
+import SessionManagement from "./SessionManagement";
+import { User, Mail, Lock, Settings, ChevronRight, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,12 @@ const tabs = [
     icon: Lock,
     description: "Password & protection",
   },
+  {
+    id: "sessions",
+    label: "Sessions",
+    icon: Smartphone,
+    description: "Manage active devices",
+  },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -56,7 +63,7 @@ export default function Main() {
 
         <div className="grid gap-10 lg:grid-cols-[320px_1fr]">
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4].map((i) => (
               <Skeleton
                 key={i}
                 className="h-20 w-full rounded-2xl"
@@ -284,6 +291,39 @@ export default function Main() {
                   </CardHeader>
                   <CardContent className="px-8 pb-8">
                     <ChangePassword />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Sessions Tab */}
+            <div
+              className={cn(
+                "transition-all duration-300",
+                activeTab === "sessions"
+                  ? "animate-in fade-in slide-in-from-right-4"
+                  : "hidden"
+              )}
+            >
+              {activeTab === "sessions" && (
+                <Card className="overflow-hidden border-0 bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl rounded-3xl">
+                  <div className={cn("h-1 w-full bg-linear-to-r from-violet-500 to-purple-600")} />
+
+                  <CardHeader className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br shadow-lg from-violet-500 to-purple-600")}>
+                        <Smartphone className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl font-semibold">Active Sessions</CardTitle>
+                        <CardDescription>
+                          Manage devices with access to your account
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-8 pb-8">
+                    <SessionManagement />
                   </CardContent>
                 </Card>
               )}

@@ -16,6 +16,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProfileImage } from "@/hooks/use-profile-image";
 import Link from "next/link";
+import type { Route } from "next";
 import { Button } from "@/components/ui/button";
 
 interface ProfileInfoProps {
@@ -231,7 +232,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
                 variant="outline"
                 className="inline-flex items-center gap-2"
               >
-                <Link href={`/users/${user.id}`}>
+                <Link href={`/users/${user.id}` as Route}>
                   <ExternalLink className="h-4 w-4" />
                   View Public Profile
                 </Link>

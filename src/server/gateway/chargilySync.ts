@@ -75,7 +75,7 @@ export async function syncPlansToChargily(): Promise<SyncResult> {
 
     try {
       const chargilyPrice = await client.createPrice({
-        amount: price.amountCents,
+        amount: price.amount,
         currency: price.currency.toLowerCase() as "dzd",
         product_id: plan.chargilyProductId,
         metadata: {
@@ -172,7 +172,7 @@ export async function syncSinglePlan(planId: string): Promise<SyncResult> {
   for (const price of prices) {
     try {
       const chargilyPrice = await client.createPrice({
-        amount: price.amountCents,
+        amount: price.amount,
         currency: price.currency.toLowerCase() as "dzd",
         product_id: plan.chargilyProductId!,
         metadata: {

@@ -14,6 +14,8 @@ const eventSchema = z.object({
 	endDate: z.date(),
 	location: z.string().nullable(),
 	organizerId: z.string(),
+	priceAmount: z.number(),
+	priceCurrency: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

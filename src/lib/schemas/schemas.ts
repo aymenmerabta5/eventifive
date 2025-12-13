@@ -38,7 +38,9 @@ export const createEventSchema = z.object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().max(255, "Location must be less than 255 characters").optional(),
-    
+    // Pricing fields (amount in whole currency units, e.g., 5000 DZD)
+    priceAmount: z.number().int().min(0, "Price cannot be negative").default(0),
+    priceCurrency: z.string().max(10).default("DZD"),
 }).refine((data) => {
     const start = new Date(data.startDate);
     const end = new Date(data.endDate);
@@ -49,7 +51,7 @@ export const createEventSchema = z.object({
 });
 
 // TEACHING: Separate schema for the 3-step wizard draft creation.
-// We keep it distinct from `createEventSchema` so existing “quick create” flows
+// We keep it distinct from `createEventSchema` so existing "quick create" flows
 // remain stable while the wizard can evolve (images, invites, approvals).
 export const createDraftEventSchema = z.object({
     title: z.string().min(1, "Title is required").max(255, "Title must be less than 255 characters"),
@@ -62,6 +64,9 @@ export const createDraftEventSchema = z.object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().max(255, "Location must be less than 255 characters").optional(),
+    // Pricing fields (amount in whole currency units, e.g., 5000 DZD)
+    priceAmount: z.number().int().min(0, "Price cannot be negative").default(0),
+    priceCurrency: z.string().max(10).default("DZD"),
 }).refine((data) => {
     const start = new Date(data.startDate);
     const end = new Date(data.endDate);
@@ -81,6 +86,9 @@ export const updateEventSchema = z.object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().max(255, "Location must be less than 255 characters").optional(),
+    // Pricing fields (optional on update, amount in whole currency units)
+    priceAmount: z.number().int().min(0, "Price cannot be negative").optional(),
+    priceCurrency: z.string().max(10).optional(),
 }).refine((data) => {
     const start = new Date(data.startDate);
     const end = new Date(data.endDate);

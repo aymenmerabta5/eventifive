@@ -16,6 +16,7 @@ import { MessageInput } from "./MessageInput";
 import { useMessages, useSendMessage } from "../_lib/hooks";
 import type { Conversation, Message } from "../_lib/types";
 import Link from "next/link";
+import type { Route } from "next";
 
 interface CurrentUser {
 	id: string;
@@ -163,7 +164,7 @@ export function MessageView({
 						asChild
 						className="hidden sm:inline-flex"
 					>
-						<Link href={`/users/${otherUser.id}`} aria-label="View profile">
+						<Link href={`/users/${otherUser.id}` as Route} aria-label="View profile">
 							<UserRound className="size-4 mr-2" />
 							View profile
 						</Link>

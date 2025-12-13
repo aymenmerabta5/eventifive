@@ -6,7 +6,9 @@
       "Bash(mkdir:*)",
       "Bash(pnpm tsc:*)",
       "Bash(cat:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm add:*)"
     ],
     "deny": [],
     "ask": []

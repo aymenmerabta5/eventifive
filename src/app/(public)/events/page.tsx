@@ -38,6 +38,19 @@ export default function EventsPage() {
     );
   }
 
+  if (events?.congress.length === 0 && events?.seminar.length === 0 && events?.workshop.length === 0 && events?.scientific_meeting.length === 0 && events?.conference.length === 0 && events?.symposium.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center gap-4">
+        <div className="text-center">
+          <p className="text-foreground text-5xl font-bold">No events found</p>
+          <p className="text-muted-foreground mt-2 text-sm">
+            There are no events available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">

@@ -36,6 +36,8 @@ export const createDraftEventRouter = protectedProcedure
 				endDate: new Date(input.endDate),
 				location: input.location || null,
 				organizerId: session.user.id,
+				priceAmount: input.priceAmount ?? 0,
+				priceCurrency: input.priceCurrency ?? "DZD",
 				createdAt: now,
 				updatedAt: now,
 			});
@@ -53,5 +55,3 @@ export const createDraftEventRouter = protectedProcedure
 			});
 		}
 	});
-
-

@@ -63,7 +63,7 @@ export const createPlanRouter = protectedProcedure
       id: uuidv4(),
       planId,
       billingPeriod: price.billingPeriod as "monthly" | "yearly",
-      amountCents: price.amountCents,
+      amount: price.amount,
       currency: price.currency,
       createdAt: now,
       updatedAt: now,
@@ -113,7 +113,7 @@ export const createPlanRouter = protectedProcedure
       prices: prices.map((price) => ({
         id: price.id,
         billingPeriod: price.billingPeriod,
-        amountCents: price.amountCents,
+        amount: price.amount,
         currency: price.currency,
         chargilyPriceId: price.chargilyPriceId,
         chargilySyncedAt: price.chargilySyncedAt,

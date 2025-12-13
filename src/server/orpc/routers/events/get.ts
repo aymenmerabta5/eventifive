@@ -21,6 +21,10 @@ const eventSchema = z.object({
 	theme: z.string().nullable(),
 	contactEmail: z.string().nullable(),
 	organizerId: z.string(),
+	priceAmount: z.number(),
+	priceCurrency: z.string(),
+	chargilyProductId: z.string().nullable(),
+	chargilyPriceId: z.string().nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

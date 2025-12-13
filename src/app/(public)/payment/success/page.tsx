@@ -71,7 +71,7 @@ function PaymentSuccessContent() {
                   Plan: {paymentStatus.subscription.planName}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Amount: {(paymentStatus.amountCents / 100).toLocaleString()}{" "}
+                  Amount: {paymentStatus.amount.toLocaleString()}{" "}
                   {paymentStatus.currency}
                 </p>
               </div>

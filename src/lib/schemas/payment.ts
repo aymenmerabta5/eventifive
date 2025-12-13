@@ -28,7 +28,7 @@ export const createPlanInputSchema = z.object({
   prices: z.array(
     z.object({
       billingPeriod: billingPeriodSchema,
-      amountCents: z.number().int().positive(),
+      amount: z.number().int().positive(), // Amount in whole currency units (e.g., 5000 DZD)
       currency: z.string().default("DZD"),
     })
   ).min(1),
@@ -61,7 +61,7 @@ export const planOutputSchema = z.object({
     z.object({
       id: z.string(),
       billingPeriod: billingPeriodSchema,
-      amountCents: z.number(),
+      amount: z.number(), // Amount in whole currency units
       currency: z.string(),
       chargilyPriceId: z.string().nullable(),
       chargilySyncedAt: z.date().nullable(),
@@ -91,7 +91,6 @@ export type CreateCheckoutOutput = z.infer<typeof createCheckoutOutputSchema>;
 
 export const createEventCheckoutInputSchema = z.object({
   eventId: z.string().min(1),
-  amountCents: z.number().int().positive(),
   paymentMethod: paymentMethodSchema.optional(),
 });
 export type CreateEventCheckoutInput = z.infer<typeof createEventCheckoutInputSchema>;
@@ -107,7 +106,7 @@ export type GetPaymentStatusInput = z.infer<typeof getPaymentStatusInputSchema>;
 export const paymentStatusOutputSchema = z.object({
   id: z.string(),
   status: paymentStatusSchema,
-  amountCents: z.number(),
+  amount: z.number(), // Amount in whole currency units
   currency: z.string(),
   paymentMethod: z.string().nullable(),
   chargilyCheckoutId: z.string().nullable(),
@@ -132,7 +131,7 @@ export const listPaymentsOutputSchema = z.array(
   z.object({
     id: z.string(),
     status: paymentStatusSchema,
-    amountCents: z.number(),
+    amount: z.number(), // Amount in whole currency units
     currency: z.string(),
     paymentMethod: z.string().nullable(),
     paidAt: z.date().nullable(),
@@ -206,7 +205,7 @@ export const userSubscriptionOutputSchema = z.object({
   price: z.object({
     id: z.string(),
     billingPeriod: billingPeriodSchema,
-    amountCents: z.number(),
+    amount: z.number(), // Amount in whole currency units
     currency: z.string(),
   }),
 });

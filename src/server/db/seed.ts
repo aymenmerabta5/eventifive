@@ -23,11 +23,7 @@ export async function seedRoles() {
 	const rolesList = [
 		{ name: "super_admin" as const },
 		{ name: "admin" as const },
-		{ name: "communicator" as const },
-		{ name: "scientific_committee_member" as const },
-		{ name: "participant" as const },
-		{ name: "speaker" as const },
-		{ name: "workshop_facilitator" as const },
+		{ name: "user" as const },
 	];
 
 	for (const role of rolesList) {
