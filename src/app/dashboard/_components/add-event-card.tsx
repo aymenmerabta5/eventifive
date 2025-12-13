@@ -181,7 +181,7 @@ export function AddEventCard() {
 
   const ensureDraftEventCreated = async () => {
     const value = form.state.values;
-    
+
     // TEACHING: Validate locally first before making API call
     // This provides immediate feedback without network round-trip
     const parsed = createDraftEventSchema.safeParse(value);
@@ -193,7 +193,7 @@ export function AddEventCard() {
     setIsCreatingEvent(true);
 
     try {
- 
+
       const result = await createDraftEvent(
         {
           title: parsed.data.title,
@@ -215,18 +215,18 @@ export function AddEventCard() {
 
       toast.success("Draft event created.");
 
-  
+
       void queryClient.invalidateQueries({ queryKey: ["my-events"] });
       setEventId(result.eventId);
       setStagedGalleryFileIds([]);
       return result.eventId;
     } catch (error) {
-   
+
       const message = error instanceof Error ? error.message : "Failed to create event";
       toast.error(message);
       return null;
     } finally {
-    
+
       setIsCreatingEvent(false);
     }
   };
@@ -375,7 +375,7 @@ export function AddEventCard() {
               {/* Big Description */}
               {/* Images */}
               <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <ImageIcon className="size-4" />
                     Gallery Images
@@ -400,54 +400,23 @@ export function AddEventCard() {
                 </div>
               </div>
 
-              {/* Start Date Field */}
-              <form.Field name="startDate">
-                {(field) => (
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={field.name}
-                      className="flex items-center gap-2 text-sm font-medium"
-                    >
-                      <Calendar className="size-4" />
-                      Start Date *
-                    </Label>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      type="datetime-local"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      className="w-full"
-                    />
-                    {field.state.meta.errors.map((error) => (
-                      <p key={error} className="text-destructive text-sm">
-                        {error}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </form.Field>
-
-              {/* End Date Field */}
-              <form.Field name="endDate">
-                {(field) => {
-                  const startDate = form.getFieldValue("startDate");
-                  return (
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* Start Date Field */}
+                <form.Field name="startDate">
+                  {(field) => (
                     <div className="space-y-2">
                       <Label
                         htmlFor={field.name}
                         className="flex items-center gap-2 text-sm font-medium"
                       >
                         <Calendar className="size-4" />
-                        End Date *
+                        Start Date *
                       </Label>
                       <Input
                         id={field.name}
                         name={field.name}
                         type="datetime-local"
                         value={field.state.value}
-                        min={startDate || undefined}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         className="w-full"
@@ -458,9 +427,42 @@ export function AddEventCard() {
                         </p>
                       ))}
                     </div>
-                  );
-                }}
-              </form.Field>
+                  )}
+                </form.Field>
+
+                {/* End Date Field */}
+                <form.Field name="endDate">
+                  {(field) => {
+                    const startDate = form.getFieldValue("startDate");
+                    return (
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor={field.name}
+                          className="flex items-center gap-2 text-sm font-medium"
+                        >
+                          <Calendar className="size-4" />
+                          End Date *
+                        </Label>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="datetime-local"
+                          value={field.state.value}
+                          min={startDate || undefined}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="w-full"
+                        />
+                        {field.state.meta.errors.map((error) => (
+                          <p key={error} className="text-destructive text-sm">
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  }}
+                </form.Field>
+              </div>
 
               {/* Location Field */}
               <form.Field name="location">
