@@ -18,29 +18,23 @@ const eventSchema = z.object({
 	startDate: z.date(),
 	endDate: z.date(),
 	location: z.string().nullable(),
-	theme: z.string().nullable(),
-	contactEmail: z.string().nullable(),
-	organizerId: z.string(),
 	priceAmount: z.number(),
 	priceCurrency: z.string(),
-	chargilyProductId: z.string().nullable(),
-	chargilyPriceId: z.string().nullable(),
+	organizerId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 	imageUrl: z.string().nullable(),
 });
 
 export const getEventRouter = publicProcedure
-	.route({ method: "POST", path: "/events/get" })
+	.route({ method: "GET", path: "/events/{id}" })
 	.input(inputSchema)
 	.output(eventSchema)
 	.handler(async ({ input }) => {
 		try {
-			const [found] = await db
-				.select()
-				.from(event)
-				.where(eq(event.id, input.id))
-				.limit(1);
+			const found = await db.query.event.findFirst({
+				where: eq(event.id, input.id),
+			});
 
 			if (!found) {
 				throw new ORPCError("NOT_FOUND", { message: "Event not found" });
@@ -71,4 +65,3 @@ export const getEventRouter = publicProcedure
 			});
 		}
 	});
-

@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
-import { client } from "@/utils/orpc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Type, FileText, Image as ImageIcon, Link2, DollarSign } from "lucide-react";
@@ -48,18 +47,69 @@ const eventTypeOptions = eventTypeValues.map((value) => ({
 
 type WizardStep = "details" | "invites" | "review";
 
-async function uploadToPresignedUrl(file: File, uploadUrl: string) {
-  const res = await fetch(uploadUrl, {
-    method: "PUT",
-    body: file,
-    headers: {
-      "Content-Type": file.type,
-    },
+interface CreateEventResponse {
+  status: "success" | "error";
+  message: string;
+  eventId?: string;
+  uploads?: {
+    coverImage: { fileId: string; s3Key: string } | null;
+    galleryCount: number;
+    failedUploads: string[];
+  };
+  errors?: Record<string, string[]>;
+}
+
+
+async function createEventWithImages(
+  eventData: {
+    title: string;
+    description: string;
+    type: string;
+    startDate: string;
+    endDate: string;
+    location: string;
+    priceAmount: number;
+    priceCurrency: string;
+  },
+  coverImage: File | null,
+  galleryImages: File[]
+): Promise<CreateEventResponse> {
+
+  const formData = new FormData();
+
+
+  formData.append("title", eventData.title);
+  formData.append("description", eventData.description);
+  formData.append("type", eventData.type);
+  formData.append("startDate", eventData.startDate);
+  formData.append("endDate", eventData.endDate);
+  formData.append("location", eventData.location);
+  formData.append("priceAmount", eventData.priceAmount.toString());
+  formData.append("priceCurrency", eventData.priceCurrency);
+
+  // Append cover image if provided
+  if (coverImage) {
+    formData.append("coverImage", coverImage);
+  }
+
+ 
+  for (const img of galleryImages) {
+    formData.append("galleryImages", img);
+  }
+
+  const res = await fetch("/api/create-event", {
+    method: "POST",
+    body: formData,
+  
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    throw new Error("Failed to upload file to storage");
+    throw new Error(data.message || "Failed to create event");
   }
+
+  return data as CreateEventResponse;
 }
 
 export function AddEventCard() {
@@ -69,20 +119,13 @@ export function AddEventCard() {
   const [step, setStep] = useState<WizardStep>("details");
   const [eventId, setEventId] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [bannerImage, setBannerImage] = useState<File | null>(null);
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
   const [speakerEmail, setSpeakerEmail] = useState("");
   const [speakerAffiliation, setSpeakerAffiliation] = useState("");
   const [speakerBio, setSpeakerBio] = useState("");
   const [reviewerEmail, setReviewerEmail] = useState("");
 
-  const createDraftMutation = useMutation(
-    orpc.events.createDraft.mutationOptions({
-      onError: (error) => {
-        toast.error(error.message || "Failed to create draft event");
-      },
-    }),
-  );
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -165,87 +208,69 @@ export function AddEventCard() {
 
   const ensureDraftEventCreatedAndMediaUploaded = async () => {
     const value = form.state.values;
+    
+    // TEACHING: Validate locally first before making API call
+    // This provides immediate feedback without network round-trip
     const parsed = createDraftEventSchema.safeParse(value);
     if (!parsed.success) {
       toast.error("Please fill all required fields.");
       return null;
     }
 
-    const created = await createDraftMutation.mutateAsync({
-      title: parsed.data.title,
-      description: parsed.data.description,
-      type: parsed.data.type,
-      startDate: parsed.data.startDate,
-      endDate: parsed.data.endDate,
-      location: parsed.data.location,
-      priceAmount: parsed.data.priceAmount,
-      priceCurrency: parsed.data.priceCurrency,
-    });
+    setIsCreatingEvent(true);
 
-    if (!created.eventId) {
-      toast.error("Draft event was not created.");
-      return null;
-    }
+    try {
+ 
+      const result = await createEventWithImages(
+        {
+          title: parsed.data.title,
+          description: parsed.data.description,
+          type: parsed.data.type,
+          startDate: parsed.data.startDate,
+          endDate: parsed.data.endDate,
+          location: parsed.data.location ?? "",
+          priceAmount: parsed.data.priceAmount ?? 0,
+          priceCurrency: parsed.data.priceCurrency ?? "DZD",
+        },
+        coverImage,
+        galleryImages
+      );
 
-    // TEACHING:
-    // - We *never* block event creation on image upload.
-    // - Uploads are best-effort: if they fail, the user can retry later.
-    const hasAnyImages = !!coverImage || !!bannerImage || galleryImages.length > 0;
-
-    if (hasAnyImages) {
-      toast.message("Creating event… uploading images (best-effort).");
-
-      // Upload images via the existing oRPC file pipeline (request → PUT → confirm)
-      const uploadOne = async (file: File) => {
-        const req = await client.files.requestUpload({
-          fileName: file.name,
-          fileSize: file.size,
-          contentType: file.type,
-          eventId: created.eventId,
-        });
-        await uploadToPresignedUrl(file, req.uploadUrl);
-        await client.files.confirmUpload({ fileId: req.fileId });
-      };
-
-      const failures: string[] = [];
-
-      const tryUpload = async (file: File | null) => {
-        if (!file) return;
-        try {
-          await uploadOne(file);
-        } catch (e) {
-          failures.push(file.name);
-          console.error("Image upload failed:", e);
-        }
-      };
-
-      await tryUpload(coverImage);
-      await tryUpload(bannerImage);
-
-      for (const img of galleryImages) {
-        // continue on errors per-file
-        await tryUpload(img);
+      if (!result.eventId) {
+        toast.error("Draft event was not created.");
+        return null;
       }
 
-      if (failures.length > 0) {
+  
+      const failedCount = result.uploads?.failedUploads?.length ?? 0;
+      if (failedCount > 0) {
         toast.warning(
-          `Event created, but ${failures.length} image(s) failed to upload. You can continue and upload later.`,
+          `Event created, but ${failedCount} image(s) failed to upload. You can upload them later.`,
         );
-      } else {
+      } else if (coverImage || galleryImages.length > 0) {
         toast.success("Event created and images uploaded.");
+      } else {
+        toast.success("Event created.");
       }
-    } else {
-      toast.success("Event created.");
-    }
 
-    void queryClient.invalidateQueries({ queryKey: ["my-events"] });
-    setEventId(created.eventId);
-    return created.eventId;
+  
+      void queryClient.invalidateQueries({ queryKey: ["my-events"] });
+      setEventId(result.eventId);
+      return result.eventId;
+    } catch (error) {
+   
+      const message = error instanceof Error ? error.message : "Failed to create event";
+      toast.error(message);
+      return null;
+    } finally {
+    
+      setIsCreatingEvent(false);
+    }
   };
 
   const handleNext = async () => {
     if (step === "details") {
-      // Create event at the boundary to Step 2 (as requested)
+ 
       const id = await ensureDraftEventCreatedAndMediaUploaded();
       if (id) setStep("invites");
       return;
@@ -403,20 +428,6 @@ export function AddEventCard() {
                   ) : null}
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-sm font-medium">
-                    <ImageIcon className="size-4" />
-                    Banner Image (optional)
-                  </Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setBannerImage(e.target.files?.[0] ?? null)}
-                  />
-                  {bannerImage ? (
-                    <p className="text-muted-foreground text-xs">{bannerImage.name}</p>
-                  ) : null}
-                </div>
 
                 <div className="space-y-2 md:col-span-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
@@ -862,7 +873,7 @@ export function AddEventCard() {
             <Button
               variant="outline"
               onClick={handleBack}
-              disabled={step === "details" || createDraftMutation.isPending}
+              disabled={step === "details" || isCreatingEvent}
             >
               Back
             </Button>
@@ -872,9 +883,9 @@ export function AddEventCard() {
                 type="button"
                 onClick={handleNext}
                 className="h-11 cursor-pointer rounded-4xl"
-                disabled={createDraftMutation.isPending}
+                disabled={isCreatingEvent}
               >
-                {createDraftMutation.isPending ? "Working..." : "Next"}
+                {isCreatingEvent ? "Working..." : "Next"}
               </StatefulButton>
             ) : (
               <Button

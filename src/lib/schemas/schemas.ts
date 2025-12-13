@@ -38,6 +38,7 @@ export const createEventSchema = z.object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().max(255, "Location must be less than 255 characters").optional(),
+    image: z.string().optional(),
     // Pricing fields (amount in whole currency units, e.g., 5000 DZD)
     priceAmount: z.number().int().min(0, "Price cannot be negative").default(0),
     priceCurrency: z.string().max(10).default("DZD"),
