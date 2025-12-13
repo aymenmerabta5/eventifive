@@ -7,6 +7,13 @@ import { env } from "@/env";
  * Uses REDIS_URL (native Redis connection) for pub/sub support
  */
 
-const client = new Redis(env.REDIS_URL);
+const redisOptions = {
+	enableReadyCheck: false, // Upstash doesn't support INFO command
+	maxRetriesPerRequest: null, // Required for pub/sub
+};
 
-export { client };
+const publisher = new Redis(env.REDIS_URL, redisOptions);
+
+const createSubscriber = () => new Redis(env.REDIS_URL, redisOptions);
+
+export { publisher, createSubscriber };

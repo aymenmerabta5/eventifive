@@ -1,27 +1,5 @@
-import Redis from "ioredis";
-import { env } from "@/env";
-
-// Redis options for Upstash compatibility
-const redisOptions = {
-	enableReadyCheck: false, // Upstash doesn't support INFO command
-	maxRetriesPerRequest: null, // Required for pub/sub
-};
-
-// Create separate Redis clients for pub and sub
-// ioredis requires separate connections for subscribers
-// Use REDIS_URL (native Redis connection string) for pub/sub support
-const publisher = new Redis(env.REDIS_URL, redisOptions);
-
-const createSubscriber = () => new Redis(env.REDIS_URL, redisOptions);
-
-// Channel naming conventions
-export function getUserChannel(userId: string): string {
-	return `user:${userId}:messages`;
-}
-
-export function getConversationChannel(conversationId: string): string {
-	return `conversation:${conversationId}`;
-}
+import { publisher, createSubscriber } from "./redis";
+import { getConversationChannel, getUserChannel } from "@/server/utils/pubsup-utilities";
 
 // Message type for pub/sub
 export interface PubSubMessage {
