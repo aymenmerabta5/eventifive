@@ -112,7 +112,7 @@ export function AddEventCard() {
   const [eventImages, setEventImages] = useState<File[]>([]);
   const [speakerEmail, setSpeakerEmail] = useState("");
   const [speakerAffiliation, setSpeakerAffiliation] = useState("");
-  const [reviewerEmail, setReviewerEmail] = useState("");
+  const [reviewerEmails, setReviewerEmails] = useState<string[]>(() => Array.from({ length: 5 }, () => ""));
 
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
@@ -176,15 +176,23 @@ export function AddEventCard() {
     }),
   );
 
-  const inviteCommitteeMutation = useMutation(
-    orpc.events.inviteCommittee.mutationOptions({
+  const inviteReviewerMutation = useMutation(
+    orpc.events.inviteReviewer.mutationOptions({
       onSuccess: async () => {
-        toast.success("Committee member invited");
+        toast.success("Reviewer invited");
         await invitesQuery.refetch();
       },
-      onError: (error: Error) => toast.error(error.message || "Failed to invite committee member"),
+      onError: (error: Error) => toast.error(error.message || "Failed to invite reviewer"),
     }),
   );
+
+  const setReviewerEmailAt = (index: number, value: string) => {
+    setReviewerEmails((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
 
   const ensureDraftEventCreated = async () => {
     const value = form.state.values;
@@ -566,20 +574,19 @@ export function AddEventCard() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const url = `${window.location.origin}/invites`;
+                        const eventType = form.state.values.type;
+                        if (!eventType) {
+                          toast.error("Event type is missing. Please go back and select an event type.");
+                          return;
+                        }
+
+                        const url = new URL(`/events/${eventType}/${eventId}`, window.location.origin).toString();
                         void navigator.clipboard.writeText(url);
-                        toast.success("Invite page link copied.");
+                        toast.success("Event page link copied.");
                       }}
                     >
                       <Link2 className="mr-2 size-4" />
-                      Copy invites page link
-                    </Button>
-                    <Button
-                      onClick={() => setStep("review")}
-                      disabled={!eventId}
-                      title={!eventId ? "Create the draft event first" : undefined}
-                    >
-                      Go to pending approvals
+                      Copy event page link
                     </Button>
                   </div>
                 ) : null}
@@ -636,40 +643,69 @@ export function AddEventCard() {
                 </div>
 
                 <div className="rounded-lg border p-4">
-                  <div className="text-sm font-medium">Invite committee member</div>
+                  <div className="text-sm font-medium">Invite reviewers</div>
                   <div className="text-muted-foreground mt-1 text-xs">
-                    Committee members must already have accounts.
+                    Invite 3 primary reviewers. Two backup slots unlock only after a reviewer rejects.
                   </div>
 
-                  <div className="mt-4 space-y-3">
-                    <div className="space-y-2">
-                      <Label>Email</Label>
-                      <Input
-                        placeholder="committee@email.com"
-                        type="email"
-                        disabled={!eventId || inviteCommitteeMutation.isPending}
-                        value={reviewerEmail}
-                        onChange={(e) => setReviewerEmail(e.target.value)}
-                      />
-                    </div>
-                    <Button
-                      className="w-full"
-                      disabled={!eventId || inviteCommitteeMutation.isPending}
-                      onClick={() => {
-                        if (!eventId) return;
-                        const email = reviewerEmail.trim();
-                        if (!email) {
-                          toast.error("Committee member email is required");
-                          return;
-                        }
-                        inviteCommitteeMutation.mutate({
-                          eventId,
-                          email,
-                        });
-                      }}
-                    >
-                      Invite committee member
-                    </Button>
+                  <div className="mt-4 space-y-4">
+                    {[0, 1, 2, 3, 4].map((idx) => {
+                      const slot = idx + 1;
+                      const isBackup = slot >= 4;
+                      const hasRejection = (invitesQuery.data?.reviewers ?? []).some(
+                        (r) => r.status === "rejected",
+                      );
+                      const backupUnlocked = !isBackup || hasRejection;
+
+                      return (
+                        <div key={`reviewer-slot-${slot}`} className="rounded-md border p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-sm font-medium">
+                              {isBackup ? `Backup reviewer ${slot - 3}` : `Reviewer ${slot}`}
+                            </div>
+                            <div className="text-muted-foreground text-xs">Slot {slot}/5</div>
+                          </div>
+
+                          <div className="mt-3 space-y-2">
+                            <Label>Email</Label>
+                            <Input
+                              placeholder="reviewer@email.com"
+                              type="email"
+                              disabled={!eventId || inviteReviewerMutation.isPending || !backupUnlocked}
+                              value={reviewerEmails[idx] ?? ""}
+                              onChange={(e) => setReviewerEmailAt(idx, e.target.value)}
+                            />
+                            {!backupUnlocked ? (
+                              <div className="text-muted-foreground text-xs">
+                                Backup slots unlock after at least one reviewer rejects.
+                              </div>
+                            ) : null}
+                          </div>
+
+                          <div className="mt-3">
+                            <Button
+                              className="w-full"
+                              disabled={!eventId || inviteReviewerMutation.isPending || !backupUnlocked}
+                              onClick={() => {
+                                if (!eventId) return;
+                                const email = (reviewerEmails[idx] ?? "").trim();
+                                if (!email) {
+                                  toast.error("Reviewer email is required");
+                                  return;
+                                }
+                                inviteReviewerMutation.mutate({
+                                  eventId,
+                                  email,
+                                  slot,
+                                });
+                              }}
+                            >
+                              {isBackup ? "Invite backup reviewer" : "Invite reviewer"}
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -677,7 +713,7 @@ export function AddEventCard() {
               <div className="rounded-lg border p-4">
                 <div className="text-sm font-medium">Current invites</div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  Speakers show pending/accepted. Committee members are shown below.
+                  Speakers show pending/accepted. Reviewers show pending/accepted/rejected.
                 </div>
 
                 <div className="mt-4 space-y-3">
@@ -704,25 +740,26 @@ export function AddEventCard() {
                         ))
                       )}
 
-                      <div className="mt-4 text-sm font-medium">Committee</div>
-                      {invitesQuery.data.committee.length === 0 ? (
-                        <div className="text-muted-foreground text-sm">
-                          No committee members yet.
-                        </div>
+                      <div className="mt-4 text-sm font-medium">Reviewers</div>
+                      {invitesQuery.data.reviewers.length === 0 ? (
+                        <div className="text-muted-foreground text-sm">No reviewers invited yet.</div>
                       ) : (
-                        invitesQuery.data.committee.map((c) => (
-                          <div
-                            key={`committee-${c.id}`}
-                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
-                          >
-                            <div className="text-sm">
-                              <span className="font-medium">{c.userEmail}</span>{" "}
-                              <span className="text-muted-foreground">
-                                (Added {new Date(c.assignedAt).toLocaleDateString()})
-                              </span>
+                        invitesQuery.data.reviewers
+                          .slice()
+                          .sort((a, b) => a.slot - b.slot)
+                          .map((r) => (
+                            <div
+                              key={`reviewer-${r.id}`}
+                              className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                            >
+                              <div className="text-sm">
+                                <span className="font-medium">{r.userEmail}</span>{" "}
+                                <span className="text-muted-foreground">
+                                  (slot {r.slot} • {r.status})
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          ))
                       )}
                     </div>
                   ) : null}
@@ -736,34 +773,48 @@ export function AddEventCard() {
               <div className="rounded-lg border p-4">
                 <div className="text-sm font-medium">Review your event setup</div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  Review the speakers and committee members you&apos;ve invited for this event.
+                  Review the speakers and reviewers you&apos;ve invited for this event.
                 </div>
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="text-sm font-medium">Committee members</div>
+                <div className="text-sm font-medium">Reviewers</div>
                 <div className="mt-3 space-y-2">
                   {invitesQuery.isPending ? (
                     <div className="text-muted-foreground text-sm">Loading…</div>
                   ) : null}
 
-                  {invitesQuery.data && invitesQuery.data.committee.length === 0 ? (
-                    <div className="text-muted-foreground text-sm">No committee members invited.</div>
+                  {invitesQuery.data && invitesQuery.data.reviewers.length === 0 ? (
+                    <div className="text-muted-foreground text-sm">No reviewers invited.</div>
                   ) : null}
 
-                  {invitesQuery.data?.committee.map((c) => (
+                  {invitesQuery.data?.reviewers
+                    .slice()
+                    .sort((a, b) => a.slot - b.slot)
+                    .map((r) => (
                     <div
-                      key={`committee-${c.id}`}
+                      key={`reviewer-${r.id}`}
                       className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
                     >
                       <div className="text-sm">
-                        <span className="font-medium">{c.userName || c.userEmail}</span>
-                        {c.userName ? (
-                          <span className="text-muted-foreground ml-1">({c.userEmail})</span>
+                        <span className="font-medium">{r.userName || r.userEmail}</span>
+                        {r.userName ? (
+                          <span className="text-muted-foreground ml-1">({r.userEmail})</span>
                         ) : null}
+                        <span className="text-muted-foreground ml-2">• slot {r.slot}</span>
                       </div>
-                      <div className="text-muted-foreground text-xs">
-                        Added {new Date(c.assignedAt).toLocaleDateString()}
+                      <div className="text-xs">
+                        <span
+                          className={
+                            r.status === "accepted"
+                              ? "text-green-600"
+                              : r.status === "rejected"
+                                ? "text-red-600"
+                                : "text-muted-foreground"
+                          }
+                        >
+                          {r.status}
+                        </span>
                       </div>
                     </div>
                   ))}

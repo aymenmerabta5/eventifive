@@ -250,6 +250,38 @@ export const eventSpeakers = pgTable(
 );
 
 // ---------------------------
+// EVENT REVIEWERS (INVITES)
+// ---------------------------
+export const eventReviewerInviteStatusEnum = pgEnum("event_reviewer_invite_status", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+
+export const eventReviewerInvite = pgTable(
+  "eventifive_event_reviewer_invite",
+  {
+    id: serial("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    slot: integer("slot").notNull(),
+    status: eventReviewerInviteStatusEnum("status").notNull().default("pending"),
+    invitedAt: timestamp("invited_at").notNull().defaultNow(),
+    respondedAt: timestamp("responded_at"),
+  },
+  (table) => [
+    unique("event_reviewer_invite_event_user_unique").on(table.eventId, table.userId),
+    unique("event_reviewer_invite_event_slot_unique").on(table.eventId, table.slot),
+    index("event_reviewer_invite_event_id_idx").on(table.eventId),
+    index("event_reviewer_invite_user_id_idx").on(table.userId),
+  ],
+);
+
+// ---------------------------
 // FILES (must be defined before submissionFile)
 // ---------------------------
 export const files = pgTable(

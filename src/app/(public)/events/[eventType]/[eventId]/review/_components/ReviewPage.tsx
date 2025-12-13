@@ -253,7 +253,7 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 							<Label className="text-sm font-medium">Files</Label>
 							{submission.files && submission.files.length > 0 ? (
 								<div className="space-y-3">
-									{submission.files.map((file: any) => (
+									{submission.files.map((file) => (
 										<Card
 											key={file.id}
 											className="overflow-hidden bg-muted/30 transition-colors hover:bg-muted/50"
