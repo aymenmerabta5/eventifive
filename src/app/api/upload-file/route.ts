@@ -14,6 +14,11 @@ const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES_PER_EVENT_PER_USER = 3;
 const MAX_NAME_LENGTH = 255;
 const MAX_RESEARCH_DOMAIN_LENGTH = 100;
+const ALLOWED_REGISTRATION_DOCUMENT_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
 
 export async function GET(req: NextRequest) {
   try {
@@ -152,19 +157,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const validation = validateFile(file.name, file.size, file.type);
-    if (!validation.valid) {
-      return NextResponse.json(
-        { message: validation.error },
-        { status: 400 }
-      );
-    }
-
-    if (validation.fileType !== "document") {
-      return NextResponse.json(
-        { message: "Only document files are allowed" },
-        { status: 400 }
-      );
+    // `validateFile` is shared and intentionally strict; for this route we also allow DOC/DOCX.
+    const isAllowedRegistrationDocType = ALLOWED_REGISTRATION_DOCUMENT_TYPES.has(file.type);
+    if (!isAllowedRegistrationDocType) {
+      const validation = validateFile(file.name, file.size, file.type);
+      if (!validation.valid) {
+        return NextResponse.json({ message: validation.error }, { status: 400 });
+      }
+      if (validation.fileType !== "document") {
+        return NextResponse.json(
+          { message: "Only document files are allowed" },
+          { status: 400 }
+        );
+      }
     }
 
     if (file.size > MAX_DOCUMENT_SIZE) {

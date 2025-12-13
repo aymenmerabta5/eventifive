@@ -8,13 +8,13 @@ import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
 import { event, files, eventImages } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { validateFile, sanitizeFileName } from "@/server/utils/fileValidation";
 import { createDraftEventSchema } from "@/lib/schemas/schemas";
 
 
 const MAX_EVENT_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB per image
-const MAX_GALLERY_IMAGES = 10; 
+const MAX_GALLERY_IMAGES = 3; 
 
 
 async function uploadEventImage(
@@ -123,12 +123,16 @@ export async function POST(req: NextRequest) {
    
     const coverImageFile = formData.get("coverImage") as File | null;
     const galleryFiles = formData.getAll("galleryImages") as File[];
+    const stagedGalleryFileIds = formData
+      .getAll("stagedGalleryFileId")
+      .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+      .map((v) => v.trim());
 
     const validGalleryFiles = galleryFiles.filter(
       (f): f is File => f instanceof File && f.size > 0
     );
 
-    if (validGalleryFiles.length > MAX_GALLERY_IMAGES) {
+    if (validGalleryFiles.length + stagedGalleryFileIds.length > MAX_GALLERY_IMAGES) {
       return NextResponse.json(
         { message: `Maximum ${MAX_GALLERY_IMAGES} gallery images allowed` },
         { status: 400 }
@@ -186,6 +190,50 @@ export async function POST(req: NextRequest) {
       } else {
         uploadResults.failedUploads.push(file.name);
       }
+    }
+
+    // Attach staged gallery uploads (uploaded before the event existed)
+    if (stagedGalleryFileIds.length > 0) {
+      const stagedFiles = await db
+        .select({ id: files.id })
+        .from(files)
+        .where(
+          and(
+            eq(files.userId, userId),
+            inArray(files.id, stagedGalleryFileIds),
+            eq(files.fileType, "image"),
+            isNull(files.eventId),
+          ),
+        );
+
+      const foundIds = new Set(stagedFiles.map((f) => f.id));
+      const missing = stagedGalleryFileIds.filter((id) => !foundIds.has(id));
+      if (missing.length > 0) {
+        return NextResponse.json(
+          { message: "Some staged images were not found for this user." },
+          { status: 400 }
+        );
+      }
+
+      await db.transaction(async (tx) => {
+        await tx
+          .update(files)
+          .set({ eventId, updatedAt: now })
+          .where(
+            and(eq(files.userId, userId), inArray(files.id, stagedGalleryFileIds), isNull(files.eventId)),
+          );
+
+        await tx.insert(eventImages).values(
+          stagedGalleryFileIds.map((fileId) => ({
+            id: uuidv4(),
+            eventId,
+            fileId,
+            isDefault: false,
+            createdAt: now,
+            updatedAt: now,
+          }))
+        );
+      });
     }
 
 

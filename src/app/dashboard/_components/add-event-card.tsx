@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
+import { Uploader } from "@/components/uploader";
+
 import {
   Card,
   CardContent,
@@ -51,16 +53,10 @@ interface CreateEventResponse {
   status: "success" | "error";
   message: string;
   eventId?: string;
-  uploads?: {
-    coverImage: { fileId: string; s3Key: string } | null;
-    galleryCount: number;
-    failedUploads: string[];
-  };
   errors?: Record<string, string[]>;
 }
 
-
-async function createEventWithImages(
+async function createDraftEvent(
   eventData: {
     title: string;
     description: string;
@@ -71,12 +67,9 @@ async function createEventWithImages(
     priceAmount: number;
     priceCurrency: string;
   },
-  coverImage: File | null,
-  galleryImages: File[]
+  stagedGalleryFileIds: string[],
 ): Promise<CreateEventResponse> {
-
   const formData = new FormData();
-
 
   formData.append("title", eventData.title);
   formData.append("description", eventData.description);
@@ -86,21 +79,13 @@ async function createEventWithImages(
   formData.append("location", eventData.location);
   formData.append("priceAmount", eventData.priceAmount.toString());
   formData.append("priceCurrency", eventData.priceCurrency);
-
-  // Append cover image if provided
-  if (coverImage) {
-    formData.append("coverImage", coverImage);
-  }
-
- 
-  for (const img of galleryImages) {
-    formData.append("galleryImages", img);
+  for (const fileId of stagedGalleryFileIds) {
+    formData.append("stagedGalleryFileId", fileId);
   }
 
   const res = await fetch("/api/create-event", {
     method: "POST",
     body: formData,
-  
   });
 
   const data = await res.json();
@@ -118,11 +103,9 @@ export function AddEventCard() {
 
   const [step, setStep] = useState<WizardStep>("details");
   const [eventId, setEventId] = useState<string | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [galleryImages, setGalleryImages] = useState<File[]>([]);
+  const [stagedGalleryFileIds, setStagedGalleryFileIds] = useState<string[]>([]);
   const [speakerEmail, setSpeakerEmail] = useState("");
   const [speakerAffiliation, setSpeakerAffiliation] = useState("");
-  const [speakerBio, setSpeakerBio] = useState("");
   const [reviewerEmail, setReviewerEmail] = useState("");
 
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
@@ -196,7 +179,7 @@ export function AddEventCard() {
     }),
   );
 
-  const ensureDraftEventCreatedAndMediaUploaded = async () => {
+  const ensureDraftEventCreated = async () => {
     const value = form.state.values;
     
     // TEACHING: Validate locally first before making API call
@@ -211,7 +194,7 @@ export function AddEventCard() {
 
     try {
  
-      const result = await createEventWithImages(
+      const result = await createDraftEvent(
         {
           title: parsed.data.title,
           description: parsed.data.description,
@@ -222,8 +205,7 @@ export function AddEventCard() {
           priceAmount: parsed.data.priceAmount ?? 0,
           priceCurrency: parsed.data.priceCurrency ?? "DZD",
         },
-        coverImage,
-        galleryImages
+        stagedGalleryFileIds,
       );
 
       if (!result.eventId) {
@@ -231,21 +213,12 @@ export function AddEventCard() {
         return null;
       }
 
-  
-      const failedCount = result.uploads?.failedUploads?.length ?? 0;
-      if (failedCount > 0) {
-        toast.warning(
-          `Event created, but ${failedCount} image(s) failed to upload. You can upload them later.`,
-        );
-      } else if (coverImage || galleryImages.length > 0) {
-        toast.success("Event created and images uploaded.");
-      } else {
-        toast.success("Event created.");
-      }
+      toast.success("Draft event created.");
 
   
       void queryClient.invalidateQueries({ queryKey: ["my-events"] });
       setEventId(result.eventId);
+      setStagedGalleryFileIds([]);
       return result.eventId;
     } catch (error) {
    
@@ -260,8 +233,7 @@ export function AddEventCard() {
 
   const handleNext = async () => {
     if (step === "details") {
- 
-      const id = await ensureDraftEventCreatedAndMediaUploaded();
+      const id = eventId ?? (await ensureDraftEventCreated());
       if (id) setStep("invites");
       return;
     }
@@ -286,7 +258,7 @@ export function AddEventCard() {
               Create New Event
             </CardTitle>
             <CardDescription>
-              Create a draft in step 2, then invite people and wait for reviewer approval.
+              Create a draft first, upload gallery images, then invite people and wait for reviewer approval.
             </CardDescription>
           </div>
         </div>
@@ -408,19 +380,23 @@ export function AddEventCard() {
                     <ImageIcon className="size-4" />
                     Gallery Images
                   </Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) =>
-                      setGalleryImages(Array.from(e.target.files ?? []))
-                    }
+                  <Uploader
+                    role="event_image"
+                    eventId={eventId ?? undefined}
+                    kind="gallery"
+                    onComplete={(results) => {
+                      if (eventId) return;
+                      const newIds = results
+                        .map((r) =>
+                          typeof r === "object" && r !== null
+                            ? (r as { fileId?: unknown }).fileId
+                            : null,
+                        )
+                        .filter((id): id is string => typeof id === "string" && id.trim().length > 0);
+                      if (newIds.length === 0) return;
+                      setStagedGalleryFileIds((prev) => Array.from(new Set([...prev, ...newIds])));
+                    }}
                   />
-                  {galleryImages.length > 0 ? (
-                    <p className="text-muted-foreground text-xs">
-                      {galleryImages.length} image(s) selected
-                    </p>
-                  ) : null}
                 </div>
               </div>
 
