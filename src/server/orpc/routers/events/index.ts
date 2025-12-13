@@ -6,7 +6,13 @@ import { listEventsRouter } from "./list";
 import { listEventsByTypeRouter } from "./listByType";
 import { myEventsRouter } from "./myEvents";
 import { getEventRouter } from "./get";
-import { invitesRouter } from "./invites";
+import {
+	listInvitesRouter,
+	inviteSpeakerRouter,
+	inviteCommitteeRouter,
+	acceptSpeakerRouter,
+	listMyInvitesRouter,
+} from "./invites";
 import { registerForEventRouter } from "./register";
 
 export const eventsRouter = {
@@ -18,7 +24,11 @@ export const eventsRouter = {
 	listByType: listEventsByTypeRouter,
 	myEvents: myEventsRouter,
 	get: getEventRouter,
-	invites: invitesRouter,
+	listInvites: listInvitesRouter,
+	inviteSpeaker: inviteSpeakerRouter,
+	inviteCommittee: inviteCommitteeRouter,
+	acceptSpeaker: acceptSpeakerRouter,
+	listMyInvites: listMyInvitesRouter,
 	register: registerForEventRouter,
 };
 

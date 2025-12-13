@@ -16,9 +16,8 @@ import { toast } from "sonner";
 // The Event type is the source of truth - it's what Drizzle generates from your schema
 import type { Event, EventType } from "@/server/db/schema";
 
-// TEACHING: Using the schema's Event type directly is more reliable than
-// Awaited<ReturnType<...>> which can sometimes resolve to 'unknown' with complex generics
-type AdminEvent = Event;
+// TEACHING: Using the schema's Event type directly with imageUrl added for API responses
+type AdminEvent = Event & { imageUrl: string | null };
 
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {

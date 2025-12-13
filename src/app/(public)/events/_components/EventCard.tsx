@@ -17,7 +17,7 @@ import type { Route } from "next";
 // This is a common pattern: DB stores the key, API returns the URL
 type EventCardData = Pick<
   Event,
-  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "description"
+  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "smallDescription"
 > & {
   imageUrl?: string | null;
 };
@@ -148,7 +148,7 @@ export default function EventCard({ event }: EventCardProps) {
         </div>
 
         <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
-          {event.description || "No description available."}
+          {event.smallDescription || "No description available."}
         </p>
       </CardContent>
 

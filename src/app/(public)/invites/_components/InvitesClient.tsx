@@ -7,25 +7,15 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export function InvitesClient() {
-	const invitesQuery = useQuery(orpc.events.invites.mine.queryOptions());
-
-	const acceptCommittee = useMutation(
-		orpc.events.invites.acceptCommittee.mutationOptions({
-			onSuccess: async () => {
-				await invitesQuery.refetch();
-				toast.success("Invite accepted");
-			},
-			onError: (e) => toast.error(e.message || "Failed to accept invite"),
-		}),
-	);
+	const invitesQuery = useQuery(orpc.events.listMyInvites.queryOptions());
 
 	const acceptSpeaker = useMutation(
-		orpc.events.invites.acceptSpeaker.mutationOptions({
+		orpc.events.acceptSpeaker.mutationOptions({
 			onSuccess: async () => {
 				await invitesQuery.refetch();
 				toast.success("Speaker invite accepted");
 			},
-			onError: (e) => toast.error(e.message || "Failed to accept speaker invite"),
+			onError: (e: Error) => toast.error(e.message || "Failed to accept speaker invite"),
 		}),
 	);
 
@@ -35,7 +25,7 @@ export function InvitesClient() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-lg">Committee invites</CardTitle>
+					<CardTitle className="text-lg">Committee memberships</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-3">
 					{invitesQuery.isPending ? (
@@ -43,7 +33,7 @@ export function InvitesClient() {
 					) : null}
 
 					{!invitesQuery.isPending && (invitesQuery.data?.committee.length ?? 0) === 0 ? (
-						<div className="text-muted-foreground text-sm">No committee invites.</div>
+						<div className="text-muted-foreground text-sm">No committee memberships.</div>
 					) : null}
 
 					{invitesQuery.data?.committee.map((inv) => (
@@ -52,22 +42,14 @@ export function InvitesClient() {
 							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
 						>
 							<div className="space-y-1">
-								<div className="text-sm font-medium">
-									{inv.type === "reviewer" ? "Reviewer" : "Workshop facilitator"}
-								</div>
+								<div className="text-sm font-medium">Committee Member</div>
 								<div className="text-muted-foreground text-xs">
 									Event: <span className="font-mono">{inv.eventId}</span>
 								</div>
-								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
+								<div className="text-muted-foreground text-xs">
+									Assigned: {new Date(inv.assignedAt).toLocaleDateString()}
+								</div>
 							</div>
-							<Button
-								disabled={inv.status !== "pending" || acceptCommittee.isPending}
-								onClick={() => {
-									acceptCommittee.mutate({ eventId: inv.eventId, type: inv.type });
-								}}
-							>
-								Accept
-							</Button>
 						</div>
 					))}
 				</CardContent>
@@ -113,5 +95,3 @@ export function InvitesClient() {
 		</div>
 	);
 }
-
-

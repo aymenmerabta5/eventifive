@@ -1,6 +1,6 @@
 import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
-import { event, eventTypeValues } from "@/server/db/schema";
+import { event, eventImages, files, eventTypeValues } from "@/server/db/schema";
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
@@ -8,13 +8,12 @@ import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 const eventSchema = z.object({
 	id: z.string(),
 	title: z.string(),
-	description: z.string().nullable(),
+	smallDescription: z.string().nullable(),
 	type: z.enum(eventTypeValues),
 	startDate: z.date(),
 	endDate: z.date(),
 	location: z.string().nullable(),
 	theme: z.string().nullable(),
-	contactEmail: z.string().nullable(),
 	organizerId: z.string(),
 	priceAmount: z.number(),
 	priceCurrency: z.string(),
@@ -43,14 +42,22 @@ export const myEventsRouter = protectedProcedure
 			.where(eq(event.organizerId, userId))
 			.orderBy(desc(event.createdAt));
 
-		// TEACHING: Generate presigned URLs for each event's image
+		// TEACHING: Generate presigned URLs for each event's image from eventImages table
 		const eventsWithUrls = await Promise.all(
 			events.map(async (evt) => {
 				let imageUrl: string | null = null;
 
-				if (evt.image) {
+				// Get default image from eventImages table
+				const [defaultImage] = await db
+					.select({ s3Key: files.s3Key })
+					.from(eventImages)
+					.innerJoin(files, eq(eventImages.fileId, files.id))
+					.where(eq(eventImages.eventId, evt.id))
+					.limit(1);
+
+				if (defaultImage?.s3Key) {
 					try {
-						const { downloadUrl } = await generatePresignedDownloadUrl(evt.image);
+						const { downloadUrl } = await generatePresignedDownloadUrl(defaultImage.s3Key);
 						imageUrl = downloadUrl;
 					} catch (error) {
 						console.error(`Failed to generate image URL for event ${evt.id}:`, error);

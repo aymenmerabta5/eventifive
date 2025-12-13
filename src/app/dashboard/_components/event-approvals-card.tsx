@@ -1,41 +1,29 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export function EventApprovalsCard({ eventId }: { eventId: string }) {
 	const router = useRouter();
 
-	const invitesQuery = useQuery(
-		orpc.events.invites.listForEvent.queryOptions({
+	const invitesQuery = useQuery({
+		...orpc.events.listInvites.queryOptions({
 			input: { eventId },
 		}),
-	);
-
-	const approveCommitteeMutation = useMutation(
-		orpc.events.invites.approveCommittee.mutationOptions({
-			onSuccess: async () => {
-				toast.success("Approved");
-				await invitesQuery.refetch();
-			},
-			onError: (error) => toast.error(error.message || "Failed to approve"),
-		}),
-	);
+	});
 
 	const committee = invitesQuery.data?.committee ?? [];
-	const reviewers = committee.filter((c) => c.type === "reviewer");
-	const workshopFacilitators = committee.filter((c) => c.type === "workshop_facilitator");
+	const speakers = invitesQuery.data?.speakers ?? [];
 
 	return (
 		<Card className="shadow-lg">
 			<CardHeader>
-				<CardTitle className="text-2xl font-bold md:text-3xl">Event approvals</CardTitle>
+				<CardTitle className="text-2xl font-bold md:text-3xl">Event team</CardTitle>
 				<CardDescription>
-					Manage pending/accepted/approved committee invites for this event.
+					View the committee members and speakers for this event.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-6">
@@ -55,65 +43,66 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
 				</div>
 
 				<div className="rounded-lg border p-4">
-					<div className="text-sm font-medium">Reviewer committee</div>
+					<div className="text-sm font-medium">Committee members</div>
 					<div className="mt-3 space-y-2">
 						{invitesQuery.isPending ? (
 							<div className="text-muted-foreground text-sm">Loading…</div>
 						) : null}
-						{!invitesQuery.isPending && reviewers.length === 0 ? (
-							<div className="text-muted-foreground text-sm">No reviewer invites.</div>
+						{!invitesQuery.isPending && committee.length === 0 ? (
+							<div className="text-muted-foreground text-sm">No committee members.</div>
 						) : null}
 
-						{reviewers.map((c) => (
+						{committee.map((c) => (
 							<div
-								key={`reviewer-${c.id}`}
+								key={`committee-${c.id}`}
 								className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
 							>
 								<div className="text-sm">
-									<span className="font-medium">{c.userEmail}</span>{" "}
-									<span className="text-muted-foreground">({c.status})</span>
+									<span className="font-medium">{c.userName || c.userEmail}</span>
+									{c.userName ? (
+										<span className="text-muted-foreground ml-1">({c.userEmail})</span>
+									) : null}
 								</div>
-								<Button
-									variant="outline"
-									disabled={c.status !== "accepted" || approveCommitteeMutation.isPending}
-									onClick={() =>
-										approveCommitteeMutation.mutate({ eventId, committeeId: c.id })
-									}
-								>
-									Approve accepted
-								</Button>
+								<div className="text-muted-foreground text-xs">
+									Added {new Date(c.assignedAt).toLocaleDateString()}
+								</div>
 							</div>
 						))}
 					</div>
 				</div>
 
 				<div className="rounded-lg border p-4">
-					<div className="text-sm font-medium">Workshop-facilitator committee</div>
+					<div className="text-sm font-medium">Speakers</div>
 					<div className="mt-3 space-y-2">
-						{!invitesQuery.isPending && workshopFacilitators.length === 0 ? (
-							<div className="text-muted-foreground text-sm">
-								No workshop-facilitator invites.
-							</div>
+						{!invitesQuery.isPending && speakers.length === 0 ? (
+							<div className="text-muted-foreground text-sm">No speakers.</div>
 						) : null}
 
-						{workshopFacilitators.map((c) => (
+						{speakers.map((s) => (
 							<div
-								key={`wf-${c.id}`}
+								key={`speaker-${s.id}`}
 								className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
 							>
 								<div className="text-sm">
-									<span className="font-medium">{c.userEmail}</span>{" "}
-									<span className="text-muted-foreground">({c.status})</span>
+									<span className="font-medium">{s.userName || s.userEmail}</span>
+									{s.userName ? (
+										<span className="text-muted-foreground ml-1">({s.userEmail})</span>
+									) : null}
+									{s.affiliation ? (
+										<span className="text-muted-foreground ml-2">• {s.affiliation}</span>
+									) : null}
 								</div>
-								<Button
-									variant="outline"
-									disabled={c.status !== "accepted" || approveCommitteeMutation.isPending}
-									onClick={() =>
-										approveCommitteeMutation.mutate({ eventId, committeeId: c.id })
-									}
-								>
-									Approve accepted
-								</Button>
+								<div className="text-xs">
+									<span
+										className={
+											s.status === "accepted"
+												? "text-green-600"
+												: "text-muted-foreground"
+										}
+									>
+										{s.status}
+									</span>
+								</div>
 							</div>
 						))}
 					</div>
@@ -122,7 +111,3 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
 		</Card>
 	);
 }
-
-
-
-

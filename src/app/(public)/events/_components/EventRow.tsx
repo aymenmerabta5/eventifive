@@ -8,7 +8,7 @@ import type { Event } from "@/server/db/schema";
 // TEACHING: Extended to include imageUrl for S3 presigned URLs
 type EventCardData = Pick<
   Event,
-  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "description"
+  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "smallDescription"
 > & {
   imageUrl?: string | null;
 };

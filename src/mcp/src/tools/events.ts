@@ -26,7 +26,6 @@ export function registerEventTools(server: McpServer) {
         location: z.string().optional().describe("Event location"),
         description: z.string().optional().describe("Event description"),
         theme: z.string().optional().describe("Event theme"),
-        contactEmail: z.email().optional().describe("Contact email"),
         priceAmount: z.number().int().min(0).optional().default(0).describe("Registration price in cents (0 for free event)"),
         priceCurrency: z.string().optional().default("DZD").describe("Price currency (default: DZD)"),
       }),
@@ -67,18 +66,17 @@ export function registerEventTools(server: McpServer) {
 
         const priceAmount = input.priceAmount ?? 0;
         const priceCurrency = input.priceCurrency ?? "DZD";
-        const eventDescription = input.description || faker.lorem.paragraphs(2);
+        const eventDescription = input.description || faker.lorem.sentence();
 
         await db.insert(event).values({
           id: eventId,
           title: eventTitle,
-          description: eventDescription,
+          smallDescription: eventDescription,
           type: input.type || "conference",
           startDate,
           endDate,
           location: input.location || `${faker.location.city()}, ${faker.location.country()}`,
           theme: input.theme || faker.company.catchPhrase(),
-          contactEmail: input.contactEmail || faker.internet.email(),
           organizerId,
           priceAmount,
           priceCurrency,
@@ -196,7 +194,6 @@ export function registerEventTools(server: McpServer) {
         location: z.string().optional().describe("Event location"),
         description: z.string().optional().describe("Event description"),
         theme: z.string().optional().describe("Event theme"),
-        contactEmail: z.email().optional().describe("Contact email"),
       }),
     },
     async (input) => {
@@ -236,13 +233,12 @@ export function registerEventTools(server: McpServer) {
         await db.insert(event).values({
           id: eventId,
           title: eventTitle,
-          description: input.description || faker.lorem.paragraphs(2),
+          smallDescription: input.description || faker.lorem.sentence(),
           type: input.type || "conference",
           startDate,
           endDate,
           location: input.location || `${faker.location.city()}, ${faker.location.country()}`,
           theme: input.theme || faker.company.catchPhrase(),
-          contactEmail: input.contactEmail || faker.internet.email(),
           organizerId,
           priceAmount: 0,
           priceCurrency: "DZD",

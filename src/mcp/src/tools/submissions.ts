@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 import { db } from "../db.js";
 import {
   submission,
-  submissionAuthor,
   event,
   user,
   submissionTypeValues,
@@ -32,12 +31,9 @@ export function registerSubmissionTools(server: McpServer) {
         status: z
           .enum(submissionStatusValues)
           .optional()
-          .default("submitted")
-          .describe("Status: draft, submitted, under_review, accepted, rejected, revision_requested"),
+          .default("draft")
+          .describe("Status: draft, accepted, rejected"),
         submitterId: z.string().optional().describe("Submitter user ID (uses first user if not provided)"),
-        authorName: z.string().optional().describe("Author name (auto-generated if not provided)"),
-        authorEmail: z.email().optional().describe("Author email"),
-        authorAffiliation: z.string().optional().describe("Author affiliation"),
       }),
     },
     async (input) => {
@@ -101,19 +97,10 @@ export function registerSubmissionTools(server: McpServer) {
           abstract: submissionAbstract,
           keywords,
           type: input.type || "oral",
-          status: input.status || "submitted",
+          status: input.status || "draft",
           submitterId,
-          submittedAt: input.status !== "draft" ? now : null,
+          submittedAt: now,
           updatedAt: now,
-        });
-
-        const authorName = input.authorName || faker.person.fullName();
-        await db.insert(submissionAuthor).values({
-          submissionId,
-          name: authorName,
-          email: input.authorEmail || faker.internet.email(),
-          affiliation: input.authorAffiliation || faker.company.name(),
-          isCorresponding: true,
         });
 
         return {
@@ -128,9 +115,8 @@ export function registerSubmissionTools(server: McpServer) {
                     eventId: input.eventId,
                     title: submissionTitle,
                     type: input.type || "oral",
-                    status: input.status || "submitted",
+                    status: input.status || "draft",
                     submitterId,
-                    author: authorName,
                   },
                 },
                 null,
@@ -165,8 +151,8 @@ export function registerSubmissionTools(server: McpServer) {
         status: z
           .enum(submissionStatusValues)
           .optional()
-          .default("submitted")
-          .describe("Status for all submissions"),
+          .default("draft")
+          .describe("Status for all submissions: draft, accepted, rejected"),
       }),
     },
     async (input) => {
@@ -239,18 +225,10 @@ export function registerSubmissionTools(server: McpServer) {
               faker.hacker.noun(),
             ].join(", "),
             type: submissionType,
-            status: input.status || "submitted",
+            status: input.status || "draft",
             submitterId,
-            submittedAt: input.status !== "draft" ? now : null,
+            submittedAt: now,
             updatedAt: now,
-          });
-
-          await db.insert(submissionAuthor).values({
-            submissionId,
-            name: faker.person.fullName(),
-            email: faker.internet.email(),
-            affiliation: faker.company.name(),
-            isCorresponding: true,
           });
 
           submissions.push({

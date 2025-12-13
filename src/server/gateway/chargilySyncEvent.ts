@@ -38,9 +38,9 @@ export async function syncEventToChargily(eventId: string): Promise<EventSyncRes
   // Create product if not exists
   // Sanitize description: strip HTML tags and truncate to 255 chars for Chargily
   let sanitizedDescription: string | undefined;
-  if (eventData.description) {
+  if (eventData.smallDescription) {
     // Remove HTML tags and trim
-    sanitizedDescription = eventData.description
+    sanitizedDescription = eventData.smallDescription
       .replace(/<[^>]*>/g, "")
       .replace(/\s+/g, " ")
       .trim()

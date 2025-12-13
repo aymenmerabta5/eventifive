@@ -22,7 +22,7 @@ export async function seedRoles() {
 
 	const rolesList = [
 		{ name: "super_admin" as const },
-		{ name: "admin" as const },
+		{ name: "organizer" as const },
 		{ name: "user" as const },
 	];
 

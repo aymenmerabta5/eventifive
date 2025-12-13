@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../index";
 import { db } from "@/server/db";
-import { event, eventTypeValues } from "@/server/db/schema";
+import { event, eventImages, files, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -13,7 +13,7 @@ const inputSchema = z.object({
 const eventSchema = z.object({
 	id: z.string(),
 	title: z.string(),
-	description: z.string().nullable(),
+	smallDescription: z.string().nullable(),
 	type: z.enum(eventTypeValues),
 	startDate: z.date(),
 	endDate: z.date(),
@@ -41,9 +41,18 @@ export const getEventRouter = publicProcedure
 			}
 
 			let imageUrl: string | null = null;
-			if (found.image) {
+
+			// Get default image from eventImages table
+			const [defaultImage] = await db
+				.select({ s3Key: files.s3Key })
+				.from(eventImages)
+				.innerJoin(files, eq(eventImages.fileId, files.id))
+				.where(eq(eventImages.eventId, found.id))
+				.limit(1);
+
+			if (defaultImage?.s3Key) {
 				try {
-					const { downloadUrl } = await generatePresignedDownloadUrl(found.image);
+					const { downloadUrl } = await generatePresignedDownloadUrl(defaultImage.s3Key);
 					imageUrl = downloadUrl;
 				} catch (error) {
 					console.error(`Failed to generate image URL for event ${found.id}:`, error);

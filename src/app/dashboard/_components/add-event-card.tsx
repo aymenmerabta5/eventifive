@@ -170,39 +170,29 @@ export function AddEventCard() {
   );
 
   const invitesQuery = useQuery({
-    ...orpc.events.invites.listForEvent.queryOptions({
+    ...orpc.events.listInvites.queryOptions({
       input: { eventId: eventId ?? "" },
     }),
     enabled: !!eventId && step !== "details",
   });
 
   const inviteSpeakerMutation = useMutation(
-    orpc.events.invites.inviteSpeaker.mutationOptions({
+    orpc.events.inviteSpeaker.mutationOptions({
       onSuccess: async () => {
         toast.success("Speaker invited");
         await invitesQuery.refetch();
       },
-      onError: (error) => toast.error(error.message || "Failed to invite speaker"),
+      onError: (error: Error) => toast.error(error.message || "Failed to invite speaker"),
     }),
   );
 
   const inviteCommitteeMutation = useMutation(
-    orpc.events.invites.inviteCommittee.mutationOptions({
+    orpc.events.inviteCommittee.mutationOptions({
       onSuccess: async () => {
         toast.success("Committee member invited");
         await invitesQuery.refetch();
       },
-      onError: (error) => toast.error(error.message || "Failed to invite committee member"),
-    }),
-  );
-
-  const approveCommitteeMutation = useMutation(
-    orpc.events.invites.approveCommittee.mutationOptions({
-      onSuccess: async () => {
-        toast.success("Approved");
-        await invitesQuery.refetch();
-      },
-      onError: (error) => toast.error(error.message || "Failed to approve"),
+      onError: (error: Error) => toast.error(error.message || "Failed to invite committee member"),
     }),
   );
 
@@ -638,15 +628,6 @@ export function AddEventCard() {
                         onChange={(e) => setSpeakerAffiliation(e.target.value)}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Bio (optional)</Label>
-                      <Textarea
-                        placeholder="Short bio"
-                        disabled={!eventId || inviteSpeakerMutation.isPending}
-                        value={speakerBio}
-                        onChange={(e) => setSpeakerBio(e.target.value)}
-                      />
-                    </div>
                     <Button
                       className="w-full"
                       disabled={!eventId || inviteSpeakerMutation.isPending}
@@ -661,7 +642,6 @@ export function AddEventCard() {
                           eventId,
                           email,
                           affiliation: speakerAffiliation.trim() || undefined,
-                          bio: speakerBio.trim() || undefined,
                         });
                       }}
                     >
@@ -671,17 +651,16 @@ export function AddEventCard() {
                 </div>
 
                 <div className="rounded-lg border p-4">
-                  <div className="text-sm font-medium">Invite reviewer</div>
+                  <div className="text-sm font-medium">Invite committee member</div>
                   <div className="text-muted-foreground mt-1 text-xs">
-                    Reviewers must already have accounts. They accept from{" "}
-                    <span className="font-mono">/invites</span>, then you approve in step 3.
+                    Committee members must already have accounts.
                   </div>
 
                   <div className="mt-4 space-y-3">
                     <div className="space-y-2">
                       <Label>Email</Label>
                       <Input
-                        placeholder="reviewer@email.com"
+                        placeholder="committee@email.com"
                         type="email"
                         disabled={!eventId || inviteCommitteeMutation.isPending}
                         value={reviewerEmail}
@@ -695,17 +674,16 @@ export function AddEventCard() {
                         if (!eventId) return;
                         const email = reviewerEmail.trim();
                         if (!email) {
-                          toast.error("Reviewer email is required");
+                          toast.error("Committee member email is required");
                           return;
                         }
                         inviteCommitteeMutation.mutate({
                           eventId,
                           email,
-                          type: "reviewer",
                         });
                       }}
                     >
-                      Invite reviewer
+                      Invite committee member
                     </Button>
                   </div>
                 </div>
@@ -714,7 +692,7 @@ export function AddEventCard() {
               <div className="rounded-lg border p-4">
                 <div className="text-sm font-medium">Current invites</div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  Speakers show pending/accepted. Committee shows reviewer + workshop facilitator.
+                  Speakers show pending/accepted. Committee members are shown below.
                 </div>
 
                 <div className="mt-4 space-y-3">
@@ -744,7 +722,7 @@ export function AddEventCard() {
                       <div className="mt-4 text-sm font-medium">Committee</div>
                       {invitesQuery.data.committee.length === 0 ? (
                         <div className="text-muted-foreground text-sm">
-                          No committee invites yet.
+                          No committee members yet.
                         </div>
                       ) : (
                         invitesQuery.data.committee.map((c) => (
@@ -755,7 +733,7 @@ export function AddEventCard() {
                             <div className="text-sm">
                               <span className="font-medium">{c.userEmail}</span>{" "}
                               <span className="text-muted-foreground">
-                                ({c.type} / {c.status})
+                                (Added {new Date(c.assignedAt).toLocaleDateString()})
                               </span>
                             </div>
                           </div>
@@ -771,99 +749,76 @@ export function AddEventCard() {
           {step === "review" ? (
             <div className="space-y-6">
               <div className="rounded-lg border p-4">
-                <div className="text-sm font-medium">
-                  Pending + accepted committee approvals
-                </div>
+                <div className="text-sm font-medium">Review your event setup</div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  When reviewers/workshop facilitators accept on <span className="font-mono">/invites</span>,
-                  they move to “accepted”. Here, you approve the accepted ones.
+                  Review the speakers and committee members you&apos;ve invited for this event.
                 </div>
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="text-sm font-medium">Reviewer committee</div>
+                <div className="text-sm font-medium">Committee members</div>
                 <div className="mt-3 space-y-2">
                   {invitesQuery.isPending ? (
                     <div className="text-muted-foreground text-sm">Loading…</div>
                   ) : null}
 
-                  {invitesQuery.data ? (
-                    <>
-                      {invitesQuery.data.committee
-                        .filter((c) => c.type === "reviewer")
-                        .map((c) => (
-                          <div
-                            key={`reviewer-${c.id}`}
-                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
-                          >
-                            <div className="text-sm">
-                              <span className="font-medium">{c.userEmail}</span>{" "}
-                              <span className="text-muted-foreground">({c.status})</span>
-                            </div>
-                            <Button
-                              variant="outline"
-                              disabled={c.status !== "accepted" || approveCommitteeMutation.isPending}
-                              onClick={() => {
-                                if (!eventId) return;
-                                approveCommitteeMutation.mutate({
-                                  eventId,
-                                  committeeId: c.id,
-                                });
-                              }}
-                            >
-                              Approve accepted
-                            </Button>
-                          </div>
-                        ))}
-                      {invitesQuery.data.committee.filter((c) => c.type === "reviewer").length ===
-                      0 ? (
-                        <div className="text-muted-foreground text-sm">No reviewer invites.</div>
-                      ) : null}
-                    </>
+                  {invitesQuery.data && invitesQuery.data.committee.length === 0 ? (
+                    <div className="text-muted-foreground text-sm">No committee members invited.</div>
                   ) : null}
+
+                  {invitesQuery.data?.committee.map((c) => (
+                    <div
+                      key={`committee-${c.id}`}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                    >
+                      <div className="text-sm">
+                        <span className="font-medium">{c.userName || c.userEmail}</span>
+                        {c.userName ? (
+                          <span className="text-muted-foreground ml-1">({c.userEmail})</span>
+                        ) : null}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        Added {new Date(c.assignedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="text-sm font-medium">Workshop-facilitator committee</div>
+                <div className="text-sm font-medium">Speakers</div>
                 <div className="mt-3 space-y-2">
-                  {invitesQuery.data ? (
-                    <>
-                      {invitesQuery.data.committee
-                        .filter((c) => c.type === "workshop_facilitator")
-                        .map((c) => (
-                          <div
-                            key={`wf-${c.id}`}
-                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
-                          >
-                            <div className="text-sm">
-                              <span className="font-medium">{c.userEmail}</span>{" "}
-                              <span className="text-muted-foreground">({c.status})</span>
-                            </div>
-                            <Button
-                              variant="outline"
-                              disabled={c.status !== "accepted" || approveCommitteeMutation.isPending}
-                              onClick={() => {
-                                if (!eventId) return;
-                                approveCommitteeMutation.mutate({
-                                  eventId,
-                                  committeeId: c.id,
-                                });
-                              }}
-                            >
-                              Approve accepted
-                            </Button>
-                          </div>
-                        ))}
-                      {invitesQuery.data.committee.filter(
-                        (c) => c.type === "workshop_facilitator",
-                      ).length === 0 ? (
-                        <div className="text-muted-foreground text-sm">
-                          No workshop-facilitator invites.
-                        </div>
-                      ) : null}
-                    </>
+                  {invitesQuery.data && invitesQuery.data.speakers.length === 0 ? (
+                    <div className="text-muted-foreground text-sm">No speakers invited.</div>
                   ) : null}
+
+                  {invitesQuery.data?.speakers.map((s) => (
+                    <div
+                      key={`speaker-${s.id}`}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                    >
+                      <div className="text-sm">
+                        <span className="font-medium">{s.userName || s.userEmail}</span>
+                        {s.userName ? (
+                          <span className="text-muted-foreground ml-1">({s.userEmail})</span>
+                        ) : null}
+                        {s.affiliation ? (
+                          <span className="text-muted-foreground ml-2">• {s.affiliation}</span>
+                        ) : null}
+                      </div>
+                      <div className="text-xs">
+                        <span
+                          className={
+                            s.status === "accepted"
+                              ? "text-green-600"
+                              : "text-muted-foreground"
+                          }
+                        >
+                          {s.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

@@ -108,7 +108,7 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 			return {
 				eventId: resolvedEventId,
 				title: event.title ?? "",
-				description: event.description ?? "",
+				description: event.smallDescription ?? "",
 				type: event.type as "" | EventType,
 				startDate: toDateTimeLocalInput(event.startDate),
 				endDate: toDateTimeLocalInput(event.endDate),

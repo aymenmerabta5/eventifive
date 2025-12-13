@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../index";
 import { db } from "@/server/db";
-import { event, eventTypeValues } from "@/server/db/schema";
+import { event, eventImages, files, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq, desc, asc, and, sql } from "drizzle-orm";
@@ -12,7 +12,7 @@ import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 const eventSchema = z.object({
 	id: z.string(),
 	title: z.string(),
-	description: z.string().nullable(),
+	smallDescription: z.string().nullable(),
 	type: z.enum(eventTypeValues),
 	startDate: z.date(),
 	endDate: z.date(),
@@ -55,7 +55,7 @@ export const listEventsByTypeRouter = publicProcedure
 				const searchTerm = `%${search.trim()}%`;
 				// Use SQL template for proper null handling with ILIKE
 				conditions.push(
-					sql`(${event.title} ILIKE ${searchTerm} OR COALESCE(${event.description}, '') ILIKE ${searchTerm} OR COALESCE(${event.location}, '') ILIKE ${searchTerm})`
+					sql`(${event.title} ILIKE ${searchTerm} OR COALESCE(${event.smallDescription}, '') ILIKE ${searchTerm} OR COALESCE(${event.location}, '') ILIKE ${searchTerm})`
 				);
 			}
 
@@ -87,16 +87,24 @@ export const listEventsByTypeRouter = publicProcedure
 				.limit(limit)
 				.offset(offset);
 
-			// TEACHING: Generate presigned URLs for each event's image
+			// TEACHING: Generate presigned URLs for each event's image from eventImages table
 			// We use Promise.all to fetch all URLs in parallel for better performance
 			// If an event has no image, we return null for the imageUrl
 			const eventsWithImageUrls = await Promise.all(
 				events.map(async (evt) => {
 					let imageUrl: string | null = null;
 
-					if (evt.image) {
+					// Get default image from eventImages table
+					const [defaultImage] = await db
+						.select({ s3Key: files.s3Key })
+						.from(eventImages)
+						.innerJoin(files, eq(eventImages.fileId, files.id))
+						.where(eq(eventImages.eventId, evt.id))
+						.limit(1);
+
+					if (defaultImage?.s3Key) {
 						try {
-							const { downloadUrl } = await generatePresignedDownloadUrl(evt.image);
+							const { downloadUrl } = await generatePresignedDownloadUrl(defaultImage.s3Key);
 							imageUrl = downloadUrl;
 						} catch (error) {
 							// TEACHING: If image URL generation fails, log but don't fail the whole request

@@ -8,12 +8,12 @@ import {
   account,
   event,
   submission,
-  submissionAuthor,
   review,
   reviewAssignment,
   eventRegistration,
   eventTypeValues,
   submissionTypeValues,
+  submissionStatusValues,
 } from "../schema.js";
 import { hashPassword } from "../utils/password.js";
 
@@ -86,13 +86,12 @@ export function registerSeedTools(server: McpServer) {
         await db.insert(event).values({
           id: eventId,
           title: eventTitle,
-          description: faker.lorem.paragraphs(2),
+          smallDescription: faker.lorem.sentence(),
           type: input.eventType || "conference",
           startDate,
           endDate,
           location: `${faker.location.city()}, ${faker.location.country()}`,
           theme: faker.company.catchPhrase(),
-          contactEmail: faker.internet.email(),
           organizerId,
           priceAmount: 0,
           priceCurrency: "DZD",
@@ -137,18 +136,10 @@ export function registerSeedTools(server: McpServer) {
                 faker.hacker.noun(),
               ].join(", "),
               type: submissionType,
-              status: "submitted",
+              status: "draft",
               submitterId: u.id,
               submittedAt: now,
               updatedAt: now,
-            });
-
-            await db.insert(submissionAuthor).values({
-              submissionId,
-              name: u.name,
-              email: u.email,
-              affiliation: faker.company.name(),
-              isCorresponding: true,
             });
 
             createdSubmissions.push({
@@ -174,14 +165,7 @@ export function registerSeedTools(server: McpServer) {
             }
             const reviewerId = reviewer.id;
             const score = Math.floor(Math.random() * 5) + 5;
-            const recommendation =
-              score >= 8
-                ? "accept"
-                : score >= 6
-                  ? "minor_revision"
-                  : score >= 4
-                    ? "major_revision"
-                    : "reject";
+            const recommendation = score >= 6 ? "accept" : "reject";
 
             await db.insert(review).values({
               id: uuidv4(),
@@ -189,7 +173,7 @@ export function registerSeedTools(server: McpServer) {
               reviewerId,
               score,
               recommendation,
-              comments: generateReviewComments(recommendation),
+              comment: generateReviewComments(recommendation),
               createdAt: now,
               updatedAt: now,
             });
@@ -302,13 +286,12 @@ export function registerSeedTools(server: McpServer) {
         await db.insert(event).values({
           id: eventId,
           title: eventTitle,
-          description: "A test conference for development",
+          smallDescription: "A test conference for development",
           type: "conference",
           startDate,
           endDate,
           location: "Test City, Test Country",
           theme: "Testing and Development",
-          contactEmail: userEmail,
           organizerId: userId,
           priceAmount: 0,
           priceCurrency: "DZD",
@@ -327,18 +310,10 @@ export function registerSeedTools(server: McpServer) {
           abstract: "This is a test submission for development purposes.",
           keywords: "test, development, example",
           type: "oral",
-          status: "submitted",
+          status: "draft",
           submitterId: userId,
           submittedAt: now,
           updatedAt: now,
-        });
-
-        await db.insert(submissionAuthor).values({
-          submissionId,
-          name: userName,
-          email: userEmail,
-          affiliation: faker.company.name(),
-          isCorresponding: true,
         });
 
         return {
@@ -400,10 +375,6 @@ function generateReviewComments(recommendation: string): string {
   switch (recommendation) {
     case "accept":
       return `${faker.helpers.arrayElement(positiveComments)} I recommend acceptance.`;
-    case "minor_revision":
-      return `${faker.helpers.arrayElement(positiveComments)} However, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} Minor revisions are needed.`;
-    case "major_revision":
-      return `${faker.helpers.arrayElement(negativeComments)} Additionally, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} Major revisions are required.`;
     case "reject":
       return `${faker.helpers.arrayElement(negativeComments)} The paper is not suitable in its current form.`;
     default:

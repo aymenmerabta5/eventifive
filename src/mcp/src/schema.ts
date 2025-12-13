@@ -8,6 +8,8 @@ import {
   pgEnum,
   jsonb,
   serial,
+  index,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // ---------------------------
@@ -15,7 +17,7 @@ import {
 // ---------------------------
 export const rolesEnum = pgEnum("role", [
   "super_admin",
-  "admin",
+  "organizer",
   "user",
 ]);
 
@@ -31,28 +33,48 @@ export const eventTypeEnum = pgEnum("event_type", [
 export const submissionTypeEnum = pgEnum("submission_type", [
   "oral",
   "poster",
-  "workshop",
-  "demo",
+  "displayed_paper",
 ]);
 
 export const submissionStatusEnum = pgEnum("submission_status", [
   "draft",
-  "submitted",
-  "under_review",
   "accepted",
   "rejected",
-  "revision_requested",
 ]);
 
 export const reviewRecommendationEnum = pgEnum("review_recommendation", [
   "accept",
-  "minor_revision",
-  "major_revision",
   "reject",
 ]);
 
+export const fileTypeEnum = pgEnum("file_type", ["image", "document"]);
+export const fileStatusEnum = pgEnum("file_status", [
+  "pending",
+  "completed",
+  "failed",
+]);
+
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "unpaid",
+  "pending",
+  "paid",
+  "refunded",
+]);
+
+export const billingPeriodEnum = pgEnum("billing_period", [
+  "monthly",
+  "yearly",
+]);
+
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "pending",
+  "active",
+  "cancelled",
+  "expired",
+]);
+
 // ---------------------------
-// USERS & AUTH
+// USERS, ROLES, AUTH
 // ---------------------------
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -67,169 +89,651 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const account = pgTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at"),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
 export const roles = pgTable("roles", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: rolesEnum("name").notNull().default("user"),
 });
 
-export const userRoles = pgTable("user_roles", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  roleId: integer("role_id")
-    .notNull()
-    .references(() => roles.id, { onDelete: "cascade" }),
-  assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+export const userRoles = pgTable(
+  "user_roles",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    roleId: integer("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+    assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("user_roles_user_role_unique").on(table.userId, table.roleId),
+    index("user_roles_user_id_idx").on(table.userId),
+  ]
+);
+
+export const session = pgTable(
+  "session",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at").notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("session_user_id_idx").on(table.userId)]
+);
+
+export const account = pgTable(
+  "account",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("account_user_id_idx").on(table.userId)]
+);
+
+export const verification = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 // ---------------------------
-// EVENTS
+// EVENTS, ORGANIZERS, COMMITTEES
 // ---------------------------
-export const event = pgTable("event", {
+export const event = pgTable(
+  "event",
+  {
+    id: text("id").primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    smallDescription: varchar("small_description", { length: 255 }),
+    bigDescription: jsonb("description"),
+    type: eventTypeEnum("type").notNull(),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
+    location: varchar("location", { length: 255 }),
+    theme: varchar("theme", { length: 255 }),
+    organizerId: text("organizer_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    priceAmount: integer("price_amount").notNull().default(0),
+    priceCurrency: varchar("price_currency", { length: 10 })
+      .notNull()
+      .default("DZD"),
+    chargilyProductId: varchar("chargily_product_id", { length: 100 }),
+    chargilyPriceId: varchar("chargily_price_id", { length: 100 }),
+    chargilySyncedAt: timestamp("chargily_synced_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("event_organizer_id_idx").on(table.organizerId),
+    index("event_start_date_idx").on(table.startDate),
+    index("event_type_idx").on(table.type),
+  ]
+);
+
+export const eventImages = pgTable(
+  "event_images",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    fileId: text("file_id")
+      .notNull()
+      .references(() => files.id, { onDelete: "cascade" }),
+    isDefault: boolean("is_default").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("event_images_event_id_idx").on(table.eventId)]
+);
+
+export const eventCommittee = pgTable(
+  "event_committee",
+  {
+    id: serial("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("event_committee_event_user_unique").on(table.eventId, table.userId),
+    index("event_committee_event_id_idx").on(table.eventId),
+  ]
+);
+
+export const eventSpeakers = pgTable(
+  "event_speakers",
+  {
+    id: serial("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    affiliation: varchar("affiliation", { length: 255 }),
+    isInvited: boolean("is_invited").notNull().default(false),
+  },
+  (table) => [
+    unique("event_speakers_event_user_unique").on(table.eventId, table.userId),
+    index("event_speakers_event_id_idx").on(table.eventId),
+  ]
+);
+
+// ---------------------------
+// FILES (must be defined before submissionFile)
+// ---------------------------
+export const files = pgTable(
+  "files",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    eventId: text("event_id").references(() => event.id, {
+      onDelete: "cascade",
+    }),
+    s3Key: varchar("s3_key", { length: 1000 }).notNull().unique(),
+    fileName: varchar("file_name", { length: 255 }).notNull(),
+    fileType: fileTypeEnum("file_type").notNull(),
+    fileSize: integer("file_size").notNull(),
+    contentType: varchar("content_type", { length: 100 }).notNull(),
+    status: fileStatusEnum("status").notNull().default("pending"),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("files_user_id_idx").on(table.userId),
+    index("files_event_id_idx").on(table.eventId),
+  ]
+);
+
+// ---------------------------
+// SUBMISSIONS 
+// ---------------------------
+export const submission = pgTable(
+  "submission",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 500 }).notNull(),
+    abstract: text("abstract"),
+    keywords: varchar("keywords", { length: 500 }),
+    type: submissionTypeEnum("type").notNull().default("oral"),
+    status: submissionStatusEnum("status").notNull().default("draft"),
+    submitterId: text("submitter_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    submittedAt: timestamp("submitted_at"),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("submission_event_id_idx").on(table.eventId),
+    index("submission_submitter_id_idx").on(table.submitterId),
+    index("submission_status_idx").on(table.status),
+  ]
+);
+
+export const submissionFile = pgTable(
+  "submission_file",
+  {
+    id: text("id").primaryKey(),
+    submissionId: text("submission_id")
+      .notNull()
+      .references(() => submission.id, { onDelete: "cascade" }),
+    fileId: text("file_id")
+      .notNull()
+      .references(() => files.id, { onDelete: "cascade" }),
+    purpose: varchar("purpose", { length: 100 }), // e.g., "abstract_pdf", "full_paper"
+    uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
+  },
+  (table) => [index("submission_file_submission_id_idx").on(table.submissionId)]
+);
+
+// ---------------------------
+// REVIEWS & REVIEW ASSIGNMENTS
+// ---------------------------
+export const review = pgTable(
+  "review",
+  {
+    id: text("id").primaryKey(),
+    submissionId: text("submission_id")
+      .notNull()
+      .references(() => submission.id, { onDelete: "cascade" }),
+    reviewerId: text("reviewer_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    comment: text("comment"),
+    score: integer("score"),
+    recommendation: reviewRecommendationEnum("recommendation"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("review_submission_reviewer_unique").on(
+      table.submissionId,
+      table.reviewerId
+    ),
+    index("review_submission_id_idx").on(table.submissionId),
+    index("review_reviewer_id_idx").on(table.reviewerId),
+  ]
+);
+
+export const reviewAssignment = pgTable(
+  "review_assignment",
+  {
+    id: serial("id").primaryKey(),
+    submissionId: text("submission_id")
+      .notNull()
+      .references(() => submission.id, { onDelete: "cascade" }),
+    reviewerId: text("reviewer_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+    dueAt: timestamp("due_at"),
+    status: varchar("status", { length: 50 }).notNull().default("assigned"),
+  },
+  (table) => [
+    unique("review_assignment_submission_reviewer_unique").on(
+      table.submissionId,
+      table.reviewerId
+    ),
+    index("review_assignment_submission_id_idx").on(table.submissionId),
+    index("review_assignment_reviewer_id_idx").on(table.reviewerId),
+  ]
+);
+
+// ---------------------------
+// SESSIONS (PROGRAM), ROOMS
+// ---------------------------
+export const room = pgTable(
+  "room",
+  {
+    id: serial("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    capacity: integer("capacity"),
+    location: varchar("location", { length: 255 }),
+  },
+  (table) => [index("room_event_id_idx").on(table.eventId)]
+);
+
+export const programSession = pgTable(
+  "program_session",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    startAt: timestamp("start_at").notNull(),
+    endAt: timestamp("end_at").notNull(),
+    roomId: integer("room_id").references(() => room.id, {
+      onDelete: "set null",
+    }),
+    chairId: text("chair_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => [
+    index("program_session_event_id_idx").on(table.eventId),
+    index("program_session_start_at_idx").on(table.startAt),
+  ]
+);
+
+export const sessionAssignment = pgTable(
+  "session_assignment",
+  {
+    id: serial("id").primaryKey(),
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => programSession.id, { onDelete: "cascade" }),
+    submissionId: text("submission_id")
+      .notNull()
+      .references(() => submission.id, { onDelete: "cascade" }),
+    displayOrder: integer("display_order"),
+  },
+  (table) => [
+    unique("session_assignment_session_submission_unique").on(
+      table.sessionId,
+      table.submissionId
+    ),
+    index("session_assignment_session_id_idx").on(table.sessionId),
+  ]
+);
+
+// ---------------------------
+// WORKSHOPS
+// ---------------------------
+export const workshop = pgTable(
+  "workshop",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    capacity: integer("capacity"),
+    facilitatorId: text("facilitator_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    startAt: timestamp("start_at"),
+    endAt: timestamp("end_at"),
+  },
+  (table) => [index("workshop_event_id_idx").on(table.eventId)]
+);
+
+export const workshopRegistration = pgTable(
+  "workshop_registration",
+  {
+    id: serial("id").primaryKey(),
+    workshopId: text("workshop_id")
+      .notNull()
+      .references(() => workshop.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    registeredAt: timestamp("registered_at").notNull().defaultNow(),
+    status: varchar("status", { length: 50 }).notNull().default("registered"),
+  },
+  (table) => [
+    unique("workshop_registration_workshop_user_unique").on(
+      table.workshopId,
+      table.userId
+    ),
+    index("workshop_registration_workshop_id_idx").on(table.workshopId),
+    index("workshop_registration_user_id_idx").on(table.userId),
+  ]
+);
+
+// ---------------------------
+// SUBSCRIPTION PLANS & PRICING
+// ---------------------------
+export const subscriptionPlan = pgTable("subscription_plan", {
   id: text("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 255 }).notNull(),
   description: text("description"),
-  type: eventTypeEnum("type").notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
-  location: varchar("location", { length: 255 }),
-  theme: varchar("theme", { length: 255 }),
-  contactEmail: text("contact_email"),
-  organizerId: text("organizer_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  // Pricing fields (amount in whole currency units, e.g., 5000 DZD)
-  priceAmount: integer("price_amount").notNull().default(0),
-  priceCurrency: varchar("price_currency", { length: 10 }).notNull().default("DZD"),
+  features: jsonb("features").$type<string[]>(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
   chargilyProductId: varchar("chargily_product_id", { length: 100 }),
-  chargilyPriceId: varchar("chargily_price_id", { length: 100 }),
   chargilySyncedAt: timestamp("chargily_synced_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const eventCommittee = pgTable("event_committee", {
-  id: serial("id").primaryKey(),
-  eventId: text("event_id")
-    .notNull()
-    .references(() => event.id, { onDelete: "cascade" }),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  role: varchar("role", { length: 100 }),
-  assignedAt: timestamp("assigned_at").notNull().defaultNow(),
-});
+export const subscriptionPrice = pgTable(
+  "subscription_price",
+  {
+    id: text("id").primaryKey(),
+    planId: text("plan_id")
+      .notNull()
+      .references(() => subscriptionPlan.id, { onDelete: "cascade" }),
+    billingPeriod: billingPeriodEnum("billing_period").notNull(),
+    amount: integer("amount").notNull(), // Amount in whole currency units (e.g., 5000 DZD)
+    currency: varchar("currency", { length: 10 }).notNull().default("DZD"),
+    chargilyPriceId: varchar("chargily_price_id", { length: 100 }),
+    chargilySyncedAt: timestamp("chargily_synced_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("subscription_price_plan_period_unique").on(
+      table.planId,
+      table.billingPeriod
+    ),
+    index("subscription_price_plan_id_idx").on(table.planId),
+  ]
+);
+
+export const userSubscription = pgTable(
+  "user_subscription",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    planId: text("plan_id")
+      .notNull()
+      .references(() => subscriptionPlan.id),
+    priceId: text("price_id")
+      .notNull()
+      .references(() => subscriptionPrice.id),
+    status: subscriptionStatusEnum("status").notNull().default("pending"),
+    currentPeriodStart: timestamp("current_period_start").notNull(),
+    currentPeriodEnd: timestamp("current_period_end").notNull(),
+    cancelledAt: timestamp("cancelled_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("user_subscription_user_id_idx").on(table.userId),
+    index("user_subscription_status_idx").on(table.status),
+  ]
+);
 
 // ---------------------------
-// SUBMISSIONS
+// EVENT REGISTRATION & PAYMENT
 // ---------------------------
-export const submission = pgTable("submission", {
-  id: text("id").primaryKey(),
-  eventId: text("event_id")
-    .notNull()
-    .references(() => event.id, { onDelete: "cascade" }),
-  title: varchar("title", { length: 500 }).notNull(),
-  abstract: text("abstract"),
-  keywords: varchar("keywords", { length: 500 }),
-  type: submissionTypeEnum("type").notNull().default("oral"),
-  status: submissionStatusEnum("status").notNull().default("draft"),
-  submitterId: text("submitter_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  submittedAt: timestamp("submitted_at"),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const eventRegistration = pgTable(
+  "event_registration",
+  {
+    id: serial("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    roleAtEvent: varchar("role_at_event", { length: 100 })
+      .notNull()
+      .default("participant"),
+    registeredAt: timestamp("registered_at").notNull().defaultNow(),
+    paymentStatus: paymentStatusEnum("payment_status")
+      .notNull()
+      .default("unpaid"),
+  },
+  (table) => [
+    unique("event_registration_event_user_unique").on(
+      table.eventId,
+      table.userId
+    ),
+    index("event_registration_event_id_idx").on(table.eventId),
+    index("event_registration_user_id_idx").on(table.userId),
+  ]
+);
 
-export const submissionAuthor = pgTable("submission_author", {
-  id: serial("id").primaryKey(),
-  submissionId: text("submission_id")
-    .notNull()
-    .references(() => submission.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: text("email"),
-  affiliation: varchar("affiliation", { length: 255 }),
-  isCorresponding: boolean("is_corresponding").notNull().default(false),
-});
+export const payment = pgTable(
+  "payment",
+  {
+    id: text("id").primaryKey(),
+    // Either for event registration or subscription (one should be set)
+    registrationId: integer("registration_id").references(
+      () => eventRegistration.id,
+      { onDelete: "cascade" }
+    ),
+    subscriptionId: text("subscription_id").references(
+      () => userSubscription.id,
+      { onDelete: "cascade" }
+    ),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    amount: integer("amount").notNull(), // Amount in whole currency units (e.g., 5000 DZD)
+    currency: varchar("currency", { length: 10 }).notNull().default("DZD"),
+    status: paymentStatusEnum("status").notNull().default("pending"),
+    provider: varchar("provider", { length: 100 })
+      .notNull()
+      .default("chargily"),
+    // Chargily-specific fields
+    chargilyCheckoutId: varchar("chargily_checkout_id", { length: 100 }),
+    paymentMethod: varchar("payment_method", { length: 50 }),
+    failureReason: text("failure_reason"),
+    providerData: jsonb("provider_data"),
+    paidAt: timestamp("paid_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("payment_user_id_idx").on(table.userId),
+    index("payment_status_idx").on(table.status),
+    index("payment_chargily_checkout_id_idx").on(table.chargilyCheckoutId),
+  ]
+);
+
+// messaging section we may support group chats in another world xD
+
+export const conversations = pgTable(
+  "conversations",
+  {
+    id: text("id").primaryKey(),
+    userId1: text("user_id_1")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    userId2: text("user_id_2")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("conversations_users_unique").on(table.userId1, table.userId2),
+    index("conversations_user_id_1_idx").on(table.userId1),
+    index("conversations_user_id_2_idx").on(table.userId2),
+  ]
+);
+
+export const messages = pgTable(
+  "message",
+  {
+    id: text("id").primaryKey(),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    senderId: text("sender_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("messages_conversation_id_idx").on(table.conversationId),
+    index("messages_created_at_idx").on(table.createdAt),
+  ]
+);
 
 // ---------------------------
-// REVIEWS
+// INFERRED TYPES
 // ---------------------------
-export const review = pgTable("review", {
-  id: text("id").primaryKey(),
-  submissionId: text("submission_id")
-    .notNull()
-    .references(() => submission.id, { onDelete: "cascade" }),
-  reviewerId: text("reviewer_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  score: integer("score"),
-  comments: text("comments"),
-  recommendation: reviewRecommendationEnum("recommendation"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
-export const reviewAssignment = pgTable("review_assignment", {
-  id: serial("id").primaryKey(),
-  submissionId: text("submission_id")
-    .notNull()
-    .references(() => submission.id, { onDelete: "cascade" }),
-  reviewerId: text("reviewer_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  assignedAt: timestamp("assigned_at").notNull().defaultNow(),
-  dueAt: timestamp("due_at"),
-  status: varchar("status", { length: 50 }).notNull().default("assigned"),
-});
+// User types
+export type User = InferSelectModel<typeof user>;
+export type NewUser = InferInsertModel<typeof user>;
+
+// Event types
+export type Event = InferSelectModel<typeof event>;
+export type NewEvent = InferInsertModel<typeof event>;
+
+// Submission types
+export type Submission = InferSelectModel<typeof submission>;
+export type NewSubmission = InferInsertModel<typeof submission>;
+
+// Review types
+export type Review = InferSelectModel<typeof review>;
+export type NewReview = InferInsertModel<typeof review>;
+
+// File types
+export type File = InferSelectModel<typeof files>;
+export type NewFile = InferInsertModel<typeof files>;
+
+// Conversation types
+export type Conversation = InferSelectModel<typeof conversations>;
+export type NewConversation = InferInsertModel<typeof conversations>;
+
+// Message types
+export type Message = InferSelectModel<typeof messages>;
+export type NewMessage = InferInsertModel<typeof messages>;
+
+// Subscription plan types
+export type SubscriptionPlan = InferSelectModel<typeof subscriptionPlan>;
+export type NewSubscriptionPlan = InferInsertModel<typeof subscriptionPlan>;
+
+// Subscription price types
+export type SubscriptionPrice = InferSelectModel<typeof subscriptionPrice>;
+export type NewSubscriptionPrice = InferInsertModel<typeof subscriptionPrice>;
+
+// User subscription types
+export type UserSubscription = InferSelectModel<typeof userSubscription>;
+export type NewUserSubscription = InferInsertModel<typeof userSubscription>;
+
+// Payment types
+export type Payment = InferSelectModel<typeof payment>;
+export type NewPayment = InferInsertModel<typeof payment>;
+
+// Event registration types
+export type EventRegistration = InferSelectModel<typeof eventRegistration>;
+export type NewEventRegistration = InferInsertModel<typeof eventRegistration>;
 
 // ---------------------------
-// EVENT REGISTRATION
-// ---------------------------
-export const eventRegistration = pgTable("event_registration", {
-  id: serial("id").primaryKey(),
-  eventId: text("event_id")
-    .notNull()
-    .references(() => event.id, { onDelete: "cascade" }),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  roleAtEvent: varchar("role_at_event", { length: 100 })
-    .notNull()
-    .default("participant"),
-  registeredAt: timestamp("registered_at").notNull().defaultNow(),
-});
-
-// ---------------------------
-// ENUM VALUE ARRAYS
+// ENUM VALUE ARRAYS (for use in zod schemas and UI)
 // ---------------------------
 export const eventTypeValues = eventTypeEnum.enumValues;
 export const submissionTypeValues = submissionTypeEnum.enumValues;
 export const submissionStatusValues = submissionStatusEnum.enumValues;
 export const reviewRecommendationValues = reviewRecommendationEnum.enumValues;
+export const fileTypeValues = fileTypeEnum.enumValues;
+export const fileStatusValues = fileStatusEnum.enumValues;
+export const paymentStatusValues = paymentStatusEnum.enumValues;
 export const roleValues = rolesEnum.enumValues;
+export const billingPeriodValues = billingPeriodEnum.enumValues;
+export const subscriptionStatusValues = subscriptionStatusEnum.enumValues;
 
-// Types
+// Enum types (union types derived from the arrays)
 export type EventType = (typeof eventTypeValues)[number];
 export type SubmissionType = (typeof submissionTypeValues)[number];
 export type SubmissionStatus = (typeof submissionStatusValues)[number];
 export type ReviewRecommendation = (typeof reviewRecommendationValues)[number];
+export type FileType = (typeof fileTypeValues)[number];
+export type FileStatus = (typeof fileStatusValues)[number];
+export type PaymentStatus = (typeof paymentStatusValues)[number];
 export type Role = (typeof roleValues)[number];
+export type BillingPeriod = (typeof billingPeriodValues)[number];
+export type SubscriptionStatus = (typeof subscriptionStatusValues)[number];

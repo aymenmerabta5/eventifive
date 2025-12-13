@@ -44,7 +44,7 @@ export const updateEventRouter = protectedProcedure
 				.update(event)
 				.set({
 					title,
-					description,
+					smallDescription: description,
 					type,
 					startDate: new Date(startDate),
 					endDate: new Date(endDate),

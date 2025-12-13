@@ -25,8 +25,8 @@ export function registerReviewTools(server: McpServer) {
         recommendation: z
           .enum(reviewRecommendationValues)
           .optional()
-          .describe("Recommendation: accept, minor_revision, major_revision, reject"),
-        comments: z.string().optional().describe("Review comments (auto-generated if not provided)"),
+          .describe("Recommendation: accept, reject"),
+        comment: z.string().optional().describe("Review comment (auto-generated if not provided)"),
       }),
     },
     async (input) => {
@@ -84,17 +84,9 @@ export function registerReviewTools(server: McpServer) {
         const now = new Date();
 
         const score = input.score || Math.floor(Math.random() * 5) + 5;
-        const recommendation =
-          input.recommendation ||
-          (score >= 8
-            ? "accept"
-            : score >= 6
-              ? "minor_revision"
-              : score >= 4
-                ? "major_revision"
-                : "reject");
+        const recommendation = input.recommendation || (score >= 6 ? "accept" : "reject");
 
-        const comments = input.comments || generateReviewComments(recommendation, submissionData.title);
+        const comment = input.comment || generateReviewComments(recommendation, submissionData.title);
 
         await db.insert(review).values({
           id: reviewId,
@@ -102,7 +94,7 @@ export function registerReviewTools(server: McpServer) {
           reviewerId,
           score,
           recommendation,
-          comments,
+          comment,
           createdAt: now,
           updatedAt: now,
         });
@@ -222,14 +214,7 @@ export function registerReviewTools(server: McpServer) {
             const reviewerId = reviewer.id;
             const reviewId = uuidv4();
             const score = Math.floor(Math.random() * 5) + 5;
-            const recommendation =
-              score >= 8
-                ? "accept"
-                : score >= 6
-                  ? "minor_revision"
-                  : score >= 4
-                    ? "major_revision"
-                    : "reject";
+            const recommendation = score >= 6 ? "accept" : "reject";
 
             await db.insert(review).values({
               id: reviewId,
@@ -237,7 +222,7 @@ export function registerReviewTools(server: McpServer) {
               reviewerId,
               score,
               recommendation,
-              comments: generateReviewComments(recommendation, "the submission"),
+              comment: generateReviewComments(recommendation, "the submission"),
               createdAt: now,
               updatedAt: now,
             });
@@ -308,7 +293,7 @@ export function registerReviewTools(server: McpServer) {
             reviewerId: review.reviewerId,
             score: review.score,
             recommendation: review.recommendation,
-            comments: review.comments,
+            comment: review.comment,
             createdAt: review.createdAt,
           })
           .from(review)
@@ -361,24 +346,12 @@ function generateReviewComments(recommendation: string, _title?: string): string
     "Consider addressing the limitations more explicitly.",
   ];
 
-  let comments = "";
-
   switch (recommendation) {
     case "accept":
-      comments = `${faker.helpers.arrayElement(positiveComments)} ${faker.helpers.arrayElement(positiveComments)} I recommend acceptance.`;
-      break;
-    case "minor_revision":
-      comments = `${faker.helpers.arrayElement(positiveComments)} However, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} Minor revisions are needed before publication.`;
-      break;
-    case "major_revision":
-      comments = `While the topic is interesting, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} Additionally, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} Major revisions are required.`;
-      break;
+      return `${faker.helpers.arrayElement(positiveComments)} ${faker.helpers.arrayElement(positiveComments)} I recommend acceptance.`;
     case "reject":
-      comments = `Unfortunately, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} ${faker.helpers.arrayElement(negativeComments)} The paper is not suitable for publication in its current form.`;
-      break;
+      return `Unfortunately, ${faker.helpers.arrayElement(negativeComments).toLowerCase()} ${faker.helpers.arrayElement(negativeComments)} The paper is not suitable for publication in its current form.`;
     default:
-      comments = faker.lorem.paragraph();
+      return faker.lorem.paragraph();
   }
-
-  return comments;
 }

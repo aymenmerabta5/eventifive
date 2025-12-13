@@ -2,13 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { client } from "@/utils/orpc";
 import type { Event } from "@/server/db/schema";
-import { IconCalendar, IconClock, IconMapPin, IconMail, IconTag } from "@tabler/icons-react";
+import { IconCalendar, IconClock, IconMapPin, IconTag } from "@tabler/icons-react";
 import ParticipationOptions from "./Testimonials";
 import { EventRegistrationSection } from "./EventRegistrationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 function mapEventType(urlType: string) {
 	const mapping: Partial<Record<string, Event["type"]>> = {
@@ -189,31 +188,12 @@ export default async function EventDetailPage({
 										Description
 									</dt>
 									<dd className="text-sm leading-relaxed text-muted-foreground">
-										{event.description ?? "No description provided."}
+										{event.smallDescription ?? "No description provided."}
 									</dd>
 								</div>
 
-								{event.contactEmail && (
-									<div className="rounded-lg border bg-card p-4">
-										<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-											<IconMail className="size-4 text-primary" strokeWidth={2} />
-											Contact
-										</dt>
-										<dd>
-											<Button variant="link" asChild className="h-auto p-0 text-sm">
-												<a href={`mailto:${event.contactEmail}`}>{event.contactEmail}</a>
-											</Button>
-										</dd>
-									</div>
-								)}
-
 								{event.theme && (
-									<div
-										className={cn(
-											"rounded-lg border bg-card p-4",
-											!event.contactEmail && "sm:col-span-2",
-										)}
-									>
+									<div className="rounded-lg border bg-card p-4 sm:col-span-2">
 										<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
 											<IconTag className="size-4 text-primary" strokeWidth={2} />
 											Theme

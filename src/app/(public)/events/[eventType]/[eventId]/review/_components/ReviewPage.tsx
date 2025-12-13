@@ -123,7 +123,7 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 		submitReviewMutation.mutate({
 			submissionId,
 			recommendation,
-			comments: comments.trim() || undefined,
+			comment: comments.trim() || undefined,
 		});
 	};
 

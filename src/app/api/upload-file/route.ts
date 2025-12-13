@@ -255,7 +255,7 @@ export async function POST(req: NextRequest) {
                 : null,
               keywords: normalizedResearchDomain || null,
               type: "oral", // Default type
-              status: "submitted",
+              status: "draft",
               submitterId: session.user.id,
               submittedAt: new Date(),
               updatedAt: new Date(),

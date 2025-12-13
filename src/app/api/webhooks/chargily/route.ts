@@ -143,7 +143,6 @@ async function handlePaymentSuccess(
       .update(eventRegistration)
       .set({
         paymentStatus: "paid",
-        paymentReference: paymentRecord.chargilyCheckoutId,
       })
       .where(eq(eventRegistration.id, paymentRecord.registrationId));
 

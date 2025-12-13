@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 const inputSchema = z.object({
 	submissionId: z.string().uuid(),
 	score: z.number().min(1).max(10).optional(),
-	comments: z.string().optional(),
+	comment: z.string().optional(),
 	recommendation: z.enum(reviewRecommendationValues),
 });
 
@@ -18,8 +18,8 @@ const outputSchema = z.object({
 	submissionId: z.string(),
 	reviewerId: z.string(),
 	score: z.number().nullable(),
-	comments: z.string().nullable(),
-	recommendation: z.string().nullable(),
+	comment: z.string().nullable(),
+	recommendation: z.enum(reviewRecommendationValues).nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });
@@ -55,7 +55,7 @@ export const createReviewRouter = protectedProcedure
 					.update(review)
 					.set({
 						score: input.score ?? null,
-						comments: input.comments ?? null,
+						comment: input.comment ?? null,
 						recommendation: input.recommendation,
 						updatedAt: now,
 					})
@@ -77,7 +77,7 @@ export const createReviewRouter = protectedProcedure
 						submissionId: input.submissionId,
 						reviewerId: session.user.id,
 						score: input.score ?? null,
-						comments: input.comments ?? null,
+						comment: input.comment ?? null,
 						recommendation: input.recommendation,
 						createdAt: now,
 						updatedAt: now,

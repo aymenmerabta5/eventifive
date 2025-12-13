@@ -7,7 +7,7 @@ import { s3Client } from "@/server/bucket/s3Client";
 import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
-import { event, files } from "@/server/db/schema";
+import { event, files, eventImages } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { validateFile, sanitizeFileName } from "@/server/utils/fileValidation";
 import { createDraftEventSchema } from "@/lib/schemas/schemas";
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
     await db.insert(event).values({
       id: eventId,
       title: parsed.data.title,
-      description: parsed.data.description,
+      smallDescription: parsed.data.description,
       type: parsed.data.type,
       startDate: new Date(parsed.data.startDate),
       endDate: new Date(parsed.data.endDate),
@@ -164,11 +164,16 @@ export async function POST(req: NextRequest) {
       const result = await uploadEventImage(coverImageFile, eventId, userId, false);
       if (result) {
         uploadResults.coverImage = result;
-   
-        await db
-          .update(event)
-          .set({ image: result.s3Key, updatedAt: new Date() })
-          .where(eq(event.id, eventId));
+
+        // Store cover image in eventImages table with isDefault=true
+        await db.insert(eventImages).values({
+          id: uuidv4(),
+          eventId: eventId,
+          fileId: result.fileId,
+          isDefault: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
       } else {
         uploadResults.failedUploads.push(coverImageFile.name);
       }

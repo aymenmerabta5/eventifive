@@ -30,7 +30,7 @@ export const createEventRouter = protectedProcedure
 			await db.insert(event).values({
 				id: eventId,
 				title: input.title,
-				description: input.description || null,
+				smallDescription: input.description || null,
 				type: input.type,
 				startDate: new Date(input.startDate),
 				endDate: new Date(input.endDate),
