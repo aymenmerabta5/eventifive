@@ -1,5 +1,3 @@
-
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/server/better-auth";
 import { headers } from "next/headers";

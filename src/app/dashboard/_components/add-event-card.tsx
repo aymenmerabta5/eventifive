@@ -403,26 +403,10 @@ export function AddEventCard() {
               {/* Big Description */}
               {/* Images */}
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
+                    <div className="space-y-2 md:col-span-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <ImageIcon className="size-4" />
-                    Cover Image (optional)
-                  </Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setCoverImage(e.target.files?.[0] ?? null)}
-                  />
-                  {coverImage ? (
-                    <p className="text-muted-foreground text-xs">{coverImage.name}</p>
-                  ) : null}
-                </div>
-
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label className="flex items-center gap-2 text-sm font-medium">
-                    <ImageIcon className="size-4" />
-                    Gallery Images (optional)
+                    Gallery Images
                   </Label>
                   <Input
                     type="file"
