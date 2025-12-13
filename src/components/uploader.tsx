@@ -27,6 +27,15 @@ type EventImageRole = {
 
 export type UploaderProps = (RegistrationDocumentRole | EventImageRole) & {
     onComplete?: (results: unknown[]) => void;
+    // TEACHING: "upload" keeps current behavior (manual upload button).
+    // "select" turns this into a file-picker UI only (parent uploads later, e.g. on Next).
+    mode?: "upload" | "select";
+    // Used in "select" mode to let the parent capture the selected files.
+    onFilesChange?: (files: File[]) => void;
+    // Optional override for the hint text under the dropzone.
+    hintOverride?: string;
+    // Optional external disable (e.g. after draft event has been created).
+    disabled?: boolean;
 };
 
 const ROLE_CONFIG = {
@@ -51,6 +60,7 @@ const ROLE_CONFIG = {
 
 export function Uploader(props: UploaderProps) {
     const config = ROLE_CONFIG[props.role];
+    const mode = props.mode ?? "upload";
     const { data: session } = authClient.useSession();
     const user = session?.user ?? null;
     const quotaEventId = props.role === "registration_document" ? props.eventId : null;
@@ -84,6 +94,11 @@ export function Uploader(props: UploaderProps) {
     useEffect(() => {
         setMaxFiles(resolvedMaxFiles);
     }, [resolvedMaxFiles]);
+
+    useEffect(() => {
+        if (mode !== "select") return;
+        props.onFilesChange?.(files);
+    }, [files, mode, props]);
 
     useEffect(() => {
         if (!isEventImage) return;
@@ -323,17 +338,17 @@ export function Uploader(props: UploaderProps) {
 
 
             <p className="text-xs text-muted-foreground">
-                {props.role === "registration_document" ? (
-                    isLoadingQuota ? (
-                        "Checking upload limit…"
-                    ) : (
-                        `${uploadedCount}/${maxFiles} already uploaded for this event`
-                    )
-                ) : (
-                    isStagedEventImage
-                        ? "Images will be linked to the event automatically when you finish creating it."
-                        : config.hint
-                )}
+                {props.hintOverride
+                    ? props.hintOverride
+                    : props.role === "registration_document"
+                        ? isLoadingQuota
+                            ? "Checking upload limit…"
+                            : `${uploadedCount}/${maxFiles} already uploaded for this event`
+                        : mode === "select"
+                            ? "Upload up to 4 images. The first image becomes the cover. Images are uploaded automatically when you click Next."
+                            : isStagedEventImage
+                                ? "Images will be linked to the event automatically when you finish creating it."
+                                : config.hint}
             </p>
 
             {files.length === 0 ? (
@@ -342,9 +357,9 @@ export function Uploader(props: UploaderProps) {
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     className={cn(
-                        "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all",
+                        "relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 transition-all",
                         isDragOver
-                            ? "border-primary bg-primary/5"
+                            ? "border-primary bg-primary/5 shadow-sm"
                             : "border-border hover:border-primary/50 hover:bg-muted/30"
                     )}
                 >
@@ -362,7 +377,7 @@ export function Uploader(props: UploaderProps) {
                         multiple={resolvedMultiple}
                         accept={config.accept}
                         onChange={handleFileChange}
-                        disabled={!user || isUploading}
+                        disabled={props.disabled || !user || isUploading}
                         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
                     <p className="mt-4 text-xs text-muted-foreground">{config.hint}</p>
@@ -373,57 +388,58 @@ export function Uploader(props: UploaderProps) {
 						<CardContent className="space-y-3 p-4">
 							{isEventImage ? (
 								<div className="flex w-full justify-center">
-									<div className="grid w-fit grid-cols-[repeat(3,110px)] gap-8 sm:grid-cols-[repeat(4,140px)] md:grid-cols-[repeat(4,180px)]">
-									{uploadedImages.map(({ key, size }) => {
-										const url = previewUrls[key];
+									<div className="grid w-fit grid-cols-[repeat(3,110px)] gap-6 sm:grid-cols-[repeat(4,140px)] md:grid-cols-[repeat(4,180px)]">
+									{[
+										...uploadedImages.map((img) => ({ kind: "uploaded" as const, ...img })),
+										...files.map((file) => ({
+											kind: "selected" as const,
+											key: `${file.name}-${file.size}-${file.lastModified}`,
+											size: file.size,
+											file,
+										})),
+									].map((item, displayIndex) => {
+										const url = previewUrls[item.key];
 										if (!url) return null;
-										return (
-											<div key={`uploaded-${key}`} className="space-y-1">
-												<div className="relative overflow-hidden rounded-xl border bg-muted/30">
-													<img
-														src={url}
-														alt="Uploaded event image preview"
-														className="aspect-square w-full object-cover"
-														loading="lazy"
-													/>
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														className="absolute right-1.5 top-1.5 h-7 w-7 bg-background/70 text-foreground hover:bg-background"
-														onClick={() => removeUploadedKey(key)}
-														disabled={isUploading}
-														aria-label="Remove image"
-													>
-														<X className="h-4 w-4" />
-													</Button>
-												</div>
-												<div className="text-center text-[11px] text-muted-foreground">
-													{(size / 1024 / 1024).toFixed(2)} MB
-												</div>
-											</div>
-										);
-									})}
+										const isCover = displayIndex === 0;
 
-									{files.map((file, index) => {
-										const key = `${file.name}-${file.size}-${file.lastModified}`;
-										const url = previewUrls[key];
-										if (!url) return null;
 										return (
-											<div key={key} className="space-y-1">
-												<div className="relative overflow-hidden rounded-xl border bg-muted/30">
+											<div key={`${item.kind}-${item.key}`} className="space-y-1">
+												<div
+													className={cn(
+														"relative overflow-hidden rounded-2xl border bg-muted/30 shadow-sm",
+														isCover ? "ring-2 ring-primary/60" : "ring-1 ring-border/40",
+													)}
+												>
 													<img
 														src={url}
-														alt="Selected event image preview"
+														alt={isCover ? "Cover image preview" : "Event image preview"}
 														className="aspect-square w-full object-cover"
 														loading="lazy"
 													/>
+
+													{/* Index badge (1 = cover) */}
+													<div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-background/85 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
+														<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
+															{displayIndex + 1}
+														</span>
+														{isCover ? <span className="text-primary">Cover</span> : null}
+													</div>
+
 													<Button
 														type="button"
 														variant="ghost"
 														size="icon"
-														className="absolute right-1.5 top-1.5 h-7 w-7 bg-background/70 text-foreground hover:bg-background"
-														onClick={() => removeFileAt(index)}
+														className="absolute right-2 top-2 h-7 w-7 bg-background/70 text-foreground hover:bg-background"
+														onClick={() => {
+															if (item.kind === "uploaded") removeUploadedKey(item.key);
+															else {
+																const originalIndex = files.findIndex((f) => {
+																	const k = `${f.name}-${f.size}-${f.lastModified}`;
+																	return k === item.key;
+																});
+																if (originalIndex >= 0) removeFileAt(originalIndex);
+															}
+														}}
 														disabled={isUploading}
 														aria-label="Remove image"
 													>
@@ -431,14 +447,14 @@ export function Uploader(props: UploaderProps) {
 													</Button>
 												</div>
 												<div className="text-center text-[11px] text-muted-foreground">
-													{(file.size / 1024 / 1024).toFixed(2)} MB
+													{(item.size / 1024 / 1024).toFixed(2)} MB
 												</div>
 											</div>
 										);
 									})}
 
 									{addMoreFiles ? (
-										<div className="relative flex aspect-square w-full items-center justify-center rounded-xl border border-dashed border-border text-xs text-muted-foreground">
+										<div className="relative flex aspect-square w-full items-center justify-center rounded-2xl border border-dashed border-border bg-background/40 text-xs text-muted-foreground transition-colors hover:bg-muted/20">
 											<span>Add more (up to {maxFiles})</span>
 											<Input
 												id="file-more"
@@ -447,7 +463,7 @@ export function Uploader(props: UploaderProps) {
 												multiple={resolvedMultiple}
 												accept={config.accept}
 												onChange={handleFileChange}
-												disabled={!user || isUploading}
+												disabled={props.disabled || !user || isUploading}
 												className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
 											/>
 										</div>
@@ -495,7 +511,7 @@ export function Uploader(props: UploaderProps) {
 												multiple={resolvedMultiple}
 												accept={config.accept}
 												onChange={handleFileChange}
-												disabled={!user || isUploading}
+												disabled={props.disabled || !user || isUploading}
 												className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
 											/>
 										</div>
@@ -514,16 +530,18 @@ export function Uploader(props: UploaderProps) {
 						>
 							Clear
 						</Button>
-						<Button type="button" onClick={upload} disabled={!user || isUploading}>
-							{isUploading ? (
-								<>
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Uploading…
-								</>
-							) : (
-								"Upload"
-							)}
-						</Button>
+						{mode === "upload" ? (
+							<Button type="button" onClick={upload} disabled={props.disabled || !user || isUploading}>
+								{isUploading ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Uploading…
+									</>
+								) : (
+									"Upload"
+								)}
+							</Button>
+						) : null}
 					</div>
 				</>
 			)}

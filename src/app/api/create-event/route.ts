@@ -14,7 +14,7 @@ import { createDraftEventSchema } from "@/lib/schemas/schemas";
 
 
 const MAX_EVENT_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB per image
-const MAX_GALLERY_IMAGES = 3; 
+const MAX_EVENT_IMAGES = 4; // cover (1) + gallery (up to 3)
 
 
 async function uploadEventImage(
@@ -135,8 +135,25 @@ export async function POST(req: NextRequest) {
     }
 
    
-    const coverImageFile = formData.get("coverImage") as File | null;
-    const galleryFiles = formData.getAll("galleryImages") as File[];
+    // - images[] where the first is treated as the cover image by default.
+    const images = formData.getAll("images") as File[];
+
+    const legacyCover = formData.get("coverImage") as File | null;
+    const legacyGallery = formData.getAll("galleryImages") as File[];
+
+    const selectedImageFiles = images.filter((f): f is File => f instanceof File && f.size > 0);
+
+    const coverImageFile =
+      selectedImageFiles.length > 0
+        ? selectedImageFiles[0]
+        : legacyCover && legacyCover instanceof File && legacyCover.size > 0
+          ? legacyCover
+          : null;
+
+    const galleryFiles =
+      selectedImageFiles.length > 1
+        ? selectedImageFiles.slice(1)
+        : legacyGallery;
     const stagedGalleryFileIds = formData
       .getAll("stagedGalleryFileId")
       .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
@@ -146,9 +163,14 @@ export async function POST(req: NextRequest) {
       (f): f is File => f instanceof File && f.size > 0
     );
 
-    if (validGalleryFiles.length + stagedGalleryFileIds.length > MAX_GALLERY_IMAGES) {
+    const totalImagesCount =
+      (coverImageFile ? 1 : 0) + validGalleryFiles.length + stagedGalleryFileIds.length;
+
+    if (totalImagesCount > MAX_EVENT_IMAGES) {
       return NextResponse.json(
-        { message: `Maximum ${MAX_GALLERY_IMAGES} gallery images allowed` },
+        {
+          message: `Maximum ${MAX_EVENT_IMAGES} image(s) allowed total (cover + gallery). The first selected image is used as the cover.`,
+        },
         { status: 400 }
       );
     }

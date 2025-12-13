@@ -70,7 +70,7 @@ async function createDraftEvent(
     priceAmount: number;
     priceCurrency: string;
   },
-  stagedGalleryFileIds: string[],
+  images: File[],
 ): Promise<CreateEventResponse> {
   const formData = new FormData();
 
@@ -85,8 +85,8 @@ async function createDraftEvent(
   formData.append("location", eventData.location);
   formData.append("priceAmount", eventData.priceAmount.toString());
   formData.append("priceCurrency", eventData.priceCurrency);
-  for (const fileId of stagedGalleryFileIds) {
-    formData.append("stagedGalleryFileId", fileId);
+  for (const file of images) {
+    formData.append("images", file);
   }
 
   const res = await fetch("/api/create-event", {
@@ -109,7 +109,7 @@ export function AddEventCard() {
 
   const [step, setStep] = useState<WizardStep>("details");
   const [eventId, setEventId] = useState<string | null>(null);
-  const [stagedGalleryFileIds, setStagedGalleryFileIds] = useState<string[]>([]);
+  const [eventImages, setEventImages] = useState<File[]>([]);
   const [speakerEmail, setSpeakerEmail] = useState("");
   const [speakerAffiliation, setSpeakerAffiliation] = useState("");
   const [reviewerEmail, setReviewerEmail] = useState("");
@@ -213,7 +213,7 @@ export function AddEventCard() {
           priceAmount: parsed.data.priceAmount ?? 0,
           priceCurrency: parsed.data.priceCurrency ?? "DZD",
         },
-        stagedGalleryFileIds,
+        eventImages,
       );
 
       if (!result.eventId) {
@@ -226,7 +226,7 @@ export function AddEventCard() {
 
       void queryClient.invalidateQueries({ queryKey: ["my-events"] });
       setEventId(result.eventId);
-      setStagedGalleryFileIds([]);
+      setEventImages([]);
       return result.eventId;
     } catch (error) {
 
@@ -411,24 +411,14 @@ export function AddEventCard() {
                 <div className="space-y-2 md:col-span-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <ImageIcon className="size-4" />
-                    Gallery Images
+                    Event Images (cover + gallery)
                   </Label>
                   <Uploader
                     role="event_image"
-                    eventId={eventId ?? undefined}
                     kind="gallery"
-                    onComplete={(results) => {
-                      if (eventId) return;
-                      const newIds = results
-                        .map((r) =>
-                          typeof r === "object" && r !== null
-                            ? (r as { fileId?: unknown }).fileId
-                            : null,
-                        )
-                        .filter((id): id is string => typeof id === "string" && id.trim().length > 0);
-                      if (newIds.length === 0) return;
-                      setStagedGalleryFileIds((prev) => Array.from(new Set([...prev, ...newIds])));
-                    }}
+                    mode="select"
+                    disabled={!!eventId}
+                    onFilesChange={(files) => setEventImages(files)}
                   />
                 </div>
               </div>
