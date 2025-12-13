@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { client, orpc } from "@/utils/orpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Calendar, MapPin, Type, FileText, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Type, FileText, Loader2, DollarSign } from "lucide-react";
 import { updateEventSchema } from "@/lib/schemas/schemas";
 import { eventTypeValues, type EventType } from "@/server/db/schema";
 
@@ -39,6 +39,8 @@ type UpdateEventInitialValues = {
 	startDate?: string;
 	endDate?: string;
 	location?: string;
+	priceAmount?: number;
+	priceCurrency?: string;
 };
 
 const toDateTimeLocalInput = (value?: Date | string | null) => {
@@ -53,7 +55,6 @@ const toDateTimeLocalInput = (value?: Date | string | null) => {
 export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; initialValues?: UpdateEventInitialValues }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	// TEACHING: Access the query client to invalidate cached data after mutations
 	const queryClient = useQueryClient();
 	const routeEventId = searchParams?.get("eventId") ?? "";
 	const resolvedEventId = eventId || routeEventId || "";
@@ -98,6 +99,8 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 				startDate: initialValues.startDate ?? "",
 				endDate: initialValues.endDate ?? "",
 				location: initialValues.location ?? "",
+				priceAmount: initialValues.priceAmount ?? 0,
+				priceCurrency: initialValues.priceCurrency ?? "DZD",
 			};
 		}
 
@@ -110,6 +113,8 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 				startDate: toDateTimeLocalInput(event.startDate),
 				endDate: toDateTimeLocalInput(event.endDate),
 				location: event.location ?? "",
+				priceAmount: event.priceAmount ?? 0,
+				priceCurrency: event.priceCurrency ?? "DZD",
 			};
 		}
 
@@ -121,6 +126,8 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 			startDate: "",
 			endDate: "",
 			location: "",
+			priceAmount: 0,
+			priceCurrency: "DZD",
 		};
 	}, [resolvedEventId, initialValues, event]);
 
@@ -150,6 +157,8 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 					startDate: value.startDate,
 					endDate: value.endDate,
 					location: value.location || undefined,
+					priceAmount: value.priceAmount,
+					priceCurrency: value.priceCurrency,
 				});
 			} catch (error) {
 				console.error("Failed to update event:", error);
@@ -399,6 +408,44 @@ export function UpdateEventCard({ eventId, initialValues }: { eventId?: string; 
 									placeholder="Enter event location"
 									className="w-full"
 								/>
+								{field.state.meta.errors.map((error) => (
+									<p
+										key={error}
+										className="text-destructive text-sm"
+									>
+										{error}
+									</p>
+								))}
+							</div>
+						)}
+					</form.Field>
+
+					{/* Price Field */}
+					<form.Field name="priceAmount">
+						{(field) => (
+							<div className="space-y-2">
+								<Label
+									htmlFor={field.name}
+									className="flex items-center gap-2 text-sm font-medium"
+								>
+									<DollarSign className="size-4" />
+									Registration Price (DZD)
+								</Label>
+								<Input
+									id={field.name}
+									name={field.name}
+									type="number"
+									min="0"
+									step="100"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(parseInt(e.target.value) || 0)}
+									placeholder="0 for free event"
+									className="w-full"
+								/>
+								<p className="text-muted-foreground text-xs">
+									Enter 0 for a free event (e.g., 5000 = 5000 DZD)
+								</p>
 								{field.state.meta.errors.map((error) => (
 									<p
 										key={error}

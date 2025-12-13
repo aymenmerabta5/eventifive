@@ -2,8 +2,8 @@ import { z } from "zod";
 import { protectedProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
-import { files } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { files, submissionFile, reviewAssignment } from "@/server/db/schema";
+import { eq, and } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 const inputGetDownloadUrlSchema = z.object({
@@ -44,11 +44,35 @@ export const getDownloadUrlRouter = protectedProcedure
 				});
 			}
 
-			// Check if user has permission (owner or can access event files)
 			if (file.userId !== session.user.id) {
-				throw new ORPCError("FORBIDDEN", {
-					message: "You do not have permission to access this file",
-				});
+				const [submissionFileRecord] = await db
+					.select()
+					.from(submissionFile)
+					.where(eq(submissionFile.fileId, fileId))
+					.limit(1);
+
+				if (submissionFileRecord) {
+					const [assignment] = await db
+						.select()
+						.from(reviewAssignment)
+						.where(
+							and(
+								eq(reviewAssignment.submissionId, submissionFileRecord.submissionId),
+								eq(reviewAssignment.reviewerId, session.user.id),
+							),
+						)
+						.limit(1);
+
+					if (!assignment) {
+						throw new ORPCError("FORBIDDEN", {
+							message: "You do not have permission to access this file",
+						});
+					}
+				} else {
+					throw new ORPCError("FORBIDDEN", {
+						message: "You do not have permission to access this file",
+					});
+				}
 			}
 
 			// Check file status

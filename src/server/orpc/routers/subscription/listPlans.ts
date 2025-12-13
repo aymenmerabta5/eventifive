@@ -46,7 +46,7 @@ export const listPlansRouter = publicProcedure
           prices: prices.map((price) => ({
             id: price.id,
             billingPeriod: price.billingPeriod,
-            amountCents: price.amountCents,
+            amount: price.amount,
             currency: price.currency,
             chargilyPriceId: price.chargilyPriceId,
             chargilySyncedAt: price.chargilySyncedAt,

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 // TEACHING: Import types directly from the schema instead of inferring from API response
 // This gives us reliable, explicit types rather than depending on complex generic inference
@@ -126,6 +126,17 @@ export function MyEvents() {
 	const handleDelete = useCallback((event: AdminEvent) => {
 		deleteEvent({ eventId: event.id });
 	}, [deleteEvent]);
+
+	const handleApprovals = useCallback(
+		(event: AdminEvent) => {
+			const params = new URLSearchParams({
+				view: "event-approvals",
+				eventId: event.id,
+			});
+			router.push(`/dashboard?${params.toString()}`);
+		},
+		[router],
+	);
 
 	if (isPending) {
 		return (
@@ -291,6 +302,10 @@ export function MyEvents() {
 														<DropdownMenuItem onClick={() => handleUpdate(event)}>
 															<Pencil className="mr-2 h-4 w-4" />
 															Update
+														</DropdownMenuItem>
+														<DropdownMenuItem onClick={() => handleApprovals(event)}>
+															<Users className="mr-2 h-4 w-4" />
+															Pending approvals
 														</DropdownMenuItem>
 														<DropdownMenuItem 
 															onClick={() => handleDelete(event)}

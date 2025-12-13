@@ -5,6 +5,8 @@ import { filesRouter } from "./files";
 import { paymentRouter } from "./payment";
 import { subscriptionRouter } from "./subscription";
 import { messagesRouter } from "./websockets";
+import { submissionsRouter } from "./submissions";
+import { reviewsRouter } from "./reviews";
 
 /**
  * Main application router
@@ -16,6 +18,8 @@ import { messagesRouter } from "./websockets";
  * - payment: Payment processing (createCheckout, getStatus, list)
  * - subscription: Subscription management (listPlans, createPlan, syncPlans, getCurrent)
  * - messages: Real-time messaging (send, listConversations, listMessages, createConversation, subscribe)
+ * - submissions: Submission operations (get)
+ * - reviews: Review operations (create)
  */
 export const appRouter = {
 	events: eventsRouter,
@@ -24,6 +28,8 @@ export const appRouter = {
 	payment: paymentRouter,
 	subscription: subscriptionRouter,
 	messages: messagesRouter,
+	submissions: submissionsRouter,
+	reviews: reviewsRouter,
 };
 
 export type AppRouter = typeof appRouter;

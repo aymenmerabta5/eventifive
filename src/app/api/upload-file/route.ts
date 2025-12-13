@@ -6,7 +6,7 @@ import { s3Client } from "@/server/bucket/s3Client";
 import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
-import { files, user } from "@/server/db/schema";
+import { files, user, submission, submissionFile } from "@/server/db/schema";
 import { validateFile, sanitizeFileName } from "@/server/utils/fileValidation";
 import { and, eq, sql } from "drizzle-orm";
 
@@ -192,6 +192,8 @@ export async function POST(req: NextRequest) {
       })
     );
 
+    let submissionId: string | null = null;
+
     try {
       await db.transaction(async (tx) => {
         if (typeof name === "string" || typeof researchDomain === "string") {
@@ -207,6 +209,7 @@ export async function POST(req: NextRequest) {
             .where(eq(user.id, session.user.id));
         }
 
+        // Insert file record
         await tx.insert(files).values({
           id: fileId,
           userId: session.user.id,
@@ -218,6 +221,56 @@ export async function POST(req: NextRequest) {
           contentType: file.type || "application/octet-stream",
           status: "completed",
         });
+
+        // If eventId is provided, create or find submission and link file
+        if (normalizedEventId) {
+          // Find existing submission for this user and event
+          const [existingSubmission] = await tx
+            .select()
+            .from(submission)
+            .where(
+              and(
+                eq(submission.eventId, normalizedEventId),
+                eq(submission.submitterId, session.user.id),
+              ),
+            )
+            .limit(1);
+
+          if (existingSubmission) {
+            // Use existing submission
+            submissionId = existingSubmission.id;
+          } else {
+            // Create new submission
+            submissionId = uuidv4();
+            const submissionTitle = normalizedName
+              ? `Submission by ${normalizedName}`
+              : `Submission for Event`;
+
+            await tx.insert(submission).values({
+              id: submissionId,
+              eventId: normalizedEventId,
+              title: submissionTitle,
+              abstract: normalizedResearchDomain
+                ? `Research Domain: ${normalizedResearchDomain}`
+                : null,
+              keywords: normalizedResearchDomain || null,
+              type: "oral", // Default type
+              status: "submitted",
+              submitterId: session.user.id,
+              submittedAt: new Date(),
+              updatedAt: new Date(),
+            });
+          }
+
+          // Link file to submission
+          await tx.insert(submissionFile).values({
+            id: uuidv4(),
+            submissionId,
+            fileId,
+            purpose: "registration_document",
+            uploadedAt: new Date(),
+          });
+        }
       });
     } catch (dbError) {
       await s3Client.send(
@@ -233,6 +286,7 @@ export async function POST(req: NextRequest) {
       message: "Document uploaded successfully",
       fileId,
       documentKey: key,
+      submissionId,
     });
   } catch (error) {
     console.error("Error uploading document:", error);

@@ -82,7 +82,7 @@ export const getPaymentStatusRouter = protectedProcedure
     return {
       id: paymentRecord.id,
       status: paymentRecord.status,
-      amountCents: paymentRecord.amountCents,
+      amount: paymentRecord.amount,
       currency: paymentRecord.currency,
       paymentMethod: paymentRecord.paymentMethod,
       chargilyCheckoutId: paymentRecord.chargilyCheckoutId,

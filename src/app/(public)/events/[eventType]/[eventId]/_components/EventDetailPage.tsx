@@ -4,6 +4,7 @@ import { client } from "@/utils/orpc";
 import type { Event } from "@/server/db/schema";
 import { IconCalendar, IconClock, IconMapPin, IconMail, IconTag } from "@tabler/icons-react";
 import ParticipationOptions from "./Testimonials";
+import { EventRegistrationSection } from "./EventRegistrationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -224,6 +225,14 @@ export default async function EventDetailPage({
 						</section>
 					</CardContent>
 				</Card>
+
+				<EventRegistrationSection
+					eventId={event.id}
+					priceAmount={event.priceAmount}
+					priceCurrency={event.priceCurrency}
+					eventTitle={event.title}
+				/>
+
 				{isEventMoreThan7DaysAway && <ParticipationOptions />}
 			</div>
 		</main>

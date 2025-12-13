@@ -75,7 +75,7 @@ export const listUserPaymentsRouter = protectedProcedure
         return {
           id: p.id,
           status: p.status,
-          amountCents: p.amountCents,
+          amount: p.amount,
           currency: p.currency,
           paymentMethod: p.paymentMethod,
           paidAt: p.paidAt,

@@ -16,8 +16,8 @@ function formatDate(date: Date): string {
   }).format(new Date(date));
 }
 
-function formatPrice(amountCents: number, currency: string): string {
-  return `${(amountCents / 100).toLocaleString()} ${currency}`;
+function formatPrice(amount: number, currency: string): string {
+  return `${amount.toLocaleString()} ${currency}`;
 }
 
 export function SubscriptionStatus() {
@@ -119,7 +119,7 @@ export function SubscriptionStatus() {
           <div className="text-right">
             <p className="text-lg font-semibold">
               {formatPrice(
-                subscription.price.amountCents,
+                subscription.price.amount,
                 subscription.price.currency
               )}
             </p>

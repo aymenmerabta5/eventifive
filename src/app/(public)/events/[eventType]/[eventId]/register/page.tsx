@@ -5,7 +5,7 @@ export default async function EventJoinPage({
 }: {
   params: Promise<{ eventType: string; eventId: string }>;
 }) {
-  const { eventId } = await params;
+  const { eventType, eventId } = await params;
 
-  return <JoinForm eventId={eventId} />;
+  return <JoinForm eventId={eventId} eventType={eventType} />;
 }

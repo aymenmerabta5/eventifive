@@ -12,8 +12,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { PlanOutput } from "@/lib/schemas/payment";
 
-function formatPrice(amountCents: number): string {
-  return (amountCents).toLocaleString("fr-DZ");
+function formatPrice(amount: number): string {
+  return (amount).toLocaleString("fr-DZ");
 }
 
 function PricingCardSkeleton() {
@@ -217,7 +217,7 @@ export default function PricingCard() {
 
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold">
-                    {price ? formatPrice(price.amountCents) : "N/A"}
+                    {price ? formatPrice(price.amount) : "N/A"}
                   </span>
                   <span className="text-2xl font-medium text-muted-foreground">
                     DA

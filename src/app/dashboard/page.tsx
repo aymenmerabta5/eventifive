@@ -8,6 +8,7 @@ import { SiteHeader } from "./_components/site-header"
 import { AddEventCard } from "./_components/add-event-card"
 import { UpdateEventCard } from "./_components/update-event-card"
 import { MyEvents } from "./_components/my-events"
+import { EventApprovalsCard } from "./_components/event-approvals-card"
 import {
   SidebarInset,
   SidebarProvider,
@@ -24,6 +25,8 @@ function Dashboard() {
   const showAddEvent = view === "add-event"
   const showUpdateEvent = view === "update-event"
   const showMyEvents = view === "my-events"
+  const showEventApprovals = view === "event-approvals"
+  const approvalsEventId = searchParams.get("eventId")
 
   return (
     <SidebarProvider
@@ -51,6 +54,16 @@ function Dashboard() {
               ) : showMyEvents ? (
                 <div className="px-4 lg:px-6">
                   <MyEvents />
+                </div>
+              ) : showEventApprovals ? (
+                <div className="px-4 lg:px-6">
+                  {approvalsEventId ? (
+                    <EventApprovalsCard eventId={approvalsEventId} />
+                  ) : (
+                    <div className="text-sm text-destructive">
+                      Missing eventId in URL.
+                    </div>
+                  )}
                 </div>
               ) : (
                 <>

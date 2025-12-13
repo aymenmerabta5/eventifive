@@ -16,6 +16,8 @@ const outputUpdateEventSchema = z.object({
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
 	location: z.string().optional(),
+	priceAmount: z.number().optional(),
+	priceCurrency: z.string().optional(),
 });
 
 export const updateEventRouter = protectedProcedure
@@ -25,7 +27,7 @@ export const updateEventRouter = protectedProcedure
 	.handler(async ({ context, input }) => {
 		const { session } = context;
 		try {
-			const { eventId, title, description, type, startDate, endDate, location } = input;
+			const { eventId, title, description, type, startDate, endDate, location, priceAmount, priceCurrency } = input;
 
 			const [eventData] = await db
 				.select()
@@ -47,6 +49,8 @@ export const updateEventRouter = protectedProcedure
 					startDate: new Date(startDate),
 					endDate: new Date(endDate),
 					location,
+					priceAmount: priceAmount ?? eventData.priceAmount,
+					priceCurrency: priceCurrency ?? eventData.priceCurrency,
 					updatedAt: new Date(),
 				})
 				.where(eq(event.id, eventId));
@@ -61,6 +65,8 @@ export const updateEventRouter = protectedProcedure
 				startDate,
 				endDate,
 				location,
+				priceAmount: priceAmount ?? eventData.priceAmount,
+				priceCurrency: priceCurrency ?? eventData.priceCurrency,
 			};
 		} catch (error) {
 			if (error instanceof ORPCError) {

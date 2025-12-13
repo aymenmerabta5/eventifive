@@ -16,11 +16,7 @@ import {
 export const rolesEnum = pgEnum("role", [
   "super_admin",
   "admin",
-  "communicator",
-  "scientific_committee_member",
-  "participant",
-  "speaker",
-  "workshop_facilitator",
+  "user",
 ]);
 
 export const eventTypeEnum = pgEnum("event_type", [
@@ -91,7 +87,7 @@ export const account = pgTable("account", {
 
 export const roles = pgTable("roles", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  name: rolesEnum("name").notNull().default("participant"),
+  name: rolesEnum("name").notNull().default("user"),
 });
 
 export const userRoles = pgTable("user_roles", {
@@ -121,6 +117,12 @@ export const event = pgTable("event", {
   organizerId: text("organizer_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  // Pricing fields (amount in whole currency units, e.g., 5000 DZD)
+  priceAmount: integer("price_amount").notNull().default(0),
+  priceCurrency: varchar("price_currency", { length: 10 }).notNull().default("DZD"),
+  chargilyProductId: varchar("chargily_product_id", { length: 100 }),
+  chargilyPriceId: varchar("chargily_price_id", { length: 100 }),
+  chargilySyncedAt: timestamp("chargily_synced_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

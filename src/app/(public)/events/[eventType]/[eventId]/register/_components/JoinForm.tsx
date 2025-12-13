@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import type { Route } from "next";
 import {
   Card,
   CardHeader,
@@ -26,16 +28,20 @@ import {
   Loader2,
   FileText,
   X,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface JoinFormProps {
   eventId: string;
+  eventType: string;
 }
 
-export default function JoinForm({ eventId }: JoinFormProps) {
+export default function JoinForm({ eventId, eventType }: JoinFormProps) {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+  const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,6 +51,7 @@ export default function JoinForm({ eventId }: JoinFormProps) {
   const [isLoadingQuota, setIsLoadingQuota] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const maxFiles = 3;
   const remainingSlots = Math.max(0, maxFiles - uploadedCount - files.length);
@@ -190,10 +197,16 @@ export default function JoinForm({ eventId }: JoinFormProps) {
           message?: string;
           fileId?: string;
           documentKey?: string;
+          submissionId?: string;
         };
 
         if (!uploadResponse.ok) {
           throw new Error(uploadJson.message || "Failed to upload file.");
+        }
+
+        // Capture submissionId from the first file upload
+        if (index === 0 && uploadJson.submissionId) {
+          setSubmissionId(uploadJson.submissionId);
         }
       }
 
@@ -444,23 +457,40 @@ export default function JoinForm({ eventId }: JoinFormProps) {
                 <p className="text-xs text-muted-foreground">
                   By submitting, you agree to our terms and conditions.
                 </p>
-                <Button
-                  type="submit"
-                  className="w-full sm:w-auto sm:min-w-[200px]"
-                  disabled={isSubmitting || files.length === 0}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Submit application
-                    </>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  {submissionId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      asChild
+                      className="w-full sm:w-auto"
+                    >
+                      <Link
+                        href={`/events/${eventType}/${eventId}/review?submissionId=${submissionId}`as Route}
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        View Submission
+                      </Link>
+                    </Button>
                   )}
-                </Button>
+                  <Button
+                    type="submit"
+                    className="w-full sm:w-auto sm:min-w-[200px]"
+                    disabled={isSubmitting || files.length === 0}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        Submit application
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardFooter>
             </form>
           </CardContent>

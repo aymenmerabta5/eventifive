@@ -1,5 +1,5 @@
 {
-  "id": "3144e791-a93d-42db-9eaa-241cace36161",
+  "id": "a189513c-d39c-4229-bf11-6c3634622d45",
   "prevId": "de1233e3-6d0f-4d41-8994-3a373141a702",
   "version": "7",
   "dialect": "postgresql",
@@ -230,12 +230,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "image": {
-          "name": "image",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
         "theme": {
           "name": "theme",
           "type": "varchar(255)",
@@ -253,6 +247,38 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "price_amount_cents": {
+          "name": "price_amount_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "price_currency": {
+          "name": "price_currency",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'DZD'"
+        },
+        "chargily_product_id": {
+          "name": "chargily_product_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chargily_price_id": {
+          "name": "chargily_price_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chargily_synced_at": {
+          "name": "chargily_synced_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -1167,7 +1193,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'participant'"
+          "default": "'user'"
         }
       },
       "indexes": {},
@@ -2342,11 +2368,7 @@
       "values": [
         "super_admin",
         "admin",
-        "communicator",
-        "scientific_committee_member",
-        "participant",
-        "speaker",
-        "workshop_facilitator"
+        "user"
       ]
     },
     "public.submission_status": {

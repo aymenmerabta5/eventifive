@@ -17,6 +17,7 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useProfileImage } from "@/hooks/use-profile-image";
 import Link from "next/link";
+import type { Route } from "next";
 import { Button } from "@/components/ui/button";
 
 interface ProfileInfoProps {
