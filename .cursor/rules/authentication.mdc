@@ -94,3 +94,45 @@ export const mySecureRoute = protectedProcedure
 3. **Never expose user IDs** in URLs when not necessary
 4. **Always validate ownership** before modifying resources
 5. **Use Cloudflare Turnstile** for public forms (login, signup)
+
+## Session Management
+
+```typescript
+// TEACHING: Sessions track device info for security features
+// Users can view and revoke sessions from settings
+
+// Session table includes:
+// - ipAddress: User's IP address
+// - userAgent: Browser/device string
+
+// Parse user agent for display
+import { parseUserAgent, formatSessionDate } from "@/lib/session-parser";
+
+const deviceInfo = parseUserAgent(session.userAgent);
+// Returns: { browser, os, deviceType, deviceLabel }
+// deviceType: "mobile" | "tablet" | "desktop" | "unknown"
+
+const lastActive = formatSessionDate(session.updatedAt);
+// Returns: "Active now", "5 minutes ago", "2 days ago", etc.
+```
+
+## Session Revocation
+
+```typescript
+// TEACHING: Users can revoke individual sessions or all sessions
+// This is handled through Better Auth's session management
+
+// Revoke single session
+await authClient.revokeSession({ token: sessionToken });
+
+// Revoke all sessions (logout everywhere)
+await authClient.revokeOtherSessions();
+```
+
+## Session UI Component
+
+The session management UI is at `src/app/(public)/settings/_components/SessionManagement.tsx`:
+- Lists all active sessions with device icons
+- Shows browser, OS, IP address
+- Relative time display
+- Revoke individual or all sessions

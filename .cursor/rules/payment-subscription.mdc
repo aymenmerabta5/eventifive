@@ -1,0 +1,116 @@
+---
+globs: src/server/orpc/routers/payment/**/*.ts, src/server/orpc/routers/subscription/**/*.ts, src/server/gateway/**/*.ts, src/lib/schemas/payment.ts
+alwaysApply: false
+description: Rules for payment and subscription development with Chargily
+---
+
+# TEACHING REQUIREMENT
+
+When writing payment/subscription code, explain:
+- How the payment flow works (checkout creation → redirect → webhook)
+- Why we sync products/prices to Chargily before checkout
+- Currency handling (whole units, not cents)
+- Security considerations for payment data
+
+At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
+
+---
+
+# Payment & Subscription Rules
+
+## CRITICAL: Payment Provider
+
+This project uses **Chargily** for payments (Algerian market). Never suggest Stripe patterns.
+
+## File Locations
+
+- **Payment router**: `src/server/orpc/routers/payment/`
+- **Subscription router**: `src/server/orpc/routers/subscription/`
+- **Gateway client**: `src/server/gateway/chargily.ts`
+- **Event sync**: `src/server/gateway/chargilySyncEvent.ts`
+- **Plan sync**: `src/server/gateway/chargilySync.ts`
+- **Schemas**: `src/lib/schemas/payment.ts`
+
+## Payment Flow
+
+```typescript
+// TEACHING: Payment flow overview
+// 1. Client requests checkout → API syncs to Chargily → returns checkout URL
+// 2. User redirected to Chargily payment page
+// 3. After payment, user redirected to success/failure URL
+// 4. Webhook (optional) updates payment status
+
+// Create event checkout
+export const createEventCheckout = protectedProcedure
+  .input(z.object({
+    eventId: z.string(),
+    successUrl: z.string().url(),
+    failureUrl: z.string().url(),
+  }))
+  .handler(async ({ context, input }) => {
+    // TEACHING: Always sync event price to Chargily before checkout
+    // This ensures the price exists in Chargily's system
+    await syncEventToChargily(input.eventId);
+
+    // Create checkout session
+    const checkout = await chargilyClient.createCheckout({
+      // ... checkout params
+    });
+
+    return { checkoutUrl: checkout.url, checkoutId: checkout.id };
+  });
+```
+
+## Currency Handling
+
+```typescript
+// TEACHING: Amounts are stored in WHOLE currency units, not cents
+// Example: 5000 DZD = 5000 (not 500000)
+
+// Database schema
+priceAmount: integer("price_amount").notNull().default(0), // 5000 = 5000 DZD
+priceCurrency: varchar("price_currency", { length: 10 }).notNull().default("DZD"),
+
+// TEACHING: This differs from Stripe which uses cents
+// Chargily expects whole units for DZD
+```
+
+## Subscription Plans
+
+```typescript
+// TEACHING: Plans are seeded with predefined tiers
+// See src/server/db/seedPlans.ts for plan definitions
+
+// Plans have:
+// - Monthly and yearly pricing (25% discount for yearly)
+// - Feature lists stored as JSON
+// - Chargily product/price IDs for checkout
+
+// Query current subscription
+const subscription = await db.query.userSubscription.findFirst({
+  where: and(
+    eq(userSubscription.userId, userId),
+    eq(userSubscription.status, "active"),
+  ),
+  with: {
+    plan: true,
+    price: true,
+  },
+});
+```
+
+## Security Best Practices
+
+1. **Never log payment details** - Only log checkout IDs
+2. **Validate webhook signatures** - Verify Chargily webhooks
+3. **Use protectedProcedure** - All payment endpoints require auth
+4. **Validate ownership** - Users can only pay for their own registrations
+5. **Check payment status** - Don't grant access until payment confirmed
+
+## Database Tables
+
+- `payment` - Payment records (linked to registration or subscription)
+- `subscriptionPlan` - Plan definitions with features
+- `subscriptionPrice` - Pricing per billing period
+- `userSubscription` - User's active subscription
+- `eventRegistration` - Event registration with payment status

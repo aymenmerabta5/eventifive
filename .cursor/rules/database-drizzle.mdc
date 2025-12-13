@@ -92,3 +92,51 @@ await db.transaction(async (tx) => {
 3. **Use transactions** for related inserts/updates
 4. **Index foreign keys** and frequently queried columns
 5. **Never store sensitive data** without encryption
+
+## Key Enums
+
+```typescript
+// Payment status flow: unpaid → pending → paid (or refunded)
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "unpaid", "pending", "paid", "refunded"
+]);
+
+// Subscription billing periods
+export const billingPeriodEnum = pgEnum("billing_period", ["monthly", "yearly"]);
+
+// Subscription lifecycle: pending → active → cancelled/expired
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "pending", "active", "cancelled", "expired"
+]);
+```
+
+## Currency Handling
+
+```typescript
+// TEACHING: Store amounts in WHOLE currency units, not cents
+// This matches Chargily's expectation for DZD
+
+// Event pricing
+priceAmount: integer("price_amount").notNull().default(0), // 5000 = 5000 DZD
+priceCurrency: varchar("price_currency", { length: 10 }).notNull().default("DZD"),
+
+// Payment records
+amount: integer("amount").notNull(), // 5000 = 5000 DZD
+currency: varchar("currency", { length: 10 }).notNull().default("DZD"),
+```
+
+## Session Tracking
+
+```typescript
+// TEACHING: Sessions include device tracking for security
+export const session = pgTable("session", {
+  // ... standard fields
+  ipAddress: text("ip_address"),     // User's IP for security
+  userAgent: text("user_agent"),     // Browser/device info
+});
+
+// Parse user agent with src/lib/session-parser.ts
+import { parseUserAgent } from "@/lib/session-parser";
+const deviceInfo = parseUserAgent(session.userAgent);
+// Returns: { browser, os, deviceType, deviceLabel }
+```
