@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { Uploader } from "@/components/uploader";
+import Editor from "@/components/rich-text-editor/Editor";
+import type { JSONContent } from "@tiptap/react";
 
 import {
   Card,
@@ -60,6 +62,7 @@ async function createDraftEvent(
   eventData: {
     title: string;
     description: string;
+    bigDescription?: JSONContent;
     type: string;
     startDate: string;
     endDate: string;
@@ -73,6 +76,9 @@ async function createDraftEvent(
 
   formData.append("title", eventData.title);
   formData.append("description", eventData.description);
+  if (eventData.bigDescription !== undefined) {
+    formData.append("bigDescription", JSON.stringify(eventData.bigDescription));
+  }
   formData.append("type", eventData.type);
   formData.append("startDate", eventData.startDate);
   formData.append("endDate", eventData.endDate);
@@ -114,6 +120,7 @@ export function AddEventCard() {
     defaultValues: {
       title: "",
       description: "",
+      bigDescription: undefined as JSONContent | undefined,
       type: "" as "" | EventType,
       startDate: "",
       endDate: "",
@@ -198,6 +205,7 @@ export function AddEventCard() {
         {
           title: parsed.data.title,
           description: parsed.data.description,
+          bigDescription: parsed.data.bigDescription as JSONContent | undefined,
           type: parsed.data.type,
           startDate: parsed.data.startDate,
           endDate: parsed.data.endDate,
@@ -352,7 +360,7 @@ export function AddEventCard() {
                       className="flex items-center gap-2 text-sm font-medium"
                     >
                       <FileText className="size-4" />
-                      Event Description *
+                      Event Small Description *
                     </Label>
                     <Textarea
                       id={field.name}
@@ -373,6 +381,31 @@ export function AddEventCard() {
               </form.Field>
 
               {/* Big Description */}
+              <form.Field name="bigDescription">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor={field.name} className="flex items-center gap-2 text-sm font-medium">
+                      <FileText className="size-4" />
+                      Event Big Description *
+                    </Label>
+                    <Editor
+                      className="w-full bg-transparent"
+                      toolbarClassName="px-4 py-2"
+                      contentClassName="min-h-[90px] px-4 py-2"
+                      content={field.state.value as JSONContent | undefined}
+                      value={field.state.value as JSONContent | string | undefined}
+                      onChange={(value) => field.handleChange(value)}
+                    />
+                    {field.state.meta.errors.map((error) => (
+                      <p key={error} className="text-destructive text-sm">
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </form.Field>
+              
+
               {/* Images */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">

@@ -31,6 +31,7 @@ export const createDraftEventRouter = protectedProcedure
 				id: eventId,
 				title: input.title,
 				smallDescription: input.description,
+				bigDescription: input.bigDescription ?? null,
 				type: input.type,
 				startDate: new Date(input.startDate),
 				endDate: new Date(input.endDate),

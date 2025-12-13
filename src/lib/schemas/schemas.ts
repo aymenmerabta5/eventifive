@@ -59,6 +59,22 @@ export const createDraftEventSchema = z.object({
     // TEACHING: Keep only a single description field so we don't require DB migrations.
     // This maps to the existing `event.description` column.
     description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
+    // TEACHING: Rich-text content stored as JSON (TipTap JSONContent).
+    // Optional to keep backwards compatibility with older clients.
+    bigDescription: z
+        .unknown()
+        .optional()
+        .refine(
+            (value) => value === undefined || (typeof value === "object" && value !== null),
+            { message: "Big description must be rich text JSON content" },
+        )
+        .refine(
+            (value) =>
+                value === undefined ||
+                // Guardrail: prevent accidentally sending huge payloads (e.g., pasted base64 images).
+                JSON.stringify(value).length <= 100_000,
+            { message: "Big description is too large" },
+        ),
     type: z.enum(eventTypeValues, {
         errorMap: () => ({ message: "Please select a valid event type" })
     }),
