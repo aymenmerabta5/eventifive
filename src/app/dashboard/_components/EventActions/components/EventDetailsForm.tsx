@@ -19,6 +19,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { eventTypeOptions } from "../constants";
+import { addDaysToDateTimeLocalInputValue } from "../utils";
 import type { EventFormInstance } from "../hooks/useEventForm";
 import type { JSONContent } from "@tiptap/react";
 
@@ -199,33 +200,40 @@ export function EventDetailsForm({
 
         {/* End Date Field */}
         <form.Field name="endDate">
-          {(field) => (
-            <div className="space-y-2">
-              <Label
-                htmlFor={field.name}
-                className="flex items-center gap-2 text-sm font-medium"
-              >
-                <Calendar className="size-4" />
-                End Date *
-              </Label>
-              <Input
-                id={field.name}
-                name={field.name}
-                type="datetime-local"
-                value={field.state.value}
-                min={nowMinDateTime}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="w-full"
-                disabled={disabled}
-              />
-              {field.state.meta.errors.map((error) => (
-                <p key={error} className="text-destructive text-sm">
-                  {error}
-                </p>
-              ))}
-            </div>
-          )}
+          {(field) => {
+            const startDate = form.state.values.startDate;
+            const endMin = startDate || nowMinDateTime;
+            const endMax = startDate ? addDaysToDateTimeLocalInputValue(startDate, 15) : "";
+
+            return (
+              <div className="space-y-2">
+                <Label
+                  htmlFor={field.name}
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
+                  <Calendar className="size-4" />
+                  End Date *
+                </Label>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  type="datetime-local"
+                  value={field.state.value}
+                  min={endMin}
+                  max={endMax || undefined}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="w-full"
+                  disabled={disabled}
+                />
+                {field.state.meta.errors.map((error) => (
+                  <p key={error} className="text-destructive text-sm">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            );
+          }}
         </form.Field>
       </div>
 

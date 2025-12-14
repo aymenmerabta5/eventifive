@@ -34,6 +34,27 @@ export function getNowMinDateTime(): string {
 }
 
 /**
+ * Add N days to a datetime-local input value ("YYYY-MM-DDTHH:mm") and return a new datetime-local value.
+ * Returns empty string if the input value is not a valid datetime-local value.
+ */
+export function addDaysToDateTimeLocalInputValue(value: string, days: number): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  if (!match) return "";
+
+  const yyyy = Number(match[1]);
+  const mm = Number(match[2]);
+  const dd = Number(match[3]);
+  const hh = Number(match[4]);
+  const min = Number(match[5]);
+
+  const date = new Date(yyyy, mm - 1, dd, hh, min, 0, 0);
+  if (Number.isNaN(date.getTime())) return "";
+
+  date.setDate(date.getDate() + days);
+  return toDateTimeLocalInputValue(date);
+}
+
+/**
  * Check if an event is ready to start based on speaker and reviewer acceptance
  */
 export function checkEventReadiness(
