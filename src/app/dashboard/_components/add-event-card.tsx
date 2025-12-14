@@ -120,8 +120,10 @@ export function AddEventCard() {
   const [step, setStep] = useState<WizardStep>("details");
   const [eventId, setEventId] = useState<string | null>(null);
   const [eventImages, setEventImages] = useState<File[]>([]);
-  const [speakerEmail, setSpeakerEmail] = useState("");
-  const [speakerAffiliation, setSpeakerAffiliation] = useState("");
+  const [speakerEmails, setSpeakerEmails] = useState<string[]>(() => Array.from({ length: 3 }, () => ""));
+  const [speakerAffiliations, setSpeakerAffiliations] = useState<string[]>(() =>
+    Array.from({ length: 3 }, () => ""),
+  );
   const [reviewerEmails, setReviewerEmails] = useState<string[]>(() => Array.from({ length: 5 }, () => ""));
 
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
@@ -199,6 +201,22 @@ export function AddEventCard() {
 
   const setReviewerEmailAt = (index: number, value: string) => {
     setReviewerEmails((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const setSpeakerEmailAt = (index: number, value: string) => {
+    setSpeakerEmails((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const setSpeakerAffiliationAt = (index: number, value: string) => {
+    setSpeakerAffiliations((prev) => {
       const next = [...prev];
       next[index] = value;
       return next;
@@ -608,49 +626,77 @@ export function AddEventCard() {
                 <div className="rounded-lg border p-4">
                   <div className="text-sm font-medium">Invite speaker</div>
                   <div className="text-muted-foreground mt-1 text-xs">
-                    Add an existing user (by email). They accept from the{" "}
-                    <span className="font-mono">/invites</span> page.
+                    Invite 1 primary speaker. Backup slots unlock only after a speaker rejects. Speakers accept/reject from{" "}
+                    <span className="font-mono">/invites</span>.
                   </div>
 
-                  <div className="mt-4 space-y-3">
-                    <div className="space-y-2">
-                      <Label>Email</Label>
-                      <Input
-                        placeholder="speaker@email.com"
-                        type="email"
-                        disabled={!eventId || inviteSpeakerMutation.isPending}
-                        value={speakerEmail}
-                        onChange={(e) => setSpeakerEmail(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Affiliation (optional)</Label>
-                      <Input
-                        placeholder="University / Company"
-                        disabled={!eventId || inviteSpeakerMutation.isPending}
-                        value={speakerAffiliation}
-                        onChange={(e) => setSpeakerAffiliation(e.target.value)}
-                      />
-                    </div>
-                    <Button
-                      className="w-full"
-                      disabled={!eventId || inviteSpeakerMutation.isPending}
-                      onClick={() => {
-                        if (!eventId) return;
-                        const email = speakerEmail.trim();
-                        if (!email) {
-                          toast.error("Speaker email is required");
-                          return;
-                        }
-                        inviteSpeakerMutation.mutate({
-                          eventId,
-                          email,
-                          affiliation: speakerAffiliation.trim() || undefined,
-                        });
-                      }}
-                    >
-                      Invite speaker
-                    </Button>
+                  <div className="mt-4 space-y-4">
+                    {[0, 1, 2].map((idx) => {
+                      const slot = idx + 1;
+                      const isBackup = slot >= 2;
+                      const hasRejection = (invitesQuery.data?.speakers ?? []).some((s) => s.status === "rejected");
+                      const backupUnlocked = !isBackup || hasRejection;
+
+                      return (
+                        <div key={`speaker-slot-${slot}`} className="rounded-md border p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-sm font-medium">
+                              {slot === 1 ? "Primary speaker" : `Backup speaker ${slot - 1}`}
+                            </div>
+                            <div className="text-muted-foreground text-xs">Slot {slot}/3</div>
+                          </div>
+
+                          <div className="mt-3 space-y-2">
+                            <Label>Email</Label>
+                            <Input
+                              placeholder="speaker@email.com"
+                              type="email"
+                              disabled={!eventId || inviteSpeakerMutation.isPending || !backupUnlocked}
+                              value={speakerEmails[idx] ?? ""}
+                              onChange={(e) => setSpeakerEmailAt(idx, e.target.value)}
+                            />
+                            {!backupUnlocked ? (
+                              <div className="text-muted-foreground text-xs">
+                                Backup slots unlock after the primary speaker rejects.
+                              </div>
+                            ) : null}
+                          </div>
+
+                          <div className="mt-3 space-y-2">
+                            <Label>Affiliation (optional)</Label>
+                            <Input
+                              placeholder="University / Company"
+                              disabled={!eventId || inviteSpeakerMutation.isPending || !backupUnlocked}
+                              value={speakerAffiliations[idx] ?? ""}
+                              onChange={(e) => setSpeakerAffiliationAt(idx, e.target.value)}
+                            />
+                          </div>
+
+                          <div className="mt-3">
+                            <Button
+                              className="w-full"
+                              disabled={!eventId || inviteSpeakerMutation.isPending || !backupUnlocked}
+                              onClick={() => {
+                                if (!eventId) return;
+                                const email = (speakerEmails[idx] ?? "").trim();
+                                if (!email) {
+                                  toast.error("Speaker email is required");
+                                  return;
+                                }
+                                inviteSpeakerMutation.mutate({
+                                  eventId,
+                                  email,
+                                  slot,
+                                  affiliation: (speakerAffiliations[idx] ?? "").trim() || undefined,
+                                });
+                              }}
+                            >
+                              {slot === 1 ? "Invite primary speaker" : "Invite backup speaker"}
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -739,12 +785,18 @@ export function AddEventCard() {
                       {invitesQuery.data.speakers.length === 0 ? (
                         <div className="text-muted-foreground text-sm">No speakers invited yet.</div>
                       ) : (
-                        invitesQuery.data.speakers.map((s) => (
+                        invitesQuery.data.speakers
+                          .slice()
+                          .sort((a, b) => a.slot - b.slot)
+                          .map((s) => (
                           <div
                             key={`speaker-${s.id}`}
                             className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
                           >
                             <div className="text-sm">
+                              <span className="text-muted-foreground mr-2 text-xs">
+                                {s.slot === 1 ? "Primary" : `Backup ${s.slot - 1}`}
+                              </span>
                               <span className="font-medium">{s.userEmail}</span>{" "}
                               <span className="text-muted-foreground">({s.status})</span>
                             </div>
@@ -840,12 +892,18 @@ export function AddEventCard() {
                     <div className="text-muted-foreground text-sm">No speakers invited.</div>
                   ) : null}
 
-                  {invitesQuery.data?.speakers.map((s) => (
+                  {invitesQuery.data?.speakers
+                    .slice()
+                    .sort((a, b) => a.slot - b.slot)
+                    .map((s) => (
                     <div
                       key={`speaker-${s.id}`}
                       className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
                     >
                       <div className="text-sm">
+                        <span className="text-muted-foreground mr-2 text-xs">
+                          {s.slot === 1 ? "Primary" : `Backup ${s.slot - 1}`}
+                        </span>
                         <span className="font-medium">{s.userName || s.userEmail}</span>
                         {s.userName ? (
                           <span className="text-muted-foreground ml-1">({s.userEmail})</span>
@@ -859,6 +917,8 @@ export function AddEventCard() {
                           className={
                             s.status === "accepted"
                               ? "text-green-600"
+                              : s.status === "rejected"
+                                ? "text-red-600"
                               : "text-muted-foreground"
                           }
                         >

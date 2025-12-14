@@ -19,6 +19,16 @@ export function InvitesClient() {
 		}),
 	);
 
+	const rejectSpeaker = useMutation(
+		orpc.events.rejectSpeaker.mutationOptions({
+			onSuccess: async () => {
+				await invitesQuery.refetch();
+				toast.success("Speaker invite rejected");
+			},
+			onError: (e: Error) => toast.error(e.message || "Failed to reject speaker invite"),
+		}),
+	);
+
 	const acceptReviewer = useMutation(
 		orpc.events.acceptReviewer.mutationOptions({
 			onSuccess: async () => {
@@ -88,26 +98,43 @@ export function InvitesClient() {
 						<div className="text-muted-foreground text-sm">No speaker invites.</div>
 					) : null}
 
-					{invitesQuery.data?.speakers.map((inv) => (
+					{invitesQuery.data?.speakers
+						.slice()
+						.sort((a, b) => a.slot - b.slot)
+						.map((inv) => (
 						<div
 							key={`speaker-${inv.id}`}
 							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
 						>
 							<div className="space-y-1">
-								<div className="text-sm font-medium">Speaker</div>
+								<div className="text-sm font-medium">
+									{inv.slot === 1 ? "Speaker (Primary)" : `Speaker (Backup ${inv.slot - 1})`}
+								</div>
 								<div className="text-muted-foreground text-xs">
 									Event: <span className="font-mono">{inv.eventId}</span>
 								</div>
 								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
 							</div>
-							<Button
-								disabled={inv.status !== "pending" || acceptSpeaker.isPending}
-								onClick={() => {
-									acceptSpeaker.mutate({ eventId: inv.eventId });
-								}}
-							>
-								Accept
-							</Button>
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									disabled={inv.status !== "pending" || acceptSpeaker.isPending || rejectSpeaker.isPending}
+									onClick={() => {
+										acceptSpeaker.mutate({ eventId: inv.eventId });
+									}}
+								>
+									Accept
+								</Button>
+								<Button
+									variant="destructive"
+									disabled={inv.status !== "pending" || acceptSpeaker.isPending || rejectSpeaker.isPending}
+									onClick={() => {
+										rejectSpeaker.mutate({ eventId: inv.eventId });
+									}}
+								>
+									Reject
+								</Button>
+							</div>
 						</div>
 					))}
 				</CardContent>

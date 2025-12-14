@@ -78,12 +78,18 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
 							<div className="text-muted-foreground text-sm">No speakers.</div>
 						) : null}
 
-						{speakers.map((s) => (
+						{speakers
+							.slice()
+							.sort((a, b) => a.slot - b.slot)
+							.map((s) => (
 							<div
 								key={`speaker-${s.id}`}
 								className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
 							>
 								<div className="text-sm">
+									<span className="text-muted-foreground mr-2 text-xs">
+										{s.slot === 1 ? "Primary" : `Backup ${s.slot - 1}`}
+									</span>
 									<span className="font-medium">{s.userName || s.userEmail}</span>
 									{s.userName ? (
 										<span className="text-muted-foreground ml-1">({s.userEmail})</span>
@@ -97,6 +103,8 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
 										className={
 											s.status === "accepted"
 												? "text-green-600"
+												: s.status === "rejected"
+													? "text-red-600"
 												: "text-muted-foreground"
 										}
 									>
