@@ -97,6 +97,24 @@ export const updateEventSchema = z.object({
     eventId: z.string().min(1, "Event ID is required"),
     title: z.string().min(1, "Title is required").max(255, "Title must be less than 255 characters"),
     description: z.string().optional(),
+    bigDescription: z
+        .unknown()
+        .optional()
+        .nullable()
+        .refine(
+            (value) =>
+                value === undefined ||
+                value === null ||
+                (typeof value === "object" && value !== null),
+            { message: "Big description must be rich text content" },
+        )
+        .refine(
+            (value) =>
+                value === undefined ||
+                value === null ||
+                JSON.stringify(value).length <= 100_000,
+            { message: "Big description is too large" },
+        ),
     type: z.enum(eventTypeValues, {
         errorMap: () => ({ message: "Please select a valid event type" })
     }),

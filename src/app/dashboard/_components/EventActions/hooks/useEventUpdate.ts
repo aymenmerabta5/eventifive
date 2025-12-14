@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { updateEventSchema } from "@/lib/schemas/schemas";
 import type { EventType } from "@/server/db/schema";
+import type { JSONContent } from "@tiptap/react";
 
 interface UpdateEventInput {
   eventId: string;
   title: string;
   description?: string;
+  bigDescription?: JSONContent | null;
   type: EventType;
   startDate: string;
   endDate: string;
@@ -53,6 +55,9 @@ export function useEventUpdate() {
       formData.append("title", parsed.data.title);
       if (parsed.data.description) {
         formData.append("description", parsed.data.description);
+      }
+      if (parsed.data.bigDescription !== undefined) {
+        formData.append("bigDescription", JSON.stringify(parsed.data.bigDescription));
       }
       formData.append("type", parsed.data.type);
       formData.append("startDate", parsed.data.startDate);

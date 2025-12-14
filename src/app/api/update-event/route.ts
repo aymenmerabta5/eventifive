@@ -149,11 +149,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const rawBigDescription = formData.get("bigDescription");
+    let bigDescription: unknown = undefined;
+    if (typeof rawBigDescription === "string" && rawBigDescription.trim().length > 0) {
+      try {
+        bigDescription = JSON.parse(rawBigDescription);
+      } catch {
+        return NextResponse.json(
+          { message: "Invalid bigDescription JSON" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Parse event data
     const eventFields = {
       eventId,
       title: formData.get("title") as string,
       description: (formData.get("description") as string) || undefined,
+      bigDescription,
       type: formData.get("type") as string,
       startDate: formData.get("startDate") as string,
       endDate: formData.get("endDate") as string,
@@ -269,6 +283,10 @@ export async function POST(req: NextRequest) {
       .set({
         title: parsed.data.title,
         smallDescription: parsed.data.description,
+        bigDescription:
+          parsed.data.bigDescription === undefined
+            ? eventData.bigDescription
+            : parsed.data.bigDescription ?? null,
         type: parsed.data.type,
         startDate: new Date(parsed.data.startDate),
         endDate: new Date(parsed.data.endDate),

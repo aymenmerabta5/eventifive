@@ -21,6 +21,17 @@ export function useEventPrefill(eventId: string | undefined) {
     return data.events.find((e) => e.id === eventId) ?? null;
   }, [data, eventId]);
 
+  const {
+    data: eventDetails,
+    isPending: isEventDetailsPending,
+    error: eventDetailsError,
+  } = useQuery({
+    queryKey: ["event", eventId],
+    queryFn: () => client.events.get({ id: eventId as string }),
+    enabled: Boolean(eventId && event),
+    staleTime: 1000 * 60,
+  });
+
   useEffect(() => {
     if (!shouldFetch || isPending) return;
     if (error) {
@@ -32,13 +43,28 @@ export function useEventPrefill(eventId: string | undefined) {
     }
   }, [shouldFetch, isPending, event, eventId, error]);
 
+  useEffect(() => {
+    if (!eventId || !event) return;
+    if (isEventDetailsPending) return;
+    if (eventDetailsError) {
+      toast.error("Failed to load event details. Please try again.");
+    }
+  }, [eventId, event, isEventDetailsPending, eventDetailsError]);
+
   const initialValues: EventUpdateValues | null = useMemo(() => {
     if (!event) return null;
+    const source = eventDetails ?? null;
+    const bigDescription =
+      source?.bigDescription !== null &&
+      source?.bigDescription !== undefined &&
+      typeof source.bigDescription === "object"
+        ? (source.bigDescription as EventUpdateValues["bigDescription"])
+        : undefined;
     return {
       eventId: event.id,
       title: event.title ?? "",
       description: event.smallDescription ?? "",
-      bigDescription: undefined, // Not included in myEvents response, only used in create mode
+      bigDescription,
       type: (event.type ?? "") as "" | EventType,
       startDate: toDateTimeLocalInput(event.startDate),
       endDate: toDateTimeLocalInput(event.endDate),
@@ -46,7 +72,7 @@ export function useEventPrefill(eventId: string | undefined) {
       priceAmount: event.priceAmount ?? 0,
       priceCurrency: event.priceCurrency ?? "DZD",
     };
-  }, [event]);
+  }, [event, eventDetails]);
 
   return {
     initialValues,

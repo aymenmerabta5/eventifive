@@ -146,6 +146,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           eventId: propEventId,
           title: form.state.values.title,
           description: form.state.values.description || undefined,
+          bigDescription: form.state.values.bigDescription,
           type: form.state.values.type as EventType,
           startDate: form.state.values.startDate,
           endDate: form.state.values.endDate,
@@ -231,7 +232,6 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
                 form={form}
                 nowMinDateTime={nowMinDateTime}
                 disabled={isCreating || isUpdating || (isUpdateMode && prefill.isPending)}
-                showBigDescription={isCreateMode}
               />
 
               {/* Images section for create mode */}
