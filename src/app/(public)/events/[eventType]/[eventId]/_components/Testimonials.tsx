@@ -26,31 +26,6 @@ export default function ParticipationOptions() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.1 }}
-					className="overflow-hidden rounded-lg border-2 border-border bg-card shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20"
-				>
-					<div className="px-6 py-8 sm:px-8">
-						<div className="mb-4 flex items-center gap-3">
-							<div className="rounded-lg bg-primary/10 p-3">
-								<IconMicrophone className="h-6 w-6 text-primary" strokeWidth={2} />
-							</div>
-							<h3 className="text-xl font-bold text-foreground">
-								Speaker
-							</h3>
-						</div>
-						<p className="text-muted-foreground mb-6 text-sm leading-relaxed">
-							We invite experienced professionals, researchers, and industry experts who can share valuable insights, present cutting-edge research, and deliver engaging presentations that inspire and educate our audience.
-						</p>
-						<button className="w-full rounded-lg border-2 border-border bg-background px-6 py-3 text-sm font-semibold uppercase tracking-wider text-foreground shadow-sm transition-all hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md">
-							Apply as Speaker
-						</button>
-					</div>
-				</motion.div>
-
-				
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.2 }}
 					className="overflow-hidden rounded-lg border-2 border-border bg-card shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-primary/10 dark:hover:shadow-primary/20"
 				>

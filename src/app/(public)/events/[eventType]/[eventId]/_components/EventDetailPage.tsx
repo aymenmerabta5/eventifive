@@ -8,6 +8,9 @@ import { EventRegistrationSection } from "./EventRegistrationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Editor from "@/components/rich-text-editor/Editor";
+import type { JSONContent } from "@tiptap/react";
+import Image from "next/image";
 
 function mapEventType(urlType: string) {
 	const mapping: Partial<Record<string, Event["type"]>> = {
@@ -31,11 +34,14 @@ export default async function EventDetailPage({
 	if (!mappedType) notFound();
 
 	// Fetch event using oRPC
-	const event = (await client.events.get({ id: eventId }).catch(() => null)) as Event | null;
+	const event = await client.events.get({ id: eventId }).catch(() => null);
 
 	if (!event || event.type !== mappedType) {
 		notFound();
 	}
+
+	const bigDescriptionIsRichText = typeof event.bigDescription === "object" && event.bigDescription !== null;
+	const bigDescriptionAsString = typeof event.bigDescription === "string" ? event.bigDescription : null;
 
 	const formatDate = (date: Date | string) => {
 		return new Date(date).toLocaleDateString("en-US", {
@@ -66,6 +72,10 @@ export default async function EventDetailPage({
 			<div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
 				<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<div className="space-y-2">
+
+						<p className="text-center text-muted-foreground sm:text-left">
+							{event.organizerName}
+						</p>
 						<h1 className="text-center text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-left sm:text-5xl">
 							Event Details
 						</h1>
@@ -83,27 +93,51 @@ export default async function EventDetailPage({
 					</Button>
 				</div>
 
-				<Card className="overflow-hidden">
-					<CardHeader className="border-b bg-card/50">
-						<div className="space-y-4">
-							<Badge variant="secondary" className="w-fit capitalize">
-								{event.type.replaceAll("_", " ")}
-							</Badge>
-							<CardTitle className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-								{event.title}
-							</CardTitle>
-							<div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
-								<div className="inline-flex items-center gap-2">
-									<IconMapPin className="size-4 text-primary" strokeWidth={2} />
-									<span>{event.location ?? "To be announced"}</span>
-								</div>
-								<div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
-								<div className="inline-flex items-center gap-2">
-									<IconCalendar className="size-4 text-primary" strokeWidth={2} />
-									<span>
-										{formatDate(event.startDate)} · {formatTime(event.startDate)} —{" "}
-										{formatDate(event.endDate)} · {formatTime(event.endDate)}
-									</span>
+				<Card className="group overflow-hidden">
+					<CardHeader className="border-b bg-card/50 p-0">
+						<div className="from-primary/20 to-primary/5 relative h-56 w-full overflow-hidden bg-linear-to-br sm:h-72 md:h-80">
+							<Image
+								src={event.imageUrl || "/download.jpg"}
+								alt={event.title}
+								fill
+								priority
+								sizes="(min-width: 1024px) 1024px, 100vw"
+								className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+								unoptimized={!!event.imageUrl}
+							/>
+							<div
+								className="pointer-events-none absolute inset-0 bg-linear-to-t from-background/85 via-background/25 to-transparent"
+								aria-hidden
+							/>
+							<div
+								className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-border/40"
+								aria-hidden
+							/>
+
+							<div className="absolute inset-x-0 bottom-0">
+								<div className="bg-background/35">
+									<div className="space-y-3 p-6">
+										<Badge variant="secondary" className="w-fit capitalize">
+											{event.type.replaceAll("_", " ")}
+										</Badge>
+										<CardTitle className="text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+											{event.title}
+										</CardTitle>
+										<div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+											<div className="inline-flex items-center gap-2">
+												<IconMapPin className="size-4 text-primary" strokeWidth={2} />
+												<span>{event.location ?? "To be announced"}</span>
+											</div>
+											<div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
+											<div className="inline-flex items-center gap-2">
+												<IconCalendar className="size-4 text-primary" strokeWidth={2} />
+												<span>
+													{formatDate(event.startDate)} · {formatTime(event.startDate)} —{" "}
+													{formatDate(event.endDate)} · {formatTime(event.endDate)}
+												</span>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -188,7 +222,17 @@ export default async function EventDetailPage({
 										Description
 									</dt>
 									<dd className="text-sm leading-relaxed text-muted-foreground">
-										{event.smallDescription ?? "No description provided."}
+										{bigDescriptionIsRichText ? (
+											<Editor
+												value={event.bigDescription as JSONContent | string | undefined}
+												content={event.bigDescription as JSONContent | undefined}
+												readOnly
+											/>
+										) : bigDescriptionAsString ? (
+											bigDescriptionAsString
+										) : (
+											(event.smallDescription ?? "No description available.")
+										)}
 									</dd>
 								</div>
 
