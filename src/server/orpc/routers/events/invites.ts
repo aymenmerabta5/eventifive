@@ -3,13 +3,17 @@ import { db } from "@/server/db";
 import {
 	event,
 	eventCommittee,
-	eventReviewerInvite,
-	eventSpeakerInvite,
+	eventReviewers,
+	eventSpeakers,
 	user,
 } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
+
+// Constants
+const MAX_SPEAKERS = 1;
+const REQUIRED_REVIEWERS = 3;
 
 async function assertOrganizer(eventId: string, organizerId: string) {
 	const [found] = await db
@@ -27,12 +31,32 @@ async function assertOrganizer(eventId: string, organizerId: string) {
 	}
 }
 
+async function findUserByEmail(email: string) {
+	const [foundUser] = await db
+		.select({ id: user.id, email: user.email })
+		.from(user)
+		.where(eq(user.email, email))
+		.limit(1);
+
+	if (!foundUser) {
+		throw new ORPCError("NOT_FOUND", {
+			message: "User not found. Ask them to create an account first.",
+		});
+	}
+
+	return foundUser;
+}
+
+// Input schemas
 const inviteSpeakerInput = z.object({
 	eventId: z.string().min(1),
 	email: z.string().email(),
 	affiliation: z.string().max(255).optional(),
-	// Slot 1 = primary speaker, 2-3 = backups.
-	slot: z.number().int().min(1).max(3),
+});
+
+const inviteReviewerInput = z.object({
+	eventId: z.string().min(1),
+	email: z.string().email(),
 });
 
 const inviteCommitteeInput = z.object({
@@ -40,22 +64,16 @@ const inviteCommitteeInput = z.object({
 	email: z.string().email(),
 });
 
-const inviteReviewerInput = z.object({
-	eventId: z.string().min(1),
-	email: z.string().email(),
-	// Slot 1-3 = primary reviewers, 4-5 = backups.
-	slot: z.number().int().min(1).max(5),
-});
-
-const acceptSpeakerInput = z.object({
+const eventIdInput = z.object({
 	eventId: z.string().min(1),
 });
 
-const respondReviewerInput = z.object({
+const removeInviteInput = z.object({
 	eventId: z.string().min(1),
+	inviteId: z.number().int(),
 });
 
-// Simplified schema without bio and role
+// Output schemas
 const speakerInviteSchema = z.object({
 	id: z.number(),
 	eventId: z.string(),
@@ -63,19 +81,9 @@ const speakerInviteSchema = z.object({
 	userName: z.string().nullable(),
 	userEmail: z.string(),
 	affiliation: z.string().nullable(),
-	slot: z.number(),
 	status: z.enum(["pending", "accepted", "rejected"]),
 	invitedAt: z.date(),
 	respondedAt: z.date().nullable(),
-});
-
-const committeeInviteSchema = z.object({
-	id: z.number(),
-	eventId: z.string(),
-	userId: z.string(),
-	userName: z.string().nullable(),
-	userEmail: z.string(),
-	assignedAt: z.date(),
 });
 
 const reviewerInviteSchema = z.object({
@@ -84,18 +92,27 @@ const reviewerInviteSchema = z.object({
 	userId: z.string(),
 	userName: z.string().nullable(),
 	userEmail: z.string(),
-	slot: z.number(),
 	status: z.enum(["pending", "accepted", "rejected"]),
 	invitedAt: z.date(),
 	respondedAt: z.date().nullable(),
 });
 
-const listInvitesOutput = z.object({
-	speakers: z.array(speakerInviteSchema),
-	committee: z.array(committeeInviteSchema),
-	reviewers: z.array(reviewerInviteSchema),
+const committeeSchema = z.object({
+	id: z.number(),
+	eventId: z.string(),
+	userId: z.string(),
+	userName: z.string().nullable(),
+	userEmail: z.string(),
+	assignedAt: z.date(),
 });
 
+const listInvitesOutput = z.object({
+	speaker: speakerInviteSchema.nullable(),
+	reviewers: z.array(reviewerInviteSchema),
+	committee: z.array(committeeSchema),
+});
+
+// List invites for an event (organizer only)
 export const listInvitesRouter = protectedProcedure
 	.route({ method: "GET", path: "/events/{eventId}/invites" })
 	.input(z.object({ eventId: z.string().min(1) }))
@@ -104,23 +121,67 @@ export const listInvitesRouter = protectedProcedure
 		const organizerId = context.session.user.id;
 		await assertOrganizer(input.eventId, organizerId);
 
-		const speakersRows = await db
+		// Get speaker (max 1)
+		const speakerRows = await db
 			.select({
-				id: eventSpeakerInvite.id,
-				eventId: eventSpeakerInvite.eventId,
-				userId: eventSpeakerInvite.userId,
+				id: eventSpeakers.id,
+				eventId: eventSpeakers.eventId,
+				userId: eventSpeakers.userId,
 				userName: user.name,
 				userEmail: user.email,
-				affiliation: eventSpeakerInvite.affiliation,
-				slot: eventSpeakerInvite.slot,
-				status: eventSpeakerInvite.status,
-				invitedAt: eventSpeakerInvite.invitedAt,
-				respondedAt: eventSpeakerInvite.respondedAt,
+				affiliation: eventSpeakers.affiliation,
+				status: eventSpeakers.status,
+				invitedAt: eventSpeakers.invitedAt,
+				respondedAt: eventSpeakers.respondedAt,
 			})
-			.from(eventSpeakerInvite)
-			.innerJoin(user, eq(user.id, eventSpeakerInvite.userId))
-			.where(eq(eventSpeakerInvite.eventId, input.eventId));
+			.from(eventSpeakers)
+			.innerJoin(user, eq(user.id, eventSpeakers.userId))
+			.where(eq(eventSpeakers.eventId, input.eventId))
+			.limit(1);
 
+		const firstSpeaker = speakerRows[0];
+		const speaker = firstSpeaker
+			? {
+				id: firstSpeaker.id,
+				eventId: firstSpeaker.eventId,
+				userId: firstSpeaker.userId,
+				userName: firstSpeaker.userName,
+				userEmail: firstSpeaker.userEmail,
+				affiliation: firstSpeaker.affiliation ?? null,
+				status: firstSpeaker.status as "pending" | "accepted" | "rejected",
+				invitedAt: firstSpeaker.invitedAt,
+				respondedAt: firstSpeaker.respondedAt ?? null,
+			}
+			: null;
+
+		// Get reviewers
+		const reviewerRows = await db
+			.select({
+				id: eventReviewers.id,
+				eventId: eventReviewers.eventId,
+				userId: eventReviewers.userId,
+				userName: user.name,
+				userEmail: user.email,
+				status: eventReviewers.status,
+				invitedAt: eventReviewers.invitedAt,
+				respondedAt: eventReviewers.respondedAt,
+			})
+			.from(eventReviewers)
+			.innerJoin(user, eq(user.id, eventReviewers.userId))
+			.where(eq(eventReviewers.eventId, input.eventId));
+
+		const reviewers = reviewerRows.map((r) => ({
+			id: r.id,
+			eventId: r.eventId,
+			userId: r.userId,
+			userName: r.userName,
+			userEmail: r.userEmail,
+			status: r.status as "pending" | "accepted" | "rejected",
+			invitedAt: r.invitedAt,
+			respondedAt: r.respondedAt ?? null,
+		}));
+
+		// Get committee
 		const committeeRows = await db
 			.select({
 				id: eventCommittee.id,
@@ -134,59 +195,19 @@ export const listInvitesRouter = protectedProcedure
 			.innerJoin(user, eq(user.id, eventCommittee.userId))
 			.where(eq(eventCommittee.eventId, input.eventId));
 
-		const reviewerRows = await db
-			.select({
-				id: eventReviewerInvite.id,
-				eventId: eventReviewerInvite.eventId,
-				userId: eventReviewerInvite.userId,
-				userName: user.name,
-				userEmail: user.email,
-				slot: eventReviewerInvite.slot,
-				status: eventReviewerInvite.status,
-				invitedAt: eventReviewerInvite.invitedAt,
-				respondedAt: eventReviewerInvite.respondedAt,
-			})
-			.from(eventReviewerInvite)
-			.innerJoin(user, eq(user.id, eventReviewerInvite.userId))
-			.where(eq(eventReviewerInvite.eventId, input.eventId));
-
-		const speakers = speakersRows.map((r) => ({
-			id: r.id,
-			eventId: r.eventId,
-			userId: r.userId,
-			userName: r.userName,
-			userEmail: r.userEmail,
-			affiliation: r.affiliation ?? null,
-			slot: r.slot,
-			status: r.status as "pending" | "accepted" | "rejected",
-			invitedAt: r.invitedAt,
-			respondedAt: r.respondedAt ?? null,
+		const committee = committeeRows.map((c) => ({
+			id: c.id,
+			eventId: c.eventId,
+			userId: c.userId,
+			userName: c.userName,
+			userEmail: c.userEmail,
+			assignedAt: c.assignedAt,
 		}));
 
-		const committee = committeeRows.map((r) => ({
-			id: r.id,
-			eventId: r.eventId,
-			userId: r.userId,
-			userName: r.userName,
-			userEmail: r.userEmail,
-			assignedAt: r.assignedAt,
-		}));
-
-		const reviewers = reviewerRows.map((r) => ({
-			id: r.id,
-			eventId: r.eventId,
-			userId: r.userId,
-			userName: r.userName,
-			userEmail: r.userEmail,
-			slot: r.slot,
-			status: r.status as "pending" | "accepted" | "rejected",
-			invitedAt: r.invitedAt,
-			respondedAt: r.respondedAt ?? null,
-		}));
-
-		return { speakers, committee, reviewers };
+		return { speaker, reviewers, committee };
 	});
 
+// Invite speaker (max 1 per event)
 export const inviteSpeakerRouter = protectedProcedure
 	.route({ method: "POST", path: "/events/invites/speaker" })
 	.input(inviteSpeakerInput)
@@ -195,60 +216,34 @@ export const inviteSpeakerRouter = protectedProcedure
 		const organizerId = context.session.user.id;
 		await assertOrganizer(input.eventId, organizerId);
 
-		const [foundUser] = await db
-			.select({ id: user.id, email: user.email })
-			.from(user)
-			.where(eq(user.email, input.email))
-			.limit(1);
+		const foundUser = await findUserByEmail(input.email);
 
-		if (!foundUser) {
-			throw new ORPCError("NOT_FOUND", {
-				message: "User not found. Ask them to create an account first.",
+		// Check if event already has a speaker
+		const [existingCount] = await db
+			.select({ count: count() })
+			.from(eventSpeakers)
+			.where(eq(eventSpeakers.eventId, input.eventId));
+
+		if ((existingCount?.count ?? 0) >= MAX_SPEAKERS) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Event already has a speaker. Remove the current speaker first.",
 			});
 		}
 
-		// Enforce backup rule: slot 2-3 only allowed after at least one rejection exists.
-		if (input.slot >= 2) {
-			const rejectedRows = await db
-				.select({
-					rejectedCount: count(),
-				})
-				.from(eventSpeakerInvite)
-				.where(and(eq(eventSpeakerInvite.eventId, input.eventId), eq(eventSpeakerInvite.status, "rejected")));
-
-			const rejectedCount = rejectedRows[0]?.rejectedCount ?? 0;
-
-			if (rejectedCount < 1) {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "Backup speakers can only be invited after a speaker rejects.",
-				});
-			}
-		}
-
-		const existing = await db
-			.select({ id: eventSpeakerInvite.id })
-			.from(eventSpeakerInvite)
-			.where(and(eq(eventSpeakerInvite.eventId, input.eventId), eq(eventSpeakerInvite.userId, foundUser.id)))
+		// Check if user is already a speaker for this event
+		const [existing] = await db
+			.select({ id: eventSpeakers.id })
+			.from(eventSpeakers)
+			.where(and(eq(eventSpeakers.eventId, input.eventId), eq(eventSpeakers.userId, foundUser.id)))
 			.limit(1);
 
-		if (existing.length > 0) {
-			throw new ORPCError("BAD_REQUEST", { message: "Speaker already invited/added for this event" });
+		if (existing) {
+			throw new ORPCError("BAD_REQUEST", { message: "This user is already the speaker for this event" });
 		}
 
-		const existingSlot = await db
-			.select({ id: eventSpeakerInvite.id })
-			.from(eventSpeakerInvite)
-			.where(and(eq(eventSpeakerInvite.eventId, input.eventId), eq(eventSpeakerInvite.slot, input.slot)))
-			.limit(1);
-
-		if (existingSlot.length > 0) {
-			throw new ORPCError("BAD_REQUEST", { message: `Speaker slot ${input.slot} is already used.` });
-		}
-
-		await db.insert(eventSpeakerInvite).values({
+		await db.insert(eventSpeakers).values({
 			eventId: input.eventId,
 			userId: foundUser.id,
-			slot: input.slot,
 			affiliation: input.affiliation ?? null,
 			status: "pending",
 		});
@@ -256,6 +251,50 @@ export const inviteSpeakerRouter = protectedProcedure
 		return { ok: true as const };
 	});
 
+// Invite reviewer (max 3 per event)
+export const inviteReviewerRouter = protectedProcedure
+	.route({ method: "POST", path: "/events/invites/reviewer" })
+	.input(inviteReviewerInput)
+	.output(z.object({ ok: z.literal(true) }))
+	.handler(async ({ context, input }) => {
+		const organizerId = context.session.user.id;
+		await assertOrganizer(input.eventId, organizerId);
+
+		const foundUser = await findUserByEmail(input.email);
+
+		// Check if event already has 3 reviewers
+		const [existingCount] = await db
+			.select({ count: count() })
+			.from(eventReviewers)
+			.where(eq(eventReviewers.eventId, input.eventId));
+
+		if ((existingCount?.count ?? 0) >= REQUIRED_REVIEWERS) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: `Event already has ${REQUIRED_REVIEWERS} reviewers. Remove a reviewer first.`,
+			});
+		}
+
+		// Check if user is already a reviewer for this event
+		const [existing] = await db
+			.select({ id: eventReviewers.id })
+			.from(eventReviewers)
+			.where(and(eq(eventReviewers.eventId, input.eventId), eq(eventReviewers.userId, foundUser.id)))
+			.limit(1);
+
+		if (existing) {
+			throw new ORPCError("BAD_REQUEST", { message: "This user is already a reviewer for this event" });
+		}
+
+		await db.insert(eventReviewers).values({
+			eventId: input.eventId,
+			userId: foundUser.id,
+			status: "pending",
+		});
+
+		return { ok: true as const };
+	});
+
+// Add committee member
 export const inviteCommitteeRouter = protectedProcedure
 	.route({ method: "POST", path: "/events/invites/committee" })
 	.input(inviteCommitteeInput)
@@ -264,26 +303,17 @@ export const inviteCommitteeRouter = protectedProcedure
 		const organizerId = context.session.user.id;
 		await assertOrganizer(input.eventId, organizerId);
 
-		const [foundUser] = await db
-			.select({ id: user.id, email: user.email })
-			.from(user)
-			.where(eq(user.email, input.email))
-			.limit(1);
+		const foundUser = await findUserByEmail(input.email);
 
-		if (!foundUser) {
-			throw new ORPCError("NOT_FOUND", {
-				message: "User not found. Ask them to create an account first.",
-			});
-		}
-
-		const existing = await db
+		// Check if user is already in committee
+		const [existing] = await db
 			.select({ id: eventCommittee.id })
 			.from(eventCommittee)
 			.where(and(eq(eventCommittee.eventId, input.eventId), eq(eventCommittee.userId, foundUser.id)))
 			.limit(1);
 
-		if (existing.length > 0) {
-			throw new ORPCError("BAD_REQUEST", { message: "User already in committee for this event" });
+		if (existing) {
+			throw new ORPCError("BAD_REQUEST", { message: "User is already in the committee for this event" });
 		}
 
 		await db.insert(eventCommittee).values({
@@ -294,171 +324,274 @@ export const inviteCommitteeRouter = protectedProcedure
 		return { ok: true as const };
 	});
 
-export const inviteReviewerRouter = protectedProcedure
-	.route({ method: "POST", path: "/events/invites/reviewer" })
-	.input(inviteReviewerInput)
+// Accept speaker invite
+export const acceptSpeakerRouter = protectedProcedure
+	.route({ method: "POST", path: "/events/invites/speaker/accept" })
+	.input(eventIdInput)
+	.output(z.object({ ok: z.literal(true) }))
+	.handler(async ({ context, input }) => {
+		const userId = context.session.user.id;
+
+		const [found] = await db
+			.select({ id: eventSpeakers.id, status: eventSpeakers.status })
+			.from(eventSpeakers)
+			.where(and(eq(eventSpeakers.eventId, input.eventId), eq(eventSpeakers.userId, userId)))
+			.limit(1);
+
+		if (!found) {
+			throw new ORPCError("NOT_FOUND", { message: "No speaker invite found for you in this event" });
+		}
+
+		if (found.status !== "pending") {
+			throw new ORPCError("BAD_REQUEST", { message: `Speaker invite already ${found.status}` });
+		}
+
+		await db
+			.update(eventSpeakers)
+			.set({ status: "accepted", respondedAt: new Date() })
+			.where(eq(eventSpeakers.id, found.id));
+
+		return { ok: true as const };
+	});
+
+// Reject speaker invite
+export const rejectSpeakerRouter = protectedProcedure
+	.route({ method: "POST", path: "/events/invites/speaker/reject" })
+	.input(eventIdInput)
+	.output(z.object({ ok: z.literal(true) }))
+	.handler(async ({ context, input }) => {
+		const userId = context.session.user.id;
+
+		const [found] = await db
+			.select({ id: eventSpeakers.id, status: eventSpeakers.status })
+			.from(eventSpeakers)
+			.where(and(eq(eventSpeakers.eventId, input.eventId), eq(eventSpeakers.userId, userId)))
+			.limit(1);
+
+		if (!found) {
+			throw new ORPCError("NOT_FOUND", { message: "No speaker invite found for you in this event" });
+		}
+
+		if (found.status !== "pending") {
+			throw new ORPCError("BAD_REQUEST", { message: `Speaker invite already ${found.status}` });
+		}
+
+		await db
+			.update(eventSpeakers)
+			.set({ status: "rejected", respondedAt: new Date() })
+			.where(eq(eventSpeakers.id, found.id));
+
+		return { ok: true as const };
+	});
+
+// Accept reviewer invite
+export const acceptReviewerRouter = protectedProcedure
+	.route({ method: "POST", path: "/events/invites/reviewer/accept" })
+	.input(eventIdInput)
+	.output(z.object({ ok: z.literal(true) }))
+	.handler(async ({ context, input }) => {
+		const userId = context.session.user.id;
+
+		const [found] = await db
+			.select({ id: eventReviewers.id, status: eventReviewers.status })
+			.from(eventReviewers)
+			.where(and(eq(eventReviewers.eventId, input.eventId), eq(eventReviewers.userId, userId)))
+			.limit(1);
+
+		if (!found) {
+			throw new ORPCError("NOT_FOUND", { message: "No reviewer invite found for you in this event" });
+		}
+
+		if (found.status !== "pending") {
+			throw new ORPCError("BAD_REQUEST", { message: `Reviewer invite already ${found.status}` });
+		}
+
+		await db
+			.update(eventReviewers)
+			.set({ status: "accepted", respondedAt: new Date() })
+			.where(eq(eventReviewers.id, found.id));
+
+		return { ok: true as const };
+	});
+
+// Reject reviewer invite
+export const rejectReviewerRouter = protectedProcedure
+	.route({ method: "POST", path: "/events/invites/reviewer/reject" })
+	.input(eventIdInput)
+	.output(z.object({ ok: z.literal(true) }))
+	.handler(async ({ context, input }) => {
+		const userId = context.session.user.id;
+
+		const [found] = await db
+			.select({ id: eventReviewers.id, status: eventReviewers.status })
+			.from(eventReviewers)
+			.where(and(eq(eventReviewers.eventId, input.eventId), eq(eventReviewers.userId, userId)))
+			.limit(1);
+
+		if (!found) {
+			throw new ORPCError("NOT_FOUND", { message: "No reviewer invite found for you in this event" });
+		}
+
+		if (found.status !== "pending") {
+			throw new ORPCError("BAD_REQUEST", { message: `Reviewer invite already ${found.status}` });
+		}
+
+		await db
+			.update(eventReviewers)
+			.set({ status: "rejected", respondedAt: new Date() })
+			.where(eq(eventReviewers.id, found.id));
+
+		return { ok: true as const };
+	});
+
+// Remove speaker (organizer only)
+export const removeSpeakerRouter = protectedProcedure
+	.route({ method: "DELETE", path: "/events/invites/speaker" })
+	.input(removeInviteInput)
 	.output(z.object({ ok: z.literal(true) }))
 	.handler(async ({ context, input }) => {
 		const organizerId = context.session.user.id;
 		await assertOrganizer(input.eventId, organizerId);
 
-		const [foundUser] = await db
-			.select({ id: user.id, email: user.email })
-			.from(user)
-			.where(eq(user.email, input.email))
-			.limit(1);
-
-		if (!foundUser) {
-			throw new ORPCError("NOT_FOUND", {
-				message: "User not found. Ask them to create an account first.",
-			});
-		}
-
-		// Enforce backup rule: slot 4-5 only allowed after at least one rejection exists.
-		if (input.slot >= 4) {
-			const rejectedRows = await db
-				.select({
-					rejectedCount: count(),
-				})
-				.from(eventReviewerInvite)
-				.where(
-					and(
-						eq(eventReviewerInvite.eventId, input.eventId),
-						eq(eventReviewerInvite.status, "rejected"),
-					),
-				);
-
-			const rejectedCount = rejectedRows[0]?.rejectedCount ?? 0;
-
-			if (rejectedCount < 1) {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "Backup reviewers can only be invited after a reviewer rejects.",
-				});
-			}
-		}
-
-		const existingUser = await db
-			.select({ id: eventReviewerInvite.id })
-			.from(eventReviewerInvite)
-			.where(
-				and(
-					eq(eventReviewerInvite.eventId, input.eventId),
-					eq(eventReviewerInvite.userId, foundUser.id),
-				),
-			)
-			.limit(1);
-
-		if (existingUser.length > 0) {
-			throw new ORPCError("BAD_REQUEST", { message: "Reviewer already invited for this event" });
-		}
-
-		const existingSlot = await db
-			.select({ id: eventReviewerInvite.id })
-			.from(eventReviewerInvite)
-			.where(and(eq(eventReviewerInvite.eventId, input.eventId), eq(eventReviewerInvite.slot, input.slot)))
-			.limit(1);
-
-		if (existingSlot.length > 0) {
-			throw new ORPCError("BAD_REQUEST", { message: `Reviewer slot ${input.slot} is already used.` });
-		}
-
-		await db.insert(eventReviewerInvite).values({
-			eventId: input.eventId,
-			userId: foundUser.id,
-			slot: input.slot,
-			status: "pending",
-		});
-
-		return { ok: true as const };
-	});
-
-export const acceptSpeakerRouter = protectedProcedure
-	.route({ method: "POST", path: "/events/invites/speaker/accept" })
-	.input(acceptSpeakerInput)
-	.output(z.object({ ok: z.literal(true) }))
-	.handler(async ({ context, input }) => {
-		const userId = context.session.user.id;
-
 		const [found] = await db
-			.select({ id: eventSpeakerInvite.id, status: eventSpeakerInvite.status })
-			.from(eventSpeakerInvite)
-			.where(and(eq(eventSpeakerInvite.eventId, input.eventId), eq(eventSpeakerInvite.userId, userId)))
+			.select({ id: eventSpeakers.id })
+			.from(eventSpeakers)
+			.where(and(eq(eventSpeakers.eventId, input.eventId), eq(eventSpeakers.id, input.inviteId)))
 			.limit(1);
 
 		if (!found) {
-			throw new ORPCError("NOT_FOUND", { message: "No speaker invite found for you in this event" });
+			throw new ORPCError("NOT_FOUND", { message: "Speaker not found" });
 		}
 
-		if (found.status !== "pending") {
-			throw new ORPCError("BAD_REQUEST", { message: `Speaker invite already ${found.status}` });
-		}
-
-		await db
-			.update(eventSpeakerInvite)
-			.set({ status: "accepted", respondedAt: new Date() })
-			.where(eq(eventSpeakerInvite.id, found.id));
+		await db.delete(eventSpeakers).where(eq(eventSpeakers.id, found.id));
 
 		return { ok: true as const };
 	});
 
-export const rejectSpeakerRouter = protectedProcedure
-	.route({ method: "POST", path: "/events/invites/speaker/reject" })
-	.input(acceptSpeakerInput)
+// Remove reviewer (organizer only)
+export const removeReviewerRouter = protectedProcedure
+	.route({ method: "DELETE", path: "/events/invites/reviewer" })
+	.input(removeInviteInput)
 	.output(z.object({ ok: z.literal(true) }))
 	.handler(async ({ context, input }) => {
-		const userId = context.session.user.id;
+		const organizerId = context.session.user.id;
+		await assertOrganizer(input.eventId, organizerId);
 
 		const [found] = await db
-			.select({ id: eventSpeakerInvite.id, status: eventSpeakerInvite.status })
-			.from(eventSpeakerInvite)
-			.where(and(eq(eventSpeakerInvite.eventId, input.eventId), eq(eventSpeakerInvite.userId, userId)))
+			.select({ id: eventReviewers.id })
+			.from(eventReviewers)
+			.where(and(eq(eventReviewers.eventId, input.eventId), eq(eventReviewers.id, input.inviteId)))
 			.limit(1);
 
 		if (!found) {
-			throw new ORPCError("NOT_FOUND", { message: "No speaker invite found for you in this event" });
+			throw new ORPCError("NOT_FOUND", { message: "Reviewer not found" });
 		}
 
-		if (found.status !== "pending") {
-			throw new ORPCError("BAD_REQUEST", { message: `Speaker invite already ${found.status}` });
-		}
-
-		await db
-			.update(eventSpeakerInvite)
-			.set({ status: "rejected", respondedAt: new Date() })
-			.where(eq(eventSpeakerInvite.id, found.id));
+		await db.delete(eventReviewers).where(eq(eventReviewers.id, found.id));
 
 		return { ok: true as const };
 	});
 
-const listForMeOutput = z.object({
-	committee: z.array(committeeInviteSchema),
-	speakers: z.array(speakerInviteSchema),
-	reviewers: z.array(reviewerInviteSchema),
+// Remove committee member (organizer only)
+export const removeCommitteeRouter = protectedProcedure
+	.route({ method: "DELETE", path: "/events/invites/committee" })
+	.input(removeInviteInput)
+	.output(z.object({ ok: z.literal(true) }))
+	.handler(async ({ context, input }) => {
+		const organizerId = context.session.user.id;
+		await assertOrganizer(input.eventId, organizerId);
+
+		const [found] = await db
+			.select({ id: eventCommittee.id })
+			.from(eventCommittee)
+			.where(and(eq(eventCommittee.eventId, input.eventId), eq(eventCommittee.id, input.inviteId)))
+			.limit(1);
+
+		if (!found) {
+			throw new ORPCError("NOT_FOUND", { message: "Committee member not found" });
+		}
+
+		await db.delete(eventCommittee).where(eq(eventCommittee.id, found.id));
+
+		return { ok: true as const };
+	});
+
+// List my invites (speaker and reviewer invites for current user)
+const listMyInvitesOutput = z.object({
+	speakerInvites: z.array(speakerInviteSchema.extend({ eventTitle: z.string() })),
+	reviewerInvites: z.array(reviewerInviteSchema.extend({ eventTitle: z.string() })),
+	committeeAssignments: z.array(committeeSchema.extend({ eventTitle: z.string() })),
 });
 
 export const listMyInvitesRouter = protectedProcedure
 	.route({ method: "GET", path: "/events/invites/mine" })
-	.output(listForMeOutput)
+	.output(listMyInvitesOutput)
 	.handler(async ({ context }) => {
 		const userId = context.session.user.id;
 
-		const speakersRows = await db
+		// Get speaker invites
+		const speakerRows = await db
 			.select({
-				id: eventSpeakerInvite.id,
-				eventId: eventSpeakerInvite.eventId,
-				userId: eventSpeakerInvite.userId,
+				id: eventSpeakers.id,
+				eventId: eventSpeakers.eventId,
+				userId: eventSpeakers.userId,
 				userName: user.name,
 				userEmail: user.email,
-				affiliation: eventSpeakerInvite.affiliation,
-				slot: eventSpeakerInvite.slot,
-				status: eventSpeakerInvite.status,
-				invitedAt: eventSpeakerInvite.invitedAt,
-				respondedAt: eventSpeakerInvite.respondedAt,
+				affiliation: eventSpeakers.affiliation,
+				status: eventSpeakers.status,
+				invitedAt: eventSpeakers.invitedAt,
+				respondedAt: eventSpeakers.respondedAt,
+				eventTitle: event.title,
 			})
-			.from(eventSpeakerInvite)
-			.innerJoin(user, eq(user.id, eventSpeakerInvite.userId))
-			.where(eq(eventSpeakerInvite.userId, userId));
+			.from(eventSpeakers)
+			.innerJoin(user, eq(user.id, eventSpeakers.userId))
+			.innerJoin(event, eq(event.id, eventSpeakers.eventId))
+			.where(eq(eventSpeakers.userId, userId));
 
+		const speakerInvites = speakerRows.map((r) => ({
+			id: r.id,
+			eventId: r.eventId,
+			userId: r.userId,
+			userName: r.userName,
+			userEmail: r.userEmail,
+			affiliation: r.affiliation ?? null,
+			status: r.status as "pending" | "accepted" | "rejected",
+			invitedAt: r.invitedAt,
+			respondedAt: r.respondedAt ?? null,
+			eventTitle: r.eventTitle,
+		}));
+
+		// Get reviewer invites
+		const reviewerRows = await db
+			.select({
+				id: eventReviewers.id,
+				eventId: eventReviewers.eventId,
+				userId: eventReviewers.userId,
+				userName: user.name,
+				userEmail: user.email,
+				status: eventReviewers.status,
+				invitedAt: eventReviewers.invitedAt,
+				respondedAt: eventReviewers.respondedAt,
+				eventTitle: event.title,
+			})
+			.from(eventReviewers)
+			.innerJoin(user, eq(user.id, eventReviewers.userId))
+			.innerJoin(event, eq(event.id, eventReviewers.eventId))
+			.where(eq(eventReviewers.userId, userId));
+
+		const reviewerInvites = reviewerRows.map((r) => ({
+			id: r.id,
+			eventId: r.eventId,
+			userId: r.userId,
+			userName: r.userName,
+			userEmail: r.userEmail,
+			status: r.status as "pending" | "accepted" | "rejected",
+			invitedAt: r.invitedAt,
+			respondedAt: r.respondedAt ?? null,
+			eventTitle: r.eventTitle,
+		}));
+
+		// Get committee assignments
 		const committeeRows = await db
 			.select({
 				id: eventCommittee.id,
@@ -467,118 +600,22 @@ export const listMyInvitesRouter = protectedProcedure
 				userName: user.name,
 				userEmail: user.email,
 				assignedAt: eventCommittee.assignedAt,
+				eventTitle: event.title,
 			})
 			.from(eventCommittee)
 			.innerJoin(user, eq(user.id, eventCommittee.userId))
+			.innerJoin(event, eq(event.id, eventCommittee.eventId))
 			.where(eq(eventCommittee.userId, userId));
 
-		const reviewerRows = await db
-			.select({
-				id: eventReviewerInvite.id,
-				eventId: eventReviewerInvite.eventId,
-				userId: eventReviewerInvite.userId,
-				userName: user.name,
-				userEmail: user.email,
-				slot: eventReviewerInvite.slot,
-				status: eventReviewerInvite.status,
-				invitedAt: eventReviewerInvite.invitedAt,
-				respondedAt: eventReviewerInvite.respondedAt,
-			})
-			.from(eventReviewerInvite)
-			.innerJoin(user, eq(user.id, eventReviewerInvite.userId))
-			.where(eq(eventReviewerInvite.userId, userId));
-
-		const speakers = speakersRows.map((r) => ({
-			id: r.id,
-			eventId: r.eventId,
-			userId: r.userId,
-			userName: r.userName,
-			userEmail: r.userEmail,
-			affiliation: r.affiliation ?? null,
-			slot: r.slot,
-			status: r.status as "pending" | "accepted" | "rejected",
-			invitedAt: r.invitedAt,
-			respondedAt: r.respondedAt ?? null,
+		const committeeAssignments = committeeRows.map((c) => ({
+			id: c.id,
+			eventId: c.eventId,
+			userId: c.userId,
+			userName: c.userName,
+			userEmail: c.userEmail,
+			assignedAt: c.assignedAt,
+			eventTitle: c.eventTitle,
 		}));
 
-		const committee = committeeRows.map((r) => ({
-			id: r.id,
-			eventId: r.eventId,
-			userId: r.userId,
-			userName: r.userName,
-			userEmail: r.userEmail,
-			assignedAt: r.assignedAt,
-		}));
-
-		const reviewers = reviewerRows.map((r) => ({
-			id: r.id,
-			eventId: r.eventId,
-			userId: r.userId,
-			userName: r.userName,
-			userEmail: r.userEmail,
-			slot: r.slot,
-			status: r.status as "pending" | "accepted" | "rejected",
-			invitedAt: r.invitedAt,
-			respondedAt: r.respondedAt ?? null,
-		}));
-
-		return { speakers, committee, reviewers };
-	});
-
-export const acceptReviewerRouter = protectedProcedure
-	.route({ method: "POST", path: "/events/invites/reviewer/accept" })
-	.input(respondReviewerInput)
-	.output(z.object({ ok: z.literal(true) }))
-	.handler(async ({ context, input }) => {
-		const userId = context.session.user.id;
-
-		const [found] = await db
-			.select({ id: eventReviewerInvite.id, status: eventReviewerInvite.status })
-			.from(eventReviewerInvite)
-			.where(and(eq(eventReviewerInvite.eventId, input.eventId), eq(eventReviewerInvite.userId, userId)))
-			.limit(1);
-
-		if (!found) {
-			throw new ORPCError("NOT_FOUND", { message: "No reviewer invite found for you in this event" });
-		}
-
-		if (found.status !== "pending") {
-			throw new ORPCError("BAD_REQUEST", { message: `Reviewer invite already ${found.status}` });
-		}
-
-		await db
-			.update(eventReviewerInvite)
-			.set({ status: "accepted", respondedAt: new Date() })
-			.where(eq(eventReviewerInvite.id, found.id));
-
-		return { ok: true as const };
-	});
-
-export const rejectReviewerRouter = protectedProcedure
-	.route({ method: "POST", path: "/events/invites/reviewer/reject" })
-	.input(respondReviewerInput)
-	.output(z.object({ ok: z.literal(true) }))
-	.handler(async ({ context, input }) => {
-		const userId = context.session.user.id;
-
-		const [found] = await db
-			.select({ id: eventReviewerInvite.id, status: eventReviewerInvite.status })
-			.from(eventReviewerInvite)
-			.where(and(eq(eventReviewerInvite.eventId, input.eventId), eq(eventReviewerInvite.userId, userId)))
-			.limit(1);
-
-		if (!found) {
-			throw new ORPCError("NOT_FOUND", { message: "No reviewer invite found for you in this event" });
-		}
-
-		if (found.status !== "pending") {
-			throw new ORPCError("BAD_REQUEST", { message: `Reviewer invite already ${found.status}` });
-		}
-
-		await db
-			.update(eventReviewerInvite)
-			.set({ status: "rejected", respondedAt: new Date() })
-			.where(eq(eventReviewerInvite.id, found.id));
-
-		return { ok: true as const };
+		return { speakerInvites, reviewerInvites, committeeAssignments };
 	});

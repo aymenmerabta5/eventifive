@@ -16,7 +16,7 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
 	});
 
 	const committee = invitesQuery.data?.committee ?? [];
-	const speakers = invitesQuery.data?.speakers ?? [];
+	const speaker = invitesQuery.data?.speaker;
 
 	return (
 		<Card className="shadow-lg">
@@ -72,47 +72,44 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
 				</div>
 
 				<div className="rounded-lg border p-4">
-					<div className="text-sm font-medium">Speakers</div>
+					<div className="text-sm font-medium">Speaker</div>
 					<div className="mt-3 space-y-2">
-						{!invitesQuery.isPending && speakers.length === 0 ? (
-							<div className="text-muted-foreground text-sm">No speakers.</div>
+						{invitesQuery.isPending ? (
+							<div className="text-muted-foreground text-sm">Loading…</div>
+						) : null}
+						{!invitesQuery.isPending && !speaker ? (
+							<div className="text-muted-foreground text-sm">No speaker assigned.</div>
 						) : null}
 
-						{speakers
-							.slice()
-							.sort((a, b) => a.slot - b.slot)
-							.map((s) => (
+						{speaker && (
 							<div
-								key={`speaker-${s.id}`}
+								key={`speaker-${speaker.id}`}
 								className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
 							>
 								<div className="text-sm">
-									<span className="text-muted-foreground mr-2 text-xs">
-										{s.slot === 1 ? "Primary" : `Backup ${s.slot - 1}`}
-									</span>
-									<span className="font-medium">{s.userName || s.userEmail}</span>
-									{s.userName ? (
-										<span className="text-muted-foreground ml-1">({s.userEmail})</span>
+									<span className="font-medium">{speaker.userName || speaker.userEmail}</span>
+									{speaker.userName ? (
+										<span className="text-muted-foreground ml-1">({speaker.userEmail})</span>
 									) : null}
-									{s.affiliation ? (
-										<span className="text-muted-foreground ml-2">• {s.affiliation}</span>
+									{speaker.affiliation ? (
+										<span className="text-muted-foreground ml-2">• {speaker.affiliation}</span>
 									) : null}
 								</div>
 								<div className="text-xs">
 									<span
 										className={
-											s.status === "accepted"
+											speaker.status === "accepted"
 												? "text-green-600"
-												: s.status === "rejected"
+												: speaker.status === "rejected"
 													? "text-red-600"
-												: "text-muted-foreground"
+													: "text-muted-foreground"
 										}
 									>
-										{s.status}
+										{speaker.status}
 									</span>
 								</div>
 							</div>
-						))}
+						)}
 					</div>
 				</div>
 			</CardContent>

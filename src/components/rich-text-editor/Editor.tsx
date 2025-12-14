@@ -86,8 +86,6 @@ const Editor = ({
   return (
     <div
       className={cn(
-        // TEACHING: Match shadcn input/textarea "field" tokens so this can blend into forms.
-        // We use focus-within because the editable element is nested (ProseMirror).
         'border-input flex w-full flex-col rounded-3xl border bg-transparent shadow-xs transition-[color,box-shadow] outline-none',
         'focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]',
         className,
@@ -97,7 +95,7 @@ const Editor = ({
         <MenuBar editor={editor} />
       </div>
       <div className="p-0">
-        <EditorContent editor={editor} />
+        <EditorContent className='p-4' editor={editor} />
       </div>
     </div>
   )

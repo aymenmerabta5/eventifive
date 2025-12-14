@@ -73,6 +73,12 @@ export const subscriptionStatusEnum = pgEnum("subscription_status", [
   "expired",
 ]);
 
+export const eventSpeakerStatusEnum = pgEnum("event_speaker_status", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+
 // ---------------------------
 // USERS, ROLES, AUTH
 // ---------------------------
@@ -241,7 +247,9 @@ export const eventSpeakers = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     affiliation: varchar("affiliation", { length: 255 }),
-    isInvited: boolean("is_invited").notNull().default(false),
+    status: eventSpeakerStatusEnum("status").notNull().default("pending"),
+    invitedAt: timestamp("invited_at").notNull().defaultNow(),
+    respondedAt: timestamp("responded_at"),
   },
   (table) => [
     unique("event_speakers_event_user_unique").on(table.eventId, table.userId),
@@ -249,17 +257,8 @@ export const eventSpeakers = pgTable(
   ]
 );
 
-// ---------------------------
-// EVENT SPEAKERS (INVITES)
-// ---------------------------
-export const eventSpeakerInviteStatusEnum = pgEnum("event_speaker_invite_status", [
-  "pending",
-  "accepted",
-  "rejected",
-]);
-
-export const eventSpeakerInvite = pgTable(
-  "eventifive_event_speaker_invite",
+export const eventReviewers = pgTable(
+  "event_reviewers",
   {
     id: serial("id").primaryKey(),
     eventId: text("event_id")
@@ -268,54 +267,16 @@ export const eventSpeakerInvite = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    // Slot 1 = primary speaker, 2-3 = backups.
-    slot: integer("slot").notNull(),
-    affiliation: varchar("affiliation", { length: 255 }),
-    status: eventSpeakerInviteStatusEnum("status").notNull().default("pending"),
+    status: eventSpeakerStatusEnum("status").notNull().default("pending"),
     invitedAt: timestamp("invited_at").notNull().defaultNow(),
     respondedAt: timestamp("responded_at"),
   },
   (table) => [
-    unique("event_speaker_invite_event_user_unique").on(table.eventId, table.userId),
-    unique("event_speaker_invite_event_slot_unique").on(table.eventId, table.slot),
-    index("event_speaker_invite_event_id_idx").on(table.eventId),
-    index("event_speaker_invite_user_id_idx").on(table.userId),
-  ],
+    unique("event_reviewers_event_user_unique").on(table.eventId, table.userId),
+    index("event_reviewers_event_id_idx").on(table.eventId),
+  ]
 );
 
-// ---------------------------
-// EVENT REVIEWERS (INVITES)
-// ---------------------------
-export const eventReviewerInviteStatusEnum = pgEnum("event_reviewer_invite_status", [
-  "pending",
-  "accepted",
-  "rejected",
-]);
-
-export const eventReviewerInvite = pgTable(
-  "eventifive_event_reviewer_invite",
-  {
-    id: serial("id").primaryKey(),
-    eventId: text("event_id")
-      .notNull()
-      .references(() => event.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    // TEACHING: Slot lets us enforce "3 primaries + 2 backups" deterministically.
-    // Slot 1-3 = primary, 4-5 = backup.
-    slot: integer("slot").notNull(),
-    status: eventReviewerInviteStatusEnum("status").notNull().default("pending"),
-    invitedAt: timestamp("invited_at").notNull().defaultNow(),
-    respondedAt: timestamp("responded_at"),
-  },
-  (table) => [
-    unique("event_reviewer_invite_event_user_unique").on(table.eventId, table.userId),
-    unique("event_reviewer_invite_event_slot_unique").on(table.eventId, table.slot),
-    index("event_reviewer_invite_event_id_idx").on(table.eventId),
-    index("event_reviewer_invite_user_id_idx").on(table.userId),
-  ],
-);
 
 // ---------------------------
 // FILES (must be defined before submissionFile)
@@ -780,6 +741,18 @@ export type NewPayment = InferInsertModel<typeof payment>;
 export type EventRegistration = InferSelectModel<typeof eventRegistration>;
 export type NewEventRegistration = InferInsertModel<typeof eventRegistration>;
 
+// Event speaker types
+export type EventSpeaker = InferSelectModel<typeof eventSpeakers>;
+export type NewEventSpeaker = InferInsertModel<typeof eventSpeakers>;
+
+// Event reviewer types
+export type EventReviewer = InferSelectModel<typeof eventReviewers>;
+export type NewEventReviewer = InferInsertModel<typeof eventReviewers>;
+
+// Event committee types
+export type EventCommittee = InferSelectModel<typeof eventCommittee>;
+export type NewEventCommittee = InferInsertModel<typeof eventCommittee>;
+
 // ---------------------------
 // ENUM VALUE ARRAYS (for use in zod schemas and UI)
 // ---------------------------
@@ -787,6 +760,7 @@ export const eventTypeValues = eventTypeEnum.enumValues;
 export const submissionTypeValues = submissionTypeEnum.enumValues;
 export const submissionStatusValues = submissionStatusEnum.enumValues;
 export const reviewRecommendationValues = reviewRecommendationEnum.enumValues;
+export const eventSpeakerStatusValues = eventSpeakerStatusEnum.enumValues;
 export const fileTypeValues = fileTypeEnum.enumValues;
 export const fileStatusValues = fileStatusEnum.enumValues;
 export const paymentStatusValues = paymentStatusEnum.enumValues;
@@ -799,6 +773,7 @@ export type EventType = (typeof eventTypeValues)[number];
 export type SubmissionType = (typeof submissionTypeValues)[number];
 export type SubmissionStatus = (typeof submissionStatusValues)[number];
 export type ReviewRecommendation = (typeof reviewRecommendationValues)[number];
+export type EventSpeakerStatus = (typeof eventSpeakerStatusValues)[number];
 export type FileType = (typeof fileTypeValues)[number];
 export type FileStatus = (typeof fileStatusValues)[number];
 export type PaymentStatus = (typeof paymentStatusValues)[number];

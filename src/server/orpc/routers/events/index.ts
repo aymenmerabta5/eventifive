@@ -16,6 +16,9 @@ import {
 	listMyInvitesRouter,
 	acceptReviewerRouter,
 	rejectReviewerRouter,
+	removeSpeakerRouter,
+	removeReviewerRouter,
+	removeCommitteeRouter,
 } from "./invites";
 import { registerForEventRouter } from "./register";
 
@@ -36,6 +39,9 @@ export const eventsRouter = {
 	rejectSpeaker: rejectSpeakerRouter,
 	acceptReviewer: acceptReviewerRouter,
 	rejectReviewer: rejectReviewerRouter,
+	removeSpeaker: removeSpeakerRouter,
+	removeReviewer: removeReviewerRouter,
+	removeCommittee: removeCommitteeRouter,
 	listMyInvites: listMyInvitesRouter,
 	register: registerForEventRouter,
 };

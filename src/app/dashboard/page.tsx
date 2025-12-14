@@ -5,8 +5,7 @@ import { ChartAreaInteractive } from "./_components/chart-area-interactive"
 import { DataTable } from "./_components/data-table"
 import { SectionCards } from "./_components/section-cards"
 import { SiteHeader } from "./_components/site-header"
-import { AddEventCard } from "./_components/add-event-card"
-import { UpdateEventCard } from "./_components/update-event-card"
+import { EventFormCard } from "./_components/EventActions"
 import { MyEvents } from "./_components/my-events"
 import { EventApprovalsCard } from "./_components/event-approvals-card"
 import {
@@ -27,6 +26,7 @@ function Dashboard() {
   const showMyEvents = view === "my-events"
   const showEventApprovals = view === "event-approvals"
   const approvalsEventId = searchParams.get("eventId")
+  const updateEventId = searchParams.get("eventId")
 
   return (
     <SidebarProvider
@@ -45,11 +45,11 @@ function Dashboard() {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               {showAddEvent ? (
                 <div className="px-4 lg:px-6">
-                  <AddEventCard />
+                  <EventFormCard mode="create" />
                 </div>
               ) : showUpdateEvent ? (
                 <div className="px-4 lg:px-6">
-                  <UpdateEventCard />
+                  <EventFormCard mode="update" eventId={updateEventId ?? undefined} />
                 </div>
               ) : showMyEvents ? (
                 <div className="px-4 lg:px-6">

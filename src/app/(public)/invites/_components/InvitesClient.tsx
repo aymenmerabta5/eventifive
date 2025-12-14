@@ -62,11 +62,11 @@ export function InvitesClient() {
 						<div className="text-muted-foreground text-sm">Loading…</div>
 					) : null}
 
-					{!invitesQuery.isPending && (invitesQuery.data?.committee.length ?? 0) === 0 ? (
+					{!invitesQuery.isPending && (invitesQuery.data?.committeeAssignments.length ?? 0) === 0 ? (
 						<div className="text-muted-foreground text-sm">No committee memberships.</div>
 					) : null}
 
-					{invitesQuery.data?.committee.map((inv) => (
+					{invitesQuery.data?.committeeAssignments.map((inv) => (
 						<div
 							key={`committee-${inv.id}`}
 							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
@@ -74,7 +74,7 @@ export function InvitesClient() {
 							<div className="space-y-1">
 								<div className="text-sm font-medium">Committee Member</div>
 								<div className="text-muted-foreground text-xs">
-									Event: <span className="font-mono">{inv.eventId}</span>
+									Event: <span className="font-medium">{inv.eventTitle}</span>
 								</div>
 								<div className="text-muted-foreground text-xs">
 									Assigned: {new Date(inv.assignedAt).toLocaleDateString()}
@@ -94,24 +94,19 @@ export function InvitesClient() {
 						<div className="text-muted-foreground text-sm">Loading…</div>
 					) : null}
 
-					{!invitesQuery.isPending && (invitesQuery.data?.speakers.length ?? 0) === 0 ? (
+					{!invitesQuery.isPending && (invitesQuery.data?.speakerInvites.length ?? 0) === 0 ? (
 						<div className="text-muted-foreground text-sm">No speaker invites.</div>
 					) : null}
 
-					{invitesQuery.data?.speakers
-						.slice()
-						.sort((a, b) => a.slot - b.slot)
-						.map((inv) => (
+					{invitesQuery.data?.speakerInvites.map((inv) => (
 						<div
 							key={`speaker-${inv.id}`}
 							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
 						>
 							<div className="space-y-1">
-								<div className="text-sm font-medium">
-									{inv.slot === 1 ? "Speaker (Primary)" : `Speaker (Backup ${inv.slot - 1})`}
-								</div>
+								<div className="text-sm font-medium">Speaker</div>
 								<div className="text-muted-foreground text-xs">
-									Event: <span className="font-mono">{inv.eventId}</span>
+									Event: <span className="font-medium">{inv.eventTitle}</span>
 								</div>
 								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
 							</div>
@@ -149,57 +144,52 @@ export function InvitesClient() {
 						<div className="text-muted-foreground text-sm">Loading…</div>
 					) : null}
 
-					{!invitesQuery.isPending && (invitesQuery.data?.reviewers.length ?? 0) === 0 ? (
+					{!invitesQuery.isPending && (invitesQuery.data?.reviewerInvites.length ?? 0) === 0 ? (
 						<div className="text-muted-foreground text-sm">No reviewer invites.</div>
 					) : null}
 
-					{invitesQuery.data?.reviewers
-						.slice()
-						.sort((a, b) => a.slot - b.slot)
-						.map((inv) => (
-							<div
-								key={`reviewer-${inv.id}`}
-								className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
-							>
-								<div className="space-y-1">
-									<div className="text-sm font-medium">
-										Reviewer {inv.slot <= 3 ? `(Primary ${inv.slot})` : `(Backup ${inv.slot - 3})`}
-									</div>
-									<div className="text-muted-foreground text-xs">
-										Event: <span className="font-mono">{inv.eventId}</span>
-									</div>
-									<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
+					{invitesQuery.data?.reviewerInvites.map((inv) => (
+						<div
+							key={`reviewer-${inv.id}`}
+							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+						>
+							<div className="space-y-1">
+								<div className="text-sm font-medium">Reviewer</div>
+								<div className="text-muted-foreground text-xs">
+									Event: <span className="font-medium">{inv.eventTitle}</span>
 								</div>
-								<div className="flex items-center gap-2">
-									<Button
-										variant="outline"
-										disabled={
-											inv.status !== "pending" ||
-											acceptReviewer.isPending ||
-											rejectReviewer.isPending
-										}
-										onClick={() => {
-											acceptReviewer.mutate({ eventId: inv.eventId });
-										}}
-									>
-										Accept
-									</Button>
-									<Button
-										variant="destructive"
-										disabled={
-											inv.status !== "pending" ||
-											acceptReviewer.isPending ||
-											rejectReviewer.isPending
-										}
-										onClick={() => {
-											rejectReviewer.mutate({ eventId: inv.eventId });
-										}}
-									>
-										Reject
-									</Button>
-								</div>
+								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
 							</div>
-						))}
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									disabled={
+										inv.status !== "pending" ||
+										acceptReviewer.isPending ||
+										rejectReviewer.isPending
+									}
+									onClick={() => {
+										acceptReviewer.mutate({ eventId: inv.eventId });
+									}}
+								>
+									Accept
+								</Button>
+								<Button
+									variant="destructive"
+									disabled={
+										inv.status !== "pending" ||
+										acceptReviewer.isPending ||
+										rejectReviewer.isPending
+									}
+									onClick={() => {
+										rejectReviewer.mutate({ eventId: inv.eventId });
+									}}
+								>
+									Reject
+								</Button>
+							</div>
+						</div>
+					))}
 				</CardContent>
 			</Card>
 		</div>
