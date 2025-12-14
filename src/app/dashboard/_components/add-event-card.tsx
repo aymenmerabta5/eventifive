@@ -51,6 +51,16 @@ const eventTypeOptions = eventTypeValues.map((value) => ({
 
 type WizardStep = "details" | "invites" | "review";
 
+function toDateTimeLocalInputValue(date: Date): string {
+  const pad2 = (n: number) => n.toString().padStart(2, "0");
+  const yyyy = date.getFullYear();
+  const mm = pad2(date.getMonth() + 1);
+  const dd = pad2(date.getDate());
+  const hh = pad2(date.getHours());
+  const min = pad2(date.getMinutes());
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+
 interface CreateEventResponse {
   status: "success" | "error";
   message: string;
@@ -115,6 +125,7 @@ export function AddEventCard() {
   const [reviewerEmails, setReviewerEmails] = useState<string[]>(() => Array.from({ length: 5 }, () => ""));
 
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const nowMinDateTime = useMemo(() => toDateTimeLocalInputValue(new Date()), []);
 
   const form = useForm({
     defaultValues: {
@@ -448,6 +459,7 @@ export function AddEventCard() {
                         name={field.name}
                         type="datetime-local"
                         value={field.state.value}
+                        min={nowMinDateTime}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         className="w-full"
@@ -479,7 +491,7 @@ export function AddEventCard() {
                           name={field.name}
                           type="datetime-local"
                           value={field.state.value}
-                          min={startDate || undefined}
+                          min={nowMinDateTime || undefined}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           className="w-full"
