@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, Activity } from "react";
+import { useState, useMemo, useEffect, useCallback, Activity } from "react";
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import {
   useEventUpdate,
   useEventInvites,
   useEventPrefill,
+  useEventImages,
 } from "./hooks";
 import {
   EventDetailsForm,
@@ -30,6 +31,7 @@ import { WIZARD_STEPS } from "./constants";
 import { getNowMinDateTime } from "./utils";
 import type { EventFormCardProps, WizardStep, InvitesData } from "./types";
 import type { EventType } from "@/server/db/schema";
+import type { ExistingImage } from "@/components/uploader";
 
 export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps) {
   // For create mode: track the created event ID
@@ -37,8 +39,14 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
   const [eventImages, setEventImages] = useState<File[]>([]);
   const [step, setStep] = useState<WizardStep>("details");
 
+  // For update mode: track images to remove
+  const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
+
   // For update mode: prefill from existing event
   const prefill = useEventPrefill(mode === "update" ? propEventId : undefined);
+
+  // For update mode: fetch existing images
+  const existingImagesQuery = useEventImages(mode === "update" ? propEventId : undefined);
 
   // Form state
   const form = useEventForm(mode, prefill.initialValues ?? undefined);
@@ -50,9 +58,14 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
     }
   }, [prefill.initialValues]);
 
+  // Reset remove list when images are refetched
+  useEffect(() => {
+    setRemoveImageIds([]);
+  }, [existingImagesQuery.images]);
+
   // Mutations
   const { createDraft, isCreating } = useEventDraft();
-  const updateMutation = useEventUpdate();
+  const { updateEvent, isUpdating } = useEventUpdate();
 
   // Determine the active event ID for invites
   const activeEventId = mode === "update" ? propEventId : createdEventId;
@@ -72,6 +85,23 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
   );
 
   const nowMinDateTime = useMemo(() => getNowMinDateTime(), []);
+
+  // Transform existing images to ExistingImage format
+  const existingImagesForUploader = useMemo((): ExistingImage[] => {
+    return existingImagesQuery.images
+      .filter(img => !removeImageIds.includes(img.fileId))
+      .map(img => ({
+        fileId: img.fileId,
+        url: img.url,
+        fileName: img.fileName,
+        fileSize: img.fileSize,
+        isDefault: img.isDefault,
+      }));
+  }, [existingImagesQuery.images, removeImageIds]);
+
+  const handleRemoveExistingImage = useCallback((fileId: string) => {
+    setRemoveImageIds(prev => [...prev, fileId]);
+  }, []);
 
   const handleNext = async () => {
     if (step === "details") {
@@ -109,19 +139,23 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
     if (step === "review") setStep("invites");
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (mode === "update" && propEventId) {
-      updateMutation.mutate({
-        eventId: propEventId,
-        title: form.state.values.title,
-        description: form.state.values.description || undefined,
-        type: form.state.values.type as EventType,
-        startDate: form.state.values.startDate,
-        endDate: form.state.values.endDate,
-        location: form.state.values.location || undefined,
-        priceAmount: form.state.values.priceAmount,
-        priceCurrency: form.state.values.priceCurrency,
-      });
+      await updateEvent(
+        {
+          eventId: propEventId,
+          title: form.state.values.title,
+          description: form.state.values.description || undefined,
+          type: form.state.values.type as EventType,
+          startDate: form.state.values.startDate,
+          endDate: form.state.values.endDate,
+          location: form.state.values.location || undefined,
+          priceAmount: form.state.values.priceAmount,
+          priceCurrency: form.state.values.priceCurrency,
+        },
+        eventImages,
+        removeImageIds
+      );
     }
   };
 
@@ -160,14 +194,15 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
               />
           </Activity>
 
-          {/* Loading/Error states for update mode */}
-          <Activity mode={isUpdateMode && prefill.notFound ? "visible" : "hidden"}>
+          {/* Loading state for update mode */}
+          <Activity mode={isUpdateMode && prefill.isPending ? "visible" : "hidden"}>
               <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
                 Loading event details...
               </div>
           </Activity>
 
+          {/* Error state for update mode */}
           <Activity mode={isUpdateMode && prefill.notFound ? "visible" : "hidden"}>
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               Unable to load this event. Please return to your events and try again.
@@ -187,7 +222,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
                 e.preventDefault();
                 e.stopPropagation();
                 if (isUpdateMode) {
-                  handleSubmit();
+                  void handleSubmit();
                 }
               }}
               className="space-y-6"
@@ -195,14 +230,26 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
               <EventDetailsForm
                 form={form}
                 nowMinDateTime={nowMinDateTime}
-                disabled={isCreating || (isUpdateMode && prefill.isPending)}
+                disabled={isCreating || isUpdating || (isUpdateMode && prefill.isPending)}
                 showBigDescription={isCreateMode}
               />
 
+              {/* Images section for create mode */}
               <Activity mode={isCreateMode && step === "details" ? "visible" : "hidden"}>
                 <EventImagesSection
                   disabled={!!createdEventId}
                   onFilesChange={setEventImages}
+                />
+              </Activity>
+
+              {/* Images section for update mode */}
+              <Activity mode={isUpdateMode && !prefill.isPending && !prefill.notFound ? "visible" : "hidden"}>
+                <EventImagesSection
+                  disabled={isUpdating}
+                  onFilesChange={setEventImages}
+                  existingImages={existingImagesForUploader}
+                  isLoadingImages={existingImagesQuery.isPending}
+                  onRemoveExistingImage={handleRemoveExistingImage}
                 />
               </Activity>
             </form>
@@ -219,10 +266,8 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
                 isLoading={invitesQuery.isPending}
                 inviteSpeakerMutation={inviteSpeakerMutation}
                 inviteReviewerMutation={inviteReviewerMutation}
-                inviteCommitteeMutation={inviteCommitteeMutation}
                 removeSpeakerMutation={removeSpeakerMutation}
                 removeReviewerMutation={removeReviewerMutation}
-                removeCommitteeMutation={removeCommitteeMutation}
               />
 
               <h3 className="text-lg font-semibold">Event Readiness</h3>
@@ -242,10 +287,8 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
               isLoading={invitesQuery.isPending}
               inviteSpeakerMutation={inviteSpeakerMutation}
               inviteReviewerMutation={inviteReviewerMutation}
-              inviteCommitteeMutation={inviteCommitteeMutation}
               removeSpeakerMutation={removeSpeakerMutation}
               removeReviewerMutation={removeReviewerMutation}
-              removeCommitteeMutation={removeCommitteeMutation}
             />
           </Activity>
 
@@ -261,7 +304,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           <FormNavigation
             mode={mode}
             step={step}
-            isLoading={isCreating || updateMutation.isPending}
+            isLoading={isCreating || isUpdating}
             canGoBack={step !== "details"}
             onBack={handleBack}
             onNext={handleNext}

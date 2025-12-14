@@ -1,13 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, type ChangeEvent, type DragEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { FileText, FileUp, Image as ImageIcon, Loader2, X } from "lucide-react";
+import { FileText, FileUp, GripVertical, Image as ImageIcon, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+export interface ExistingImage {
+    fileId: string;
+    url: string;
+    fileName: string;
+    fileSize: number;
+    isDefault: boolean;
+}
 
 type RegistrationDocumentRole = {
     role: "registration_document";
@@ -27,15 +35,14 @@ type EventImageRole = {
 
 export type UploaderProps = (RegistrationDocumentRole | EventImageRole) & {
     onComplete?: (results: unknown[]) => void;
-    // TEACHING: "upload" keeps current behavior (manual upload button).
-    // "select" turns this into a file-picker UI only (parent uploads later, e.g. on Next).
     mode?: "upload" | "select";
-    // Used in "select" mode to let the parent capture the selected files.
     onFilesChange?: (files: File[]) => void;
-    // Optional override for the hint text under the dropzone.
     hintOverride?: string;
-    // Optional external disable (e.g. after draft event has been created).
     disabled?: boolean;
+    // New props for update mode with existing images
+    initialImages?: ExistingImage[];
+    onRemoveExistingImage?: (fileId: string) => void;
+    onReorder?: (order: Array<{ type: "existing" | "new"; id: string }>) => void;
 };
 
 const ROLE_CONFIG = {
@@ -58,6 +65,11 @@ const ROLE_CONFIG = {
     },
 } as const;
 
+// Unified item type for combined existing + new images
+type UnifiedImageItem =
+    | { type: "existing"; fileId: string; url: string; fileName: string; fileSize: number }
+    | { type: "new"; key: string; file: File; url: string };
+
 export function Uploader(props: UploaderProps) {
     const config = ROLE_CONFIG[props.role];
     const mode = props.mode ?? "upload";
@@ -69,9 +81,18 @@ export function Uploader(props: UploaderProps) {
 
     const [files, setFiles] = useState<File[]>([]);
     const [uploadedCount, setUploadedCount] = useState(0);
-    const [uploadedImages, setUploadedImages] = useState<Array<{ key: string; size: number }>>(
-        [],
-    );
+    const [uploadedImages, setUploadedImages] = useState<Array<{ key: string; size: number }>>([]);
+
+    // Track existing images that have been marked for removal
+    const [removedExistingIds, setRemovedExistingIds] = useState<Set<string>>(new Set());
+
+    // Drag state for reordering
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+    // Combined order state for existing + new images
+    const [imageOrder, setImageOrder] = useState<Array<{ type: "existing" | "new"; id: string }>>([]);
+
     const resolvedMaxFiles =
         props.role === "event_image" ? (props.kind === "cover" ? 1 : config.maxFilesDefault) : config.maxFilesDefault;
     const resolvedMultiple =
@@ -84,12 +105,33 @@ export function Uploader(props: UploaderProps) {
     const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
     const previewUrlsRef = useRef<Record<string, string>>({});
 
-    const remainingSlots = Math.max(0, maxFiles - uploadedCount - files.length);
+    // Calculate active existing images (not removed)
+    const activeExistingImages = useMemo(() => {
+        return (props.initialImages ?? []).filter(img => !removedExistingIds.has(img.fileId));
+    }, [props.initialImages, removedExistingIds]);
+
+    const remainingSlots = Math.max(0, maxFiles - activeExistingImages.length - uploadedCount - files.length);
     const addMoreFiles = remainingSlots > 0;
 
     const icon = useMemo(() => {
         return props.role === "event_image" ? ImageIcon : FileUp;
     }, [props.role]);
+
+    // Initialize imageOrder when initialImages change
+    useEffect(() => {
+        if (!props.initialImages) return;
+
+        const existingOrder = props.initialImages
+            .filter(img => !removedExistingIds.has(img.fileId))
+            .map(img => ({ type: "existing" as const, id: img.fileId }));
+
+        const newOrder = files.map(f => ({
+            type: "new" as const,
+            id: `${f.name}-${f.size}-${f.lastModified}`
+        }));
+
+        setImageOrder([...existingOrder, ...newOrder]);
+    }, [props.initialImages, removedExistingIds, files]);
 
     useEffect(() => {
         setMaxFiles(resolvedMaxFiles);
@@ -177,7 +219,7 @@ export function Uploader(props: UploaderProps) {
         if (incoming.length === 0) return;
 
         setFiles((prev) => {
-            const available = Math.max(0, maxFiles - uploadedCount - prev.length);
+            const available = Math.max(0, maxFiles - activeExistingImages.length - uploadedCount - prev.length);
             if (available <= 0) return prev;
 
             const next = [...prev, ...incoming.slice(0, available)];
@@ -200,7 +242,7 @@ export function Uploader(props: UploaderProps) {
         event.target.value = "";
     };
 
-    const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    const handleFileDrop = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         setIsDragOver(false);
 
@@ -226,6 +268,11 @@ export function Uploader(props: UploaderProps) {
         setFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
+    const removeExistingImage = useCallback((fileId: string) => {
+        setRemovedExistingIds(prev => new Set([...prev, fileId]));
+        props.onRemoveExistingImage?.(fileId);
+    }, [props]);
+
     const removeUploadedKey = (key: string) => {
         setUploadedImages((prev) => prev.filter((k) => k.key !== key));
         setPreviewUrls((prev) => {
@@ -241,10 +288,49 @@ export function Uploader(props: UploaderProps) {
     const clearAll = () => {
         setFiles([]);
         setUploadedImages([]);
+        setRemovedExistingIds(new Set());
         setPreviewUrls((prev) => {
             for (const url of Object.values(prev)) URL.revokeObjectURL(url);
             return {};
         });
+    };
+
+    // Drag and drop reordering handlers
+    const handleImageDragStart = (index: number) => {
+        setDraggedIndex(index);
+    };
+
+    const handleImageDragOver = (e: DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) return;
+        setDragOverIndex(index);
+    };
+
+    const handleImageDrop = (e: DragEvent, dropIndex: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === dropIndex) {
+            setDraggedIndex(null);
+            setDragOverIndex(null);
+            return;
+        }
+
+        setImageOrder(prev => {
+            const newOrder = [...prev];
+            const draggedItem = newOrder[draggedIndex];
+            if (!draggedItem) return prev;
+            newOrder.splice(draggedIndex, 1);
+            newOrder.splice(dropIndex, 0, draggedItem);
+            props.onReorder?.(newOrder);
+            return newOrder;
+        });
+
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
+    const handleImageDragEnd = () => {
+        setDraggedIndex(null);
+        setDragOverIndex(null);
     };
 
     const upload = async () => {
@@ -331,12 +417,75 @@ export function Uploader(props: UploaderProps) {
         }
     };
 
+    // Build unified items list based on order
+    const unifiedItems = useMemo((): UnifiedImageItem[] => {
+        const items: UnifiedImageItem[] = [];
+
+        // If we have an explicit order, use it
+        if (imageOrder.length > 0) {
+            for (const orderItem of imageOrder) {
+                if (orderItem.type === "existing") {
+                    const existing = activeExistingImages.find(img => img.fileId === orderItem.id);
+                    if (existing) {
+                        items.push({
+                            type: "existing",
+                            fileId: existing.fileId,
+                            url: existing.url,
+                            fileName: existing.fileName,
+                            fileSize: existing.fileSize,
+                        });
+                    }
+                } else {
+                    const file = files.find(f => `${f.name}-${f.size}-${f.lastModified}` === orderItem.id);
+                    if (file) {
+                        const key = `${file.name}-${file.size}-${file.lastModified}`;
+                        const url = previewUrls[key];
+                        if (url) {
+                            items.push({ type: "new", key, file, url });
+                        }
+                    }
+                }
+            }
+            return items;
+        }
+
+        // Default order: existing first, then new
+        for (const img of activeExistingImages) {
+            items.push({
+                type: "existing",
+                fileId: img.fileId,
+                url: img.url,
+                fileName: img.fileName,
+                fileSize: img.fileSize,
+            });
+        }
+
+        for (const img of uploadedImages) {
+            const url = previewUrls[img.key];
+            if (url) {
+                const file = files.find(f => `${f.name}-${f.size}-${f.lastModified}` === img.key);
+                if (file) {
+                    items.push({ type: "new", key: img.key, file, url });
+                }
+            }
+        }
+
+        for (const file of files) {
+            const key = `${file.name}-${file.size}-${file.lastModified}`;
+            const url = previewUrls[key];
+            if (url && !uploadedImages.some(u => u.key === key)) {
+                items.push({ type: "new", key, file, url });
+            }
+        }
+
+        return items;
+    }, [imageOrder, activeExistingImages, uploadedImages, files, previewUrls]);
+
+    const hasItems = unifiedItems.length > 0 || files.length > 0;
     const Icon = icon;
 
     return (
         <div className="space-y-3">
-
-
             <p className="text-xs text-muted-foreground">
                 {props.hintOverride
                     ? props.hintOverride
@@ -345,15 +494,17 @@ export function Uploader(props: UploaderProps) {
                             ? "Checking upload limit…"
                             : `${uploadedCount}/${maxFiles} already uploaded for this event`
                         : mode === "select"
-                            ? "Upload up to 4 images. The first image becomes the cover. Images are uploaded automatically when you click Next."
+                            ? props.initialImages && props.initialImages.length > 0
+                                ? "Drag images to reorder. The first image becomes the cover."
+                                : "Upload up to 4 images. The first image becomes the cover. Images are uploaded automatically when you click Save."
                             : isStagedEventImage
                                 ? "Images will be linked to the event automatically when you finish creating it."
                                 : config.hint}
             </p>
 
-            {files.length === 0 ? (
+            {!hasItems ? (
                 <div
-                    onDrop={handleDrop}
+                    onDrop={handleFileDrop}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     className={cn(
@@ -383,168 +534,181 @@ export function Uploader(props: UploaderProps) {
                     <p className="mt-4 text-xs text-muted-foreground">{config.hint}</p>
                 </div>
             ) : (
-				<>
-					<Card className="bg-muted/30">
-						<CardContent className="space-y-3 p-4">
-							{isEventImage ? (
-								<div className="flex w-full justify-center">
-									<div className="grid w-fit grid-cols-[repeat(3,110px)] gap-6 sm:grid-cols-[repeat(4,140px)] md:grid-cols-[repeat(4,180px)]">
-									{[
-										...uploadedImages.map((img) => ({ kind: "uploaded" as const, ...img })),
-										...files.map((file) => ({
-											kind: "selected" as const,
-											key: `${file.name}-${file.size}-${file.lastModified}`,
-											size: file.size,
-											file,
-										})),
-									].map((item, displayIndex) => {
-										const url = previewUrls[item.key];
-										if (!url) return null;
-										const isCover = displayIndex === 0;
+                <>
+                    <Card className="bg-muted/30">
+                        <CardContent className="space-y-3 p-4">
+                            {isEventImage ? (
+                                <div className="flex w-full justify-center">
+                                    <div className="grid w-fit grid-cols-[repeat(3,110px)] gap-6 sm:grid-cols-[repeat(4,140px)] md:grid-cols-[repeat(4,180px)]">
+                                        {unifiedItems.map((item, displayIndex) => {
+                                            const isCover = displayIndex === 0;
+                                            const itemKey = item.type === "existing" ? item.fileId : item.key;
 
-										return (
-											<div key={`${item.kind}-${item.key}`} className="space-y-1">
-												<div
-													className={cn(
-														"relative overflow-hidden rounded-2xl border bg-muted/30 shadow-sm",
-														isCover ? "ring-2 ring-primary/60" : "ring-1 ring-border/40",
-													)}
-												>
-													<img
-														src={url}
-														alt={isCover ? "Cover image preview" : "Event image preview"}
-														className="aspect-square w-full object-cover"
-														loading="lazy"
-													/>
+                                            return (
+                                                <div
+                                                    key={`${item.type}-${itemKey}`}
+                                                    className={cn(
+                                                        "space-y-1 transition-transform",
+                                                        draggedIndex === displayIndex && "opacity-50",
+                                                        dragOverIndex === displayIndex && "scale-105"
+                                                    )}
+                                                    draggable={!isUploading}
+                                                    onDragStart={() => handleImageDragStart(displayIndex)}
+                                                    onDragOver={(e) => handleImageDragOver(e, displayIndex)}
+                                                    onDrop={(e) => handleImageDrop(e, displayIndex)}
+                                                    onDragEnd={handleImageDragEnd}
+                                                >
+                                                    <div
+                                                        className={cn(
+                                                            "relative overflow-hidden rounded-2xl border bg-muted/30 shadow-sm cursor-grab active:cursor-grabbing",
+                                                            isCover ? "ring-2 ring-primary/60" : "ring-1 ring-border/40",
+                                                        )}
+                                                    >
+                                                        <img
+                                                            src={item.url}
+                                                            alt={isCover ? "Cover image preview" : "Event image preview"}
+                                                            className="aspect-square w-full object-cover"
+                                                            loading="lazy"
+                                                            draggable={false}
+                                                        />
 
-													{/* Index badge (1 = cover) */}
-													<div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-background/85 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
-														<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
-															{displayIndex + 1}
-														</span>
-														{isCover ? <span className="text-primary">Cover</span> : null}
-													</div>
+                                                        {/* Drag handle */}
+                                                        <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-background/85 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
+                                                            <GripVertical className="h-3 w-3 text-muted-foreground" />
+                                                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                                                {displayIndex + 1}
+                                                            </span>
+                                                            {isCover ? <span className="text-primary">Cover</span> : null}
+                                                        </div>
 
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														className="absolute right-2 top-2 h-7 w-7 bg-background/70 text-foreground hover:bg-background"
-														onClick={() => {
-															if (item.kind === "uploaded") removeUploadedKey(item.key);
-															else {
-																const originalIndex = files.findIndex((f) => {
-																	const k = `${f.name}-${f.size}-${f.lastModified}`;
-																	return k === item.key;
-																});
-																if (originalIndex >= 0) removeFileAt(originalIndex);
-															}
-														}}
-														disabled={isUploading}
-														aria-label="Remove image"
-													>
-														<X className="h-4 w-4" />
-													</Button>
-												</div>
-												<div className="text-center text-[11px] text-muted-foreground">
-													{(item.size / 1024 / 1024).toFixed(2)} MB
-												</div>
-											</div>
-										);
-									})}
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="absolute right-2 top-2 h-7 w-7 bg-background/70 text-foreground hover:bg-background hover:text-destructive"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (item.type === "existing") {
+                                                                    removeExistingImage(item.fileId);
+                                                                } else {
+                                                                    const originalIndex = files.findIndex((f) => {
+                                                                        const k = `${f.name}-${f.size}-${f.lastModified}`;
+                                                                        return k === item.key;
+                                                                    });
+                                                                    if (originalIndex >= 0) removeFileAt(originalIndex);
+                                                                }
+                                                            }}
+                                                            disabled={isUploading}
+                                                            aria-label="Remove image"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                    <div className="text-center text-[11px] text-muted-foreground">
+                                                        {item.type === "existing"
+                                                            ? `${(item.fileSize / 1024 / 1024).toFixed(2)} MB`
+                                                            : `${(item.file.size / 1024 / 1024).toFixed(2)} MB`
+                                                        }
+                                                        {item.type === "existing" && (
+                                                            <span className="ml-1 text-primary/70">(saved)</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
 
-									{addMoreFiles ? (
-										<div className="relative flex aspect-square w-full items-center justify-center rounded-2xl border border-dashed border-border bg-background/40 text-xs text-muted-foreground transition-colors hover:bg-muted/20">
-											<span>Add more (up to {maxFiles})</span>
-											<Input
-												id="file-more"
-												name="file-more"
-												type="file"
-												multiple={resolvedMultiple}
-												accept={config.accept}
-												onChange={handleFileChange}
-												disabled={props.disabled || !user || isUploading}
-												className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-											/>
-										</div>
-									) : null}
-									</div>
-								</div>
-							) : (
-								<>
-									{files.map((file, index) => (
-										<div
-											key={`${file.name}-${file.size}-${index}`}
-											className="flex items-center gap-4"
-										>
-											<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-												<FileText className="h-6 w-6 text-primary" />
-											</div>
-											<div className="min-w-0 flex-1">
-												<p className="truncate text-sm font-medium">{file.name}</p>
-												<p className="text-xs text-muted-foreground">
-													{(file.size / 1024 / 1024).toFixed(2)} MB
-												</p>
-											</div>
-											<div className="flex items-center gap-2">
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8 text-muted-foreground hover:text-destructive"
-													onClick={() => removeFileAt(index)}
-													disabled={isUploading}
-												>
-													<X className="h-4 w-4" />
-												</Button>
-											</div>
-										</div>
-									))}
+                                        {addMoreFiles ? (
+                                            <div className="relative flex aspect-square w-full items-center justify-center rounded-2xl border border-dashed border-border bg-background/40 text-xs text-muted-foreground transition-colors hover:bg-muted/20">
+                                                <span>Add more (up to {maxFiles})</span>
+                                                <Input
+                                                    id="file-more"
+                                                    name="file-more"
+                                                    type="file"
+                                                    multiple={resolvedMultiple}
+                                                    accept={config.accept}
+                                                    onChange={handleFileChange}
+                                                    disabled={props.disabled || !user || isUploading}
+                                                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                                />
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    {files.map((file, index) => (
+                                        <div
+                                            key={`${file.name}-${file.size}-${index}`}
+                                            className="flex items-center gap-4"
+                                        >
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                                                <FileText className="h-6 w-6 text-primary" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm font-medium">{file.name}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                    onClick={() => removeFileAt(index)}
+                                                    disabled={isUploading}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
 
-									{addMoreFiles ? (
-										<div className="relative flex items-center justify-center rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
-											<span>Add more (up to {maxFiles})</span>
-											<Input
-												id="file-more"
-												name="file-more"
-												type="file"
-												multiple={resolvedMultiple}
-												accept={config.accept}
-												onChange={handleFileChange}
-												disabled={props.disabled || !user || isUploading}
-												className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-											/>
-										</div>
-									) : null}
-								</>
-							)}
-						</CardContent>
-					</Card>
+                                    {addMoreFiles ? (
+                                        <div className="relative flex items-center justify-center rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                                            <span>Add more (up to {maxFiles})</span>
+                                            <Input
+                                                id="file-more"
+                                                name="file-more"
+                                                type="file"
+                                                multiple={resolvedMultiple}
+                                                accept={config.accept}
+                                                onChange={handleFileChange}
+                                                disabled={props.disabled || !user || isUploading}
+                                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                            />
+                                        </div>
+                                    ) : null}
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
 
-					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							type="button"
-							variant="secondary"
-							onClick={isEventImage ? clearAll : () => setFiles([])}
-							disabled={isUploading}
-						>
-							Clear
-						</Button>
-						{mode === "upload" ? (
-							<Button type="button" onClick={upload} disabled={props.disabled || !user || isUploading}>
-								{isUploading ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Uploading…
-									</>
-								) : (
-									"Upload"
-								)}
-							</Button>
-						) : null}
-					</div>
-				</>
-			)}
+                    <div className="flex items-center justify-end gap-2 pt-2">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={isEventImage ? clearAll : () => setFiles([])}
+                            disabled={isUploading}
+                        >
+                            Clear
+                        </Button>
+                        {mode === "upload" ? (
+                            <Button type="button" onClick={upload} disabled={props.disabled || !user || isUploading}>
+                                {isUploading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Uploading…
+                                    </>
+                                ) : (
+                                    "Upload"
+                                )}
+                            </Button>
+                        ) : null}
+                    </div>
+                </>
+            )}
         </div>
     );
 }

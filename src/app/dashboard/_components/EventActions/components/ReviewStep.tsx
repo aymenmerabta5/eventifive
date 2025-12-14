@@ -1,9 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Clock, Users, User } from "lucide-react";
 import { REQUIRED_REVIEWERS } from "../constants";
-import { checkEventReadiness, getStatusBadgeVariant } from "../utils";
+import { checkEventReadiness } from "../utils";
 import type { InvitesData } from "../types";
 
 interface ReviewStepProps {
@@ -111,106 +110,6 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
               )}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Speaker Details */}
-      <div className="rounded-lg border p-4">
-        <div className="text-sm font-medium">Speaker</div>
-        <div className="mt-3 space-y-2">
-          {invitesData?.speaker ? (
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3">
-              <div className="text-sm">
-                <span className="font-medium">
-                  {invitesData.speaker.userName || invitesData.speaker.userEmail}
-                </span>
-                {invitesData.speaker.userName && (
-                  <span className="text-muted-foreground ml-1">
-                    ({invitesData.speaker.userEmail})
-                  </span>
-                )}
-                {invitesData.speaker.affiliation && (
-                  <span className="text-muted-foreground ml-2">
-                    - {invitesData.speaker.affiliation}
-                  </span>
-                )}
-              </div>
-              <Badge variant={getStatusBadgeVariant(invitesData.speaker.status)}>
-                {invitesData.speaker.status}
-              </Badge>
-            </div>
-          ) : (
-            <div className="text-muted-foreground text-sm">
-              No speaker invited yet.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Reviewers Details */}
-      <div className="rounded-lg border p-4">
-        <div className="text-sm font-medium">
-          Reviewers ({invitesData?.reviewers.length ?? 0}/{REQUIRED_REVIEWERS})
-        </div>
-        <div className="mt-3 space-y-2">
-          {invitesData?.reviewers.length === 0 ? (
-            <div className="text-muted-foreground text-sm">
-              No reviewers invited yet.
-            </div>
-          ) : (
-            invitesData?.reviewers.map((reviewer) => (
-              <div
-                key={reviewer.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
-              >
-                <div className="text-sm">
-                  <span className="font-medium">
-                    {reviewer.userName || reviewer.userEmail}
-                  </span>
-                  {reviewer.userName && (
-                    <span className="text-muted-foreground ml-1">
-                      ({reviewer.userEmail})
-                    </span>
-                  )}
-                </div>
-                <Badge variant={getStatusBadgeVariant(reviewer.status)}>
-                  {reviewer.status}
-                </Badge>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Committee Details */}
-      <div className="rounded-lg border p-4">
-        <div className="text-sm font-medium">
-          Committee Members ({invitesData?.committee.length ?? 0})
-        </div>
-        <div className="mt-3 space-y-2">
-          {invitesData?.committee.length === 0 ? (
-            <div className="text-muted-foreground text-sm">
-              No committee members added yet.
-            </div>
-          ) : (
-            invitesData?.committee.map((member) => (
-              <div
-                key={member.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
-              >
-                <div className="text-sm">
-                  <span className="font-medium">
-                    {member.userName || member.userEmail}
-                  </span>
-                  {member.userName && (
-                    <span className="text-muted-foreground ml-1">
-                      ({member.userEmail})
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
         </div>
       </div>
     </div>

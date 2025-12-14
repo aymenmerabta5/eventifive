@@ -19,10 +19,8 @@ interface InvitesStepProps {
   isLoading: boolean;
   inviteSpeakerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; email: string; affiliation?: string }>;
   inviteReviewerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; email: string }>;
-  inviteCommitteeMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; email: string }>;
   removeSpeakerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; inviteId: number }>;
   removeReviewerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; inviteId: number }>;
-  removeCommitteeMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; inviteId: number }>;
 }
 
 export function InvitesStep({
@@ -32,15 +30,12 @@ export function InvitesStep({
   isLoading,
   inviteSpeakerMutation,
   inviteReviewerMutation,
-  inviteCommitteeMutation,
   removeSpeakerMutation,
   removeReviewerMutation,
-  removeCommitteeMutation,
 }: InvitesStepProps) {
   const [speakerEmail, setSpeakerEmail] = useState("");
   const [speakerAffiliation, setSpeakerAffiliation] = useState("");
   const [reviewerEmail, setReviewerEmail] = useState("");
-  const [committeeEmail, setCommitteeEmail] = useState("");
 
   const handleInviteSpeaker = () => {
     if (!speakerEmail.trim()) {
@@ -66,18 +61,6 @@ export function InvitesStep({
       email: reviewerEmail.trim(),
     });
     setReviewerEmail("");
-  };
-
-  const handleInviteCommittee = () => {
-    if (!committeeEmail.trim()) {
-      toast.error("Committee member email is required");
-      return;
-    }
-    inviteCommitteeMutation.mutate({
-      eventId,
-      email: committeeEmail.trim(),
-    });
-    setCommitteeEmail("");
   };
 
   const hasSpeaker = !!invitesData?.speaker;
@@ -271,68 +254,6 @@ export function InvitesStep({
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* Committee Section */}
-      <div className="rounded-lg border p-4">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Users className="size-4" />
-          Committee Members ({invitesData?.committee.length ?? 0})
-        </div>
-        <div className="text-muted-foreground mt-1 text-xs">
-          Add committee members to help organize your event.
-        </div>
-
-        <div className="mt-4 space-y-3">
-          {invitesData?.committee.map((member) => (
-            <div key={member.id} className="rounded-md border p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <div className="text-sm font-medium">
-                    {member.userName || member.userEmail}
-                  </div>
-                  {member.userName && (
-                    <div className="text-muted-foreground text-xs">
-                      {member.userEmail}
-                    </div>
-                  )}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    removeCommitteeMutation.mutate({
-                      eventId,
-                      inviteId: member.id,
-                    })
-                  }
-                  disabled={removeCommitteeMutation.isPending}
-                >
-                  <Trash2 className="size-4 text-destructive" />
-                </Button>
-              </div>
-            </div>
-          ))}
-
-          <div className="space-y-2 pt-2">
-            <Label>Add Committee Member</Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="member@email.com"
-                type="email"
-                value={committeeEmail}
-                onChange={(e) => setCommitteeEmail(e.target.value)}
-                disabled={inviteCommitteeMutation.isPending}
-              />
-              <Button
-                onClick={handleInviteCommittee}
-                disabled={inviteCommitteeMutation.isPending}
-              >
-                Add
-              </Button>
-            </div>
           </div>
         </div>
       </div>

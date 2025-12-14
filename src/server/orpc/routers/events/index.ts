@@ -1,6 +1,5 @@
 import { createEventRouter } from "./create";
 import { createDraftEventRouter } from "./createDraft";
-import { updateEventRouter } from "./update";
 import { deleteEventRouter } from "./delete";
 import { listEventsRouter } from "./list";
 import { listEventsByTypeRouter } from "./listByType";
@@ -25,7 +24,6 @@ import { registerForEventRouter } from "./register";
 export const eventsRouter = {
 	create: createEventRouter,
 	createDraft: createDraftEventRouter,
-	update: updateEventRouter,
 	delete: deleteEventRouter,
 	list: listEventsRouter,
 	listByType: listEventsByTypeRouter,
@@ -46,11 +44,9 @@ export const eventsRouter = {
 	register: registerForEventRouter,
 };
 
-// Re-export individual routers for backwards compatibility
 export {
 	createEventRouter,
 	createDraftEventRouter,
-	updateEventRouter,
 	deleteEventRouter,
 	listEventsRouter,
 	listEventsByTypeRouter,
