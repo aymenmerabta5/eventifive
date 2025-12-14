@@ -6,7 +6,14 @@ import { s3Client } from "@/server/bucket/s3Client";
 import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
-import { files, user, submission, submissionFile } from "@/server/db/schema";
+import {
+  eventReviewers,
+  files,
+  reviewAssignment,
+  submission,
+  submissionFile,
+  user,
+} from "@/server/db/schema";
 import { validateFile, sanitizeFileName } from "@/server/utils/fileValidation";
 import { and, eq, sql } from "drizzle-orm";
 
@@ -267,10 +274,40 @@ export async function POST(req: NextRequest) {
             });
           }
 
+          if (!submissionId) {
+            throw new Error("Failed to create or locate submission for this upload.");
+          }
+          const ensuredSubmissionId = submissionId;
+
+          // Assign this submission to all accepted reviewers for the event.
+          const reviewers = await tx
+            .select({ reviewerId: eventReviewers.userId })
+            .from(eventReviewers)
+            .where(
+              and(
+                eq(eventReviewers.eventId, normalizedEventId),
+                eq(eventReviewers.status, "accepted"),
+              ),
+            );
+
+          if (reviewers.length > 0) {
+            await tx
+              .insert(reviewAssignment)
+              .values(
+                reviewers.map((reviewer) => ({
+                  submissionId: ensuredSubmissionId,
+                  reviewerId: reviewer.reviewerId,
+                })),
+              )
+              .onConflictDoNothing({
+                target: [reviewAssignment.submissionId, reviewAssignment.reviewerId],
+              });
+          }
+
           // Link file to submission
           await tx.insert(submissionFile).values({
             id: uuidv4(),
-            submissionId,
+            submissionId: ensuredSubmissionId,
             fileId,
             purpose: "registration_document",
             uploadedAt: new Date(),

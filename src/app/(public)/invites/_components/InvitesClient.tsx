@@ -5,6 +5,9 @@ import { orpc } from "@/utils/orpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import Link from "next/link";
+import type { Route } from "next";
+import { cn } from "@/lib/utils";
 
 export function InvitesClient() {
 	const invitesQuery = useQuery(orpc.events.listMyInvites.queryOptions());
@@ -160,7 +163,7 @@ export function InvitesClient() {
 								</div>
 								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex flex-wrap items-center gap-2">
 								<Button
 									variant="outline"
 									disabled={
@@ -187,6 +190,24 @@ export function InvitesClient() {
 								>
 									Reject
 								</Button>
+								{inv.status === "accepted" && inv.eventType ? (
+									<Button
+										asChild
+										variant="ghost"
+										className={cn(
+											"text-primary hover:text-primary",
+											"underline-offset-4 hover:underline"
+										)}
+									>
+										<Link
+											href={
+												`/events/${inv.eventType.replaceAll("_", "-")}/${inv.eventId}/committee-reviews` as Route
+											}
+										>
+											View committee registrations
+										</Link>
+									</Button>
+								) : null}
 							</div>
 						</div>
 					))}

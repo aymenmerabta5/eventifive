@@ -5,6 +5,8 @@ import {
 	eventCommittee,
 	eventReviewers,
 	eventSpeakers,
+	reviewAssignment,
+	submission,
 	user,
 } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
@@ -95,6 +97,8 @@ const reviewerInviteSchema = z.object({
 	status: z.enum(["pending", "accepted", "rejected"]),
 	invitedAt: z.date(),
 	respondedAt: z.date().nullable(),
+	eventTitle: z.string().optional(),
+	eventType: z.string().optional(),
 });
 
 const committeeSchema = z.object({
@@ -392,24 +396,46 @@ export const acceptReviewerRouter = protectedProcedure
 	.handler(async ({ context, input }) => {
 		const userId = context.session.user.id;
 
-		const [found] = await db
-			.select({ id: eventReviewers.id, status: eventReviewers.status })
-			.from(eventReviewers)
-			.where(and(eq(eventReviewers.eventId, input.eventId), eq(eventReviewers.userId, userId)))
-			.limit(1);
+		await db.transaction(async (tx) => {
+			const [found] = await tx
+				.select({ id: eventReviewers.id, status: eventReviewers.status })
+				.from(eventReviewers)
+				.where(and(eq(eventReviewers.eventId, input.eventId), eq(eventReviewers.userId, userId)))
+				.limit(1);
 
-		if (!found) {
-			throw new ORPCError("NOT_FOUND", { message: "No reviewer invite found for you in this event" });
-		}
+			if (!found) {
+				throw new ORPCError("NOT_FOUND", { message: "No reviewer invite found for you in this event" });
+			}
 
-		if (found.status !== "pending") {
-			throw new ORPCError("BAD_REQUEST", { message: `Reviewer invite already ${found.status}` });
-		}
+			if (found.status !== "pending") {
+				throw new ORPCError("BAD_REQUEST", { message: `Reviewer invite already ${found.status}` });
+			}
 
-		await db
-			.update(eventReviewers)
-			.set({ status: "accepted", respondedAt: new Date() })
-			.where(eq(eventReviewers.id, found.id));
+			await tx
+				.update(eventReviewers)
+				.set({ status: "accepted", respondedAt: new Date() })
+				.where(eq(eventReviewers.id, found.id));
+
+			// Assign the reviewer to all current submissions for this event so they can review existing registrations.
+			const submissions = await tx
+				.select({ id: submission.id })
+				.from(submission)
+				.where(eq(submission.eventId, input.eventId));
+
+			if (submissions.length > 0) {
+				await tx
+					.insert(reviewAssignment)
+					.values(
+						submissions.map((s) => ({
+							submissionId: s.id,
+							reviewerId: userId,
+						})),
+					)
+					.onConflictDoNothing({
+						target: [reviewAssignment.submissionId, reviewAssignment.reviewerId],
+					});
+			}
+		});
 
 		return { ok: true as const };
 	});
@@ -519,7 +545,7 @@ export const removeCommitteeRouter = protectedProcedure
 // List my invites (speaker and reviewer invites for current user)
 const listMyInvitesOutput = z.object({
 	speakerInvites: z.array(speakerInviteSchema.extend({ eventTitle: z.string() })),
-	reviewerInvites: z.array(reviewerInviteSchema.extend({ eventTitle: z.string() })),
+	reviewerInvites: z.array(reviewerInviteSchema.extend({ eventTitle: z.string(), eventType: z.string() })),
 	committeeAssignments: z.array(committeeSchema.extend({ eventTitle: z.string() })),
 });
 
@@ -573,6 +599,7 @@ export const listMyInvitesRouter = protectedProcedure
 				invitedAt: eventReviewers.invitedAt,
 				respondedAt: eventReviewers.respondedAt,
 				eventTitle: event.title,
+				eventType: event.type,
 			})
 			.from(eventReviewers)
 			.innerJoin(user, eq(user.id, eventReviewers.userId))
@@ -589,6 +616,7 @@ export const listMyInvitesRouter = protectedProcedure
 			invitedAt: r.invitedAt,
 			respondedAt: r.respondedAt ?? null,
 			eventTitle: r.eventTitle,
+			eventType: r.eventType,
 		}));
 
 		// Get committee assignments

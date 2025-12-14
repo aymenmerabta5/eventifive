@@ -458,21 +458,6 @@ export default function JoinForm({ eventId, eventType }: JoinFormProps) {
                   By submitting, you agree to our terms and conditions.
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  {submissionId && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      asChild
-                      className="w-full sm:w-auto"
-                    >
-                      <Link
-                        href={`/events/${eventType}/${eventId}/review?submissionId=${submissionId}`as Route}
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        View Submission
-                      </Link>
-                    </Button>
-                  )}
                   <Button
                     type="submit"
                     className="w-full sm:w-auto sm:min-w-[200px]"
