@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { IconSettings, IconLogout, IconUser } from "@tabler/icons-react";
+import { IconSettings, IconLogout, IconUser, IconMail } from "@tabler/icons-react";
 import { useProfileImage } from "@/hooks/use-profile-image";
 
 export default function UserMenu() {
@@ -61,6 +61,12 @@ export default function UserMenu() {
 					<Link href={`/users/${session.user.id}` as Route} className="flex items-center cursor-pointer">
 						<IconUser className="mr-2 h-4 w-4" />
 						<span>View Profile</span>
+					</Link>
+				</DropdownMenuItem>
+				<DropdownMenuItem asChild>
+					<Link href="/invites" className="flex items-center cursor-pointer">
+						<IconMail className="mr-2 h-4 w-4" />
+						<span>Invites</span>
 					</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem asChild>
