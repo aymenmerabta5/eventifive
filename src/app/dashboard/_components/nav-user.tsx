@@ -31,6 +31,8 @@ import {
 import type { User as BetterAuthUser } from "better-auth";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useProfileImage } from "@/hooks/use-profile-image"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function NavUser({
   user,
@@ -39,6 +41,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const router = useRouter();
+  const { imageUrl, isLoading } = useProfileImage();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -48,8 +51,9 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                {user?.image !== "" ? <AvatarImage src={user?.image || ""} alt={user?.name || ""} /> : <AvatarFallback className="rounded-lg">
+              <Avatar className="h-8 w-8 rounded-lg">
+                {isLoading && <Skeleton className="h-8 w-8 rounded-lg" />}
+                {!isLoading && imageUrl ? <AvatarImage src={imageUrl} alt={user?.name || ""} /> : <AvatarFallback className="rounded-lg">
                   {user?.name
                     ? user.name.charAt(0).toUpperCase()
                     : "U"}
@@ -78,7 +82,7 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {user?.image !== "" ? <AvatarImage src={user?.image || ""} alt={user?.name || ""} /> : <AvatarFallback className="rounded-lg">
+                  {imageUrl ? <AvatarImage src={imageUrl} alt={user?.name || ""} /> : <AvatarFallback className="rounded-lg">
                     {user?.name
                       ? user.name.charAt(0).toUpperCase()
                       : "U"}
