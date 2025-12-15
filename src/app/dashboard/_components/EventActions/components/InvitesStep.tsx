@@ -69,35 +69,6 @@ export function InvitesStep({
 
   return (
     <div className="space-y-6">
-      {/* Event Info */}
-      <div className="rounded-lg border p-4">
-        <div className="text-sm font-medium">Draft event created</div>
-        <div className="text-muted-foreground mt-1 text-xs">
-          Event ID: <span className="font-mono">{eventId}</span>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (!eventType) {
-                toast.error("Event type is missing.");
-                return;
-              }
-              const url = new URL(
-                `/events/${eventType}/${eventId}`,
-                window.location.origin
-              ).toString();
-              void navigator.clipboard.writeText(url);
-              toast.success("Event page link copied.");
-            }}
-          >
-            <Link2 className="mr-2 size-4" />
-            Copy event page link
-          </Button>
-        </div>
-      </div>
-
       {/* Loading State */}
       {isLoading && (
         <div className="text-muted-foreground text-sm">Loading invites...</div>

@@ -13,7 +13,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { useSearchParams } from "next/navigation"
-
+import ShareEvent from "./_components/EventActions/components/ShareEvent"
 import data from "./data.json"
 import { Suspense } from "react"
 import Loader from "@/components/loader"
@@ -21,12 +21,13 @@ import Loader from "@/components/loader"
 function Dashboard() {
   const searchParams = useSearchParams()
   const view = searchParams.get("view")
+  const eventId = searchParams.get("eventId")
+  const showShareEvent = view === "share-event"
   const showAddEvent = view === "add-event"
   const showUpdateEvent = view === "update-event"
   const showMyEvents = view === "my-events"
   const showEventApprovals = view === "event-approvals"
-  const approvalsEventId = searchParams.get("eventId")
-  const updateEventId = searchParams.get("eventId")
+  
 
   return (
     <SidebarProvider
@@ -49,7 +50,7 @@ function Dashboard() {
                 </div>
               ) : showUpdateEvent ? (
                 <div className="px-4 lg:px-6">
-                  <EventFormCard mode="update" eventId={updateEventId ?? undefined} />
+                  <EventFormCard mode="update" eventId={eventId ?? undefined} />
                 </div>
               ) : showMyEvents ? (
                 <div className="px-4 lg:px-6">
@@ -57,13 +58,17 @@ function Dashboard() {
                 </div>
               ) : showEventApprovals ? (
                 <div className="px-4 lg:px-6">
-                  {approvalsEventId ? (
-                    <EventApprovalsCard eventId={approvalsEventId} />
+                  {eventId ? (
+                    <EventApprovalsCard eventId={eventId} />
                   ) : (
                     <div className="text-sm text-destructive">
                       Missing eventId in URL.
                     </div>
                   )}
+                </div>
+              ) : showShareEvent ? (
+                <div className="px-4 lg:px-6">
+                  <ShareEvent eventId={eventId ?? ""}  />
                 </div>
               ) : (
                 <>

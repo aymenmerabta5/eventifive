@@ -9,17 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2, Users } from "lucide-react";
+import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2, Users, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useState } from "react";
 
-// TEACHING: Import types directly from the schema instead of inferring from API response
-// This gives us reliable, explicit types rather than depending on complex generic inference
-// The Event type is the source of truth - it's what Drizzle generates from your schema
 import type { Event, EventType } from "@/server/db/schema";
 
-// TEACHING: Using the schema's Event type directly with imageUrl added for API responses
 type AdminEvent = Event & { imageUrl: string | null };
 
 
@@ -32,8 +28,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 	dateStyle: "medium",
 });
 
-// TEACHING: Use EventType from schema for the Record key type
-// This ensures the record has exactly the keys that exist in your enum
+
 const eventTypeLabels: Record<EventType, string> = {
 	congress: "Congress",
 	seminar: "Seminar",
@@ -71,6 +66,14 @@ const getEventStatus = (event: AdminEvent) => {
 
 export function MyEvents() {
 	const router = useRouter();
+
+	const handleShare = (event: AdminEvent) => {
+		const params = new URLSearchParams({
+			view: "share-event",
+			eventId: event.id,
+		});
+		router.push(`/dashboard?${params.toString()}`);
+	};
 	const queryClient = useQueryClient();
 
 	const [eventToDelete, setEventToDelete] = useState<AdminEvent | null>(null);
@@ -309,7 +312,13 @@ export function MyEvents() {
 														</DropdownMenuItem>
 														<DropdownMenuItem onClick={() => handleApprovals(event)}>
 															<Users className="mr-2 h-4 w-4" />
-															Event Registrations
+															Pending approvals
+														</DropdownMenuItem>
+														<DropdownMenuItem
+															onClick={() => handleShare(event)}
+														>
+															<Share2 className="mr-2 h-4 w-4" />
+															Share
 														</DropdownMenuItem>
 														<DropdownMenuItem
 															onClick={() => setEventToDelete(event)}
@@ -318,6 +327,7 @@ export function MyEvents() {
 															<Trash2 className="mr-2 h-4 w-4" />
 															Delete
 														</DropdownMenuItem>
+
 													</DropdownMenuContent>
 												</DropdownMenu>
 											</TableCell>
