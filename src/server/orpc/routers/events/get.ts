@@ -69,8 +69,6 @@ export const getEventRouter = publicProcedure
 				.innerJoin(files, eq(eventImages.fileId, files.id))
 				.where(eq(eventImages.eventId, found.id));
 
-			console.log(`[get.ts] Event ${found.id} - Found ${images.length} images:`, images);
-
 			const imageUrlResults = await Promise.all(
 				images.map(async (image) => {
 					try {
