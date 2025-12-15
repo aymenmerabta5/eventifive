@@ -309,7 +309,7 @@ export function MyEvents() {
 														</DropdownMenuItem>
 														<DropdownMenuItem onClick={() => handleApprovals(event)}>
 															<Users className="mr-2 h-4 w-4" />
-															Pending approvals
+															Event Registrations
 														</DropdownMenuItem>
 														<DropdownMenuItem
 															onClick={() => setEventToDelete(event)}

@@ -41,9 +41,9 @@ export default function ParticipationOptions() {
 						<p className="text-muted-foreground mb-6 text-sm leading-relaxed">
 							We invite skilled facilitators and trainers who can conduct hands-on workshops, interactive sessions, and practical learning experiences that provide participants with actionable skills and knowledge.
 						</p>
-						<button className="w-full rounded-lg border-2 border-border bg-background px-6 py-3 text-sm font-semibold uppercase tracking-wider text-foreground shadow-sm transition-all hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md">
+						<Link href={`/events/${eventType}/${eventId}/workshop` as Route} className="w-full rounded-lg border-2 border-border bg-background px-6 py-3 text-sm font-semibold uppercase tracking-wider text-foreground shadow-sm transition-all hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md">
 							Apply for Workshop
-						</button>
+						</Link>
 					</div>
 				</motion.div>
 

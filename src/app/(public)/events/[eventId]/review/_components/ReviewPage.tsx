@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
@@ -19,15 +19,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
 	FileText,
 	Download,
-	CheckCircle2,
+	CheckCircle2,	
 	XCircle,
 	Loader2,
 	AlertCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";	
 
 interface ReviewPageProps {
 	eventId: string;
@@ -35,14 +36,34 @@ interface ReviewPageProps {
 }
 
 type ReviewRecommendation = "accept" | "reject";
+type ReviewerReview = Awaited<ReturnType<typeof orpc.reviews.getMine.call>>;
 
 export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 	const { data: session, isPending: isSessionPending } = authClient.useSession();
 	const user = session?.user;
 
-	const [recommendation, setRecommendation] = useState<ReviewRecommendation | undefined>(undefined);
+	const [rating, setRating] = useState<number | null>(null);
+	const [submittedReview, setSubmittedReview] = useState<ReviewerReview>(null);
 	const [comments, setComments] = useState("");
 	const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
+	const recommendationThreshold = 2.5;
+	const derivedRecommendation: ReviewRecommendation | undefined =
+		rating === null
+			? undefined
+			: rating > recommendationThreshold
+				? "accept"
+				: "reject";
+	const {
+		data: myReview,
+		isLoading: isReviewLoading,
+		error: reviewError,
+	} = useQuery({
+		...orpc.reviews.getMine.queryOptions({
+			input: { submissionId },
+		}),
+		enabled: !!user,
+		retry: false,
+	});
 	const {
 		data: submission,
 		isLoading,
@@ -61,6 +82,25 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 			: submissionError.message?.includes("NOT_FOUND") || submissionError.message?.includes("not found")
 			? "The submission you're looking for doesn't exist. Please check the submission ID."
 			: "Failed to load submission details. Please try again."
+		: null;
+	const reviewErrorMessage = reviewError
+		? reviewError instanceof Error
+			? reviewError.message
+			: "Failed to load your review status. Please try again."
+		: null;
+
+	useEffect(() => {
+		if (myReview && !submittedReview) {
+			setRating(myReview.score ?? null);
+			setComments(myReview.comment ?? "");
+		}
+	}, [myReview, submittedReview]);
+
+	const existingReview = submittedReview ?? myReview ?? null;
+	const isReadOnly = !!existingReview;
+	const recommendationToShow = existingReview?.recommendation ?? derivedRecommendation;
+	const submittedAtText = existingReview?.updatedAt
+		? new Date(existingReview.updatedAt).toLocaleString()
 		: null;
 
 	const downloadFileMutation = useMutation({
@@ -93,10 +133,11 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 	};
 	const submitReviewMutation = useMutation(
 		orpc.reviews.create.mutationOptions({
-			onSuccess: () => {
+			onSuccess: (createdReview) => {
 				toast.success("Review submitted successfully");
-				setComments("");
-				setRecommendation(undefined);
+				setSubmittedReview(createdReview);
+				setComments(createdReview.comment ?? "");
+				setRating(createdReview.score ?? null);
 			},
 			onError: (error) => {
 				console.error("Error submitting review:", error);
@@ -110,8 +151,20 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 	);
 
 	const handleSubmitReview = () => {
+		if (existingReview) {
+			toast.error("You already submitted a review for this submission and cannot edit it.");
+			return;
+		}
+
+		if (rating === null) {
+			toast.error("Please provide a rating between 1 and 5 for this submission");
+			return;
+		}
+
+		const recommendation = derivedRecommendation;
+
 		if (!recommendation) {
-			toast.error("Please provide a recommendation for this submission");
+			toast.error("Unable to determine recommendation from the rating");
 			return;
 		}
 
@@ -122,12 +175,13 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 
 		submitReviewMutation.mutate({
 			submissionId,
+			score: rating,
 			recommendation,
 			comment: comments.trim() || undefined,
 		});
 	};
 
-	if (isSessionPending || isLoading) {
+	if (isSessionPending || isLoading || isReviewLoading) {
 		return (
 			<div className="flex min-h-[60vh] items-center justify-center px-4">
 				<Card className="w-full max-w-4xl">
@@ -183,26 +237,7 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 	if (!submission) {
 		return null;
 	}
-
-	const recommendationOptions: {
-		value: ReviewRecommendation;
-		label: string;
-		variant: "default" | "secondary" | "destructive" | "outline";
-		icon: typeof CheckCircle2;
-	}[] = [
-		{
-			value: "accept",
-			label: "Accept",
-			variant: "default",
-			icon: CheckCircle2,
-		},
-		{
-			value: "reject",
-			label: "Reject",
-			variant: "destructive",
-			icon: XCircle,
-		},
-	];
+	const displayRating = rating ?? existingReview?.score ?? 3;
 
 	return (
 		<div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
@@ -313,40 +348,90 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
-						{/* Recommendation Section */}
+						{isReadOnly && (
+							<div className="rounded-lg border border-border bg-muted/40 p-3">
+								<p className="text-sm font-medium">Review submitted</p>
+								<p className="text-xs text-muted-foreground">
+									You can view this review but cannot edit it.
+									{submittedAtText ? ` Submitted on ${submittedAtText}.` : ""}
+								</p>
+							</div>
+						)}
+						{reviewErrorMessage && !isReadOnly && (
+							<div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+								<p className="text-sm font-medium text-destructive">
+									Could not load your existing review
+								</p>
+								<p className="text-xs text-destructive/80">{reviewErrorMessage}</p>
+							</div>
+						)}
+
+						{/* Rating Section */}
 						<div className="space-y-3">
 							<Label className="text-sm font-medium">
-								Recommendation *
+								Committee Registration Rating *
 							</Label>
-							<div className="grid gap-2 sm:grid-cols-2">
-								{recommendationOptions.map((option) => {
-									const Icon = option.icon;
-									const isSelected = recommendation === option.value;
-									return (
-										<Button
-											key={option.value}
-											type="button"
-											variant={isSelected ? option.variant : "outline"}
-											size="sm"
-											className={cn(
-												"h-auto flex-col gap-1.5 p-3 text-xs",
-												isSelected && "ring-2 ring-ring",
-											)}
-											onClick={() => setRecommendation(option.value)}
-										>
-											<Icon className="h-4 w-4" />
-											<span>{option.label}</span>
-										</Button>
-									);
-								})}
+							<p className="text-sm text-muted-foreground">
+								{isReadOnly
+									? "This rating was submitted and is read-only."
+									: "Use the slider from 1 (lowest) to 5 (highest). Ratings above 2.5 automatically map to an Accept recommendation; 2.5 or below map to Reject."}
+							</p>
+							<div className="space-y-2 rounded-lg border border-border/60 bg-muted/30 px-4 py-3">
+								<Slider
+									min={1}
+									max={5}
+									step={1}
+									value={[displayRating]}
+									onValueChange={(values: number[]) => setRating(values[0] ?? null)}
+									disabled={isReadOnly}
+									className="w-full"
+								/>
+								<div className="flex items-center justify-between text-xs text-muted-foreground">
+									<span>1 (Reject)</span>
+									<span>3 (Neutral)</span>
+									<span>5 (Accept)</span>
+								</div>
 							</div>
-							{recommendation && (
-								<div className="rounded-lg bg-muted/50 p-3">
-									<p className="text-sm text-muted-foreground">
-										You have selected to <strong>{recommendation === "accept" ? "accept" : "reject"}</strong> this submission.
+							<p className="text-xs text-muted-foreground">
+								Selected rating: {displayRating} / 5
+							</p>
+						</div>
+
+						<div className="rounded-lg bg-muted/50 p-3">
+							<div className="flex items-center justify-between gap-3">
+								<div className="space-y-1">
+									<p className="text-sm font-medium">
+										{isReadOnly ? "Submitted recommendation" : "Auto recommendation"}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										{isReadOnly
+											? "This review has been submitted and is locked from editing."
+											: "Ratings above 2.5 map to Accept; 2.5 or below map to Reject."}
 									</p>
 								</div>
-							)}
+								{recommendationToShow ? (
+									<div className="flex items-center gap-2">
+										{recommendationToShow === "accept" ? (
+											<CheckCircle2 className="h-4 w-4 text-primary" />
+										) : (
+											<XCircle className="h-4 w-4 text-destructive" />
+										)}
+										<Badge
+											variant={
+												recommendationToShow === "accept"
+													? "default"
+													: "destructive"
+											}
+										>
+											{recommendationToShow === "accept" ? "Accept" : "Reject"}
+										</Badge>
+									</div>
+								) : (
+									<Badge variant="secondary">
+										{isReadOnly ? "No recommendation found" : "Set a rating"}
+									</Badge>
+								)}
+							</div>
 						</div>
 
 						<Separator />
@@ -363,6 +448,7 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 								onChange={(e) => setComments(e.target.value)}
 								rows={6}
 								className="resize-none"
+								disabled={isReadOnly}
 							/>
 							<p className="text-xs text-muted-foreground">
 								This section is for general feedback about the submission.
@@ -371,14 +457,15 @@ export default function ReviewPage({ eventId, submissionId }: ReviewPageProps) {
 					</CardContent>
 					<CardFooter className="flex-col gap-4 sm:flex-row sm:justify-between">
 						<p className="text-xs text-muted-foreground">
-							Please review all files above before submitting. Your review will be
-							saved and can be updated later.
+							{isReadOnly
+								? "This review has been submitted and is view-only."
+								: "Please review all files above before submitting. Your review will be saved."}
 						</p>
 						<Button
 							type="button"
 							onClick={handleSubmitReview}
 							disabled={
-								submitReviewMutation.isPending || !recommendation
+								submitReviewMutation.isPending || isReadOnly || !derivedRecommendation
 							}
 							className="w-full sm:w-auto sm:min-w-[200px]"
 						>
