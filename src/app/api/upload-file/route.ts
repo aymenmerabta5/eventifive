@@ -21,6 +21,7 @@ const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES_PER_EVENT_PER_USER = 3;
 const MAX_NAME_LENGTH = 255;
 const MAX_RESEARCH_DOMAIN_LENGTH = 100;
+const MAX_ABOUT_IDEA_LENGTH = 2000;
 const ALLOWED_REGISTRATION_DOCUMENT_TYPES = new Set([
   "application/pdf",
   "application/msword",
@@ -100,6 +101,7 @@ export async function POST(req: NextRequest) {
     const eventId = formData.get("eventId");
     const name = formData.get("name");
     const researchDomain = formData.get("researchDomain");
+    const aboutIdea = formData.get("aboutIdea");
 
     if (!file) {
       return NextResponse.json(
@@ -131,6 +133,12 @@ export async function POST(req: NextRequest) {
           ? researchDomain.trim()
           : null
         : null;
+    const normalizedAboutIdea =
+      typeof aboutIdea === "string"
+        ? aboutIdea.trim().length > 0
+          ? aboutIdea.trim()
+          : null
+        : null;
 
     if (
       typeof researchDomain === "string" &&
@@ -138,6 +146,16 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { message: "Research domain is too long." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      typeof aboutIdea === "string" &&
+      aboutIdea.trim().length > MAX_ABOUT_IDEA_LENGTH
+    ) {
+      return NextResponse.json(
+        { message: "About idea is too long." },
         { status: 400 }
       );
     }
@@ -254,18 +272,31 @@ export async function POST(req: NextRequest) {
           } else {
             // Create new submission
             submissionId = uuidv4();
+            const isWorkshopApplication = Boolean(normalizedAboutIdea);
             const submissionTitle = normalizedName
-              ? `Submission by ${normalizedName}`
-              : `Submission for Event`;
+              ? isWorkshopApplication
+                ? `Workshop application by ${normalizedName}`
+                : `Submission by ${normalizedName}`
+              : isWorkshopApplication
+                ? "Workshop application"
+                : `Submission for Event`;
+            const submissionAbstract =
+              normalizedAboutIdea ??
+              (normalizedResearchDomain
+                ? `Research Domain: ${normalizedResearchDomain}`
+                : null);
+            const submissionKeywords = isWorkshopApplication
+              ? normalizedResearchDomain
+                ? `${normalizedResearchDomain};workshop`
+                : "workshop"
+              : normalizedResearchDomain || null;
 
             await tx.insert(submission).values({
               id: submissionId,
               eventId: normalizedEventId,
               title: submissionTitle,
-              abstract: normalizedResearchDomain
-                ? `Research Domain: ${normalizedResearchDomain}`
-                : null,
-              keywords: normalizedResearchDomain || null,
+              abstract: submissionAbstract,
+              keywords: submissionKeywords,
               type: "oral", // Default type
               status: "draft",
               submitterId: session.user.id,
