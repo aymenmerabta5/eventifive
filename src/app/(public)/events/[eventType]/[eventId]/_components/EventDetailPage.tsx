@@ -35,7 +35,6 @@ export default async function EventDetailPage({
 
 	// Fetch event using oRPC
 	const event = await client.events.get({ id: eventId }).catch(() => null);
-	console.log(event);
 	if (!event || event.type !== mappedType) {
 		notFound();
 	}
