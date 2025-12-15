@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+  type FormEvent,
+} from "react";
 import { authClient } from "@/lib/auth-client";
 import {
   Card,
@@ -36,6 +42,7 @@ interface JoinFormProps {
     name: string;
     email: string;
     researchDomain: string;
+    aboutIdea: string;
     files: File[];
   }) => Promise<void>;
   isSubmitting?: boolean;
@@ -47,9 +54,9 @@ export default function JoinForm({
   eventId,
   eventType,
   onSubmit,
-  isSubmitting = false,
-  uploadedCount = 0,
-  isLoadingQuota = false,
+  isSubmitting: isSubmittingProp = false,
+  uploadedCount: uploadedCountProp = 0,
+  isLoadingQuota: isLoadingQuotaProp = false,
 }: JoinFormProps) {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -59,7 +66,11 @@ export default function JoinForm({
   const [researchDomain, setResearchDomain] = useState("");
   const [aboutIdea, setAboutIdea] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [uploadedCount, setUploadedCount] = useState(uploadedCountProp);
+  const [isLoadingQuota, setIsLoadingQuota] = useState(isLoadingQuotaProp);
+  const [isSubmitting, setIsSubmitting] = useState(isSubmittingProp);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   const maxFiles = 3;
   const remainingSlots = Math.max(0, maxFiles - uploadedCount - files.length);
@@ -73,6 +84,49 @@ export default function JoinForm({
     setResearchDomain((user as { researchDomain?: string | null }).researchDomain ?? "");
     setAboutIdea("");
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    setIsLoadingQuota(true);
+
+    fetch(`/api/upload-file?eventId=${encodeURIComponent(eventId)}`)
+      .then(async (response) => {
+        const json = (await response.json()) as {
+          uploadedCount?: number;
+          maxFiles?: number;
+          message?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(json.message || "Failed to load upload quota");
+        }
+
+        return json;
+      })
+      .then((json) => {
+        if (cancelled) return;
+        setUploadedCount(Number(json.uploadedCount ?? 0));
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("Error fetching upload quota:", error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Unable to load your remaining upload slots.",
+        );
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsLoadingQuota(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, user]);
 
   const addFiles = (incoming: File[]) => {
     if (incoming.length === 0) return;
@@ -101,7 +155,7 @@ export default function JoinForm({
     event.target.value = "";
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
     if (!addMoreFiles) {
@@ -113,7 +167,7 @@ export default function JoinForm({
     addFiles(dropped);
   };
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(true);
   };
@@ -140,6 +194,11 @@ export default function JoinForm({
       return;
     }
 
+    if (uploadedCount + files.length > maxFiles) {
+      toast.error("You can upload a maximum of 3 files for this event.");
+      return;
+    }
+
     if (!user) {
       toast.error("You must be logged in to submit a registration.");
       return;
@@ -150,11 +209,63 @@ export default function JoinForm({
         name,
         email,
         researchDomain,
+        aboutIdea,
         files,
       });
       setFiles([]);
-    } else {
-      toast.success("Form data ready to submit");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const trimmedAboutIdea = aboutIdea.trim();
+
+      for (const [index, file] of files.entries()) {
+        const formData = new FormData();
+        formData.set("file", file);
+        formData.set("eventId", eventId);
+        if (index === 0) {
+          formData.set("name", name);
+          formData.set("researchDomain", researchDomain);
+          if (trimmedAboutIdea.length > 0) {
+            formData.set("aboutIdea", trimmedAboutIdea);
+          }
+        }
+
+        const uploadResponse = await fetch("/api/upload-file", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadJson = (await uploadResponse.json()) as {
+          message?: string;
+          fileId?: string;
+          documentKey?: string;
+          submissionId?: string;
+        };
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadJson.message || "Failed to upload file.");
+        }
+
+        if (index === 0 && uploadJson.submissionId) {
+          setSubmissionId(uploadJson.submissionId);
+        }
+      }
+
+      toast.success("Your workshop application has been uploaded successfully.");
+      setFiles([]);
+      setUploadedCount((prev) => Math.min(maxFiles, prev + files.length));
+    } catch (error) {
+      console.error("Error during workshop registration upload:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred while uploading your file.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

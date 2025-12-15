@@ -38,6 +38,10 @@ const submissionSchema = z.object({
 	submittedAt: z.date().nullable(),
 	fileCount: z.number(),
 	reviewers: z.array(reviewerStatusSchema),
+	status: z.enum(["draft", "accepted", "rejected"]),
+	abstract: z.string().nullable(),
+	keywords: z.string().nullable(),
+	type: z.string(),
 });
 
 type Recommendation = (typeof reviewRecommendationValues)[number] | null;
@@ -93,6 +97,10 @@ export const listForOrganizerRouter = protectedProcedure
 					submitterName: user.name,
 					submitterEmail: user.email,
 					fileCount: sql<number>`count(${submissionFile.id})`,
+					status: submission.status,
+					abstract: submission.abstract,
+					keywords: submission.keywords,
+					type: submission.type,
 				})
 				.from(submission)
 				.leftJoin(submissionFile, eq(submissionFile.submissionId, submission.id))
@@ -194,6 +202,10 @@ export const listForOrganizerRouter = protectedProcedure
 					submittedAt: sub.submittedAt ?? null,
 					fileCount: Number(sub.fileCount ?? 0),
 					reviewers: reviewerStatuses,
+					status: sub.status,
+					abstract: sub.abstract ?? null,
+					keywords: sub.keywords ?? null,
+					type: sub.type,
 				};
 			});
 
