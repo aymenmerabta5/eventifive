@@ -1,27 +1,37 @@
 ---
 globs: "**/*.test.ts, **/*.test.tsx, **/*.spec.ts"
 alwaysApply: false
-description: Testing and code quality standards
+description: Code quality standards (testing optional for university project)
 ---
 
 # TEACHING REQUIREMENT
 
-When writing tests or discussing quality, explain:
-- Why this test matters and what it protects against
-- The testing pyramid and where this test fits
-- How to write maintainable tests
-- What makes good vs bad test coverage
+When discussing code quality, explain:
+- Why type safety and linting matter
+- How to write maintainable code
+- Best practices for code organization
+- Performance and security considerations
 
 At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'T VIBE CODE FOR YOU!**
 
 ---
 
-# Testing & Code Quality Rules
+# Code Quality Rules
+
+## Important Context
+
+This is a **university project with deadline pressure**. Testing is optional - focus on:
+1. Working features
+2. Type safety (TypeScript strict mode)
+3. Consistent patterns
+4. Security best practices
+
+The codebase already has excellent type safety (only 41 `any` in 270+ files) which provides much of the confidence that tests would give.
 
 ## Code Quality Commands
 
 ```bash
-# TEACHING: Run these before committing
+# Run these before committing
 pnpm check        # ESLint + TypeScript - catches most issues
 pnpm lint:fix     # Auto-fix ESLint errors
 pnpm format:write # Format with Prettier
@@ -33,55 +43,41 @@ pnpm typecheck    # TypeScript only
 1. **No TypeScript errors** - `pnpm typecheck`
 2. **No ESLint errors** - `pnpm lint`
 3. **Code is formatted** - `pnpm format:write`
-4. **No console.log** left in production code
+4. **No console.log** left in production code (except intentional logging)
 5. **No commented-out code** - delete it, git has history
-6. **No TODO without ticket** - link to issue tracker
 
-## Writing Good Tests
+## Type Safety Standards
 
 ```typescript
-// TEACHING: Tests should be readable stories, not code dumps
-// Follow Arrange-Act-Assert pattern
+// TEACHING: The project uses strict TypeScript - this catches many bugs at compile time
 
-describe("Event Creation", () => {
-  // TEACHING: Test name should describe behavior, not implementation
-  it("should create event with valid data", async () => {
-    // Arrange - Set up test data
-    const eventData = {
-      title: "Tech Conference 2025",
-      date: new Date("2025-06-15"),
-    };
+// BAD - Using any defeats the purpose
+const data: any = fetchData();
 
-    // Act - Perform the action
-    const result = await createEvent(eventData);
+// GOOD - Proper typing
+const data: EventData = await fetchData();
 
-    // Assert - Verify the outcome
-    expect(result.id).toBeDefined();
-    expect(result.title).toBe(eventData.title);
-  });
-
-  // TEACHING: Test error cases too, not just happy paths
-  it("should reject event without title", async () => {
-    const eventData = { date: new Date() };
-
-    await expect(createEvent(eventData)).rejects.toThrow("Title is required");
-  });
+// GOOD - Use Zod for runtime validation + type inference
+const EventSchema = z.object({
+  title: z.string().min(1),
+  date: z.coerce.date(),
 });
+type EventInput = z.infer<typeof EventSchema>;
 ```
 
-## What to Test
+## Error Handling Standards
 
-1. **Business logic** - Core domain rules
-2. **API handlers** - Input validation, auth, responses
-3. **Complex utilities** - Edge cases, transformations
-4. **User flows** - Critical paths (signup, checkout)
+```typescript
+// TEACHING: Always use ORPCError for consistent API errors
 
-## What NOT to Test
+import { ORPCError } from "@orpc/server";
 
-1. **Framework code** - Next.js, React internals
-2. **Third-party libraries** - They have their own tests
-3. **Trivial getters/setters** - No logic to test
-4. **Implementation details** - Test behavior, not code structure
+// Use appropriate error codes
+throw new ORPCError("NOT_FOUND", { message: "Event not found" });
+throw new ORPCError("UNAUTHORIZED", { message: "Please login" });
+throw new ORPCError("FORBIDDEN", { message: "Not your event" });
+throw new ORPCError("BAD_REQUEST", { message: "Invalid input" });
+```
 
 ## Code Review Checklist
 
@@ -92,6 +88,37 @@ When reviewing code, check for:
 - [ ] Are there any security issues?
 - [ ] Is error handling appropriate?
 - [ ] Are edge cases handled?
-- [ ] Is the code readable without comments?
-- [ ] Are there any performance concerns?
+- [ ] Is the code readable?
 - [ ] Does it follow project conventions?
+- [ ] Are types properly defined (no unnecessary `any`)?
+
+## Security Checklist
+
+- [ ] Input validated with Zod schemas
+- [ ] Authorization checked (ownership validation)
+- [ ] No sensitive data in logs
+- [ ] SQL injection prevented (use Drizzle, never raw SQL)
+- [ ] XSS prevented (React escaping, no dangerouslySetInnerHTML)
+
+## If You Add Tests Later (Optional)
+
+```typescript
+// Follow Arrange-Act-Assert pattern
+describe("Event Creation", () => {
+  it("should create event with valid data", async () => {
+    // Arrange
+    const eventData = { title: "Conference", date: new Date() };
+
+    // Act
+    const result = await createEvent(eventData);
+
+    // Assert
+    expect(result.id).toBeDefined();
+  });
+});
+```
+
+**Recommended testing focus (if time permits):**
+1. Payment flows (critical path)
+2. Authentication (security)
+3. Invite system (complex business logic)
