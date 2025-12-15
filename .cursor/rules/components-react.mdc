@@ -88,8 +88,22 @@ import { cn } from "@/lib/utils";
 // - Input, Textarea, Label, Checkbox, Select
 // - Dialog, Sheet, Drawer
 // - Table, Tabs, Separator
-// - DropdownMenu, Tooltip
+// - DropdownMenu, Tooltip, Popover
 // - Skeleton (for loading states)
+// - Calendar (date picker with react-day-picker)
+// - Collapsible (expandable sections)
+// - Kbd, KbdGroup (keyboard shortcut display)
+// - Breadcrumb (navigation breadcrumbs)
+// - Toggle, ToggleGroup (toggle switches)
+// - StatefulButton (animated button with loading/success)
+// - Sidebar (navigation sidebar)
+// - Sonner (toast notifications - use `toast` from sonner)
+//
+// Custom components (not in ui/):
+// - Editor from @/components/rich-text-editor/Editor - TipTap rich text
+// - Uploader from @/components/uploader - File upload
+// - UserMenu from @/components/user-menu - User dropdown
+// - StepProgress from @/components/step-progress - Multi-step progress
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -183,3 +197,45 @@ export function CreateEventDialog({ open, onOpenChange }) {
 2. **Add aria-labels** to icon-only buttons
 3. **Ensure keyboard navigation** works
 4. **Test with screen readers** for important flows
+
+## Rich Text Editor
+
+```typescript
+// TEACHING: Use TipTap-based editor for rich text content
+// Content is stored as JSONContent (JSONB in database)
+// Max payload: 100KB for bigDescription fields
+
+import Editor from "@/components/rich-text-editor/Editor";
+import type { JSONContent } from "@tiptap/react";
+
+// Editable mode - for forms
+<Editor
+  content={initialContent}       // Initial content to load
+  value={controlledValue}        // Controlled value
+  onChange={(json) => setContent(json)}
+/>
+
+// Read-only mode - for displaying saved content
+<Editor
+  content={savedContent}
+  value={savedContent}
+  readOnly
+/>
+```
+
+## Multi-Step Forms
+
+```typescript
+// TEACHING: Use the EventActions pattern for complex multi-step forms
+// Located in src/app/dashboard/_components/EventActions/
+
+// Key hooks for form management:
+import { useEventForm } from "./hooks/useEventForm";     // Tanstack Form integration
+import { useEventDraft } from "./hooks/useEventDraft";   // Create draft events
+import { useEventUpdate } from "./hooks/useEventUpdate"; // Update existing events
+
+// Use StepProgress for visual step indicator
+import { StepProgress } from "@/components/step-progress";
+
+<StepProgress currentStep={step} totalSteps={4} />
+```

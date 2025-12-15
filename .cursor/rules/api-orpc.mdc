@@ -65,3 +65,48 @@ export const appRouter = router({
 ## WebSocket RPC
 
 WebSocket handlers are in `src/server/realtime/ws.ts` on port 8081.
+
+## Key API Routers
+
+### Events Router (`src/server/orpc/routers/events/`)
+```typescript
+// Event CRUD operations
+events.create          // Create new event (draft)
+events.get             // Get event by ID
+events.list            // List events with filters
+events.update          // Update event details
+
+// Invite system endpoints
+events.inviteSpeaker   // Invite speaker (max 1 per event)
+events.inviteReviewer  // Invite reviewer (max 3 per event)
+events.inviteCommittee // Invite committee member (unlimited)
+events.acceptSpeaker   // Accept speaker invite
+events.rejectSpeaker   // Reject speaker invite
+events.acceptReviewer  // Accept reviewer invite
+events.rejectReviewer  // Reject reviewer invite
+events.listMyInvites   // List user's received invites
+events.listInvites     // List event's sent invites (organizer only)
+```
+
+### Files Router (`src/server/orpc/routers/files/`)
+```typescript
+files.requestUpload    // Get presigned URL for upload
+files.confirmUpload    // Confirm upload completion
+files.delete           // Delete a file
+```
+
+### Payment Router (`src/server/orpc/routers/payment/`)
+```typescript
+payment.createCheckout      // Create subscription payment
+payment.createEventCheckout // Create event registration payment
+payment.getStatus           // Check payment status
+payment.list                // List payment history
+```
+
+### Subscription Router (`src/server/orpc/routers/subscription/`)
+```typescript
+subscription.listPlans  // List all subscription plans
+subscription.getCurrent // Get user's current subscription
+subscription.createPlan // Create new plan (admin)
+subscription.syncPlans  // Sync plans with Chargily
+```

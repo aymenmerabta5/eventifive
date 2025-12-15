@@ -37,6 +37,8 @@ This project is built with:
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible components
 - **[Framer Motion](https://www.framer.com/motion/)** - Animation library
 - **[Lucide Icons](https://lucide.dev/)** - Icon library
+- **[TipTap](https://tiptap.dev/)** - Rich text editor
+- **[Tanstack Form](https://tanstack.com/form)** - Form state management
 
 **File Storage & Services:**
 - **[Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/)** - S3-compatible object storage
@@ -172,14 +174,15 @@ eventifive/
 ├── src/
 │   ├── app/                    # Next.js App Router pages
 │   │   ├── (auth)/            # Authentication pages (login, signup, etc.)
-│   │   ├── (public)/          # Public pages (landing, events, pricing)
+│   │   ├── (public)/          # Public pages (landing, events, pricing, invites)
 │   │   ├── api/               # API routes
 │   │   │   ├── auth/          # Better Auth endpoints
 │   │   │   ├── rpc/           # oRPC API endpoints
 │   │   │   └── arcjet/        # Security middleware
 │   │   └── dashboard/         # Protected dashboard pages
 │   ├── components/            # React components
-│   │   └── ui/               # shadcn/ui components
+│   │   ├── ui/               # shadcn/ui components
+│   │   └── rich-text-editor/ # TipTap rich text editor
 │   ├── lib/                   # Utility libraries and helpers
 │   ├── server/                # Server-side code
 │   │   ├── better-auth/      # Authentication configuration
@@ -191,6 +194,7 @@ eventifive/
 │   │   └── utils/            # Server utilities
 │   ├── env.ts                 # Environment variable validation
 │   └── styles/               # Global styles
+├── .cursor/rules/             # Cursor AI rules
 ├── .env.example               # Environment variables template
 ├── CLAUDE.md                  # Claude Code development guide
 ├── LICENSE                    # Proprietary license
@@ -230,18 +234,20 @@ The project uses Drizzle ORM with PostgreSQL:
 **Key entities:**
 - Users, Roles, and Authentication (Better Auth tables)
 - Events (congress, seminar, workshop, conference, symposium)
-- Submissions (oral, poster, workshop, demo) with review workflow
+- Submissions (oral, poster, displayed paper) with review workflow
 - Reviews and Review Assignments
-- Program Sessions, Rooms, and Workshops
+- Program Sessions, Rooms, and Session Assignments
 - Event Registration and Payments
 - Subscription Plans and User Subscriptions
-- File Storage metadata
+- File Storage metadata and Event Images
 - Messaging (conversations and messages)
+- Invites (speakers, reviewers, committee members)
 
 **Database Enums:**
 - `paymentStatusEnum`: unpaid, pending, paid, refunded
 - `billingPeriodEnum`: monthly, yearly
 - `subscriptionStatusEnum`: pending, active, cancelled, expired
+- `eventSpeakerStatusEnum`: pending, accepted, rejected
 
 ## 🔌 API Layer (oRPC)
 
@@ -322,23 +328,38 @@ UI components are built with:
 
 **Event Management:**
 - Multiple event types (congress, seminar, workshop, conference, symposium)
-- Event creation and organization
-- Speaker and committee management
+- Event creation and organization with multi-step wizard
+- Speaker, reviewer, and committee invitation system
 - Event registration with payment processing
-- Event image uploads with presigned URLs
+- Event image uploads (1 cover + 3 gallery images)
+- Rich text descriptions with TipTap editor
 - Configurable event pricing (free or paid)
 
+**Calendar/Schedule Management:**
+- Interactive calendar view for event sessions
+- Week and day view modes
+- Session creation with room assignments
+- Real-time current time indicator
+- Speaker assignments to sessions
+
 **Submission System:**
-- Abstract and paper submissions (oral, poster, workshop, demo)
+- Abstract and paper submissions (oral, poster, displayed paper)
 - Multi-author support
 - File upload with metadata tracking
-- Submission status workflow (draft → submitted → under review → accepted/rejected)
+- Submission status workflow (draft → accepted/rejected)
 
 **Review Process:**
-- Reviewer assignments
-- Review recommendations (accept, minor/major revision, reject)
+- Reviewer invitation and assignment system
+- Review recommendations (accept, reject)
 - Comments and scoring system
 - Due date tracking
+
+**Invite System:**
+- Invite speakers to events (max 1 per event)
+- Invite reviewers (max 3 per event)
+- Invite committee members (unlimited)
+- Accept/reject invites with status tracking
+- Dedicated invites management page
 
 **Program Management:**
 - Session scheduling
@@ -347,11 +368,12 @@ UI components are built with:
 - Session-to-submission assignments
 
 **User System:**
-- Role-based access control (super_admin, admin, user)
+- Role-based access control (super_admin, organizer, user)
 - User profiles with institution and research domain
-- Biography management with rich text
+- Biography management with rich text editor
 - Session management across multiple devices
 - Subscription status tracking
+- Invites inbox for managing received invitations
 
 **Messaging:**
 - Direct user-to-user conversations

@@ -66,7 +66,7 @@ Eventifive is a modern event management platform built with Next.js 16, supporti
 #### Database (Drizzle ORM)
 - **Schema**: `src/server/db/schema.ts` - single source of truth for all tables
 - **Connection**: `src/server/db/index.ts` - database client instance
-- **Key entities**: users, roles, events, submissions, reviews, payments, subscriptions, files, messages
+- **Key entities**: users, roles, events, submissions, reviews, payments, subscriptions, files, messages, invites, program sessions
 - **Table prefix**: `eventifive_*` (configured in drizzle.config.ts)
 
 #### Payment System (Chargily)
@@ -116,6 +116,44 @@ Eventifive is a modern event management platform built with Next.js 16, supporti
 - **WebSocket server**: `src/server/realtime/ws.ts` on port 8081
 - **Redis**: Used for pub/sub and caching via Upstash
 - **Redis client**: `src/server/realtime/redis.ts`
+
+#### Calendar/Schedule Management
+- **Calendar page**: `src/app/(public)/events/[eventType]/[eventId]/calender/` - Event schedule view
+- **Components**: CalendarView, CalendarControls, CalendarDayColumn, CalendarHoursColumn, SessionCard
+- **Features**: Week/day views, session creation, room assignments, real-time current time indicator
+- **Database tables**: `programSession`, `room`, `sessionAssignment`
+
+#### Invite System
+- **Invite router**: `src/server/orpc/routers/events/invites.ts` - Speaker, reviewer, and committee invitations
+- **Invites page**: `src/app/(public)/invites/` - View and manage received invites
+- **Features**: Invite speakers (max 1), reviewers (max 3), and committee members
+- **Database tables**: `eventSpeakers`, `eventReviewers`, `eventCommittee`
+- **Status tracking**: pending, accepted, rejected
+
+**Key invite endpoints:**
+- `events.inviteSpeaker` / `events.inviteReviewer` / `events.inviteCommittee` - Send invites
+- `events.acceptSpeaker` / `events.rejectSpeaker` - Respond to speaker invites
+- `events.acceptReviewer` / `events.rejectReviewer` - Respond to reviewer invites
+- `events.listMyInvites` - List user's received invites
+- `events.listInvites` - List event's sent invites (organizer only)
+
+#### Rich Text Editor
+- **Editor component**: `src/components/rich-text-editor/Editor.tsx` - TipTap-based rich text editor
+- **Menu bar**: `src/components/rich-text-editor/MenuBar.tsx` - Formatting toolbar
+- **Features**: Headings, lists, text alignment, read-only mode
+- **Storage format**: JSONContent (JSONB in database)
+- **Used for**: Event `bigDescription`, user biographies
+- **Validation**: Max 100KB JSON payload
+
+#### Event Form System
+- **Form components**: `src/app/dashboard/_components/EventActions/` - Multi-step event creation/update
+- **Hooks**: `useEventForm`, `useEventDraft`, `useEventUpdate`, `useEventPrefill`
+- **Steps**: Event details → Image uploads → Invites → Review
+- **Features**:
+  - Unified create/update flow
+  - Up to 4 images (1 cover + 3 gallery)
+  - Dynamic end date validation based on start date
+  - Rich text description support
 
 ### Environment Variables
 
@@ -172,8 +210,22 @@ When building UI, **always use the predefined shadcn/ui components** from `src/c
 - `Input`, `Textarea`, `Label`, `Checkbox`, `Select`
 - `Dialog`, `Sheet`, `Drawer`
 - `Table`, `Tabs`, `Separator`
-- `DropdownMenu`, `Tooltip`
+- `DropdownMenu`, `Tooltip`, `Popover`
 - `Skeleton` (for loading states)
+- `Calendar` (date picker with react-day-picker)
+- `Collapsible` (expandable sections)
+- `Kbd`, `KbdGroup` (keyboard shortcut display)
+- `Breadcrumb` (navigation breadcrumbs)
+- `Toggle`, `ToggleGroup` (toggle switches)
+- `StatefulButton` (animated button with loading/success states)
+- `Sidebar` (navigation sidebar)
+- `Sonner` (toast notifications - use `toast` from sonner)
+
+**Custom components:**
+- `Editor` from `@/components/rich-text-editor/Editor` - TipTap rich text editor
+- `Uploader` from `@/components/uploader` - File upload component
+- `UserMenu` from `@/components/user-menu` - User dropdown menu
+- `StepProgress` from `@/components/step-progress` - Multi-step progress indicator
 
 **Example - Building a card section:**
 ```typescript
@@ -309,6 +361,47 @@ const plans = await client.subscription.listPlans();
 const subscription = await client.subscription.getCurrent();
 ```
 
+### Rich Text Editor
+```typescript
+// Using the TipTap-based rich text editor
+import Editor from "@/components/rich-text-editor/Editor";
+import type { JSONContent } from "@tiptap/react";
+
+// Editable mode
+<Editor
+  content={initialContent}
+  value={value}
+  onChange={(json: JSONContent) => setValue(json)}
+/>
+
+// Read-only mode (for displaying saved content)
+<Editor
+  content={savedContent}
+  value={savedContent}
+  readOnly
+/>
+```
+
+### Invite System
+```typescript
+// Invite a speaker to an event (max 1 per event)
+await client.events.inviteSpeaker({ eventId, speakerId: userId });
+
+// Invite a reviewer (max 3 per event)
+await client.events.inviteReviewer({ eventId, reviewerId: userId });
+
+// Invite a committee member (unlimited)
+await client.events.inviteCommittee({ eventId, committeeId: userId });
+
+// Accept/reject invites (as the invited user)
+await client.events.acceptSpeaker({ eventId });
+await client.events.rejectReviewer({ eventId });
+
+// List user's received invites
+const invites = await client.events.listMyInvites();
+// Returns: { speakerInvites, reviewerInvites, committeeAssignments }
+```
+
 ## Database Schema
 
 ### Key Enums
@@ -321,6 +414,16 @@ const subscription = await client.subscription.getCurrent();
 - `subscriptionPrice` - Pricing for plans (monthly/yearly billing periods)
 - `userSubscription` - User's active subscription with period tracking
 - `payment` - Payment records for both event registrations and subscriptions
+- `eventImages` - Event image gallery (cover + up to 3 gallery images)
+- `eventSpeakers` - Speaker invitations with status tracking
+- `eventReviewers` - Reviewer invitations with status tracking
+- `eventCommittee` - Committee member assignments
+- `programSession` - Event schedule sessions
+- `room` - Session locations/rooms
+- `sessionAssignment` - Session-to-speaker assignments
+
+### New Enums
+- `eventSpeakerStatusEnum`: pending, accepted, rejected (used for speaker/reviewer invites)
 
 ### Currency Handling
 - Amounts stored in whole currency units (e.g., 5000 DZD, not cents)

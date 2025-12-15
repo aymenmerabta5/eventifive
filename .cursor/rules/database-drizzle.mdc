@@ -108,6 +108,59 @@ export const billingPeriodEnum = pgEnum("billing_period", ["monthly", "yearly"])
 export const subscriptionStatusEnum = pgEnum("subscription_status", [
   "pending", "active", "cancelled", "expired"
 ]);
+
+// Speaker/reviewer invite status
+export const eventSpeakerStatusEnum = pgEnum("event_speaker_status", [
+  "pending", "accepted", "rejected"
+]);
+```
+
+## Invite System Tables
+
+```typescript
+// TEACHING: Invites use separate tables for speakers, reviewers, and committee
+// Each has different constraints (speakers: max 1, reviewers: max 3, committee: unlimited)
+
+// Speaker invitations (max 1 per event)
+export const eventSpeakers = pgTable("event_speakers", {
+  eventId: text("event_id").references(() => event.id),
+  speakerId: text("speaker_id").references(() => user.id),
+  status: eventSpeakerStatusEnum("status").default("pending"),
+});
+
+// Reviewer invitations (max 3 per event)
+export const eventReviewers = pgTable("event_reviewers", {
+  eventId: text("event_id").references(() => event.id),
+  reviewerId: text("reviewer_id").references(() => user.id),
+  status: eventSpeakerStatusEnum("status").default("pending"),
+});
+
+// Committee members (unlimited)
+export const eventCommittee = pgTable("event_committee", {
+  eventId: text("event_id").references(() => event.id),
+  committeeId: text("committee_id").references(() => user.id),
+});
+```
+
+## Calendar/Schedule Tables
+
+```typescript
+// TEACHING: Program sessions for event scheduling
+export const programSession = pgTable("program_session", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").references(() => event.id),
+  title: varchar("title", { length: 255 }),
+  startTime: timestamp("start_time"),
+  endTime: timestamp("end_time"),
+  roomId: text("room_id").references(() => room.id),
+});
+
+export const room = pgTable("room", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").references(() => event.id),
+  name: varchar("name", { length: 100 }),
+  capacity: integer("capacity"),
+});
 ```
 
 ## Currency Handling
