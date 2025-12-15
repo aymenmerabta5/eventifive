@@ -13,15 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
 type ReviewStatus = "pending" | "accepted" | "rejected";
 
 const reviewStatusStyles: Record<ReviewStatus, string> = {
@@ -31,6 +22,31 @@ const reviewStatusStyles: Record<ReviewStatus, string> = {
 };
 
 const MAX_REVIEWERS = 3;
+
+type ReviewerLike =
+  | {
+      reviewStatus: ReviewStatus;
+    }
+  | null;
+
+const computeFinalDecision = (reviewers: ReviewerLike[]) => {
+  const acceptedCount = reviewers.filter(
+    (reviewer) => reviewer?.reviewStatus === "accepted",
+  ).length;
+  const rejectedCount = reviewers.filter(
+    (reviewer) => reviewer?.reviewStatus === "rejected",
+  ).length;
+  const pendingCount = reviewers.length - acceptedCount - rejectedCount;
+
+  const finalStatus: ReviewStatus =
+    acceptedCount >= 2
+      ? "accepted"
+      : pendingCount > 0
+        ? "pending"
+        : "rejected";
+
+  return { acceptedCount, rejectedCount, pendingCount, finalStatus };
+};
 
 export function EventApprovalsCard({ eventId }: { eventId: string }) {
   const router = useRouter();
@@ -88,125 +104,137 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
           ) : null}
 
           {submissions.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[220px]">
-                      Committee registration
-                    </TableHead>
-                    <TableHead>Files</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead className="text-center">Reviewer 1</TableHead>
-                    <TableHead className="text-center">Reviewer 2</TableHead>
-                    <TableHead className="text-center">Reviewer 3</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {submissions.map((submission) => {
-                    const sortedReviewers = [...submission.reviewers].sort(
-                      (a, b) => {
-                        const left = a.reviewerName ?? a.reviewerEmail ?? "";
-                        const right = b.reviewerName ?? b.reviewerEmail ?? "";
-                        return left.localeCompare(right);
-                      },
-                    );
+            <div className="space-y-4">
+              {submissions.map((submission) => {
+                const sortedReviewers = [...submission.reviewers].sort(
+                  (a, b) => {
+                    const left = a.reviewerName ?? a.reviewerEmail ?? "";
+                    const right = b.reviewerName ?? b.reviewerEmail ?? "";
+                    return left.localeCompare(right);
+                  },
+                );
 
-                    const reviewersWithPlaceholders = [
-                      ...sortedReviewers.slice(0, MAX_REVIEWERS),
-                      ...Array(
-                        Math.max(0, MAX_REVIEWERS - sortedReviewers.length),
-                      ).fill(null),
-                    ];
+                const reviewersWithPlaceholders = [
+                  ...sortedReviewers.slice(0, MAX_REVIEWERS),
+                  ...Array(Math.max(0, MAX_REVIEWERS - sortedReviewers.length)),
+                ].map((entry) => entry ?? null);
 
-                    return (
-                      <TableRow key={submission.id} className="align-top">
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-sm font-semibold">
-                              {submission.title}
+                const decision = computeFinalDecision(
+                  reviewersWithPlaceholders as ReviewerLike[],
+                );
+                const breakdown = [
+                  `${decision.acceptedCount} accept${decision.acceptedCount === 1 ? "" : "s"}`,
+                  `${decision.rejectedCount} reject${decision.rejectedCount === 1 ? "" : "s"}`,
+                  ...(decision.pendingCount > 0
+                    ? [
+                        `${decision.pendingCount} pending${decision.pendingCount === 1 ? "" : "s"}`,
+                      ]
+                    : []),
+                ];
+
+                return (
+                  <div
+                    key={submission.id}
+                    className="space-y-3 rounded-lg border p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="text-sm font-semibold">
+                          {submission.title}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {submission.submitterName ?? "Unknown submitter"}
+                          {submission.submitterEmail
+                            ? ` (${submission.submitterEmail})`
+                            : ""}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {submission.submittedAt
+                            ? `Submitted ${new Date(submission.submittedAt).toLocaleDateString()}`
+                            : "Not available"}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {submission.fileCount} file
+                          {submission.fileCount === 1 ? "" : "s"}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                      {reviewersWithPlaceholders.map((reviewer, index) => {
+                        const status = (reviewer?.reviewStatus ??
+                          "pending") as ReviewStatus;
+                        const timelinePieces = [
+                          reviewer?.inviteStatus
+                            ? `Invite: ${reviewer.inviteStatus}`
+                            : null,
+                          reviewer?.assignedAt
+                            ? `Assigned ${new Date(reviewer.assignedAt).toLocaleDateString()}`
+                            : null,
+                          reviewer?.reviewedAt
+                            ? `Reviewed ${new Date(reviewer.reviewedAt).toLocaleDateString()}`
+                            : null,
+                        ].filter(Boolean);
+
+                        return (
+                          <div
+                            key={`${submission.id}-reviewer-${index}`}
+                            className="space-y-2 rounded-md border p-3"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="text-sm font-medium">
+                                {reviewer
+                                  ? reviewer.reviewerName ||
+                                    reviewer.reviewerEmail
+                                  : `Reviewer ${index + 1}`}
+                              </div>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "capitalize",
+                                  reviewStatusStyles[status],
+                                )}
+                              >
+                                {status}
+                              </Badge>
                             </div>
-                            <div className="text-muted-foreground text-xs">
-                              {submission.submitterName ?? "Unknown submitter"}
-                              {submission.submitterEmail
-                                ? ` (${submission.submitterEmail})`
-                                : ""}
+                            {reviewer?.recommendation ? (
+                              <Badge
+                                variant="outline"
+                                className="capitalize text-[11px]"
+                              >
+                                {reviewer.recommendation}
+                              </Badge>
+                            ) : null}
+                            <div className="text-muted-foreground text-[11px]">
+                              {timelinePieces.length > 0
+                                ? timelinePieces.join(" • ")
+                                : "Not assigned yet"}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          <Badge variant="secondary" className="text-xs">
-                            {submission.fileCount} file
-                            {submission.fileCount === 1 ? "" : "s"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs">
-                          {submission.submittedAt
-                            ? new Date(
-                                submission.submittedAt,
-                              ).toLocaleDateString()
-                            : "Not available"}
-                        </TableCell>
-                        {reviewersWithPlaceholders.map((reviewer, index) => {
-                          const status = (reviewer?.reviewStatus ??
-                            "pending") as ReviewStatus;
-                          const timelinePieces = [
-                            reviewer?.inviteStatus
-                              ? `Invite: ${reviewer.inviteStatus}`
-                              : null,
-                            reviewer?.assignedAt
-                              ? `Assigned ${new Date(reviewer.assignedAt).toLocaleDateString()}`
-                              : null,
-                            reviewer?.reviewedAt
-                              ? `Reviewed ${new Date(reviewer.reviewedAt).toLocaleDateString()}`
-                              : null,
-                          ].filter(Boolean);
+                        );
+                      })}
+                    </div>
 
-                          return (
-                            <TableCell
-                              key={`${submission.id}-reviewer-${index}`}
-                              className="min-w-[160px]"
-                            >
-                              <div className="flex flex-col gap-1 text-center">
-                                <div className="text-sm font-medium">
-                                  {reviewer
-                                    ? reviewer.reviewerName ||
-                                      reviewer.reviewerEmail
-                                    : `Reviewer ${index + 1}`}
-                                </div>
-                                <div className="flex items-center justify-center gap-2">
-                                  <Badge
-                                    variant="outline"
-                                    className={cn(
-                                      "capitalize",
-                                      reviewStatusStyles[status],
-                                    )}
-                                  >
-                                    {status}
-                                  </Badge>
-                                  {reviewer?.recommendation ? (
-                                    <Badge
-                                      variant="outline"
-                                      className="capitalize"
-                                    >
-                                      {reviewer.recommendation}
-                                    </Badge>
-                                  ) : null}
-                                </div>
-                                <div className="text-muted-foreground text-[11px]">
-                                  {timelinePieces.length > 0
-                                    ? timelinePieces.join(" • ")
-                                    : "Not assigned yet"}
-                                </div>
-                              </div>
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "capitalize",
+                          reviewStatusStyles[decision.finalStatus],
+                        )}
+                      >
+                        {decision.finalStatus}
+                      </Badge>
+                      <div className="text-muted-foreground text-xs">
+                        {breakdown.join(" • ")}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : null}
         </div>
