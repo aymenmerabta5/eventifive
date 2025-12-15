@@ -12,30 +12,17 @@ import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { EventImageGallery } from "./EventImageGallery";
 
-function mapEventType(urlType: string) {
-	const mapping: Partial<Record<string, Event["type"]>> = {
-		congress: "congress",
-		seminar: "seminar",
-		workshop: "workshop",
-		"scientific-meeting": "scientific_meeting",
-		conference: "conference",
-		symposium: "symposium",
-	};
-	return mapping[urlType];
-}
 
 export default async function EventDetailPage({
 	params,
 }: {
 	params: Promise<{ eventType: string; eventId: string }>;
 }) {
-	const { eventType, eventId } = await params;
-	const mappedType = mapEventType(eventType);
-	if (!mappedType) notFound();
+	const { eventId } = await params;
 
 	// Fetch event using oRPC
 	const event = await client.events.get({ id: eventId }).catch(() => null);
-	if (!event || event.type !== mappedType) {
+	if (!event) {
 		notFound();
 	}
 

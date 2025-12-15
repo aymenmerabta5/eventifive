@@ -41,8 +41,8 @@ export default async function EventTypePage({
 }: {
   params: Promise<{ eventType: string }>;
 }) {
-  const { eventType: eventTypeParam } = await params;
-  const eventType = mapEventType(eventTypeParam);
+  const { eventType: urlEventType } = await params;
+  const eventType = mapEventType(urlEventType);
   if (!eventType) {
     // Signal 404 for unsupported slugs
     notFound();
@@ -51,7 +51,7 @@ export default async function EventTypePage({
   return (
     <EventTypePageClient
       eventType={eventType}
-      eventTypeParam={eventTypeParam}
+      eventTypeParam={eventType}
     />
   );
 }

@@ -69,7 +69,7 @@ export default function EventsPage() {
               events={events.congress}
               title="Congress"
               description="Join us for an exciting scientific meeting featuring cutting-edge research presentations and networking opportunities with leading experts in the field."
-              route="/events/congress"
+              route="/events/type/congress"
             />
           )}
           {events?.seminar && events.seminar.length > 0 && (
@@ -77,7 +77,7 @@ export default function EventsPage() {
               events={events.seminar}
               title="Seminar"
               description="Explore the latest technological innovations and trends. Connect with industry leaders and discover groundbreaking solutions shaping the future."
-              route="/events/seminar"
+              route="/events/type/seminar"
             />
           )}
           {events?.workshop && events.workshop.length > 0 && (
@@ -85,7 +85,7 @@ export default function EventsPage() {
               events={events.workshop}
               title="Workshop"
               description="Hands-on learning experience designed to enhance your skills. Interactive sessions with practical exercises and expert guidance."
-              route="/events/workshop"
+              route="/events/type/workshop"
             />
           )}
           {events?.scientific_meeting &&
@@ -94,7 +94,7 @@ export default function EventsPage() {
                 events={events.scientific_meeting}
                 title="Scientific Meeting"
                 description="Join us for an exciting scientific meeting featuring cutting-edge research presentations and networking opportunities with leading experts in the field."
-                route="/events/scientific-meeting"
+                route="/events/type/scientific-meeting"
               />
             )}
           {events?.conference && events.conference.length > 0 && (
@@ -102,7 +102,7 @@ export default function EventsPage() {
               events={events.conference}
               title="Conference"
               description="Explore the latest technological innovations and trends. Connect with industry leaders and discover groundbreaking solutions shaping the future."
-              route="/events/conference"
+              route="/events/type/conference"
             />
           )}
           {events?.symposium && events.symposium.length > 0 && (
@@ -110,7 +110,7 @@ export default function EventsPage() {
               events={events.symposium}
               title="Symposium"
               description="Join us for an exciting symposium featuring cutting-edge research presentations and networking opportunities with leading experts in the field."
-              route="/events/symposium"
+              route="/events/type/symposium"
             />
           )}
         </div>

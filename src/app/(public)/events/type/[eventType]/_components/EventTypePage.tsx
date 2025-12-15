@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { client } from "@/utils/orpc";
-import EventCard from "../../_components/EventCard";
+import EventCard from "../../../_components/EventCard";
 import { Input } from "@/components/ui/input";
 import {
   Select,
