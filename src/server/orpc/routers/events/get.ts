@@ -26,7 +26,7 @@ const eventSchema = z.object({
 	organizerName: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
-	imageUrl: z.string().nullable(),
+	imageUrls: z.array(z.string()),
 });
 
 export const getEventRouter = publicProcedure
@@ -35,8 +35,6 @@ export const getEventRouter = publicProcedure
 	.output(eventSchema)
 	.handler(async ({ input }) => {
 		try {
-			// TEACHING: join the organizer (user) table so the client can render organizer name
-			// without an extra request (avoids the N+1 / "fetch-on-render" pattern).
 			const [found] = await db
 				.select({
 					id: event.id,
@@ -64,28 +62,33 @@ export const getEventRouter = publicProcedure
 				throw new ORPCError("NOT_FOUND", { message: "Event not found" });
 			}
 
-			let imageUrl: string | null = null;
-
-			// Get default image from eventImages table
-			const [defaultImage] = await db
+				// Get images from eventImages table
+			const images = await db
 				.select({ s3Key: files.s3Key })
 				.from(eventImages)
 				.innerJoin(files, eq(eventImages.fileId, files.id))
-				.where(eq(eventImages.eventId, found.id))
-				.limit(1);
+				.where(eq(eventImages.eventId, found.id));
 
-			if (defaultImage?.s3Key) {
-				try {
-					const { downloadUrl } = await generatePresignedDownloadUrl(defaultImage.s3Key);
-					imageUrl = downloadUrl;
-				} catch (error) {
-					console.error(`Failed to generate image URL for event ${found.id}:`, error);
-				}
-			}
+			console.log(`[get.ts] Event ${found.id} - Found ${images.length} images:`, images);
+
+			const imageUrlResults = await Promise.all(
+				images.map(async (image) => {
+					try {
+						const { downloadUrl } = await generatePresignedDownloadUrl(image.s3Key);
+						return downloadUrl;
+					} catch (error) {
+						console.error(`Failed to generate image URL for event ${found.id}:`, error);
+						return null;
+					}
+				})
+			);
+
+			// Filter out failed URLs
+			const imageUrls = imageUrlResults.filter((url): url is string => url !== null);
 
 			return {
 				...found,
-				imageUrl,
+				imageUrls,
 			};
 		} catch (error) {
 			if (error instanceof ORPCError) {

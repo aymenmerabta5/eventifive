@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
-import Image from "next/image";
+import { EventImageGallery } from "./EventImageGallery";
 
 function mapEventType(urlType: string) {
 	const mapping: Partial<Record<string, Event["type"]>> = {
@@ -35,7 +35,7 @@ export default async function EventDetailPage({
 
 	// Fetch event using oRPC
 	const event = await client.events.get({ id: eventId }).catch(() => null);
-
+	console.log(event);
 	if (!event || event.type !== mappedType) {
 		notFound();
 	}
@@ -83,7 +83,7 @@ export default async function EventDetailPage({
 							Discover dates, location, and key information about this event.
 						</p>
 					</div>
-					<Button variant="outline" asChild className="group gap-2">
+					<Button asChild className="group gap-2 rounded-4xl bg-primary">
 						<Link href="/events" aria-label="Back to events list">
 							<span aria-hidden className="transition-transform group-hover:-translate-x-0.5">
 								←
@@ -93,51 +93,30 @@ export default async function EventDetailPage({
 					</Button>
 				</div>
 
-				<Card className="group overflow-hidden">
-					<CardHeader className="border-b bg-card/50 p-0">
-						<div className="from-primary/20 to-primary/5 relative h-56 w-full overflow-hidden bg-linear-to-br sm:h-72 md:h-80">
-							<Image
-								src={event.imageUrl || "/download.jpg"}
-								alt={event.title}
-								fill
-								priority
-								sizes="(min-width: 1024px) 1024px, 100vw"
-								className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
-								unoptimized={!!event.imageUrl}
-							/>
-							<div
-								className="pointer-events-none absolute inset-0 bg-linear-to-t from-background/85 via-background/25 to-transparent"
-								aria-hidden
-							/>
-							<div
-								className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-border/40"
-								aria-hidden
-							/>
+				{/* Event Image Gallery */}
+				<EventImageGallery imageUrls={event.imageUrls} eventTitle={event.title} />
 
-							<div className="absolute inset-x-0 bottom-0">
-								<div className="bg-background/35">
-									<div className="space-y-3 p-6">
-										<Badge variant="secondary" className="w-fit capitalize">
-											{event.type.replaceAll("_", " ")}
-										</Badge>
-										<CardTitle className="text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-											{event.title}
-										</CardTitle>
-										<div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
-											<div className="inline-flex items-center gap-2">
-												<IconMapPin className="size-4 text-primary" strokeWidth={2} />
-												<span>{event.location ?? "To be announced"}</span>
-											</div>
-											<div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
-											<div className="inline-flex items-center gap-2">
-												<IconCalendar className="size-4 text-primary" strokeWidth={2} />
-												<span>
-													{formatDate(event.startDate)} · {formatTime(event.startDate)} —{" "}
-													{formatDate(event.endDate)} · {formatTime(event.endDate)}
-												</span>
-											</div>
-										</div>
-									</div>
+				<Card className="group overflow-hidden">
+					<CardHeader className="border-b bg-card/50 p-6">
+						<div className="space-y-3">
+							<Badge variant="secondary" className="w-fit capitalize">
+								{event.type.replaceAll("_", " ")}
+							</Badge>
+							<CardTitle className="text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+								{event.title}
+							</CardTitle>
+							<div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+								<div className="inline-flex items-center gap-2">
+									<IconMapPin className="size-4 text-primary" strokeWidth={2} />
+									<span>{event.location ?? "To be announced"}</span>
+								</div>
+								<div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
+								<div className="inline-flex items-center gap-2">
+									<IconCalendar className="size-4 text-primary" strokeWidth={2} />
+									<span>
+										{formatDate(event.startDate)} · {formatTime(event.startDate)} —{" "}
+										{formatDate(event.endDate)} · {formatTime(event.endDate)}
+									</span>
 								</div>
 							</div>
 						</div>

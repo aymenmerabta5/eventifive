@@ -77,8 +77,6 @@ async function uploadEventImage(
 
 export async function POST(req: NextRequest) {
   try {
-    // TEACHING: Authentication check is the FIRST thing in any protected route
-    // We use Better Auth's getSession which reads the session cookie
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -134,42 +132,41 @@ export async function POST(req: NextRequest) {
       );
     }
 
-   
-    // - images[] where the first is treated as the cover image by default.
-    const images = formData.getAll("images") as File[];
 
+    // Get all images - first image is cover (isDefault=true), rest are gallery (isDefault=false)
+    const images = formData.getAll("images") as File[];
+    const allImageFiles = images.filter((f): f is File => f instanceof File && f.size > 0);
+
+    // Also support legacy fields for backward compatibility
     const legacyCover = formData.get("coverImage") as File | null;
     const legacyGallery = formData.getAll("galleryImages") as File[];
 
-    const selectedImageFiles = images.filter((f): f is File => f instanceof File && f.size > 0);
+    // If no images[] field, fall back to legacy fields
+    if (allImageFiles.length === 0) {
+      if (legacyCover && legacyCover instanceof File && legacyCover.size > 0) {
+        allImageFiles.push(legacyCover);
+      }
+      for (const file of legacyGallery) {
+        if (file instanceof File && file.size > 0) {
+          allImageFiles.push(file);
+        }
+      }
+    }
 
-    const coverImageFile =
-      selectedImageFiles.length > 0
-        ? selectedImageFiles[0]
-        : legacyCover && legacyCover instanceof File && legacyCover.size > 0
-          ? legacyCover
-          : null;
-
-    const galleryFiles =
-      selectedImageFiles.length > 1
-        ? selectedImageFiles.slice(1)
-        : legacyGallery;
     const stagedGalleryFileIds = formData
       .getAll("stagedGalleryFileId")
       .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
       .map((v) => v.trim());
 
-    const validGalleryFiles = galleryFiles.filter(
-      (f): f is File => f instanceof File && f.size > 0
-    );
+    const totalImagesCount = allImageFiles.length + stagedGalleryFileIds.length;
 
-    const totalImagesCount =
-      (coverImageFile ? 1 : 0) + validGalleryFiles.length + stagedGalleryFileIds.length;
+    console.log("[create-event] Total images to upload:", allImageFiles.length);
+    console.log("[create-event] Staged file IDs:", stagedGalleryFileIds.length);
 
     if (totalImagesCount > MAX_EVENT_IMAGES) {
       return NextResponse.json(
         {
-          message: `Maximum ${MAX_EVENT_IMAGES} image(s) allowed total (cover + gallery). The first selected image is used as the cover.`,
+          message: `Maximum ${MAX_EVENT_IMAGES} image(s) allowed total. The first image is used as the cover.`,
         },
         { status: 400 }
       );
@@ -195,35 +192,30 @@ export async function POST(req: NextRequest) {
     });
 
     const uploadResults = {
-      coverImage: null as { fileId: string; s3Key: string } | null,
-      galleryImages: [] as { fileId: string; s3Key: string }[],
+      uploadedImages: [] as { fileId: string; s3Key: string; isDefault: boolean }[],
       failedUploads: [] as string[],
     };
 
-  
-    if (coverImageFile && coverImageFile instanceof File && coverImageFile.size > 0) {
-      const result = await uploadEventImage(coverImageFile, eventId, userId, false);
-      if (result) {
-        uploadResults.coverImage = result;
+    // Upload ALL images - first one is cover (isDefault=true), rest are gallery (isDefault=false)
+    for (let i = 0; i < allImageFiles.length; i++) {
+      const file = allImageFiles[i]!;
+      const isDefault = i === 0; // First image is the cover
 
-        // Store cover image in eventImages table with isDefault=true
+      const result = await uploadEventImage(file, eventId, userId, !isDefault);
+      if (result) {
+        uploadResults.uploadedImages.push({ ...result, isDefault });
+
+        // Insert into eventImages table
         await db.insert(eventImages).values({
           id: uuidv4(),
           eventId: eventId,
           fileId: result.fileId,
-          isDefault: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          isDefault: isDefault,
+          createdAt: now,
+          updatedAt: now,
         });
-      } else {
-        uploadResults.failedUploads.push(coverImageFile.name);
-      }
-    }
 
-    for (const file of validGalleryFiles) {
-      const result = await uploadEventImage(file, eventId, userId, true);
-      if (result) {
-        uploadResults.galleryImages.push(result);
+        console.log(`[create-event] Uploaded image ${i + 1}/${allImageFiles.length}: ${file.name} (isDefault: ${isDefault})`);
       } else {
         uploadResults.failedUploads.push(file.name);
       }
@@ -284,8 +276,7 @@ export async function POST(req: NextRequest) {
       message,
       eventId,
       uploads: {
-        coverImage: uploadResults.coverImage,
-        galleryCount: uploadResults.galleryImages.length,
+        totalUploaded: uploadResults.uploadedImages.length,
         failedUploads: uploadResults.failedUploads,
       },
     });
