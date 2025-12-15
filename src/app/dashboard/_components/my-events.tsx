@@ -6,11 +6,14 @@ import { useRouter } from "next/navigation";
 import { client } from "@/utils/orpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertTriangle, CalendarDays, History, LayoutGrid, Loader2, MapPin, MoreHorizontal, Pencil, RefreshCcw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useState } from "react";
+
 // TEACHING: Import types directly from the schema instead of inferring from API response
 // This gives us reliable, explicit types rather than depending on complex generic inference
 // The Event type is the source of truth - it's what Drizzle generates from your schema
@@ -70,11 +73,13 @@ export function MyEvents() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
+	const [eventToDelete, setEventToDelete] = useState<AdminEvent | null>(null);
+
 	// TEACHING: Define the expected response type for better type safety
 	// When oRPC's type inference doesn't flow through properly, we can
 	// explicitly type the useQuery hook with generics <TData, TError>
 	type MyEventsResponse = { events: AdminEvent[]; total: number };
-	
+
 	const {
 		data,
 		isPending,
@@ -306,8 +311,8 @@ export function MyEvents() {
 															<Users className="mr-2 h-4 w-4" />
 															Pending approvals
 														</DropdownMenuItem>
-														<DropdownMenuItem 
-															onClick={() => handleDelete(event)}
+														<DropdownMenuItem
+															onClick={() => setEventToDelete(event)}
 															className="text-destructive focus:text-destructive"
 														>
 															<Trash2 className="mr-2 h-4 w-4" />
@@ -325,6 +330,37 @@ export function MyEvents() {
 					</CardContent>
 				</Card>
 			)}
+
+			<Dialog open={!!eventToDelete} onOpenChange={() => setEventToDelete(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete event</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete{" "}
+							<strong>{eventToDelete?.title}</strong>?
+							This action cannot be undone.
+						</DialogDescription>
+					</DialogHeader>
+
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setEventToDelete(null)}>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={() => {
+								if (!eventToDelete) return;
+								deleteEvent({ eventId: eventToDelete.id });
+								setEventToDelete(null);
+							}}
+						>
+							Delete
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
+
+
 }
