@@ -13,7 +13,7 @@ export const HOURS_24 = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i)
 export const HOUR_HEIGHT = 120;
 export const INITIAL_SCROLL_OFFSET = 1 * HOUR_HEIGHT; // Scroll to 9 AM (1 hour from start)
 
-export function getEventHeight(startTime: string, endTime: string): number {
+export function getSessionHeight(startTime: string, endTime: string): number {
   const [startHour, startMin] = startTime.split(":").map(Number);
   const [endHour, endMin] = endTime.split(":").map(Number);
 
@@ -28,7 +28,7 @@ export function getEventHeight(startTime: string, endTime: string): number {
   return Math.max(40, Math.round((duration / 60) * HOUR_HEIGHT));
 }
 
-export function getEventTop(startTime: string): number {
+export function getSessionTop(startTime: string): number {
   const [hour, minute] = startTime.split(":").map(Number);
   // Offset by START_HOUR since calendar begins at 8 AM
   const totalMinutes = ((hour ?? 0) - START_HOUR) * 60 + (minute ?? 0);
@@ -45,7 +45,7 @@ export function getCurrentTimePosition(date: Date = new Date()): number {
   return Math.max(0, Math.round(offset));
 }
 
-export function getEventDuration(startTime: string, endTime: string): number {
+export function getSessionDuration(startTime: string, endTime: string): number {
   const [startHour, startMin] = startTime.split(":").map(Number);
   const [endHour, endMin] = endTime.split(":").map(Number);
   const startTotal = (startHour ?? 0) * 60 + (startMin ?? 0);
@@ -53,7 +53,3 @@ export function getEventDuration(startTime: string, endTime: string): number {
   return endTotal - startTotal;
 }
 
-// Aliases for session-based naming
-export const getSessionHeight = getEventHeight;
-export const getSessionTop = getEventTop;
-export const getSessionDuration = getEventDuration;
