@@ -1,11 +1,7 @@
 "use client";
 
-import { HOURS_24, HOUR_HEIGHT } from "./CalenderUtils";
-
-interface CalendarHoursColumnProps {
-  onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
-  scrollRef: React.RefObject<HTMLDivElement | null>;
-}
+import { HOURS_24, HOUR_HEIGHT } from "./CalendarUtils";
+import type { CalendarHoursColumnProps } from "./types";
 
 export function CalendarHoursColumn({
   onScroll,
@@ -15,7 +11,7 @@ export function CalendarHoursColumn({
     <div
       ref={scrollRef}
       onScroll={onScroll}
-      className="w-[80px] md:w-[104px] border-r border-border shrink-0 overflow-y-auto relative"
+      className="w-[80px] md:w-[104px] border-r border-border shrink-0 overflow-y-auto relative scrollbar-hide"
     >
       {HOURS_24.map((hour) => (
         <div

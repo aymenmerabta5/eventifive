@@ -438,6 +438,7 @@ export const programSession = pgTable(
     chairId: text("chair_id").references(() => user.id, {
       onDelete: "set null",
     }),
+    meetingLink: varchar("meeting_link", { length: 500 }),
   },
   (table) => [
     index("program_session_event_id_idx").on(table.eventId),
@@ -752,6 +753,18 @@ export type NewEventReviewer = InferInsertModel<typeof eventReviewers>;
 // Event committee types
 export type EventCommittee = InferSelectModel<typeof eventCommittee>;
 export type NewEventCommittee = InferInsertModel<typeof eventCommittee>;
+
+// Room types
+export type Room = InferSelectModel<typeof room>;
+export type NewRoom = InferInsertModel<typeof room>;
+
+// Program session types
+export type ProgramSession = InferSelectModel<typeof programSession>;
+export type NewProgramSession = InferInsertModel<typeof programSession>;
+
+// Session assignment types
+export type SessionAssignment = InferSelectModel<typeof sessionAssignment>;
+export type NewSessionAssignment = InferInsertModel<typeof sessionAssignment>;
 
 // ---------------------------
 // ENUM VALUE ARRAYS (for use in zod schemas and UI)

@@ -7,6 +7,7 @@ import { subscriptionRouter } from "./subscription";
 import { messagesRouter } from "./websockets";
 import { submissionsRouter } from "./submissions";
 import { reviewsRouter } from "./reviews";
+import { sessionsRouter } from "./sessions";
 
 /**
  * Main application router
@@ -20,6 +21,7 @@ import { reviewsRouter } from "./reviews";
  * - messages: Real-time messaging (send, listConversations, listMessages, createConversation, subscribe)
  * - submissions: Submission operations (get)
  * - reviews: Review operations (create)
+ * - sessions: Program session and room management (createRoom, updateRoom, deleteRoom, listRooms, createSession, updateSession, deleteSession, listSessions, getSession)
  */
 export const appRouter = {
 	events: eventsRouter,
@@ -30,6 +32,7 @@ export const appRouter = {
 	messages: messagesRouter,
 	submissions: submissionsRouter,
 	reviews: reviewsRouter,
+	sessions: sessionsRouter,
 };
 
 export type AppRouter = typeof appRouter;

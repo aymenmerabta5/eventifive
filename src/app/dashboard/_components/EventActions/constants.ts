@@ -17,7 +17,8 @@ export const eventTypeOptions = eventTypeValues.map((value) => ({
 
 export const WIZARD_STEPS = [
   { key: "details", label: "Event details", description: "Info + images" },
-  { key: "invites", label: "Invite people", description: "Speaker + reviewers + committee" },
+  { key: "invites", label: "Invite people", description: "Speaker + reviewers" },
+  { key: "sessions", label: "Program", description: "Rooms + schedule" },
   { key: "review", label: "Review", description: "Status + readiness" },
 ] as const;
 

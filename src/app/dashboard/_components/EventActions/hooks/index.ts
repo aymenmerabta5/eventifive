@@ -4,3 +4,5 @@ export { useEventUpdate } from "./useEventUpdate";
 export { useEventInvites } from "./useEventInvites";
 export { useEventPrefill } from "./useEventPrefill";
 export { useEventImages, type EventImage } from "./useEventImages";
+export { useEventRooms } from "./useEventRooms";
+export { useEventSessions } from "./useEventSessions";

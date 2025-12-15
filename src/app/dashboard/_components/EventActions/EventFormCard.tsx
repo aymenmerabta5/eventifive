@@ -18,14 +18,18 @@ import {
   useEventInvites,
   useEventPrefill,
   useEventImages,
+  useEventRooms,
+  useEventSessions,
 } from "./hooks";
 import {
   EventDetailsForm,
   EventImagesSection,
   InvitesStep,
+  SessionsStep,
   ReviewStep,
   FormNavigation,
 } from "./components";
+import type { ChairOption } from "@/components/calendar";
 
 import { WIZARD_STEPS } from "./constants";
 import { getNowMinDateTime } from "./utils";
@@ -84,6 +88,31 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
     !!activeEventId && (mode === "update" || step !== "details")
   );
 
+  // Rooms (for sessions step)
+  const {
+    rooms,
+    isLoading: isLoadingRooms,
+    createRoom,
+    deleteRoom,
+    isCreating: isCreatingRoom,
+    isDeleting: isDeletingRoom,
+  } = useEventRooms(
+    activeEventId ?? null,
+    !!activeEventId && (mode === "update" || step === "sessions")
+  );
+
+  // Sessions (for sessions step)
+  const {
+    sessions,
+    isLoading: isLoadingSessions,
+    createSession,
+    updateSession,
+    deleteSession,
+  } = useEventSessions(
+    activeEventId ?? null,
+    !!activeEventId && (mode === "update" || step === "sessions")
+  );
+
   const nowMinDateTime = useMemo(() => getNowMinDateTime(), []);
 
   // Transform existing images to ExistingImage format
@@ -130,13 +159,16 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
         }
       }
     } else if (step === "invites") {
+      setStep("sessions");
+    } else if (step === "sessions") {
       setStep("review");
     }
   };
 
   const handleBack = () => {
     if (step === "invites") setStep("details");
-    if (step === "review") setStep("invites");
+    if (step === "sessions") setStep("invites");
+    if (step === "review") setStep("sessions");
   };
 
   const handleSubmit = async () => {
@@ -173,6 +205,42 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
         committee: invitesQuery.data.committee,
       }
     : undefined;
+
+  // Build chair options from accepted speakers and committee members
+  const chairOptions = useMemo((): ChairOption[] => {
+    const options: ChairOption[] = [];
+
+    // Add accepted speaker
+    if (invitesData?.speaker?.status === "accepted") {
+      options.push({
+        id: invitesData.speaker.userId,
+        name: invitesData.speaker.userName || invitesData.speaker.userEmail,
+        email: invitesData.speaker.userEmail,
+        image: null,
+      });
+    }
+
+    // Add committee members
+    invitesData?.committee.forEach((member) => {
+      options.push({
+        id: member.userId,
+        name: member.userName || member.userEmail,
+        email: member.userEmail,
+        image: null,
+      });
+    });
+
+    return options;
+  }, [invitesData]);
+
+  // Parse event dates for SessionsStep
+  const eventStartDate = useMemo(() => {
+    return form.state.values.startDate ? new Date(form.state.values.startDate) : new Date();
+  }, [form.state.values.startDate]);
+
+  const eventEndDate = useMemo(() => {
+    return form.state.values.endDate ? new Date(form.state.values.endDate) : new Date();
+  }, [form.state.values.endDate]);
 
   return (
     <Card className="shadow-lg">
@@ -270,6 +338,25 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
                 removeReviewerMutation={removeReviewerMutation}
               />
 
+              <h3 className="text-lg font-semibold">Program Schedule</h3>
+              <SessionsStep
+                eventId={activeEventId ?? ""}
+                eventStartDate={eventStartDate}
+                eventEndDate={eventEndDate}
+                rooms={rooms}
+                isLoadingRooms={isLoadingRooms}
+                onCreateRoom={createRoom}
+                onDeleteRoom={deleteRoom}
+                isCreatingRoom={isCreatingRoom}
+                isDeletingRoom={isDeletingRoom}
+                sessions={sessions}
+                isLoadingSessions={isLoadingSessions}
+                onCreateSession={createSession}
+                onUpdateSession={updateSession}
+                onDeleteSession={deleteSession}
+                chairOptions={chairOptions}
+              />
+
               <h3 className="text-lg font-semibold">Event Readiness</h3>
               <ReviewStep
                 invitesData={invitesData}
@@ -292,7 +379,28 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
             />
           </Activity>
 
-          {/* Step 3: Review (create mode only) */}
+          {/* Step 3: Sessions (create mode only) */}
+          <Activity mode={isCreateMode && step === "sessions" && createdEventId ? "visible" : "hidden"}>
+            <SessionsStep
+              eventId={createdEventId ?? ""}
+              eventStartDate={eventStartDate}
+              eventEndDate={eventEndDate}
+              rooms={rooms}
+              isLoadingRooms={isLoadingRooms}
+              onCreateRoom={createRoom}
+              onDeleteRoom={deleteRoom}
+              isCreatingRoom={isCreatingRoom}
+              isDeletingRoom={isDeletingRoom}
+              sessions={sessions}
+              isLoadingSessions={isLoadingSessions}
+              onCreateSession={createSession}
+              onUpdateSession={updateSession}
+              onDeleteSession={deleteSession}
+              chairOptions={chairOptions}
+            />
+          </Activity>
+
+          {/* Step 4: Review (create mode only) */}
           <Activity mode={isCreateMode && step === "review" ? "visible" : "hidden"}>
             <ReviewStep
               invitesData={invitesData}

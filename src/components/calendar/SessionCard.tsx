@@ -1,24 +1,19 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import type { Session } from "@/mock-data/sessions";
-import { getSessionDuration } from "./CalenderUtils";
-
-interface SessionCardProps {
-  session: Session;
-  style: React.CSSProperties;
-  onClick?: () => void;
-}
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getSessionDuration, formatTimeRange } from "./CalendarUtils";
+import type { SessionCardProps } from "./types";
 
 export function SessionCard({ session, style, onClick }: SessionCardProps) {
-  const duration = getSessionDuration(session.startTime, session.endTime);
+  const duration = getSessionDuration(session.startAt, session.endAt);
   const isVeryShortSession = duration < 30;
   const isMediumSession = duration >= 25 && duration < 60;
-  const timeStr = `${session.startTime} - ${session.endTime}${
-    session.timezone ? ` (${session.timezone})` : ""
-  }`;
-  const hasMultipleSpeakers = session.speakers.length > 3;
+  const timeStr = formatTimeRange(session.startAt, session.endAt);
+
+  // Get chair name for display
+  const chairName = session.chair?.name;
+  const hasChair = !!session.chair;
 
   if (isVeryShortSession) {
     return (
@@ -32,7 +27,7 @@ export function SessionCard({ session, style, onClick }: SessionCardProps) {
           {session.title}
         </h4>
         <span className="text-[9px] text-muted-foreground shrink-0">
-          {session.startTime}
+          {formatTimeRange(session.startAt, session.endAt).split(" - ")[0]}
         </span>
       </div>
     );
@@ -79,26 +74,28 @@ export function SessionCard({ session, style, onClick }: SessionCardProps) {
             {timeStr}
           </p>
 
-          {session.speakers.length > 0 && (
+          {hasChair && (
             <div className="flex items-center gap-1.5 mb-2">
-              <div className="flex -space-x-1.5">
-                {session.speakers.slice(0, 3).map((speaker: string, idx: number) => (
-                  <Avatar
-                    key={idx}
-                    className="size-5 border-2 border-background"
-                  >
-                    <AvatarImage
-                      src={`https://api.dicebear.com/9.x/glass/svg?seed=${speaker}`}
-                    />
-                  </Avatar>
-                ))}
-              </div>
-              {hasMultipleSpeakers && (
-                <span className="text-[10px] text-muted-foreground">
-                  +{session.speakers.length - 3}
-                </span>
-              )}
+              <Avatar className="size-5 border-2 border-background">
+                {session.chair?.image ? (
+                  <AvatarImage src={session.chair.image} alt={chairName || ""} />
+                ) : (
+                  <AvatarFallback className="text-[8px]">
+                    {chairName?.charAt(0).toUpperCase() || "?"}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <span className="text-[10px] text-muted-foreground truncate">
+                {chairName}
+              </span>
             </div>
+          )}
+
+          {session.room && (
+            <p className="text-[9px] text-muted-foreground truncate">
+              {session.room.name}
+              {session.room.location && ` • ${session.room.location}`}
+            </p>
           )}
         </div>
 
@@ -112,7 +109,7 @@ export function SessionCard({ session, style, onClick }: SessionCardProps) {
                 />
               </svg>
             </div>
-            <span className="flex-1 truncate">Join on Google Meet</span>
+            <span className="flex-1 truncate">Join Meeting</span>
             <ExternalLink className="size-3 shrink-0" />
           </div>
         )}

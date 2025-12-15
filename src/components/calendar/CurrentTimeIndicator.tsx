@@ -1,7 +1,7 @@
 "use client";
 
 import { isSameDay } from "date-fns";
-import { getCurrentTimePosition } from "./CalenderUtils";
+import { getCurrentTimePosition } from "./CalendarUtils";
 
 interface CurrentTimeIndicatorProps {
   day: Date;

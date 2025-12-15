@@ -2,7 +2,7 @@ import type { JSONContent } from "@tiptap/react";
 import type { EventType, EventSpeakerStatus } from "@/server/db/schema";
 
 export type EventFormMode = "create" | "update";
-export type WizardStep = "details" | "invites" | "review";
+export type WizardStep = "details" | "invites" | "sessions" | "review";
 
 export interface EventFormValues {
   title: string;

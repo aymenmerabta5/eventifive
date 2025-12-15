@@ -3,17 +3,14 @@
 import { format } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface CalendarWeekHeaderProps {
-  weekDays: Date[];
-  onPreviousWeek: () => void;
-  onNextWeek: () => void;
-}
+import type { CalendarWeekHeaderProps } from "./types";
 
 export function CalendarWeekHeader({
   weekDays,
   onPreviousWeek,
   onNextWeek,
+  canGoPrevious = true,
+  canGoNext = true,
 }: CalendarWeekHeaderProps) {
   return (
     <div className="flex border-b border-border sticky top-0 z-30 bg-background w-max min-w-full">
@@ -23,6 +20,7 @@ export function CalendarWeekHeader({
           size="icon"
           className="size-7 md:size-8"
           onClick={onPreviousWeek}
+          disabled={!canGoPrevious}
         >
           <ChevronLeft className="size-4 md:size-5" />
         </Button>
@@ -31,6 +29,7 @@ export function CalendarWeekHeader({
           size="icon"
           className="size-7 md:size-8"
           onClick={onNextWeek}
+          disabled={!canGoNext}
         >
           <ChevronRight className="size-4 md:size-5" />
         </Button>
