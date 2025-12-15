@@ -47,51 +47,36 @@ export const createReviewRouter = protectedProcedure
 				)
 				.limit(1);
 
-			const reviewId = existingReview?.id ?? uuidv4();
+			if (existingReview) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "You already submitted a review for this submission. Editing is not allowed.",
+				});
+			}
+
+			const reviewId = uuidv4();
 			const now = new Date();
 
-			if (existingReview) {
-				const [updated] = await db
-					.update(review)
-					.set({
-						score: input.score ?? null,
-						comment: input.comment ?? null,
-						recommendation: input.recommendation,
-						updatedAt: now,
-					})
-					.where(eq(review.id, reviewId))
-					.returning();
+			const [created] = await db
+				.insert(review)
+				.values({
+					id: reviewId,
+					submissionId: input.submissionId,
+					reviewerId: session.user.id,
+					score: input.score ?? null,
+					comment: input.comment ?? null,
+					recommendation: input.recommendation,
+					createdAt: now,
+					updatedAt: now,
+				})
+				.returning();
 
-				if (!updated) {
-					throw new ORPCError("INTERNAL_SERVER_ERROR", {
-						message: "Failed to update review",
-					});
-				}
-
-				return updated;
-			} else {
-				const [created] = await db
-					.insert(review)
-					.values({
-						id: reviewId,
-						submissionId: input.submissionId,
-						reviewerId: session.user.id,
-						score: input.score ?? null,
-						comment: input.comment ?? null,
-						recommendation: input.recommendation,
-						createdAt: now,
-						updatedAt: now,
-					})
-					.returning();
-
-				if (!created) {
-					throw new ORPCError("INTERNAL_SERVER_ERROR", {
-						message: "Failed to create review",
-					});
-				}
-
-				return created;
+			if (!created) {
+				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+					message: "Failed to create review",
+				});
 			}
+
+			return created;
 		} catch (error) {
 			if (error instanceof ORPCError) {
 				throw error;
