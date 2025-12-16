@@ -7,7 +7,7 @@ import { SectionCards } from "./_components/section-cards"
 import { SiteHeader } from "./_components/site-header"
 import { EventFormCard } from "./_components/EventActions"
 import { MyEvents } from "./_components/my-events"
-import { EventApprovalsCard } from "./_components/event-approvals-card"
+import { EventRegistration } from "./_components/event-registration"
 import {
   SidebarInset,
   SidebarProvider,
@@ -59,7 +59,7 @@ function Dashboard() {
               ) : showEventApprovals ? (
                 <div className="px-4 lg:px-6">
                   {eventId ? (
-                    <EventApprovalsCard eventId={eventId} />
+                    <EventRegistration eventId={eventId} />
                   ) : (
                     <div className="text-sm text-destructive">
                       Missing eventId in URL.
