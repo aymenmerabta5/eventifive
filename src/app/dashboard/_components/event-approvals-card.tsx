@@ -15,7 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 type ReviewStatus = "pending" | "accepted" | "rejected";
+type PaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
 
 const reviewStatusStyles: Record<ReviewStatus, string> = {
   pending: "border-amber-500/50 text-amber-600 bg-amber-500/10",
@@ -57,6 +59,14 @@ const submissionStatusStyles: Record<"draft" | "accepted" | "rejected", string> 
     rejected: "border-destructive/60 text-destructive bg-destructive/10",
   };
 
+const paymentStatusStyles: Record<PaymentStatus, string> = {
+  unpaid: "border-amber-500/50 text-amber-600 bg-amber-500/10",
+  pending: "border-amber-500/50 text-amber-600 bg-amber-500/10",
+  paid: "border-green-600/60 text-green-700 bg-green-500/10",
+  failed: "border-destructive/60 text-destructive bg-destructive/10",
+  refunded: "border-blue-500/50 text-blue-600 bg-blue-500/10",
+};
+
 const isWorkshopSubmission = (keywords?: string | null, title?: string | null) => {
   if (!keywords && !title) return false;
   const normalizedKeywords = keywords?.toLowerCase() ?? "";
@@ -82,6 +92,12 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
     }),
   });
 
+  const participantsQuery = useQuery({
+    ...orpc.events.listParticipants.queryOptions({
+      input: { eventId },
+    }),
+  });
+
   const updateStatusMutation = useMutation(
     orpc.submissions.updateStatus.mutationOptions({
       onSuccess: () => {
@@ -98,8 +114,9 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
   );
 
   const submissions = registrationsQuery.data?.submissions ?? [];
+  const participants = participantsQuery.data?.participants ?? [];
   const reviewBasePath =
-    eventQuery.data?.type != null ? `/events/${eventQuery.data.type}/${eventId}/review` : null;
+    `/events/${eventId}/review`;
   const workshopSubmissions = submissions.filter((submission) =>
     isWorkshopSubmission(submission.keywords, submission.title),
   );
@@ -107,14 +124,24 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
     (submission) => !isWorkshopSubmission(submission.keywords, submission.title),
   );
 
+  const getInitials = (name: string | null) => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl font-bold md:text-3xl">
-          Committee registrations
+          Event registrations
         </CardTitle>
         <CardDescription>
-          See every committee application and the verdict from each reviewer.
+          See every registration for this event.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -317,19 +344,7 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
                           {submission.fileCount} file
                           {submission.fileCount === 1 ? "" : "s"}
                         </Badge>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          if (!reviewBasePath) return;
-                          router.push(
-                            `${reviewBasePath}?submissionId=${submission.id}` as Route,
-                          );
-                        }}
-                        disabled={!reviewBasePath || eventQuery.isPending}
-                      >
-                        Review application
-                      </Button>
+                     
                       </div>
                     </div>
 
@@ -371,14 +386,6 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
                                 {status}
                               </Badge>
                             </div>
-                            {reviewer?.recommendation ? (
-                              <Badge
-                                variant="outline"
-                                className="capitalize text-[11px]"
-                              >
-                                {reviewer.recommendation}
-                              </Badge>
-                            ) : null}
                             <div className="text-muted-foreground text-[11px]">
                               {timelinePieces.length > 0
                                 ? timelinePieces.join(" • ")
@@ -406,6 +413,65 @@ export function EventApprovalsCard({ eventId }: { eventId: string }) {
                   </div>
                 );
               })}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="space-y-4 rounded-lg border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm font-medium">Event participants</div>
+            <Badge variant="outline" className="text-xs">
+              {participants.length} participant
+              {participants.length === 1 ? "" : "s"}
+            </Badge>
+          </div>
+
+          {participantsQuery.isPending ? (
+            <div className="text-muted-foreground text-sm">Loading…</div>
+          ) : null}
+
+          {!participantsQuery.isPending && participants.length === 0 ? (
+            <div className="text-muted-foreground text-sm">
+              No participants have registered for this event yet.
+            </div>
+          ) : null}
+
+          {participants.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {participants.map((participant) => (
+                <div
+                  key={participant.id}
+                  className="flex items-start gap-3 rounded-md border p-3"
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      {getInitials(participant.userName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="truncate text-sm font-medium">
+                      {participant.userName ?? "Unknown user"}
+                    </div>
+                    <div className="text-muted-foreground truncate text-xs">
+                      {participant.userEmail}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px] capitalize",
+                          paymentStatusStyles[participant.paymentStatus],
+                        )}
+                      >
+                        {participant.paymentStatus}
+                      </Badge>
+                      <span className="text-muted-foreground text-[10px]">
+                        {new Date(participant.registeredAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : null}
         </div>

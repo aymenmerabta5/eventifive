@@ -312,7 +312,7 @@ export function MyEvents() {
 														</DropdownMenuItem>
 														<DropdownMenuItem onClick={() => handleApprovals(event)}>
 															<Users className="mr-2 h-4 w-4" />
-															Pending approvals
+															Event registrations
 														</DropdownMenuItem>
 														<DropdownMenuItem
 															onClick={() => handleShare(event)}

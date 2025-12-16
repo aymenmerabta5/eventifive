@@ -20,6 +20,7 @@ import {
 	removeCommitteeRouter,
 } from "./invites";
 import { registerForEventRouter } from "./register";
+import { listParticipantsRouter } from "./listParticipants";
 
 export const eventsRouter = {
 	create: createEventRouter,
@@ -42,6 +43,7 @@ export const eventsRouter = {
 	removeCommittee: removeCommitteeRouter,
 	listMyInvites: listMyInvitesRouter,
 	register: registerForEventRouter,
+	listParticipants: listParticipantsRouter,
 };
 
 export {
@@ -53,4 +55,5 @@ export {
 	myEventsRouter,
 	getEventRouter,
 	registerForEventRouter,
+	listParticipantsRouter,
 };
