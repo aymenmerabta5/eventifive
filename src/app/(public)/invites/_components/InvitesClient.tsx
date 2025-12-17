@@ -12,6 +12,17 @@ import { cn } from "@/lib/utils";
 export function InvitesClient() {
 	const invitesQuery = useQuery(orpc.events.listMyInvites.queryOptions());
 
+	const getStatusStyles = (status: string) => {
+		switch (status) {
+			case "accepted":
+				return "border-green-500 bg-green-50 dark:bg-green-900/20";
+			case "rejected":
+				return "border-red-500 bg-red-50 dark:bg-red-900/20";
+			default:
+				return "border-border";
+		}
+	};
+
 	const acceptSpeaker = useMutation(
 		orpc.events.acceptSpeaker.mutationOptions({
 			onSuccess: async () => {
@@ -104,7 +115,10 @@ export function InvitesClient() {
 					{invitesQuery.data?.speakerInvites.map((inv) => (
 						<div
 							key={`speaker-${inv.id}`}
-							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+							className={cn(
+								"flex flex-wrap items-center justify-between gap-3 rounded-md border p-3",
+								getStatusStyles(inv.status),
+							)}
 						>
 							<div className="space-y-1">
 								<div className="text-sm font-medium">Speaker</div>
@@ -114,24 +128,28 @@ export function InvitesClient() {
 								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
 							</div>
 							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									disabled={inv.status !== "pending" || acceptSpeaker.isPending || rejectSpeaker.isPending}
-									onClick={() => {
-										acceptSpeaker.mutate({ eventId: inv.eventId });
-									}}
-								>
-									Accept
-								</Button>
-								<Button
-									variant="destructive"
-									disabled={inv.status !== "pending" || acceptSpeaker.isPending || rejectSpeaker.isPending}
-									onClick={() => {
-										rejectSpeaker.mutate({ eventId: inv.eventId });
-									}}
-								>
-									Reject
-								</Button>
+								{inv.status === "pending" ? (
+									<>
+										<Button
+											variant="outline"
+											disabled={inv.status !== "pending" || acceptSpeaker.isPending || rejectSpeaker.isPending}
+											onClick={() => {
+												acceptSpeaker.mutate({ eventId: inv.eventId });
+											}}
+										>
+											Accept
+										</Button>
+										<Button
+											variant="destructive"
+											disabled={inv.status !== "pending" || acceptSpeaker.isPending || rejectSpeaker.isPending}
+											onClick={() => {
+												rejectSpeaker.mutate({ eventId: inv.eventId });
+											}}
+										>
+											Reject
+										</Button>
+									</>
+								) : null}
 							</div>
 						</div>
 					))}
@@ -154,7 +172,10 @@ export function InvitesClient() {
 					{invitesQuery.data?.reviewerInvites.map((inv) => (
 						<div
 							key={`reviewer-${inv.id}`}
-							className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+							className={cn(
+								"flex flex-wrap items-center justify-between gap-3 rounded-md border p-3",
+								getStatusStyles(inv.status),
+							)}
 						>
 							<div className="space-y-1">
 								<div className="text-sm font-medium">Reviewer</div>
@@ -164,32 +185,36 @@ export function InvitesClient() {
 								<div className="text-muted-foreground text-xs">Status: {inv.status}</div>
 							</div>
 							<div className="flex flex-wrap items-center gap-2">
-								<Button
-									variant="outline"
-									disabled={
-										inv.status !== "pending" ||
-										acceptReviewer.isPending ||
-										rejectReviewer.isPending
-									}
-									onClick={() => {
-										acceptReviewer.mutate({ eventId: inv.eventId });
-									}}
-								>
-									Accept
-								</Button>
-								<Button
-									variant="destructive"
-									disabled={
-										inv.status !== "pending" ||
-										acceptReviewer.isPending ||
-										rejectReviewer.isPending
-									}
-									onClick={() => {
-										rejectReviewer.mutate({ eventId: inv.eventId });
-									}}
-								>
-									Reject
-								</Button>
+								{inv.status === "pending" ? (
+									<>
+										<Button
+											variant="outline"
+											disabled={
+												inv.status !== "pending" ||
+												acceptReviewer.isPending ||
+												rejectReviewer.isPending
+											}
+											onClick={() => {
+												acceptReviewer.mutate({ eventId: inv.eventId });
+											}}
+										>
+											Accept
+										</Button>
+										<Button
+											variant="destructive"
+											disabled={
+												inv.status !== "pending" ||
+												acceptReviewer.isPending ||
+												rejectReviewer.isPending
+											}
+											onClick={() => {
+												rejectReviewer.mutate({ eventId: inv.eventId });
+											}}
+										>
+											Reject
+										</Button>
+									</>
+								) : null}
 								{inv.status === "accepted" && inv.eventType ? (
 									<Button
 										asChild
