@@ -8,7 +8,7 @@ export default function About() {
   return (
     <>
     <div className="bg-about-section pb-24 pt-52 px-4 md:px-8 relative overflow-hidden">
-      {/* Animated background elements */}
+  
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 dark:bg-purple-400/15 rounded-full blur-3xl"
@@ -39,7 +39,7 @@ export default function About() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10 w-full">
-        {/* Main Headline */}
+  
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ export default function About() {
           Hosting large events?
         </motion.h1>
 
-        {/* Sub-headline */}
+       
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ export default function About() {
             </p>
           </motion.div>
 
-          {/* Column 2 - Eventbrite Marketing */}
+       
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -115,7 +115,7 @@ export default function About() {
             </p>
           </motion.div>
 
-          {/* Column 3 - Support */}
+       
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -143,7 +143,7 @@ export default function About() {
           </motion.div>
         </div>
 
-        {/* CTA Button */}
+    
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

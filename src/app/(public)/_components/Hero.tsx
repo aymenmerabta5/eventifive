@@ -8,7 +8,7 @@ export function Hero() {
   return (
     <WavyBackgroundComponent className="max-w-7xl mx-auto pb-40 pt-24 min-h-screen flex flex-col items-center justify-center">
       <div className="relative z-10 flex flex-col items-center justify-center px-4">
-        {/* Main Heading with Gradient */}
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -23,11 +23,11 @@ export function Hero() {
               Five
             </span>
           </h1>
-          {/* Glowing effect behind text */}
+        
           <div className="absolute inset-0 blur-3xl opacity-40 bg-linear-to-r from-chart-3 via-primary to-chart-5 -z-10" />
         </motion.div>
 
-        {/* Subtitle with elegant styling */}
+ 
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -37,7 +37,7 @@ export function Hero() {
           Your ultimate event management platform
         </motion.p>
 
-        {/* Decorative accent line */}
+       
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
@@ -45,7 +45,7 @@ export function Hero() {
           className="mt-8 h-1 w-32 bg-linear-to-r from-transparent via-primary to-transparent rounded-full"
         />
 
-        {/* Supporting text */}
+      
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

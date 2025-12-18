@@ -12,16 +12,15 @@ export function SiteHeader() {
   const getCurrentPageTitle = () => {
     const hasQueryParams = searchParams.toString().length > 0
 
-    // Check navMain items first
-    // Prioritize items with query parameters if current URL has query params
+
     const sortedNavMain = [...navigationData.navMain].sort((a, b) => {
       const aHasQuery = a.url.includes("?")
       const bHasQuery = b.url.includes("?")
       if (hasQueryParams) {
-        // If current URL has query params, prioritize items with query params
+
         return bHasQuery ? 1 : aHasQuery ? -1 : 0
       } else {
-        // If current URL has no query params, prioritize items without query params
+   
         return aHasQuery ? 1 : bHasQuery ? -1 : 0
       }
     })
@@ -30,12 +29,12 @@ export function SiteHeader() {
       if (item.url === "#") continue
       const [path, query] = item.url.split("?")
       if (pathname === path) {
-        // If item has no query params, only match if current URL also has no query params
+       
         if (!query) {
           if (!hasQueryParams) return item.title
           continue
         }
-        // If item has query params, check if they match
+   
         const params = new URLSearchParams(query)
         let matches = true
         for (const [key, value] of params.entries()) {
@@ -48,7 +47,7 @@ export function SiteHeader() {
       }
     }
 
-    // Check documents items
+
     const sortedDocuments = [...navigationData.documents].sort((a, b) => {
       const aHasQuery = a.url.includes("?")
       const bHasQuery = b.url.includes("?")
@@ -79,7 +78,7 @@ export function SiteHeader() {
       }
     }
 
-    // Default to "Documents" if no match found
+
     return "Documents"
   }
 

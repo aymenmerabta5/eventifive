@@ -83,14 +83,14 @@ export function Uploader(props: UploaderProps) {
     const [uploadedCount, setUploadedCount] = useState(0);
     const [uploadedImages, setUploadedImages] = useState<Array<{ key: string; size: number }>>([]);
 
-    // Track existing images that have been marked for removal
+
     const [removedExistingIds, setRemovedExistingIds] = useState<Set<string>>(new Set());
 
-    // Drag state for reordering
+ 
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-    // Combined order state for existing + new images
+
     const [imageOrder, setImageOrder] = useState<Array<{ type: "existing" | "new"; id: string }>>([]);
 
     const resolvedMaxFiles =
@@ -105,7 +105,7 @@ export function Uploader(props: UploaderProps) {
     const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
     const previewUrlsRef = useRef<Record<string, string>>({});
 
-    // Calculate active existing images (not removed)
+   
     const activeExistingImages = useMemo(() => {
         return (props.initialImages ?? []).filter(img => !removedExistingIds.has(img.fileId));
     }, [props.initialImages, removedExistingIds]);
@@ -117,7 +117,7 @@ export function Uploader(props: UploaderProps) {
         return props.role === "event_image" ? ImageIcon : FileUp;
     }, [props.role]);
 
-    // Initialize imageOrder when initialImages change
+   
     useEffect(() => {
         if (!props.initialImages) return;
 
@@ -417,11 +417,11 @@ export function Uploader(props: UploaderProps) {
         }
     };
 
-    // Build unified items list based on order
+   
     const unifiedItems = useMemo((): UnifiedImageItem[] => {
         const items: UnifiedImageItem[] = [];
 
-        // If we have an explicit order, use it
+      
         if (imageOrder.length > 0) {
             for (const orderItem of imageOrder) {
                 if (orderItem.type === "existing") {
@@ -449,7 +449,7 @@ export function Uploader(props: UploaderProps) {
             return items;
         }
 
-        // Default order: existing first, then new
+       
         for (const img of activeExistingImages) {
             items.push({
                 type: "existing",
@@ -572,7 +572,7 @@ export function Uploader(props: UploaderProps) {
                                                             draggable={false}
                                                         />
 
-                                                        {/* Drag handle */}
+                                                      
                                                         <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-background/85 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm">
                                                             <GripVertical className="h-3 w-3 text-muted-foreground" />
                                                             <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">

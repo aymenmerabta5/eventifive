@@ -65,7 +65,7 @@ export default function Header() {
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       <div className="container mx-auto flex items-center justify-between px-4">
-        {/* Desktop Navigation */}
+       
         <nav className="hidden items-center gap-8 text-lg md:flex">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -93,7 +93,7 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Mobile Logo */}
+    
         <motion.div
           className="md:hidden"
           initial={{ opacity: 0, x: -20 }}
@@ -103,7 +103,7 @@ export default function Header() {
           <Logo />
         </motion.div>
 
-        {/* Desktop Right Section */}
+   
         <motion.div
           className="hidden items-center gap-3 md:flex"
           initial={{ opacity: 0, x: 20 }}
@@ -123,7 +123,7 @@ export default function Header() {
           <UserMenu />
         </motion.div>
 
-        {/* Mobile Menu */}
+       
         <div className="flex items-center gap-2 md:hidden">
           <Activity mode={session ? "visible" : "hidden"}>
             <Link
@@ -178,7 +178,7 @@ export default function Header() {
                   <SheetTitle className="sr-only text-left">Menu</SheetTitle>
                   <div className="flex items-center justify-between">
                     <Logo />
-                    {/* Close button is handled by SheetPrimitive, but we can add a custom one or rely on the default top-right X */}
+                   
                   </div>
                 </SheetHeader>
                 <nav className="flex flex-1 flex-col items-center justify-center gap-8 p-6">

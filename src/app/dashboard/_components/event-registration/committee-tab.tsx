@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * CommitteeTab Component
- * 
- * WHAT THIS COMPONENT DOES:
- * Displays paper submissions that are reviewed by committee members.
- * Shows review progress with animated progress bars and reviewer status cards.
- * 
- * KEY PATTERNS:
- * 1. Computed final decision based on reviewer votes (2+ accepts = accepted)
- * 2. Animated progress bars using Framer Motion for visual feedback
- * 3. Placeholder slots for unassigned reviewers (MAX_REVIEWERS = 3)
- */
-
 import {
   Card,
   CardContent,
@@ -39,7 +26,7 @@ type CommitteeTabProps = {
 };
 
 export function CommitteeTab({ submissions, isLoading }: CommitteeTabProps) {
-  // Compute statistics for the stats cards
+  
   const stats = {
     total: submissions.length,
     reviewed: submissions.filter((s) => {

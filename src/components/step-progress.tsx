@@ -18,11 +18,7 @@ function getIndex(steps: StepProgressStep[], key: string) {
   return idx < 0 ? 0 : idx;
 }
 
-/**
- * TEACHING:
- * - This component is "scalable" because it renders from a `steps[]` array, not hard-coded markup.
- * - It’s also purely presentational (no hooks), so it can be used in server or client components.
- */
+
 export function StepProgress({ steps, currentKey, className }: Props) {
   const currentIndex = getIndex(steps, currentKey);
 

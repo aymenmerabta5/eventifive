@@ -8,10 +8,10 @@ import Link from "next/link";
 export default function Platform() {
   return (
     <div className="relative w-full overflow-hidden">
-      {/* Purple Gradient Background */}
+  
       <div className="bg-linear-to-b from-secondary/30 via-secondary/50 to-primary/25 dark:from-background dark:via-card dark:to-secondary py-24 md:py-32 px-4 md:px-8">
         <div className="max-w-6xl mx-auto relative z-10">
-          {/* Badge */}
+        
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -23,7 +23,7 @@ export default function Platform() {
             </span>
           </motion.div>
 
-          {/* Main Headline */}
+      
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -33,7 +33,7 @@ export default function Platform() {
             Streamline Your Scientific Events from Submission to Certificate
           </motion.h2>
 
-          {/* Description */}
+       
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -43,7 +43,7 @@ export default function Platform() {
             Organize and manage scientific events across all domains with our comprehensive platform. From congresses and seminars to workshops and scientific meetings—we handle everything from call for papers to certificate generation, digitizing every stage of your event.
           </motion.p>
 
-          {/* CTA Buttons */}
+    
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -77,7 +77,7 @@ export default function Platform() {
             </motion.div>
           </motion.div>
 
-          {/* Company Logos Section */}
+        
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -88,7 +88,7 @@ export default function Platform() {
               Trusted by universities and research institutions worldwide
             </p>
             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 lg:gap-12 opacity-80 dark:opacity-70 text-black">
-              {/* Logo placeholders - you can replace these with actual logo images */}
+      
               <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">University Constantine 2</div>
               <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Research Laboratories</div>
               <div className="text-foreground dark:text-foreground/90 text-sm md:text-base lg:text-lg font-medium hover:opacity-100 transition-opacity">Professional Associations</div>
