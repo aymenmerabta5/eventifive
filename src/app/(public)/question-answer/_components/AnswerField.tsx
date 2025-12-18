@@ -39,7 +39,7 @@ export const AnswerField = ({
     onAnswerSubmit,
     onDeleteQuestion
 }: Props) => {
-    // const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null); // Removed local state
+
 
     const sortedQuestions = [...questions].sort(
         (a, b) => b.likes - a.likes

@@ -1,6 +1,5 @@
 "use client";
-// import { useQuery } from "@tanstack/react-query";
-// import { orpc } from "@/utils/orpc";
+
 import { Suspense } from "react";
 import { Hero } from "./_components/Hero";
 import WhoWeAre from "./_components/WhoWeAre";
