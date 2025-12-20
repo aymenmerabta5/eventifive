@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import ReviewPage from "./_components/ReviewPage";
+import { Review } from "./_components/Review";
 
 export default async function ReviewPageRoute({
 	params,
@@ -15,5 +15,5 @@ export default async function ReviewPageRoute({
 		notFound();
 	}
 
-	return <ReviewPage eventId={eventId} submissionId={submissionId} />;
+	return <Review eventId={eventId} submissionId={submissionId} />;
 }

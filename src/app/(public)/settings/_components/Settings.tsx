@@ -10,10 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
-import ProfileInfo from "./ProfileInfo";
+import { ProfileInfo } from "./ProfileInfo";
 import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
-import SessionManagement from "./SessionManagement";
+import { SessionManagement } from "./SessionManagement";
 import { User, Mail, Lock, Settings, ChevronRight, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";

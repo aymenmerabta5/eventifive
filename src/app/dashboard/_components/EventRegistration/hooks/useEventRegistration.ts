@@ -33,6 +33,9 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
 		}),
 	});
 
+	// Combine errors
+	const error = registrationsQuery.error || participantsQuery.error;
+
 	const updateStatusMutation = useMutation(
 		orpc.submissions.updateStatus.mutationOptions({
 			onSuccess: () => {
@@ -106,7 +109,8 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
 	}, [participants, committeeSubmissions, workshopSubmissions]);
 
 	const isRefetching = registrationsQuery.isRefetching || participantsQuery.isRefetching;
-	const isLoading = registrationsQuery.isPending || participantsQuery.isPending;
+	const isPending = registrationsQuery.isPending || participantsQuery.isPending;
+	const isEmpty = participants.length === 0 && submissions.length === 0;
 
 	const handleRefresh = useCallback(() => {
 		void registrationsQuery.refetch();
@@ -143,13 +147,17 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
 		workshopSubmissions,
 		committeeSubmissions,
 		stats,
+		isEmpty,
 
 		// Loading states
-		isLoading,
+		isPending,
 		isRefetching,
 		isParticipantsLoading: participantsQuery.isPending,
 		isSubmissionsLoading: registrationsQuery.isPending,
 		isUpdating: updateStatusMutation.isPending,
+
+		// Error
+		error,
 
 		// Handlers
 		handleRefresh,

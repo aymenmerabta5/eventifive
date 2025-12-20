@@ -1,7 +1,7 @@
 "use client";
 
-import SignInForm from "@/app/(auth)/login/_components/sign-in-form";
-import SignUpForm from "@/app/(auth)/login/_components/sign-up-form";
+import { SignInForm } from "@/app/(auth)/login/_components/SignInForm";
+import { SignUpForm } from "@/app/(auth)/login/_components/SignUpForm";
 import { useState, Suspense } from "react";
 import ReturnBack from "@/components/return-back";
 import Loader from "@/components/loader";

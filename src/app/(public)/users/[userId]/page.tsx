@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { client } from "@/utils/orpc";
-import UserProfile from "./_components/UserProfile";
+import { UserProfile } from "./_components/UserProfile";
 
 export default async function UserProfilePage({
 	params,

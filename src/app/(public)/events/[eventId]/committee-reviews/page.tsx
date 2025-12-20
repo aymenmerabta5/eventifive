@@ -1,4 +1,4 @@
-import AssignedCommitteeReviewsClient from "./_components/AssignedCommitteeReviewsClient";
+import { CommitteeReviews } from "./_components/CommitteeReviews";
 
 interface PageProps {
 	params: Promise<{ eventType: string; eventId: string }>;
@@ -7,6 +7,6 @@ interface PageProps {
 export default async function CommitteeReviewsPage({ params }: PageProps) {
 	const { eventId, eventType } = await params;
 
-	return <AssignedCommitteeReviewsClient eventId={eventId} eventType={eventType} />;
+	return <CommitteeReviews eventId={eventId} eventType={eventType} />;
 }
 

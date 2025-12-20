@@ -8,7 +8,6 @@ import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { changePasswordSchema } from "@/lib/schemas/schemas";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import { isZeroValueString } from "motion/react";
 
 export default function ChangePassword(){
   const form = useForm({
@@ -42,7 +41,6 @@ export default function ChangePassword(){
             toast.error("Failed to update password");
           },
         });
-        // TODO: Implement your backend API call here
       } catch (error) {
         console.error("Failed to update password:", error);
       }

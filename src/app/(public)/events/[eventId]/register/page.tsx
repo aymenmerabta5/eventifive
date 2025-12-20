@@ -1,4 +1,4 @@
-import JoinForm from "./_components/JoinForm";
+import { JoinForm } from "./_components/JoinForm";
 
 export default async function EventJoinPage({
   params,

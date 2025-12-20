@@ -20,6 +20,7 @@ FeatureName/
 ├── hooks/
 │   ├── index.ts             # Export all hooks
 │   └── useFeatureName.ts    # Main data/handler hook
+|   ... or multiple hooks if the hook is complicated ...
 └── components/
     ├── index.ts             # Export all components
     ├── LoadingState.tsx     # REQUIRED: Loading skeleton
@@ -27,6 +28,79 @@ FeatureName/
     ├── EmptyState.tsx       # REQUIRED: Empty placeholder
     └── [Other].tsx          # Feature components
 ```
+
+---
+
+## Shared Components - AVOIDING DUPLICATION
+
+When creating the same component in multiple feature folders, **extract it to a shared location**. Never duplicate components!
+
+### Where to Put Shared Components
+
+| Scope | Location | Example |
+|-------|----------|---------|
+| Entire app | `src/components/` | UI primitives, rich-text-editor |
+| Route group | `src/app/(group)/_components/` | Auth form fields, layout wrappers |
+| Specific route | `src/app/route/_components/` | Page-specific shared components |
+
+### Real Example: Auth Form Fields
+
+3 auth forms (SignIn, SignUp, ResetPassword) shared identical EmailField, PasswordField, CaptchaField.
+
+**BEFORE (BAD):**
+```
+login/_components/SignInForm/components/EmailField.tsx   ← DUPLICATE
+login/_components/SignUpForm/components/EmailField.tsx   ← DUPLICATE
+reset-password/_components/.../EmailField.tsx            ← DUPLICATE
+```
+
+**AFTER (GOOD):**
+```
+(auth)/
+├── _components/                      ← SHARED at route group level
+│   ├── AuthFormFields/
+│   │   ├── EmailField.tsx           ← ONE source of truth
+│   │   ├── PasswordField.tsx
+│   │   ├── CaptchaField.tsx
+│   │   └── index.ts
+│   └── AuthFormLayout/
+│       ├── AuthFormContainer.tsx    ← Shared wrapper
+│       ├── AuthFormHeader.tsx       ← Shared header
+│       └── index.ts
+├── login/_components/
+│   ├── SignInForm/components/FormFooter.tsx  ← UNIQUE per form
+│   └── SignUpForm/components/FormFooter.tsx  ← UNIQUE per form
+└── reset-password/_components/
+    └── ResetPasswordForm/components/FormFooter.tsx
+```
+
+### How to Import Shared Components
+
+```tsx
+// SignInForm.tsx
+import { AuthFormContainer, AuthFormHeader } from "@/app/(auth)/_components/AuthFormLayout";
+import { EmailField, PasswordField, CaptchaField } from "@/app/(auth)/_components/AuthFormFields";
+import { FormFooter } from "./components"; // Local unique component
+```
+
+### Decision Tree
+
+```
+Is this component used by multiple features?
+├── NO → Keep in FeatureName/components/
+└── YES → Used across different route groups?
+    ├── YES → src/components/
+    └── NO → (route-group)/_components/
+```
+
+### Key Principles
+
+1. **DRY**: If you copy-paste a component, extract it to shared location
+2. **Scope Appropriately**: Route-group components stay in route-group `_components/`
+3. **Keep Unique Local**: Components with different content per feature stay local
+4. **Meaningful Folders**: `AuthFormFields/`, not random files dumped together
+
+---
 
 ## CRITICAL: State Components
 
@@ -260,10 +334,14 @@ export { useFeatureName } from "./useFeatureName";
 
 ## Real Examples
 
-Study these implementations:
+### Feature Components
 - `src/app/dashboard/_components/MyEvents/`
 - `src/app/dashboard/_components/EventActions/`
 - `src/app/dashboard/_components/EventRegistration/`
+
+### Shared Components (Route Group Level)
+- `src/app/(auth)/_components/AuthFormFields/` - Email, Password, Name, Captcha fields
+- `src/app/(auth)/_components/AuthFormLayout/` - Container and Header wrappers
 
 ## Checklist
 
