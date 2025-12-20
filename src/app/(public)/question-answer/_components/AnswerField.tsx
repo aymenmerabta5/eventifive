@@ -15,7 +15,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Question } from "../page";
-import { AdminAnswer } from "./Admen-answer";
+import { AdminAnswer } from "./AdminAnswer";
 
 
 interface Props {

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { QuestionField } from "./_components/QuestionField";
 import { AnswerField } from "./_components/AnswerField";
-import { AdminAnswer } from "./_components/Admen-answer";
 
 export interface Question {
     id: string;

@@ -1,0 +1,1 @@
+export { useEventRegistration } from "./useEventRegistration";

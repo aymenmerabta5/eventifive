@@ -6,8 +6,8 @@ import { DataTable } from "./_components/data-table"
 import { SectionCards } from "./_components/section-cards"
 import { SiteHeader } from "./_components/site-header"
 import { EventFormCard } from "./_components/EventActions"
-import { MyEvents } from "./_components/my-events"
-import { EventRegistration } from "./_components/event-registration"
+import { MyEvents } from "./_components/MyEvents"
+import { EventRegistration } from "./_components/EventRegistration"
 import {
   SidebarInset,
   SidebarProvider,

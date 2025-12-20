@@ -30,16 +30,6 @@ To understand the structure of the project well you can visit CLAUDE.md
 
 Eventifive is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, subscriptions, real-time messaging, and program/session management.
 
-### Codebase Quality: 9.2/10 (University Project with Professional Architecture)
-
-| Category | Score |
-|----------|-------|
-| Architecture | 9.5/10 |
-| Type Safety | 9.5/10 |
-| Code Organization | 9.0/10 |
-| Security | 8.5/10 |
-| Documentation | 9.0/10 |
-
 ## Tech Stack
 
 - **Next.js 16** with App Router, React 19, Turbopack, React Compiler
