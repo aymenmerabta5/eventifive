@@ -1,0 +1,278 @@
+---
+globs: src/app/dashboard/**/*.tsx, src/app/**/_components/**/*.tsx
+alwaysApply: false
+description: Rules for building complex feature components with the modular architecture pattern
+---
+
+# Component Architecture Pattern
+
+When building complex features (dashboard components, multi-step forms, data-driven UIs), follow this modular architecture pattern.
+
+## Directory Structure - REQUIRED
+
+```
+FeatureName/
+├── index.ts                 # Public exports only
+├── FeatureName.tsx          # Main orchestrator component
+├── types.ts                 # All TypeScript types
+├── constants.ts             # Query keys, labels, styles
+├── utils.ts                 # Re-export from @/lib/*
+├── hooks/
+│   ├── index.ts             # Export all hooks
+│   └── useFeatureName.ts    # Main data/handler hook
+└── components/
+    ├── index.ts             # Export all components
+    ├── LoadingState.tsx     # REQUIRED: Loading skeleton
+    ├── ErrorState.tsx       # REQUIRED: Error with retry
+    ├── EmptyState.tsx       # REQUIRED: Empty placeholder
+    └── [Other].tsx          # Feature components
+```
+
+## CRITICAL: State Components
+
+Every feature MUST have these three components in `components/`:
+
+### LoadingState.tsx
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+
+export function LoadingState() {
+  return (
+    <Card className="border-dashed">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Loader2 className="size-4 animate-spin text-primary" />
+          Loading your data
+        </CardTitle>
+        <CardDescription>Fetching the latest information...</CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}
+```
+
+### ErrorState.tsx
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, Loader2 } from "lucide-react";
+
+interface ErrorStateProps {
+  error: Error | null;
+  onRetry: () => void;
+  isRetrying: boolean;
+}
+
+export function ErrorState({ error, onRetry, isRetrying }: ErrorStateProps) {
+  const message = error instanceof Error ? error.message : "Unable to load data.";
+
+  return (
+    <Card className="border-destructive/30 bg-destructive/5">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-destructive">
+          <AlertTriangle className="size-5" />
+          Failed to load data
+        </CardTitle>
+        <CardDescription className="text-destructive/70">{message}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button variant="destructive" onClick={onRetry} disabled={isRetrying}>
+          {isRetrying && <Loader2 className="mr-2 size-4 animate-spin" />}
+          Try again
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### EmptyState.tsx
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { FolderOpen } from "lucide-react";
+
+export function EmptyState() {
+  return (
+    <Card className="border-dashed">
+      <CardHeader className="flex flex-col items-center justify-center">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <FolderOpen className="size-4 text-muted-foreground" />
+          No items yet
+        </CardTitle>
+        <CardDescription>Create your first item to get started.</CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}
+```
+
+## Main Component Pattern
+
+The main component is an orchestrator - no business logic:
+
+```tsx
+"use client";
+
+import { useFeatureName } from "./hooks";
+import {
+  LoadingState,
+  ErrorState,
+  EmptyState,
+  FeatureHeader,
+  FeatureList,
+} from "./components";
+
+export function FeatureName() {
+  const {
+    items,
+    isPending,
+    error,
+    isRefetching,
+    handleRefresh,
+  } = useFeatureName();
+
+  // 1. Loading state FIRST
+  if (isPending) {
+    return <LoadingState />;
+  }
+
+  // 2. Error state SECOND
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        onRetry={handleRefresh}
+        isRetrying={isRefetching}
+      />
+    );
+  }
+
+  // 3. Content with empty fallback
+  return (
+    <div className="space-y-6">
+      <FeatureHeader onRefresh={handleRefresh} isRefetching={isRefetching} />
+      {items.length === 0 ? <EmptyState /> : <FeatureList items={items} />}
+    </div>
+  );
+}
+```
+
+## Hook Pattern
+
+All data fetching and handlers in dedicated hooks:
+
+```tsx
+"use client";
+
+import { useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { orpc, client } from "@/utils/orpc";
+import { QUERY_KEY, STALE_TIME } from "../constants";
+
+export function useFeatureName() {
+  const queryClient = useQueryClient();
+
+  const { data, isPending, error, refetch, isRefetching } = useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: () => client.feature.list(),
+    staleTime: STALE_TIME,
+  });
+
+  const items = useMemo(() => data?.items ?? [], [data?.items]);
+
+  const handleRefresh = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  return {
+    items,
+    isPending,
+    error,
+    isRefetching,
+    handleRefresh,
+  };
+}
+```
+
+## Constants Pattern
+
+```tsx
+export const QUERY_KEY = ["feature-name"] as const;
+export const STALE_TIME = 1000 * 60; // 1 minute
+
+export const STATUS_STYLES: Record<Status, string> = {
+  pending: "border-amber-500/50 text-amber-600 bg-amber-500/10",
+  active: "border-green-600/60 text-green-700 bg-green-500/10",
+};
+```
+
+## Utilities - IMPORTANT
+
+NEVER duplicate utility functions. Import from centralized libs:
+
+```tsx
+// GOOD
+import { formatDate, formatDateTime } from "@/lib/date";
+import { getInitials, formatPrice } from "@/lib/string";
+
+// BAD - Don't do this!
+function formatDate(date: Date) { ... }
+```
+
+If you need feature-specific utilities, put them in `utils.ts` and re-export shared ones:
+
+```tsx
+// utils.ts
+export { formatDate, formatDateTime } from "@/lib/date";
+export { getInitials } from "@/lib/string";
+
+// Feature-specific only
+export const getItemStatus = (item: Item): Status => {
+  return new Date(item.endDate) > new Date() ? "active" : "completed";
+};
+```
+
+## Export Patterns
+
+### index.ts (Public API)
+```tsx
+export { FeatureName } from "./FeatureName";
+export type { FeatureItem, FeatureStats } from "./types";
+```
+
+### components/index.ts
+```tsx
+// State components FIRST
+export { LoadingState } from "./LoadingState";
+export { ErrorState } from "./ErrorState";
+export { EmptyState } from "./EmptyState";
+// Then feature components
+export { FeatureHeader } from "./FeatureHeader";
+export { FeatureList } from "./FeatureList";
+```
+
+### hooks/index.ts
+```tsx
+export { useFeatureName } from "./useFeatureName";
+```
+
+## Real Examples
+
+Study these implementations:
+- `src/app/dashboard/_components/MyEvents/`
+- `src/app/dashboard/_components/EventActions/`
+- `src/app/dashboard/_components/EventRegistration/`
+
+## Checklist
+
+Before completing a feature:
+- [ ] Created proper directory structure
+- [ ] `LoadingState.tsx` exists and is used
+- [ ] `ErrorState.tsx` exists with retry button
+- [ ] `EmptyState.tsx` exists for empty data
+- [ ] Main component handles loading → error → content order
+- [ ] Hook contains all data fetching and handlers
+- [ ] Utilities imported from `@/lib/date` and `@/lib/string`
+- [ ] All `index.ts` files have proper exports

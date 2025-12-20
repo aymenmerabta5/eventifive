@@ -3,20 +3,13 @@
 import { cn } from "@/lib/utils";
 import { Check, CheckCheck } from "lucide-react";
 import type { Message } from "../_lib/types";
+import { formatTime12h } from "@/lib/date";
 
 interface MessageBubbleProps {
 	message: Message;
 	isMe: boolean;
 	isFirstInGroup: boolean;
 	isLastInGroup: boolean;
-}
-
-function formatTime(date: Date): string {
-	return new Date(date).toLocaleTimeString("en-US", {
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	});
 }
 
 export function MessageBubble({
@@ -72,7 +65,7 @@ export function MessageBubble({
 							isMe ? "text-primary-foreground/70" : "text-muted-foreground"
 						)}
 					>
-						{formatTime(message.createdAt)}
+						{formatTime12h(message.createdAt)}
 					</span>
 					{isMe && (
 						<span className="text-primary-foreground/70">

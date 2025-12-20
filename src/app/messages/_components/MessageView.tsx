@@ -17,6 +17,8 @@ import { useMessages, useSendMessage } from "../_lib/hooks";
 import type { Conversation, Message } from "../_lib/types";
 import Link from "next/link";
 import type { Route } from "next";
+import { getInitials } from "@/lib/string";
+import { formatDateHeader } from "@/lib/date";
 
 interface CurrentUser {
 	id: string;
@@ -28,15 +30,6 @@ interface MessageViewProps {
 	conversation: Conversation;
 	currentUser: CurrentUser;
 	onBack: () => void;
-}
-
-function getInitials(name: string): string {
-	return name
-		.split(" ")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
 }
 
 export function MessageView({
@@ -105,25 +98,6 @@ export function MessageView({
 			{} as Record<string, Message[]>
 		);
 	}, [messages]);
-
-	const formatDateHeader = (dateString: string): string => {
-		const date = new Date(dateString);
-		const today = new Date();
-		const yesterday = new Date(today);
-		yesterday.setDate(yesterday.getDate() - 1);
-
-		if (date.toDateString() === today.toDateString()) {
-			return "Today";
-		}
-		if (date.toDateString() === yesterday.toDateString()) {
-			return "Yesterday";
-		}
-		return date.toLocaleDateString("en-US", {
-			weekday: "long",
-			month: "long",
-			day: "numeric",
-		});
-	};
 
 	const { otherUser } = conversation;
 

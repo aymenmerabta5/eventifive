@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { EventImageGallery } from "./EventImageGallery";
+import { formatDateFull, formatTime } from "@/lib/date";
 
 
 export default async function EventDetailPage({
@@ -28,22 +29,6 @@ export default async function EventDetailPage({
 
 	const bigDescriptionIsRichText = typeof event.bigDescription === "object" && event.bigDescription !== null;
 	const bigDescriptionAsString = typeof event.bigDescription === "string" ? event.bigDescription : null;
-
-	const formatDate = (date: Date | string) => {
-		return new Date(date).toLocaleDateString("en-US", {
-			weekday: "long",
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	};
-
-	const formatTime = (date: Date | string) => {
-		return new Date(date).toLocaleTimeString("en-US", {
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
 
 	const now = new Date();
 	const eventStart = new Date(event.startDate);
@@ -100,8 +85,8 @@ export default async function EventDetailPage({
 								<div className="inline-flex items-center gap-2">
 									<IconCalendar className="size-4 text-primary" strokeWidth={2} />
 									<span>
-										{formatDate(event.startDate)} · {formatTime(event.startDate)} —{" "}
-										{formatDate(event.endDate)} · {formatTime(event.endDate)}
+										{formatDateFull(event.startDate)} · {formatTime(event.startDate)} —{" "}
+										{formatDateFull(event.endDate)} · {formatTime(event.endDate)}
 									</span>
 								</div>
 							</div>
@@ -124,7 +109,7 @@ export default async function EventDetailPage({
 									</div>
 									<div className="space-y-1">
 										<p className="text-base font-semibold text-foreground">
-											{formatDate(event.startDate)}
+											{formatDateFull(event.startDate)}
 										</p>
 										<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
 											<IconClock className="size-4 text-primary" strokeWidth={2} />
@@ -140,7 +125,7 @@ export default async function EventDetailPage({
 									</div>
 									<div className="space-y-1">
 										<p className="text-base font-semibold text-foreground">
-											{formatDate(event.endDate)}
+											{formatDateFull(event.endDate)}
 										</p>
 										<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
 											<IconClock className="size-4 text-primary" strokeWidth={2} />

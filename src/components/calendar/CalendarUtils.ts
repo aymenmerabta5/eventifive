@@ -61,18 +61,5 @@ export function getSessionDuration(startTime: Date, endTime: Date): number {
   return endTotal - startTotal;
 }
 
-/**
- * Format time from Date to "HH:mm" string
- */
-export function formatTimeString(date: Date): string {
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-}
-
-/**
- * Format time range for display
- */
-export function formatTimeRange(startAt: Date, endAt: Date): string {
-  const startStr = formatTimeString(startAt);
-  const endStr = formatTimeString(endAt);
-  return `${startStr} - ${endStr}`;
-}
+// Re-export time formatting from centralized date utilities
+export { formatTimeString, formatTimeRange } from "@/lib/date";

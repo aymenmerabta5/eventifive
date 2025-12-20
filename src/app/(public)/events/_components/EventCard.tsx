@@ -11,6 +11,7 @@ import Image from "next/image";
 import type { Event } from "@/server/db/schema";
 import Link from "next/link";
 import type { Route } from "next";
+import { formatDateLong, formatTimeRange12h } from "@/lib/date";
 
 type EventCardData = Pick<
   Event,
@@ -21,27 +22,6 @@ type EventCardData = Pick<
 
 export interface EventCardProps {
   event: Readonly<EventCardData>;
-}
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("en-US", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-function formatDate(date: Date) {
-  return dateFormatter.format(new Date(date));
-}
-
-function formatTimeRange(startDate: Date, endDate: Date) {
-  const start = timeFormatter.format(new Date(startDate));
-  const end = timeFormatter.format(new Date(endDate));
-  return `${start} – ${end}`;
 }
 
 export default function EventCard({ event }: EventCardProps) {
@@ -129,12 +109,12 @@ export default function EventCard({ event }: EventCardProps) {
         <div className="grid gap-2.5">
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
             <IconCalendar aria-hidden="true" className="text-primary size-4 shrink-0" />
-            <span className="font-medium">{formatDate(startDate)}</span>
+            <span className="font-medium">{formatDateLong(startDate)}</span>
           </div>
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
             <IconClock aria-hidden="true" className="text-primary size-4 shrink-0" />
             <span className="font-medium">
-              {formatTimeRange(startDate, endDate)}
+              {formatTimeRange12h(startDate, endDate)}
             </span>
           </div>
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">

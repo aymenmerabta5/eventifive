@@ -223,6 +223,36 @@ import type { JSONContent } from "@tiptap/react";
 />
 ```
 
+## Complex Feature Architecture
+
+For complex features with data fetching, use the modular architecture pattern.
+See `.cursor/rules/component-architecture.mdc` for detailed guidelines.
+
+### Required Structure
+```
+FeatureName/
+├── index.ts                 # Public exports
+├── FeatureName.tsx          # Main orchestrator
+├── types.ts                 # TypeScript types
+├── constants.ts             # Query keys, labels
+├── utils.ts                 # Import from @/lib/*
+├── hooks/
+│   └── useFeatureName.ts    # Data + handlers
+└── components/
+    ├── LoadingState.tsx     # REQUIRED
+    ├── ErrorState.tsx       # REQUIRED (with retry)
+    ├── EmptyState.tsx       # REQUIRED
+    └── [Other].tsx          # Feature components
+```
+
+### State Components are MANDATORY
+Every feature MUST have `LoadingState`, `ErrorState`, and `EmptyState` components in the `components/` folder.
+
+### Examples in Codebase
+- `src/app/dashboard/_components/MyEvents/`
+- `src/app/dashboard/_components/EventActions/`
+- `src/app/dashboard/_components/EventRegistration/`
+
 ## Multi-Step Forms
 
 ```typescript
@@ -239,3 +269,34 @@ import { StepProgress } from "@/components/step-progress";
 
 <StepProgress currentStep={step} totalSteps={4} />
 ```
+
+## Centralized Utilities - IMPORTANT
+
+NEVER duplicate utility functions. Always import from centralized libs:
+
+```typescript
+// GOOD - Use centralized utilities
+import { formatDate, formatDateTime, formatRelativeTime } from "@/lib/date";
+import { getInitials, formatPrice } from "@/lib/string";
+
+// BAD - Don't duplicate utilities in components!
+function formatDate(date: Date) { ... }  // NO!
+function getInitials(name: string) { ... }  // NO!
+```
+
+### Available Date Utilities (`@/lib/date`)
+- `formatDate` - Medium style (Jan 15, 2024)
+- `formatDateLong` - Long style (January 15, 2024)
+- `formatDateFull` - With weekday
+- `formatTime` / `formatTime12h` - Time formatting
+- `formatDateTime` - Date + time combined
+- `formatTimeRange` / `formatTimeRange12h` - Time ranges
+- `formatSchedule` - Smart same-day detection
+- `formatRelativeTime` - Compact (now, 5m, 2h)
+- `formatRelativeTimeLong` - Full words (5 minutes ago)
+- `formatDateHeader` - Today/Yesterday/date
+- `toDateTimeLocalInput` - For datetime inputs
+
+### Available String Utilities (`@/lib/string`)
+- `getInitials` - Avatar fallback text
+- `formatPrice` - Currency formatting

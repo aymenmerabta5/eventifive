@@ -278,3 +278,66 @@ Always test both light and dark modes when building UI.
 - Use `Skeleton` for loading states
 - Avoid inline function definitions in JSX
 - React Compiler handles most optimizations automatically
+
+---
+
+## Complex Feature Architecture
+
+For complex features, use the modular architecture pattern. See `component-architecture` skill for details.
+
+### Required Structure
+```
+FeatureName/
+├── index.ts                 # Public exports
+├── FeatureName.tsx          # Main orchestrator
+├── types.ts                 # TypeScript types
+├── constants.ts             # Query keys, labels
+├── utils.ts                 # Import from @/lib/*
+├── hooks/
+│   └── useFeatureName.ts    # Data + handlers
+└── components/
+    ├── LoadingState.tsx     # REQUIRED
+    ├── ErrorState.tsx       # REQUIRED (with retry)
+    ├── EmptyState.tsx       # REQUIRED
+    └── [Other].tsx          # Feature components
+```
+
+### State Components are MANDATORY
+Every feature MUST have `LoadingState`, `ErrorState`, and `EmptyState` in the `components/` folder.
+
+---
+
+## Centralized Utilities - IMPORTANT
+
+NEVER duplicate utility functions. Always import from centralized libs:
+
+```typescript
+// GOOD - Use centralized utilities
+import { formatDate, formatDateTime, formatRelativeTime } from "@/lib/date";
+import { getInitials, formatPrice } from "@/lib/string";
+
+// BAD - Don't duplicate utilities!
+function formatDate(date: Date) { ... }  // NO!
+```
+
+### Available Date Utilities (`@/lib/date`)
+| Function | Output Example |
+|----------|----------------|
+| `formatDate` | Jan 15, 2024 |
+| `formatDateLong` | January 15, 2024 |
+| `formatDateFull` | Monday, January 15, 2024 |
+| `formatTime` | 14:30 |
+| `formatTime12h` | 2:30 PM |
+| `formatDateTime` | Jan 15, 2024, 2:30 PM |
+| `formatTimeRange` | 14:30 - 16:00 |
+| `formatTimeRange12h` | 2:30 PM – 4:00 PM |
+| `formatSchedule` | Jan 15, 2024 • 2:30 PM – 4:00 PM |
+| `formatRelativeTime` | now, 5m, 2h, 3d |
+| `formatRelativeTimeLong` | 5 minutes ago |
+| `formatDateHeader` | Today, Yesterday, or date |
+
+### Available String Utilities (`@/lib/string`)
+| Function | Description |
+|----------|-------------|
+| `getInitials` | Get avatar fallback initials |
+| `formatPrice` | Format price with currency |

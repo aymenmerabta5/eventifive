@@ -7,18 +7,8 @@ import { CreditCard, Calendar, Crown, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
-
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(date));
-}
-
-function formatPrice(amount: number, currency: string): string {
-  return `${amount.toLocaleString()} ${currency}`;
-}
+import { formatDateLong } from "@/lib/date";
+import { formatPrice } from "@/lib/string";
 
 export function SubscriptionStatus() {
   const {

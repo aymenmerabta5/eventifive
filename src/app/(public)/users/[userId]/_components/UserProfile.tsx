@@ -30,6 +30,8 @@ import { useCreateConversation } from "@/app/messages/_lib/hooks";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { getInitials } from "@/lib/string";
+import { formatDateLong } from "@/lib/date";
 
 interface UserProfileProps {
   user: {
@@ -64,20 +66,6 @@ interface UserProfileProps {
   };
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
 
 export default function UserProfile({ user }: UserProfileProps) {
   const { data: session } = authClient.useSession();
@@ -179,7 +167,7 @@ export default function UserProfile({ user }: UserProfileProps) {
                     >
                       <IconCalendar className="text-primary h-4 w-4" />
                       Member since{" "}
-                      {dateFormatter.format(new Date(user.createdAt))}
+                      {formatDateLong(user.createdAt)}
                     </Badge>
                   </div>
 
@@ -380,7 +368,7 @@ export default function UserProfile({ user }: UserProfileProps) {
                     };
 
                     const formattedDate = event.date
-                      ? dateFormatter.format(new Date(event.date))
+                      ? formatDateLong(event.date)
                       : "Date TBA";
 
                     return (

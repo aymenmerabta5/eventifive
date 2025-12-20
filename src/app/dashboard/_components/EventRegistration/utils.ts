@@ -42,19 +42,8 @@ export const isWorkshopSubmission = (keywords?: string | null, title?: string | 
 	);
 };
 
-/**
- * Generates initials from a name string.
- * Useful for avatar fallbacks.
- */
-export const getInitials = (name: string | null): string => {
-	if (!name) return "?";
-	return name
-		.split(" ")
-		.map((part) => part[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-};
+// Re-export getInitials from centralized location for backwards compatibility
+export { getInitials } from "@/lib/string";
 
 /**
  * Fills reviewer array with null placeholders up to MAX_REVIEWERS.
