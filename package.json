@@ -22,7 +22,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
     "start": "bun scripts/start.ts",
-    "test:webhook": "bun scripts/test-webhook.ts",
+    "test:events": "bun scripts/test-events.ts",
     "test:subscription": "bun scripts/test-subscription.ts",
     "typecheck": "tsc --noEmit",
     "ws": "bun src/server/realtime/ws.ts"

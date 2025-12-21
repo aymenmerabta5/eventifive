@@ -3,11 +3,11 @@
  * CLI script for testing Chargily webhooks
  *
  * Usage:
- *   bun run test:webhook                                    # List pending payments
- *   bun run test:webhook -- --payment-id <id>               # Simulate for specific payment
- *   bun run test:webhook -- --user-id <id> --event-id <id>  # Create + simulate for user/event
- *   bun run test:webhook -- --list-events                   # List paid events
- *   bun run test:webhook -- --list-users                    # List users
+ *   bun run test:events                                    # List pending payments
+ *   bun run test:events -- --payment-id <id>               # Simulate for specific payment
+ *   bun run test:events -- --user-id <id> --event-id <id>  # Create + simulate for user/event
+ *   bun run test:events -- --list-events                   # List paid events
+ *   bun run test:events -- --list-users                    # List users
  */
 
 import {
