@@ -9,6 +9,7 @@ import { NavDocuments } from "./nav-documents";
 import { NavMain } from "./nav-main";
 import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
+import { QuotaIndicator } from "./QuotaIndicator";
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +43,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavDocuments items={navigationData.documents} />
         <NavSecondary items={navigationData.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="gap-3">
+        <QuotaIndicator />
         <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>

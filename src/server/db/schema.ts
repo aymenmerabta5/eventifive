@@ -518,6 +518,7 @@ export const subscriptionPlan = pgTable("subscription_plan", {
   displayName: varchar("display_name", { length: 255 }).notNull(),
   description: text("description"),
   features: jsonb("features").$type<string[]>(),
+  eventQuota: integer("event_quota").notNull().default(3), // -1 = unlimited
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   chargilyProductId: varchar("chargily_product_id", { length: 100 }),

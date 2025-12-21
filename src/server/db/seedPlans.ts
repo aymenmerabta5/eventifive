@@ -5,6 +5,7 @@ interface PlanSeed {
   displayName: string;
   description: string;
   features: string[];
+  eventQuota: number; // -1 = unlimited
   sortOrder: number;
   prices: {
     billingPeriod: "monthly" | "yearly";
@@ -19,14 +20,15 @@ const INITIAL_PLANS: PlanSeed[] = [
     displayName: "Basic",
     description: "Perfect for trying out our event generator.",
     features: [
-      "Up to 10 events per month",
+      "Up to 3 active events",
       "Basic event templates",
       "Email support",
     ],
+    eventQuota: 3,
     sortOrder: 0,
     prices: [
-      { billingPeriod: "monthly", amount: 1000, currency: "DZD" }, // 1000 DZD
-      { billingPeriod: "yearly", amount: 9000, currency: "DZD" }, // 9000 DZD (25% off)
+      { billingPeriod: "monthly", amount: 1000, currency: "DZD" },
+      { billingPeriod: "yearly", amount: 9000, currency: "DZD" },
     ],
   },
   {
@@ -35,16 +37,17 @@ const INITIAL_PLANS: PlanSeed[] = [
     description:
       "Perfect for small businesses and organizations that require a more comprehensive event management solution.",
     features: [
-      "Up to 100 events per month",
+      "Up to 10 active events",
       "Premium event templates",
       "Priority email support",
       "Advanced event analytics",
       "Custom branding",
     ],
+    eventQuota: 10,
     sortOrder: 1,
     prices: [
-      { billingPeriod: "monthly", amount: 2000, currency: "DZD" }, // 2000 DZD
-      { billingPeriod: "yearly", amount: 18000, currency: "DZD" }, // 18000 DZD (25% off)
+      { billingPeriod: "monthly", amount: 2000, currency: "DZD" },
+      { billingPeriod: "yearly", amount: 18000, currency: "DZD" },
     ],
   },
   {
@@ -61,10 +64,11 @@ const INITIAL_PLANS: PlanSeed[] = [
       "Full API access",
       "Dedicated account manager",
     ],
+    eventQuota: -1,
     sortOrder: 2,
     prices: [
-      { billingPeriod: "monthly", amount: 5000, currency: "DZD" }, // 5000 DZD
-      { billingPeriod: "yearly", amount: 45000, currency: "DZD" }, // 45000 DZD (25% off)
+      { billingPeriod: "monthly", amount: 5000, currency: "DZD" },
+      { billingPeriod: "yearly", amount: 45000, currency: "DZD" },
     ],
   },
 ];
@@ -110,6 +114,7 @@ export async function seedPlans(): Promise<{
       displayName: planData.displayName,
       description: planData.description,
       features: planData.features,
+      eventQuota: planData.eventQuota,
       sortOrder: planData.sortOrder,
       isActive: true,
       createdAt: now,

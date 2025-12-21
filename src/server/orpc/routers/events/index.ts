@@ -1,4 +1,3 @@
-import { createEventRouter } from "./create";
 import { createDraftEventRouter } from "./createDraft";
 import { deleteEventRouter } from "./delete";
 import { listEventsRouter } from "./list";
@@ -21,9 +20,9 @@ import {
 } from "./invites";
 import { registerForEventRouter } from "./register";
 import { listParticipantsRouter } from "./listParticipants";
+import { getRegistrationStatusRouter } from "./getRegistrationStatus";
 
 export const eventsRouter = {
-  create: createEventRouter,
   createDraft: createDraftEventRouter,
   delete: deleteEventRouter,
   list: listEventsRouter,
@@ -44,10 +43,10 @@ export const eventsRouter = {
   listMyInvites: listMyInvitesRouter,
   register: registerForEventRouter,
   listParticipants: listParticipantsRouter,
+  getRegistrationStatus: getRegistrationStatusRouter,
 };
 
 export {
-  createEventRouter,
   createDraftEventRouter,
   deleteEventRouter,
   listEventsRouter,
@@ -56,4 +55,5 @@ export {
   getEventRouter,
   registerForEventRouter,
   listParticipantsRouter,
+  getRegistrationStatusRouter,
 };

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { client } from "@/utils/orpc";
-import type { Event } from "@/server/db/schema";
 import {
   IconCalendar,
+  IconCalendarEvent,
   IconClock,
   IconMapPin,
   IconTag,
@@ -17,6 +17,7 @@ import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { EventImageGallery } from "./EventImageGallery";
 import { formatDateFull, formatTime } from "@/lib/date";
+import { getSession } from "@/server/better-auth/server";
 
 export default async function EventDetailPage({
   params,
@@ -25,11 +26,25 @@ export default async function EventDetailPage({
 }) {
   const { eventId } = await params;
 
-  // Fetch event using oRPC
-  const event = await client.events.get({ id: eventId }).catch(() => null);
+  // Fetch event and session in parallel
+  const [event, session] = await Promise.all([
+    client.events.get({ id: eventId }).catch(() => null),
+    getSession(),
+  ]);
+
   if (!event) {
     notFound();
   }
+
+  // Check registration status if user is logged in
+  const registrationStatus = session?.user
+    ? await client.events
+        .getRegistrationStatus({
+          eventId,
+          userId: session.user.id,
+        })
+        .catch(() => null)
+    : null;
 
   const bigDescriptionIsRichText =
     typeof event.bigDescription === "object" && event.bigDescription !== null;
@@ -59,17 +74,25 @@ export default async function EventDetailPage({
               Discover dates, location, and key information about this event.
             </p>
           </div>
-          <Button asChild className="group bg-primary gap-2 rounded-4xl">
-            <Link href="/events" aria-label="Back to events list">
-              <span
-                aria-hidden
-                className="transition-transform group-hover:-translate-x-0.5"
-              >
-                ←
-              </span>
-              Back to Events
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" className="group gap-2 rounded-4xl">
+              <Link href={`/events/${event.id}/calender`} aria-label="View event schedule">
+                <IconCalendarEvent className="size-4" />
+                View Schedule
+              </Link>
+            </Button>
+            <Button asChild className="group bg-primary gap-2 rounded-4xl">
+              <Link href="/events" aria-label="Back to events list">
+                <span
+                  aria-hidden
+                  className="transition-transform group-hover:-translate-x-0.5"
+                >
+                  ←
+                </span>
+                Back to Events
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Event Image Gallery */}
@@ -251,6 +274,8 @@ export default async function EventDetailPage({
           priceAmount={event.priceAmount}
           priceCurrency={event.priceCurrency}
           eventTitle={event.title}
+          isAuthenticated={!!session?.user}
+          registrationStatus={registrationStatus}
         />
 
         {isEventMoreThan7DaysAway && <ParticipationOptions />}

@@ -14,7 +14,7 @@ export function useSubscriptionStatus() {
     refetch,
     isRefetching,
   } = useQuery(
-    orpc.subscription.getCurrent.queryOptions({
+    orpc.subscription.getUserSubscription.queryOptions({
       input: {},
     }),
   );

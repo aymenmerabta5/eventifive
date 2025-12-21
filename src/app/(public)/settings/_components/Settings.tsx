@@ -14,6 +14,7 @@ import { ProfileInfo } from "./ProfileInfo";
 import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
 import { SessionManagement } from "./SessionManagement";
+import { SubscriptionSettings } from "./SubscriptionSettings";
 import {
   User,
   Mail,
@@ -21,6 +22,7 @@ import {
   Settings,
   ChevronRight,
   Smartphone,
+  Crown,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,12 @@ const tabs = [
     label: "Profile",
     icon: User,
     description: "Manage your personal info",
+  },
+  {
+    id: "subscription",
+    label: "Subscription",
+    icon: Crown,
+    description: "Plan & billing",
   },
   {
     id: "email",
@@ -205,6 +213,49 @@ export default function Main() {
 
         {/* Content Area with animation */}
         <div className="space-y-6">
+          {/* Subscription Tab */}
+          <div
+            className={cn(
+              "transition-all duration-300",
+              activeTab === "subscription"
+                ? "animate-in fade-in slide-in-from-right-4"
+                : "hidden",
+            )}
+          >
+            {activeTab === "subscription" && (
+              <Card className="bg-card/80 overflow-hidden rounded-3xl border-0 shadow-2xl shadow-black/10 backdrop-blur-xl">
+                <div
+                  className={cn(
+                    "h-1 w-full bg-linear-to-r from-violet-500 to-purple-600",
+                  )}
+                />
+
+                <CardHeader className="px-8 py-6">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={cn(
+                        "flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-purple-600 shadow-lg",
+                      )}
+                    >
+                      <Crown className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-semibold">
+                        Subscription
+                      </CardTitle>
+                      <CardDescription>
+                        Manage your plan and billing
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-8 pb-8">
+                  <SubscriptionSettings />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
           {/* Profile Tab */}
           <div
             className={cn(

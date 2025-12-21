@@ -7,7 +7,7 @@ export const subscriptionRouter = {
   listPlans: listPlansRouter,
   createPlan: createPlanRouter,
   syncPlans: syncPlansRouter,
-  getCurrent: getUserSubscriptionRouter,
+  getUserSubscription: getUserSubscriptionRouter,
 };
 
 // Re-export individual routers for backwards compatibility

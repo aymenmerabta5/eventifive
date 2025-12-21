@@ -207,6 +207,13 @@ export type ChargilyWebhookEvent = z.infer<typeof chargilyWebhookEventSchema>;
 // ---------------------------
 // USER SUBSCRIPTION SCHEMAS
 // ---------------------------
+export const quotaUsageSchema = z.object({
+  used: z.number(),
+  limit: z.number(), // -1 = unlimited
+  canCreate: z.boolean(),
+});
+export type QuotaUsage = z.infer<typeof quotaUsageSchema>;
+
 export const userSubscriptionOutputSchema = z.object({
   id: z.string(),
   status: subscriptionStatusSchema,
@@ -219,6 +226,7 @@ export const userSubscriptionOutputSchema = z.object({
     name: z.string(),
     displayName: z.string(),
     features: z.array(z.string()).nullable(),
+    eventQuota: z.number(), // -1 = unlimited
   }),
   price: z.object({
     id: z.string(),
@@ -226,6 +234,7 @@ export const userSubscriptionOutputSchema = z.object({
     amount: z.number(), // Amount in whole currency units
     currency: z.string(),
   }),
+  quotaUsage: quotaUsageSchema,
 });
 export type UserSubscriptionOutput = z.infer<
   typeof userSubscriptionOutputSchema
