@@ -5,9 +5,11 @@ import {
   payment,
   userSubscription,
   eventRegistration,
+  event,
 } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { invalidateDashboardCache } from "@/server/cache";
 
 interface ChargilyWebhookData {
   id: string;
@@ -145,6 +147,23 @@ async function handlePaymentSuccess(
         paymentStatus: "paid",
       })
       .where(eq(eventRegistration.id, paymentRecord.registrationId));
+
+    // Get the event to find the organizer and invalidate their dashboard cache
+    const [registration] = await db
+      .select({ eventId: eventRegistration.eventId })
+      .from(eventRegistration)
+      .where(eq(eventRegistration.id, paymentRecord.registrationId));
+
+    if (registration) {
+      const [eventData] = await db
+        .select({ organizerId: event.organizerId })
+        .from(event)
+        .where(eq(event.id, registration.eventId));
+
+      if (eventData) {
+        await invalidateDashboardCache(eventData.organizerId);
+      }
+    }
 
     console.log(
       `Event registration ${paymentRecord.registrationId} marked as paid for payment ${paymentRecord.id}`,

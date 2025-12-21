@@ -10,6 +10,7 @@ import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { eq, and, gte, count } from "drizzle-orm";
+import { invalidateDashboardStats } from "@/server/cache";
 
 const outputSchema = z.object({
   status: z.enum(["success", "error"]),
@@ -108,6 +109,9 @@ export const createDraftEventRouter = protectedProcedure
         createdAt: now,
         updatedAt: now,
       });
+
+      // Invalidate dashboard stats cache
+      await invalidateDashboardStats(session.user.id);
 
       return {
         status: "success" as const,

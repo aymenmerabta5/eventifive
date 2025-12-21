@@ -24,16 +24,23 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import type { User as BetterAuthUser } from "better-auth";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useProfileImage } from "@/hooks/use-profile-image";
-import { Skeleton } from "@/components/ui/skeleton";
 
-export function NavUser({ user }: { user: BetterAuthUser | undefined }) {
+type NavUserProps = {
+  user:
+    | {
+        name?: string | null;
+        email?: string | null;
+        profileImageUrl?: string | null;
+      }
+    | undefined;
+};
+
+export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const { imageUrl, isLoading } = useProfileImage();
+  const imageUrl = user?.profileImageUrl;
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -44,14 +51,9 @@ export function NavUser({ user }: { user: BetterAuthUser | undefined }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {isLoading && <Skeleton className="h-8 w-8 rounded-lg" />}
-                {!isLoading && imageUrl ? (
+                {imageUrl ? (
                   <AvatarImage src={imageUrl} alt={user?.name || ""} />
-                ) : (
-                  <AvatarFallback className="rounded-lg">
-                    {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                  </AvatarFallback>
-                )}
+                ) : null}
                 <AvatarFallback className="rounded-lg">
                   {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                 </AvatarFallback>
@@ -76,11 +78,7 @@ export function NavUser({ user }: { user: BetterAuthUser | undefined }) {
                 <Avatar className="h-8 w-8 rounded-lg">
                   {imageUrl ? (
                     <AvatarImage src={imageUrl} alt={user?.name || ""} />
-                  ) : (
-                    <AvatarFallback className="rounded-lg">
-                      {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                    </AvatarFallback>
-                  )}
+                  ) : null}
                   <AvatarFallback className="rounded-lg">
                     {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                   </AvatarFallback>

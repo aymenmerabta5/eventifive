@@ -19,11 +19,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import type { User as BetterAuthUser } from "better-auth";
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = authClient.useSession();
-  const user = session?.user as unknown as BetterAuthUser;
+  const user = session?.user;
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

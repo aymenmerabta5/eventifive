@@ -93,7 +93,9 @@ Bun.serve<WSData>({
 
       await rpcHandler.upgrade(adapter as unknown as WebSocket, {
         context: {
-          session,
+          session: session as Parameters<
+            typeof rpcHandler.upgrade
+          >[1]["context"]["session"],
           req: { headers: ws.data.headers } as NextRequest,
         },
       });

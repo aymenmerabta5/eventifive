@@ -19,12 +19,10 @@ import {
   IconUser,
   IconMail,
 } from "@tabler/icons-react";
-import { useProfileImage } from "@/hooks/use-profile-image";
 
 export default function UserMenu() {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
-  const { imageUrl } = useProfileImage();
 
   if (isPending) {
     return <Skeleton className="h-9 w-24" />;
@@ -44,7 +42,7 @@ export default function UserMenu() {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage
-              src={imageUrl ?? undefined}
+              src={session.user.profileImageUrl ?? undefined}
               alt={session.user.name || ""}
             />
             <AvatarFallback>

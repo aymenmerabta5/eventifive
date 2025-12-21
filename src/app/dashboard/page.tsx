@@ -1,9 +1,8 @@
 "use client";
 
 import { AppSidebar } from "./_components/app-sidebar";
-import { ChartAreaInteractive } from "./_components/chart-area-interactive";
-import { DataTable } from "./_components/data-table";
-import { SectionCards } from "./_components/section-cards";
+import { ChartAreaInteractive } from "./_components/ChartAreaInteractive";
+import { SectionCards } from "./_components/SectionCards";
 import { SiteHeader } from "./_components/site-header";
 import { EventFormCard } from "./_components/EventActions";
 import { MyEvents } from "./_components/MyEvents";
@@ -11,7 +10,6 @@ import { EventRegistration } from "./_components/EventRegistration";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSearchParams } from "next/navigation";
 import ShareEvent from "./_components/EventActions/components/ShareEvent";
-import data from "./data.json";
 import { Suspense } from "react";
 import Loader from "@/components/loader";
 
@@ -72,7 +70,6 @@ function Dashboard() {
                   <div className="px-4 lg:px-6">
                     <ChartAreaInteractive />
                   </div>
-                  <DataTable data={data} />
                 </>
               )}
             </div>

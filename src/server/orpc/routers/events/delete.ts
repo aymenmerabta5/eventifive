@@ -4,6 +4,7 @@ import { event } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
+import { invalidateDashboardCache } from "@/server/cache";
 
 const inputDeleteEventSchema = z.object({
   eventId: z.string(),
@@ -37,6 +38,9 @@ export const deleteEventRouter = protectedProcedure
       }
 
       await db.delete(event).where(eq(event.id, eventId));
+
+      // Invalidate dashboard cache
+      await invalidateDashboardCache(session.user.id);
 
       return {
         success: true,

@@ -25,9 +25,17 @@ import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function Header() {
   const { data: session } = authClient.useSession();
+  const canAccessDashboard =
+    session?.user?.hasActiveSubscription || session?.user?.isAdmin;
+
   const links = useMemo(
     () => [
-      { to: "/dashboard", label: "Dashboard", isPublic: false } as const,
+      {
+        to: "/dashboard",
+        label: "Dashboard",
+        isPublic: false,
+        requiresDashboardAccess: true,
+      } as const,
       { to: "/pricing", label: "Pricing", isPublic: true } as const,
       { to: "/events", label: "Events", isPublic: true } as const,
     ],
@@ -42,8 +50,16 @@ export default function Header() {
   });
 
   const filteredLinks = useMemo(
-    () => links.filter(({ isPublic }) => (isPublic ? true : session?.user)),
-    [links, session],
+    () =>
+      links.filter((link) => {
+        if (link.isPublic) return true;
+        if (!session?.user) return false;
+        if ("requiresDashboardAccess" in link && link.requiresDashboardAccess) {
+          return canAccessDashboard;
+        }
+        return true;
+      }),
+    [links, session, canAccessDashboard],
   );
   return (
     <motion.header

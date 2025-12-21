@@ -20,7 +20,8 @@
       "Bash(bun run typecheck:*)",
       "WebFetch(domain:www.better-auth.com)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(bun run build:*)"
     ],
     "deny": [],
     "ask": []

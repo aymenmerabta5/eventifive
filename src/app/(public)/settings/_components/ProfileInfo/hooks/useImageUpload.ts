@@ -4,18 +4,15 @@ import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import { useProfileImage } from "@/hooks/use-profile-image";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_BYTES } from "../constants";
 
 export function useImageUpload(onSessionRefresh: () => void) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const {
-    imageUrl,
-    isLoading: isLoadingImage,
-    invalidateImage,
-  } = useProfileImage();
+  const { data: session, isPending } = authClient.useSession();
+  const imageUrl = session?.user?.profileImageUrl ?? null;
+  const isLoadingImage = isPending;
 
   const handleImageUpload = useCallback(
     async (file: File) => {
@@ -75,8 +72,6 @@ export function useImageUpload(onSessionRefresh: () => void) {
         });
         // Trigger React re-render via useSession's refetch
         onSessionRefresh();
-        // Force refetch the profile image query
-        await invalidateImage();
         router.refresh();
       } catch (error: unknown) {
         console.error("Upload error:", error);
@@ -87,7 +82,7 @@ export function useImageUpload(onSessionRefresh: () => void) {
         setIsUploading(false);
       }
     },
-    [invalidateImage, onSessionRefresh, router],
+    [onSessionRefresh, router],
   );
 
   const handleFileChange = useCallback(

@@ -4,6 +4,7 @@ import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
 import { event, eventRegistration } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
+import { invalidateDashboardCache } from "@/server/cache";
 
 const inputSchema = z.object({
   eventId: z.string().min(1),
@@ -76,6 +77,9 @@ export const registerForEventRouter = protectedProcedure
         message: "Failed to create registration",
       });
     }
+
+    // Invalidate organizer's dashboard cache
+    await invalidateDashboardCache(eventData.organizerId);
 
     return {
       success: true,
