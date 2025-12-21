@@ -36,7 +36,7 @@ export default function Header() {
         isPublic: false,
         requiresDashboardAccess: true,
       } as const,
-      { to: "/pricing", label: "Pricing", isPublic: true } as const,
+      { to: "/pricing", label: "Pricing", isPublic: true, showWhenSubscribed: false } as const,
       { to: "/events", label: "Events", isPublic: true } as const,
     ],
     [],
@@ -52,6 +52,9 @@ export default function Header() {
   const filteredLinks = useMemo(
     () =>
       links.filter((link) => {
+        if ("showWhenSubscribed" in link && !link.showWhenSubscribed && session?.user?.hasActiveSubscription) {
+          return false;
+        }
         if (link.isPublic) return true;
         if (!session?.user) return false;
         if ("requiresDashboardAccess" in link && link.requiresDashboardAccess) {
