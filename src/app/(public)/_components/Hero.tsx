@@ -6,55 +6,57 @@ import { buttonVariants } from "@/components/ui/button";
 
 export function Hero() {
   return (
-    <WavyBackgroundComponent className="max-w-7xl mx-auto pb-40 pt-24 min-h-screen flex flex-col items-center justify-center">
+    <WavyBackgroundComponent className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center pt-24 pb-40">
       <div className="relative z-10 flex flex-col items-center justify-center px-4">
-
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative"
         >
-          <h1 className="text-6xl md:text-6xl lg:text-6xl xl:text-8xl font-black text-center font-display tracking-tight mb-2">
-            <span className="bg-clip-text text-transparent bg-linear-to-r from-chart-3 via-primary dark:to-white to-indigo-400 drop-shadow-2xl">
+          <h1 className="font-display mb-2 text-center text-6xl font-black tracking-tight md:text-6xl lg:text-6xl xl:text-8xl">
+            <span className="from-chart-3 via-primary bg-linear-to-r to-indigo-400 bg-clip-text text-transparent drop-shadow-2xl dark:to-white">
               Eventi
             </span>
-            <span className="bg-clip-text text-transparent bg-linear-to-r dark:from-gray-300 from-indigo-500 via-fuchsia-400 to-chart-1 tracking-wider">
+            <span className="to-chart-1 bg-linear-to-r from-indigo-500 via-fuchsia-400 bg-clip-text tracking-wider text-transparent dark:from-gray-300">
               Five
             </span>
           </h1>
-        
-          <div className="absolute inset-0 blur-3xl opacity-40 bg-linear-to-r from-chart-3 via-primary to-chart-5 -z-10" />
+
+          <div className="from-chart-3 via-primary to-chart-5 absolute inset-0 -z-10 bg-linear-to-r opacity-40 blur-3xl" />
         </motion.div>
 
- 
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="text-xl md:text-2xl lg:text-2xl mt-6 text-foreground/90 font-light text-center max-w-3xl leading-relaxed tracking-wide"
+          className="text-foreground/90 mt-6 max-w-3xl text-center text-xl leading-relaxed font-light tracking-wide md:text-2xl lg:text-2xl"
         >
           Your ultimate event management platform
         </motion.p>
 
-       
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
           transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-          className="mt-8 h-1 w-32 bg-linear-to-r from-transparent via-primary to-transparent rounded-full"
+          className="via-primary mt-8 h-1 w-32 rounded-full bg-linear-to-r from-transparent to-transparent"
         />
 
-      
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.9 }}
-          className="text-sm md:text-base lg:text-sm mt-8 text-muted-foreground font-medium text-center tracking-widest uppercase"
+          className="text-muted-foreground mt-8 text-center text-sm font-medium tracking-widest uppercase md:text-base lg:text-sm"
         >
           Create • Manage • Celebrate
         </motion.p>
-        <Link href="/events" className={cn(buttonVariants({ variant: "default" }), "mt-12 w-40 py-6 rounded-4xl cursor-pointer")}>
+        <Link
+          href="/events"
+          className={cn(
+            buttonVariants({ variant: "default" }),
+            "mt-12 w-40 cursor-pointer rounded-4xl py-6",
+          )}
+        >
           View Events
         </Link>
       </div>

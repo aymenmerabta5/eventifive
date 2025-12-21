@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    /* Bun Types */
+    "types": ["bun-types"],
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,

@@ -9,10 +9,20 @@ export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 export const billingPeriodSchema = z.enum(["monthly", "yearly"]);
 export type BillingPeriod = z.infer<typeof billingPeriodSchema>;
 
-export const paymentStatusSchema = z.enum(["unpaid", "pending", "paid", "refunded"]);
+export const paymentStatusSchema = z.enum([
+  "unpaid",
+  "pending",
+  "paid",
+  "refunded",
+]);
 export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
 
-export const subscriptionStatusSchema = z.enum(["pending", "active", "cancelled", "expired"]);
+export const subscriptionStatusSchema = z.enum([
+  "pending",
+  "active",
+  "cancelled",
+  "expired",
+]);
 export type SubscriptionStatusType = z.infer<typeof subscriptionStatusSchema>;
 
 // ---------------------------
@@ -25,13 +35,15 @@ export const createPlanInputSchema = z.object({
   features: z.array(z.string()).optional(),
   sortOrder: z.number().int().default(0),
   isActive: z.boolean().default(true),
-  prices: z.array(
-    z.object({
-      billingPeriod: billingPeriodSchema,
-      amount: z.number().int().positive(), // Amount in whole currency units (e.g., 5000 DZD)
-      currency: z.string().default("DZD"),
-    })
-  ).min(1),
+  prices: z
+    .array(
+      z.object({
+        billingPeriod: billingPeriodSchema,
+        amount: z.number().int().positive(), // Amount in whole currency units (e.g., 5000 DZD)
+        currency: z.string().default("DZD"),
+      }),
+    )
+    .min(1),
 });
 export type CreatePlanInput = z.infer<typeof createPlanInputSchema>;
 
@@ -65,7 +77,7 @@ export const planOutputSchema = z.object({
       currency: z.string(),
       chargilyPriceId: z.string().nullable(),
       chargilySyncedAt: z.date().nullable(),
-    })
+    }),
   ),
 });
 export type PlanOutput = z.infer<typeof planOutputSchema>;
@@ -93,7 +105,9 @@ export const createEventCheckoutInputSchema = z.object({
   eventId: z.string().min(1),
   paymentMethod: paymentMethodSchema.optional(),
 });
-export type CreateEventCheckoutInput = z.infer<typeof createEventCheckoutInputSchema>;
+export type CreateEventCheckoutInput = z.infer<
+  typeof createEventCheckoutInputSchema
+>;
 
 // ---------------------------
 // PAYMENT STATUS SCHEMAS
@@ -114,16 +128,20 @@ export const paymentStatusOutputSchema = z.object({
   paidAt: z.date().nullable(),
   createdAt: z.date(),
   // Related data
-  subscription: z.object({
-    id: z.string(),
-    planName: z.string(),
-    status: subscriptionStatusSchema,
-  }).nullable(),
-  eventRegistration: z.object({
-    id: z.number(),
-    eventId: z.string(),
-    eventTitle: z.string(),
-  }).nullable(),
+  subscription: z
+    .object({
+      id: z.string(),
+      planName: z.string(),
+      status: subscriptionStatusSchema,
+    })
+    .nullable(),
+  eventRegistration: z
+    .object({
+      id: z.number(),
+      eventId: z.string(),
+      eventTitle: z.string(),
+    })
+    .nullable(),
 });
 export type PaymentStatusOutput = z.infer<typeof paymentStatusOutputSchema>;
 
@@ -138,7 +156,7 @@ export const listPaymentsOutputSchema = z.array(
     createdAt: z.date(),
     type: z.enum(["subscription", "event_registration"]),
     description: z.string(),
-  })
+  }),
 );
 export type ListPaymentsOutput = z.infer<typeof listPaymentsOutputSchema>;
 
@@ -209,4 +227,6 @@ export const userSubscriptionOutputSchema = z.object({
     currency: z.string(),
   }),
 });
-export type UserSubscriptionOutput = z.infer<typeof userSubscriptionOutputSchema>;
+export type UserSubscriptionOutput = z.infer<
+  typeof userSubscriptionOutputSchema
+>;

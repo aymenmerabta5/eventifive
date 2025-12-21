@@ -2,49 +2,44 @@
 
 import { useSubscriptionStatus } from "./hooks";
 import {
-	LoadingState,
-	ErrorState,
-	FreePlanState,
-	ActiveSubscriptionCard,
+  LoadingState,
+  ErrorState,
+  FreePlanState,
+  ActiveSubscriptionCard,
 } from "./components";
 import type { SubscriptionData } from "./types";
 
 export function SubscriptionStatus() {
-	const {
-		subscription,
-		hasSubscription,
-		daysRemaining,
-		isPending,
-		error,
-		isRefetching,
-		handleRefresh,
-	} = useSubscriptionStatus();
+  const {
+    subscription,
+    hasSubscription,
+    daysRemaining,
+    isPending,
+    error,
+    isRefetching,
+    handleRefresh,
+  } = useSubscriptionStatus();
 
-	// Loading state - ALWAYS handle first
-	if (isPending) {
-		return <LoadingState />;
-	}
+  // Loading state - ALWAYS handle first
+  if (isPending) {
+    return <LoadingState />;
+  }
 
-	// Error state - Handle before rendering content
-	if (error) {
-		return (
-			<ErrorState
-				onRetry={handleRefresh}
-				isRetrying={isRefetching}
-			/>
-		);
-	}
+  // Error state - Handle before rendering content
+  if (error) {
+    return <ErrorState onRetry={handleRefresh} isRetrying={isRefetching} />;
+  }
 
-	// Free plan state (no subscription)
-	if (!hasSubscription) {
-		return <FreePlanState />;
-	}
+  // Free plan state (no subscription)
+  if (!hasSubscription) {
+    return <FreePlanState />;
+  }
 
-	// Active subscription
-	return (
-		<ActiveSubscriptionCard
-			subscription={subscription as SubscriptionData}
-			daysRemaining={daysRemaining}
-		/>
-	);
+  // Active subscription
+  return (
+    <ActiveSubscriptionCard
+      subscription={subscription as SubscriptionData}
+      daysRemaining={daysRemaining}
+    />
+  );
 }

@@ -48,9 +48,9 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
           <div className="space-y-2">
             <Label
               htmlFor={field.name}
-              className="flex items-center gap-2 text-sm font-medium text-foreground"
+              className="text-foreground flex items-center gap-2 text-sm font-medium"
             >
-              <User className="size-4 text-muted-foreground" />
+              <User className="text-muted-foreground size-4" />
               Full Name
             </Label>
             <Input
@@ -61,9 +61,9 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
               placeholder="Enter your full name"
-              className="h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
+              className="bg-background/50 border-border/50 focus:border-primary/50 h-11 transition-colors"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               This is how your name will appear across the platform.
             </p>
           </div>
@@ -76,9 +76,9 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
           <div className="space-y-2">
             <Label
               htmlFor={field.name}
-              className="flex items-center gap-2 text-sm font-medium text-foreground"
+              className="text-foreground flex items-center gap-2 text-sm font-medium"
             >
-              <Building2 className="size-4 text-muted-foreground" />
+              <Building2 className="text-muted-foreground size-4" />
               Institution
             </Label>
             <Input
@@ -89,9 +89,9 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
               placeholder="Enter your institution or organization"
-              className="h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
+              className="bg-background/50 border-border/50 focus:border-primary/50 h-11 transition-colors"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Your university, company, or research organization.
             </p>
           </div>
@@ -104,9 +104,9 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
           <div className="space-y-2">
             <Label
               htmlFor={field.name}
-              className="flex items-center gap-2 text-sm font-medium text-foreground"
+              className="text-foreground flex items-center gap-2 text-sm font-medium"
             >
-              <FlaskConical className="size-4 text-muted-foreground" />
+              <FlaskConical className="text-muted-foreground size-4" />
               Research Domain
             </Label>
             <Input
@@ -117,9 +117,9 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
               placeholder="Enter your research domain or field of expertise"
-              className="h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
+              className="bg-background/50 border-border/50 focus:border-primary/50 h-11 transition-colors"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Your area of research or professional expertise.
             </p>
           </div>
@@ -130,18 +130,18 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
       <form.Field name="biography">
         {(field: BiographyFieldApi) => (
           <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <BookTextIcon className="size-4 text-muted-foreground" />
+            <Label className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <BookTextIcon className="text-muted-foreground size-4" />
               Biography
             </Label>
-            <div className="rounded-lg border border-border/50 bg-background/50 overflow-hidden focus-within:border-primary/50 transition-colors">
+            <div className="border-border/50 bg-background/50 focus-within:border-primary/50 overflow-hidden rounded-lg border transition-colors">
               <Editor
                 content={initialBiography}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Tell others about yourself. This will be visible on your public
               profile.
             </p>
@@ -150,12 +150,12 @@ export function ProfileForm({ form, initialBiography }: ProfileFormProps) {
       </form.Field>
 
       {/* Submit Button */}
-      <div className="flex justify-end pt-4 border-t border-border/50">
+      <div className="border-border/50 flex justify-end border-t pt-4">
         <form.Subscribe>
           {(state: FormState) => (
             <StatefulButton
               type="submit"
-              className="h-11 px-8 rounded-lg font-medium cursor-pointer"
+              className="h-11 cursor-pointer rounded-lg px-8 font-medium"
               disabled={!state.canSubmit || state.isSubmitting}
             >
               {state.isSubmitting ? "Saving changes..." : "Save changes"}

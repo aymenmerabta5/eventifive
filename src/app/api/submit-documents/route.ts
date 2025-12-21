@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/server/better-auth";
 import { headers } from "next/headers";
-import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "@/server/bucket/s3Client";
-import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
 import {
@@ -48,7 +46,7 @@ export async function GET(req: NextRequest) {
     if (!normalizedEventId) {
       return NextResponse.json(
         { message: "eventId is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,8 +58,8 @@ export async function GET(req: NextRequest) {
           eq(files.userId, session.user.id),
           eq(files.eventId, normalizedEventId),
           eq(files.fileType, "document"),
-          eq(files.status, "completed")
-        )
+          eq(files.status, "completed"),
+        ),
       );
 
     return NextResponse.json({
@@ -77,7 +75,7 @@ export async function GET(req: NextRequest) {
             ? error.message
             : "Error getting uploaded file count",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -89,10 +87,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Parse FormData
@@ -106,7 +101,7 @@ export async function POST(req: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { message: "No file provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -119,10 +114,16 @@ export async function POST(req: NextRequest) {
     if (typeof name === "string") {
       const trimmedName = name.trim();
       if (trimmedName.length === 0) {
-        return NextResponse.json({ message: "Name is required." }, { status: 400 });
+        return NextResponse.json(
+          { message: "Name is required." },
+          { status: 400 },
+        );
       }
       if (trimmedName.length > MAX_NAME_LENGTH) {
-        return NextResponse.json({ message: "Name is too long." }, { status: 400 });
+        return NextResponse.json(
+          { message: "Name is too long." },
+          { status: 400 },
+        );
       }
       normalizedName = trimmedName;
     }
@@ -146,7 +147,7 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { message: "Research domain is too long." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -156,7 +157,7 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { message: "About idea is too long." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -169,30 +170,34 @@ export async function POST(req: NextRequest) {
             eq(files.userId, session.user.id),
             eq(files.eventId, normalizedEventId),
             eq(files.fileType, "document"),
-            eq(files.status, "completed")
-          )
+            eq(files.status, "completed"),
+          ),
         );
 
       const existingCount = Number(existing[0]?.count ?? 0);
       if (existingCount >= MAX_FILES_PER_EVENT_PER_USER) {
         return NextResponse.json(
           { message: "You can upload a maximum of 3 files for this event." },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
 
     // `validateFile` is shared and intentionally strict; for this route we also allow DOC/DOCX.
-    const isAllowedRegistrationDocType = ALLOWED_REGISTRATION_DOCUMENT_TYPES.has(file.type);
+    const isAllowedRegistrationDocType =
+      ALLOWED_REGISTRATION_DOCUMENT_TYPES.has(file.type);
     if (!isAllowedRegistrationDocType) {
       const validation = validateFile(file.name, file.size, file.type);
       if (!validation.valid) {
-        return NextResponse.json({ message: validation.error }, { status: 400 });
+        return NextResponse.json(
+          { message: validation.error },
+          { status: 400 },
+        );
       }
       if (validation.fileType !== "document") {
         return NextResponse.json(
           { message: "Only document files are allowed" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -200,7 +205,7 @@ export async function POST(req: NextRequest) {
     if (file.size > MAX_DOCUMENT_SIZE) {
       return NextResponse.json(
         { message: "Document must be less than 10MB" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -209,18 +214,13 @@ export async function POST(req: NextRequest) {
     const sanitizedName = sanitizeFileName(file.name);
     const key = `${session.user.id}/documents/${fileId}-${sanitizedName}`;
 
-    // Upload to S3
+    // Upload to S3 using Bun's native S3 client
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: env.S3_BUCKET_NAME,
-        Key: key,
-        Body: buffer,
-        ContentType: file.type,
-      })
-    );
+    await s3Client.write(key, buffer, {
+      type: file.type,
+    });
 
     let submissionId: string | null = null;
 
@@ -306,7 +306,9 @@ export async function POST(req: NextRequest) {
           }
 
           if (!submissionId) {
-            throw new Error("Failed to create or locate submission for this upload.");
+            throw new Error(
+              "Failed to create or locate submission for this upload.",
+            );
           }
           const ensuredSubmissionId = submissionId;
 
@@ -331,7 +333,10 @@ export async function POST(req: NextRequest) {
                 })),
               )
               .onConflictDoNothing({
-                target: [reviewAssignment.submissionId, reviewAssignment.reviewerId],
+                target: [
+                  reviewAssignment.submissionId,
+                  reviewAssignment.reviewerId,
+                ],
               });
           }
 
@@ -346,12 +351,8 @@ export async function POST(req: NextRequest) {
         }
       });
     } catch (dbError) {
-      await s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: env.S3_BUCKET_NAME,
-          Key: key,
-        })
-      );
+      // Rollback S3 upload if database transaction fails
+      await s3Client.delete(key);
       throw dbError;
     }
 
@@ -368,8 +369,7 @@ export async function POST(req: NextRequest) {
         message:
           error instanceof Error ? error.message : "Error uploading document",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

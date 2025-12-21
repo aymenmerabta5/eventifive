@@ -23,21 +23,20 @@ export const auth = betterAuth({
         required: false,
         input: false,
       },
-    }
+    },
   },
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-    }
+    },
   },
   plugins: [
     captcha({
       secretKey: env.CLOUDFLARE_TURNSTYLE_SK,
       provider: "cloudflare-turnstile",
     }),
-  ]
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;
-

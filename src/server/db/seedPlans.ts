@@ -1,6 +1,3 @@
-import { config } from "dotenv";
-config({ path: ".env" });
-
 import { v4 as uuidv4 } from "uuid";
 
 interface PlanSeed {

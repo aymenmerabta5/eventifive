@@ -9,7 +9,7 @@ import { changePasswordSchema } from "@/lib/schemas/schemas";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
-export default function ChangePassword(){
+export default function ChangePassword() {
   const form = useForm({
     defaultValues: {
       currentPassword: "",
@@ -30,31 +30,34 @@ export default function ChangePassword(){
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
-        await authClient.changePassword({
-          currentPassword: value.currentPassword,
-          newPassword: value.newPassword,
-        }, {
-          onSuccess: () => {
-            toast.success("Password updated successfully");
+        await authClient.changePassword(
+          {
+            currentPassword: value.currentPassword,
+            newPassword: value.newPassword,
           },
-          onError: (error) => {
-            toast.error("Failed to update password");
+          {
+            onSuccess: () => {
+              toast.success("Password updated successfully");
+            },
+            onError: () => {
+              toast.error("Failed to update password");
+            },
           },
-        });
+        );
       } catch (error) {
         console.error("Failed to update password:", error);
       }
     },
   });
   return (
-    <form 
+    <form
       onSubmit={async (e) => {
         e.preventDefault();
         e.stopPropagation();
         await form.handleSubmit();
         return false;
       }}
-      className="flex flex-col gap-4 mt-12 border-border border-b pb-12"
+      className="border-border mt-12 flex flex-col gap-4 border-b pb-12"
     >
       <form.Field name="currentPassword">
         {(field) => (
@@ -106,8 +109,13 @@ export default function ChangePassword(){
         {(state) => (
           <StatefulButton
             type="submit"
-            className="mt-6 h-11 w-full rounded-4xl cursor-pointer"
-            disabled={!state.canSubmit || state.isSubmitting || !state.values.currentPassword || !state.values.newPassword}
+            className="mt-6 h-11 w-full cursor-pointer rounded-4xl"
+            disabled={
+              !state.canSubmit ||
+              state.isSubmitting ||
+              !state.values.currentPassword ||
+              !state.values.newPassword
+            }
           >
             {state.isSubmitting ? "Updating Password..." : "Update Password"}
           </StatefulButton>

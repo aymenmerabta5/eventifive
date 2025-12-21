@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/server/better-auth";
 import { headers } from "next/headers";
-import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "@/server/bucket/s3Client";
-import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
 import { event, eventImages, files, user } from "@/server/db/schema";
@@ -16,16 +14,12 @@ const MAX_GALLERY_IMAGES = 3;
 
 export async function POST(req: NextRequest) {
   try {
-    
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Parse FormData
@@ -38,22 +32,19 @@ export async function POST(req: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { message: "No file provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const validation = validateFile(file.name, file.size, file.type);
     if (!validation.valid) {
-      return NextResponse.json(
-        { message: validation.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: validation.error }, { status: 400 });
     }
 
     if (validation.fileType !== "image") {
       return NextResponse.json(
         { message: "Only image files are allowed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,24 +53,38 @@ export async function POST(req: NextRequest) {
     if (!isEventTarget && file.size > MAX_PROFILE_IMAGE_SIZE) {
       return NextResponse.json(
         { message: "Profile image must be less than 5MB" },
-        { status: 400 }
+        { status: 400 },
       );
     }
-    if ((isEventTarget || isStagedEventTarget) && file.size > MAX_EVENT_IMAGE_SIZE) {
+    if (
+      (isEventTarget || isStagedEventTarget) &&
+      file.size > MAX_EVENT_IMAGE_SIZE
+    ) {
       return NextResponse.json(
         { message: "Image must be less than 10MB" },
-        { status: 400 }
+        { status: 400 },
       );
+    }
+
+    // Helper function to upload to S3 using Bun's native S3 client
+    async function uploadToS3(key: string, fileData: File) {
+      const bytes = await fileData.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      await s3Client.write(key, buffer, {
+        type: fileData.type,
+      });
     }
 
     // Staged event image upload (no eventId yet)
     if (isStagedEventTarget) {
       const normalizedKind =
-        kind === "cover" || kind === "gallery" ? (kind as "cover" | "gallery") : null;
+        kind === "cover" || kind === "gallery"
+          ? (kind as "cover" | "gallery")
+          : null;
       if (!normalizedKind) {
         return NextResponse.json(
           { message: "kind must be 'cover' or 'gallery'" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -88,17 +93,7 @@ export async function POST(req: NextRequest) {
       const folder = normalizedKind === "cover" ? "cover" : "gallery";
       const key = `${session.user.id}/events/staged/${folder}/${fileId}-${sanitizedName}`;
 
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: env.S3_BUCKET_NAME,
-          Key: key,
-          Body: buffer,
-          ContentType: file.type,
-        })
-      );
+      await uploadToS3(key, file);
 
       await db.insert(files).values({
         id: fileId,
@@ -131,15 +126,20 @@ export async function POST(req: NextRequest) {
           ? eventId.trim()
           : null;
       if (!normalizedEventId) {
-        return NextResponse.json({ message: "eventId is required" }, { status: 400 });
+        return NextResponse.json(
+          { message: "eventId is required" },
+          { status: 400 },
+        );
       }
 
       const normalizedKind =
-        kind === "cover" || kind === "gallery" ? (kind as "cover" | "gallery") : null;
+        kind === "cover" || kind === "gallery"
+          ? (kind as "cover" | "gallery")
+          : null;
       if (!normalizedKind) {
         return NextResponse.json(
           { message: "kind must be 'cover' or 'gallery'" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -150,7 +150,10 @@ export async function POST(req: NextRequest) {
         .limit(1);
 
       if (!evt) {
-        return NextResponse.json({ message: "Event not found" }, { status: 404 });
+        return NextResponse.json(
+          { message: "Event not found" },
+          { status: 404 },
+        );
       }
       if (evt.organizerId !== session.user.id) {
         return NextResponse.json({ message: "Forbidden" }, { status: 403 });
@@ -161,14 +164,17 @@ export async function POST(req: NextRequest) {
           .select({ count: sql<number>`count(*)` })
           .from(eventImages)
           .where(
-            and(eq(eventImages.eventId, normalizedEventId), eq(eventImages.isDefault, false))
+            and(
+              eq(eventImages.eventId, normalizedEventId),
+              eq(eventImages.isDefault, false),
+            ),
           );
 
         const existingCount = Number(existing[0]?.count ?? 0);
         if (existingCount >= MAX_GALLERY_IMAGES) {
           return NextResponse.json(
             { message: `Maximum ${MAX_GALLERY_IMAGES} gallery images allowed` },
-            { status: 400 }
+            { status: 400 },
           );
         }
       }
@@ -178,17 +184,7 @@ export async function POST(req: NextRequest) {
       const folder = normalizedKind === "cover" ? "cover" : "gallery";
       const key = `${session.user.id}/events/${normalizedEventId}/${folder}/${fileId}-${sanitizedName}`;
 
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: env.S3_BUCKET_NAME,
-          Key: key,
-          Body: buffer,
-          ContentType: file.type,
-        })
-      );
+      await uploadToS3(key, file);
 
       await db.transaction(async (tx) => {
         if (normalizedKind === "cover") {
@@ -196,7 +192,10 @@ export async function POST(req: NextRequest) {
             .update(eventImages)
             .set({ isDefault: false, updatedAt: new Date() })
             .where(
-              and(eq(eventImages.eventId, normalizedEventId), eq(eventImages.isDefault, true))
+              and(
+                eq(eventImages.eventId, normalizedEventId),
+                eq(eventImages.isDefault, true),
+              ),
             );
         }
 
@@ -233,35 +232,24 @@ export async function POST(req: NextRequest) {
     }
 
     // Profile image upload (default)
-    const userProfile = await db.select().from(user).where(eq(user.id, session.user.id));
+    const userProfile = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, session.user.id));
     if (
       userProfile[0]?.image &&
       userProfile[0]?.image !== "" &&
       userProfile[0]?.image !== ""
     ) {
-      await s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: env.S3_BUCKET_NAME,
-          Key: userProfile[0]?.image,
-        })
-      );
+      // Delete old profile image from S3 using Bun's native S3 client
+      await s3Client.delete(userProfile[0]?.image);
     }
 
     const fileId = uuidv4();
     const sanitizedName = sanitizeFileName(file.name);
     const key = `${session.user.id}/profile/${fileId}-${sanitizedName}`;
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: env.S3_BUCKET_NAME,
-        Key: key,
-        Body: buffer,
-        ContentType: file.type,
-      })
-    );
+    await uploadToS3(key, file);
 
     // Update user profile with new image key
     await db
@@ -276,9 +264,11 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error uploading image:", error);
     return NextResponse.json(
-      { message: error instanceof Error ? error.message : "Error uploading image" },
-      { status: 500 }
+      {
+        message:
+          error instanceof Error ? error.message : "Error uploading image",
+      },
+      { status: 500 },
     );
   }
 }
-

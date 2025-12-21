@@ -41,7 +41,7 @@ export function EventRegistrationSection({
       onError: (error) => {
         toast.error(error.message || "Failed to register for event");
       },
-    })
+    }),
   );
 
   // Paid event checkout mutation
@@ -54,7 +54,7 @@ export function EventRegistrationSection({
       onError: (error) => {
         toast.error(error.message || "Failed to create checkout");
       },
-    })
+    }),
   );
 
   const handleRegister = () => {
@@ -81,16 +81,19 @@ export function EventRegistrationSection({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <IconCurrencyDollar className="size-5 text-primary" />
+            <IconCurrencyDollar className="text-primary size-5" />
             <span className="text-sm font-medium">Registration Fee</span>
           </div>
-          <Badge variant={isFreeEvent ? "secondary" : "default"} className="text-sm">
+          <Badge
+            variant={isFreeEvent ? "secondary" : "default"}
+            className="text-sm"
+          >
             {priceDisplay}
           </Badge>
         </div>
 
         {!isAuthenticated && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Please sign in to register for this event.
           </p>
         )}
@@ -109,7 +112,7 @@ export function EventRegistrationSection({
         </Button>
 
         {!isFreeEvent && (
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center text-xs">
             You will be redirected to complete payment securely.
           </p>
         )}

@@ -1,7 +1,7 @@
 export function getUserChannel(userId: string): string {
-	return `user:${userId}:messages`;
+  return `user:${userId}:messages`;
 }
 
 export function getConversationChannel(conversationId: string): string {
-	return `conversation:${conversationId}`;
+  return `conversation:${conversationId}`;
 }

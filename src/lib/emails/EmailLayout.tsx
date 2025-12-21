@@ -43,7 +43,13 @@ const tailwindConfig = {
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["Plus Jakarta Sans", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: [
+          "Plus Jakarta Sans",
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: ["JetBrains Mono", "monospace"],
       },
       borderRadius: {
@@ -56,7 +62,8 @@ const tailwindConfig = {
         "2xs": "0px 4px 10px 0px hsl(240 30% 25% / 0.06)",
         xs: "0px 4px 10px 0px hsl(240 30% 25% / 0.06)",
         sm: "0px 4px 10px 0px hsl(240 30% 25% / 0.12), 0px 1px 2px -1px hsl(240 30% 25% / 0.12)",
-        DEFAULT: "0px 4px 10px 0px hsl(240 30% 25% / 0.12), 0px 1px 2px -1px hsl(240 30% 25% / 0.12)",
+        DEFAULT:
+          "0px 4px 10px 0px hsl(240 30% 25% / 0.12), 0px 1px 2px -1px hsl(240 30% 25% / 0.12)",
         md: "0px 4px 10px 0px hsl(240 30% 25% / 0.12), 0px 2px 4px -1px hsl(240 30% 25% / 0.12)",
         lg: "0px 4px 10px 0px hsl(240 30% 25% / 0.12), 0px 4px 6px -1px hsl(240 30% 25% / 0.12)",
         xl: "0px 4px 10px 0px hsl(240 30% 25% / 0.12), 0px 8px 10px -1px hsl(240 30% 25% / 0.12)",
@@ -76,7 +83,7 @@ export default function EmailLayout({
         <title>{title}</title>
       </Head>
       <Tailwind config={tailwindConfig}>
-        <Body className="min-h-screen bg-background font-sans text-foreground">
+        <Body className="bg-background text-foreground min-h-screen font-sans">
           <Container className="mx-auto min-h-screen max-w-2xl px-6 py-10">
             {children}
           </Container>

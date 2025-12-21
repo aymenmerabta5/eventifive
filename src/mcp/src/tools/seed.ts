@@ -22,23 +22,56 @@ export function registerSeedTools(server: McpServer) {
   server.registerTool(
     "eventifive_seed_complete_event",
     {
-      description: "Create a complete test scenario with users, an event, submissions, and reviews",
+      description:
+        "Create a complete test scenario with users, an event, submissions, and reviews",
       inputSchema: z.object({
-        eventTitle: z.string().optional().describe("Event title (auto-generated if not provided)"),
-        eventType: z.enum(eventTypeValues).optional().default("conference").describe("Event type"),
-        userCount: z.number().min(2).max(50).optional().default(10).describe("Number of users to create (2-50)"),
-        submissionsPerUser: z.number().min(0).max(5).optional().default(2).describe("Submissions per user (0-5)"),
-        reviewsPerSubmission: z.number().min(0).max(3).optional().default(2).describe("Reviews per submission (0-3)"),
-        password: z.string().optional().default("password123").describe("Password for all users"),
+        eventTitle: z
+          .string()
+          .optional()
+          .describe("Event title (auto-generated if not provided)"),
+        eventType: z
+          .enum(eventTypeValues)
+          .optional()
+          .default("conference")
+          .describe("Event type"),
+        userCount: z
+          .number()
+          .min(2)
+          .max(50)
+          .optional()
+          .default(10)
+          .describe("Number of users to create (2-50)"),
+        submissionsPerUser: z
+          .number()
+          .min(0)
+          .max(5)
+          .optional()
+          .default(2)
+          .describe("Submissions per user (0-5)"),
+        reviewsPerSubmission: z
+          .number()
+          .min(0)
+          .max(3)
+          .optional()
+          .default(2)
+          .describe("Reviews per submission (0-3)"),
+        password: z
+          .string()
+          .optional()
+          .default("password123")
+          .describe("Password for all users"),
       }),
     },
     async (input) => {
       try {
         const now = new Date();
-        const hashedPassword = await hashPassword(input.password || "password123");
+        const hashedPassword = await hashPassword(
+          input.password || "password123",
+        );
 
         // 1. Create users
-        const createdUsers: Array<{ id: string; name: string; email: string }> = [];
+        const createdUsers: Array<{ id: string; name: string; email: string }> =
+          [];
 
         for (let i = 0; i < (input.userCount || 10); i++) {
           const userId = uuidv4();
@@ -122,7 +155,8 @@ export function registerSeedTools(server: McpServer) {
         for (const u of createdUsers) {
           for (let i = 0; i < submissionsPerUser; i++) {
             const submissionId = uuidv4();
-            const submissionType = types[Math.floor(Math.random() * types.length)];
+            const submissionType =
+              types[Math.floor(Math.random() * types.length)];
             const title = `${faker.science.chemicalElement().name} ${faker.company.buzzNoun()}: A ${faker.company.buzzAdjective()} Approach`;
 
             await db.insert(submission).values({
@@ -155,8 +189,13 @@ export function registerSeedTools(server: McpServer) {
         let totalReviews = 0;
 
         for (const sub of createdSubmissions) {
-          const availableReviewers = createdUsers.filter((u) => u.id !== sub.submitterId);
-          const reviewerCount = Math.min(reviewsPerSubmission, availableReviewers.length);
+          const availableReviewers = createdUsers.filter(
+            (u) => u.id !== sub.submitterId,
+          );
+          const reviewerCount = Math.min(
+            reviewsPerSubmission,
+            availableReviewers.length,
+          );
 
           for (let i = 0; i < reviewerCount; i++) {
             const reviewer = availableReviewers[i];
@@ -217,7 +256,7 @@ export function registerSeedTools(server: McpServer) {
                   sampleSubmissions: createdSubmissions.slice(0, 5),
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -233,7 +272,7 @@ export function registerSeedTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // Quick seed for testing
@@ -243,13 +282,19 @@ export function registerSeedTools(server: McpServer) {
       description: "Create minimal test data: 1 user, 1 event, 1 submission",
       inputSchema: z.object({
         email: z.email().optional().describe("Email for the test user"),
-        password: z.string().optional().default("password123").describe("Password"),
+        password: z
+          .string()
+          .optional()
+          .default("password123")
+          .describe("Password"),
       }),
     },
     async (input) => {
       try {
         const now = new Date();
-        const hashedPassword = await hashPassword(input.password || "password123");
+        const hashedPassword = await hashPassword(
+          input.password || "password123",
+        );
 
         // Create user
         const userId = uuidv4();
@@ -339,7 +384,7 @@ export function registerSeedTools(server: McpServer) {
                   },
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -355,7 +400,7 @@ export function registerSeedTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 }
 

@@ -36,10 +36,7 @@ export function EventItem({ event }: EventItemProps) {
           )}
         </div>
         {statusToken && (
-          <Badge
-            variant="outline"
-            className={`text-xs ${statusToken.classes}`}
-          >
+          <Badge variant="outline" className={`text-xs ${statusToken.classes}`}>
             {statusToken.label}
           </Badge>
         )}

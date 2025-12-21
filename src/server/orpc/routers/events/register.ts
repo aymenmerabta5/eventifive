@@ -24,7 +24,10 @@ export const registerForEventRouter = protectedProcedure
     const userId = session.user.id;
 
     // 1. Get event
-    const [eventData] = await db.select().from(event).where(eq(event.id, input.eventId));
+    const [eventData] = await db
+      .select()
+      .from(event)
+      .where(eq(event.id, input.eventId));
 
     if (!eventData) {
       throw new ORPCError("NOT_FOUND", { message: "Event not found" });
@@ -44,8 +47,8 @@ export const registerForEventRouter = protectedProcedure
       .where(
         and(
           eq(eventRegistration.eventId, input.eventId),
-          eq(eventRegistration.userId, userId)
-        )
+          eq(eventRegistration.userId, userId),
+        ),
       );
 
     if (existing) {

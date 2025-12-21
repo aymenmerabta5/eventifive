@@ -18,7 +18,7 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to invite speaker"),
-    })
+    }),
   );
 
   const inviteReviewerMutation = useMutation(
@@ -29,7 +29,7 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to invite reviewer"),
-    })
+    }),
   );
 
   const inviteCommitteeMutation = useMutation(
@@ -40,7 +40,7 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to add committee member"),
-    })
+    }),
   );
 
   const removeSpeakerMutation = useMutation(
@@ -51,7 +51,7 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to remove speaker"),
-    })
+    }),
   );
 
   const removeReviewerMutation = useMutation(
@@ -62,7 +62,7 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to remove reviewer"),
-    })
+    }),
   );
 
   const removeCommitteeMutation = useMutation(
@@ -73,7 +73,7 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to remove committee member"),
-    })
+    }),
   );
 
   return {

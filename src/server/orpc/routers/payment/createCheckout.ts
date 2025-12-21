@@ -10,7 +10,10 @@ import {
   payment,
 } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
-import { getChargilyClient, generateCallbackUrls } from "@/server/gateway/chargily";
+import {
+  getChargilyClient,
+  generateCallbackUrls,
+} from "@/server/gateway/chargily";
 import {
   createCheckoutInputSchema,
   createCheckoutOutputSchema,
@@ -31,12 +34,15 @@ export const createCheckoutRouter = protectedProcedure
         plan: subscriptionPlan,
       })
       .from(subscriptionPrice)
-      .innerJoin(subscriptionPlan, eq(subscriptionPrice.planId, subscriptionPlan.id))
+      .innerJoin(
+        subscriptionPlan,
+        eq(subscriptionPrice.planId, subscriptionPlan.id),
+      )
       .where(
         and(
           eq(subscriptionPrice.id, input.priceId),
-          eq(subscriptionPlan.isActive, true)
-        )
+          eq(subscriptionPlan.isActive, true),
+        ),
       );
 
     if (!priceWithPlan) {
@@ -50,7 +56,8 @@ export const createCheckoutRouter = protectedProcedure
     // 2. Verify price is synced to Chargily
     if (!price.chargilyPriceId) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "This subscription plan is not yet available for purchase. Please try again later.",
+        message:
+          "This subscription plan is not yet available for purchase. Please try again later.",
       });
     }
 
@@ -61,13 +68,14 @@ export const createCheckoutRouter = protectedProcedure
       .where(
         and(
           eq(userSubscription.userId, userId),
-          eq(userSubscription.status, "active")
-        )
+          eq(userSubscription.status, "active"),
+        ),
       );
 
     if (existingSubscription) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "You already have an active subscription. Please cancel it first before subscribing to a new plan.",
+        message:
+          "You already have an active subscription. Please cancel it first before subscribing to a new plan.",
       });
     }
 
@@ -146,7 +154,9 @@ export const createCheckoutRouter = protectedProcedure
     } catch (error) {
       // Rollback: delete payment and subscription records
       await db.delete(payment).where(eq(payment.id, paymentId));
-      await db.delete(userSubscription).where(eq(userSubscription.id, subscriptionId));
+      await db
+        .delete(userSubscription)
+        .where(eq(userSubscription.id, subscriptionId));
 
       console.error("Failed to create Chargily checkout:", error);
       throw new ORPCError("INTERNAL_SERVER_ERROR", {

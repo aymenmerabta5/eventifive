@@ -1,6 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   IconArrowUpRight,
   IconCalendar,
@@ -15,7 +21,13 @@ import { formatDateLong, formatTimeRange12h } from "@/lib/date";
 
 type EventCardData = Pick<
   Event,
-  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "smallDescription"
+  | "id"
+  | "title"
+  | "type"
+  | "startDate"
+  | "endDate"
+  | "location"
+  | "smallDescription"
 > & {
   imageUrl?: string | null;
 };
@@ -54,9 +66,7 @@ export default function EventCard({ event }: EventCardProps) {
       : "border-border/60 bg-background/70 text-foreground";
 
   return (
-    <Card
-      className="group relative overflow-hidden rounded-2xl border bg-card/60 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-primary/15"
-    >
+    <Card className="group bg-card/60 hover:border-primary/40 hover:shadow-primary/10 dark:hover:shadow-primary/15 relative overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       {/* TEACHING: We use the imageUrl from the API if available, otherwise fallback to placeholder */}
       <div className="from-primary/20 to-primary/5 relative aspect-video w-full overflow-hidden bg-linear-to-br">
         <Image
@@ -67,14 +77,14 @@ export default function EventCard({ event }: EventCardProps) {
           className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           unoptimized={!!event.imageUrl}
         />
-        <div className="absolute inset-0 bg-transparent dark:bg-linear-to-t dark:from-background/90 dark:via-background/25 dark:to-transparent" />
+        <div className="dark:from-background/90 dark:via-background/25 absolute inset-0 bg-transparent dark:bg-linear-to-t dark:to-transparent" />
 
-        <div className="absolute -top-24 -right-24 size-56 rounded-full bg-primary/15 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+        <div className="bg-primary/15 absolute -top-24 -right-24 size-56 rounded-full blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
 
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
           <Badge
             variant="secondary"
-            className="bg-background/80 text-foreground backdrop-blur supports-backdrop-filter:bg-background/60"
+            className="bg-background/80 text-foreground supports-backdrop-filter:bg-background/60 backdrop-blur"
           >
             {typeLabel}
           </Badge>
@@ -98,7 +108,7 @@ export default function EventCard({ event }: EventCardProps) {
         </CardTitle>
 
         {showCommitteeReminder && (
-          <div className="bg-muted/40 text-muted-foreground rounded-lg border border-border/60 px-3 py-2 text-xs leading-relaxed">
+          <div className="bg-muted/40 text-muted-foreground border-border/60 rounded-lg border px-3 py-2 text-xs leading-relaxed">
             <span className="text-foreground font-medium">Action needed:</span>{" "}
             submit committee registration.
           </div>
@@ -108,17 +118,26 @@ export default function EventCard({ event }: EventCardProps) {
       <CardContent className="space-y-4 pt-0">
         <div className="grid gap-2.5">
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
-            <IconCalendar aria-hidden="true" className="text-primary size-4 shrink-0" />
+            <IconCalendar
+              aria-hidden="true"
+              className="text-primary size-4 shrink-0"
+            />
             <span className="font-medium">{formatDateLong(startDate)}</span>
           </div>
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
-            <IconClock aria-hidden="true" className="text-primary size-4 shrink-0" />
+            <IconClock
+              aria-hidden="true"
+              className="text-primary size-4 shrink-0"
+            />
             <span className="font-medium">
               {formatTimeRange12h(startDate, endDate)}
             </span>
           </div>
           <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
-            <IconMapPin aria-hidden="true" className="text-primary size-4 shrink-0" />
+            <IconMapPin
+              aria-hidden="true"
+              className="text-primary size-4 shrink-0"
+            />
             <span className="font-medium">{event.location || "TBA"}</span>
           </div>
         </div>
@@ -138,7 +157,7 @@ export default function EventCard({ event }: EventCardProps) {
             <span>View details</span>
             <IconArrowUpRight
               aria-hidden="true"
-              className="size-4 opacity-70 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              className="size-4 opacity-70 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
           </Link>
         </Button>

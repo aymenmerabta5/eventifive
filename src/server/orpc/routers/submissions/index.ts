@@ -4,10 +4,10 @@ import { listForOrganizerRouter } from "./listForOrganizer";
 import { updateSubmissionStatusRouter } from "./updateStatus";
 
 export const submissionsRouter = {
-	get: getSubmissionRouter,
-	listAssigned: listAssignedSubmissionsRouter,
-	listForOrganizer: listForOrganizerRouter,
-	updateStatus: updateSubmissionStatusRouter,
+  get: getSubmissionRouter,
+  listAssigned: listAssignedSubmissionsRouter,
+  listForOrganizer: listForOrganizerRouter,
+  updateStatus: updateSubmissionStatusRouter,
 };
 
 // Re-export individual routers for backwards compatibility

@@ -19,14 +19,14 @@ const Slide = ({ slide, index, current }: SlideProps) => {
 
   return (
     <li
-      className="relative w-full h-full flex-shrink-0"
+      className="relative h-full w-full flex-shrink-0"
       style={{
         opacity: isActive ? 1 : 0.5,
         transition: "opacity 0.5s ease-in-out",
       }}
     >
       <img
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
         alt={alt ?? `Slide ${index + 1}`}
         src={src}
         loading={index === 0 ? "eager" : "lazy"}
@@ -65,11 +65,11 @@ export default function Carousel({ slides }: CarouselProps) {
 
   return (
     <div
-      className="relative w-full mx-auto"
+      className="relative mx-auto w-full"
       aria-labelledby={`carousel-heading-${id}`}
     >
       {/* Slides container */}
-      <div className="relative h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden rounded-xl">
+      <div className="relative h-[300px] overflow-hidden rounded-xl sm:h-[400px] md:h-[500px]">
         <ul
           className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
           style={{
@@ -77,12 +77,7 @@ export default function Carousel({ slides }: CarouselProps) {
           }}
         >
           {slides.map((slide, index) => (
-            <Slide
-              key={index}
-              slide={slide}
-              index={index}
-              current={current}
-            />
+            <Slide key={index} slide={slide} index={index} current={current} />
           ))}
         </ul>
 
@@ -90,7 +85,7 @@ export default function Carousel({ slides }: CarouselProps) {
         {slides.length > 1 && (
           <>
             <button
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-background hover:scale-105 transition-all duration-200"
+              className="bg-background/80 hover:bg-background absolute top-1/2 left-3 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
               title="Go to previous slide"
               onClick={handlePreviousClick}
               type="button"
@@ -99,7 +94,7 @@ export default function Carousel({ slides }: CarouselProps) {
             </button>
 
             <button
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-background hover:scale-105 transition-all duration-200"
+              className="bg-background/80 hover:bg-background absolute top-1/2 right-3 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
               title="Go to next slide"
               onClick={handleNextClick}
               type="button"
@@ -112,7 +107,7 @@ export default function Carousel({ slides }: CarouselProps) {
 
       {/* Dot indicators */}
       {slides.length > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="mt-4 flex justify-center gap-2">
           {slides.map((_, index) => (
             <button
               key={index}

@@ -13,9 +13,13 @@ import { useRouter } from "next/navigation";
 
 interface ChangeEmailProps {
   user: BetterAuthUser;
+  onSessionRefresh: () => void;
 }
 
-export default function ChangeEmail({ user }: ChangeEmailProps) {
+export default function ChangeEmail({
+  user,
+  onSessionRefresh,
+}: ChangeEmailProps) {
   const router = useRouter();
   const form = useForm({
     defaultValues: {
@@ -36,39 +40,42 @@ export default function ChangeEmail({ user }: ChangeEmailProps) {
     onSubmit: async ({ value }) => {
       try {
         console.log("Form submitted with values:", value);
-        await authClient.changeEmail({
-          newEmail: value.email,
-        }, {
-          onSuccess: async () => {
-            toast.success("Email updated successfully");
-            // Force better-auth to refetch the session from the backend
-            await authClient.getSession({
-              fetchOptions: {
-                cache: 'no-store'
-              }
-            });
-            // Refresh the Next.js page to update server-side data
-            router.refresh();
+        await authClient.changeEmail(
+          {
+            newEmail: value.email,
           },
+          {
+            onSuccess: async () => {
+              toast.success("Email updated successfully");
+              // Force better-auth to refetch the session from the backend
+              await authClient.getSession({
+                query: { disableCookieCache: true },
+              });
+              // Trigger React re-render via useSession's refetch
+              onSessionRefresh();
+              // Refresh the Next.js page to update server-side data
+              router.refresh();
+            },
 
-          onError: () => {
-            toast.error("Failed to update email");
+            onError: () => {
+              toast.error("Failed to update email");
+            },
           },
-        });
+        );
       } catch (error) {
         console.error("Failed to update email:", error);
       }
     },
   });
   return (
-    <form 
+    <form
       onSubmit={async (e) => {
         e.preventDefault();
         e.stopPropagation();
         await form.handleSubmit();
         return false;
       }}
-      className="flex flex-col gap-4 mt-12 border-border border-b pb-12"
+      className="border-border mt-12 flex flex-col gap-4 border-b pb-12"
     >
       <form.Field name="email">
         {(field) => (
@@ -97,8 +104,12 @@ export default function ChangeEmail({ user }: ChangeEmailProps) {
         {(state) => (
           <StatefulButton
             type="submit"
-            className="mt-6 h-11 w-full rounded-4xl cursor-pointer"
-            disabled={!state.canSubmit || state.isSubmitting || user?.email === state.values.email}
+            className="mt-6 h-11 w-full cursor-pointer rounded-4xl"
+            disabled={
+              !state.canSubmit ||
+              state.isSubmitting ||
+              user?.email === state.values.email
+            }
           >
             {state.isSubmitting ? "Updating..." : "Update Email"}
           </StatefulButton>

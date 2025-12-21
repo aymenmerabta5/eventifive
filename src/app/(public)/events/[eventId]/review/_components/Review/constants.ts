@@ -1,6 +1,8 @@
 // Query keys for React Query cache
-export const SUBMISSION_QUERY_KEY = (submissionId: string) => ["submission", submissionId] as const;
-export const REVIEW_QUERY_KEY = (submissionId: string) => ["review", submissionId] as const;
+export const SUBMISSION_QUERY_KEY = (submissionId: string) =>
+  ["submission", submissionId] as const;
+export const REVIEW_QUERY_KEY = (submissionId: string) =>
+  ["review", submissionId] as const;
 
 // Rating thresholds
 export const RECOMMENDATION_THRESHOLD = 2.5;

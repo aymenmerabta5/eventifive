@@ -23,7 +23,7 @@ export function useResetPasswordForm() {
         toast.error("Please solve the captcha");
         return;
       }
-      await authClient.forgetPassword(
+      await authClient.requestPasswordReset(
         {
           email: value.email,
           fetchOptions: {
@@ -35,7 +35,7 @@ export function useResetPasswordForm() {
         {
           onSuccess: () => {
             toast.success(
-              "If you have an account with us, you will receive a reset password link shortly."
+              "If you have an account with us, you will receive a reset password link shortly.",
             );
             form.reset();
             turnstile?.reset();
@@ -45,12 +45,12 @@ export function useResetPasswordForm() {
           onError: (error: any) => {
             toast.error(
               error.error?.message ||
-                "If you have an account with us, you will receive a reset password link shortly."
+                "If you have an account with us, you will receive a reset password link shortly.",
             );
             turnstile?.reset();
             setToken(null);
           },
-        }
+        },
       );
     },
   });

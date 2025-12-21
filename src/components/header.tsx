@@ -65,7 +65,6 @@ export default function Header() {
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       <div className="container mx-auto flex items-center justify-between px-4">
-       
         <nav className="hidden items-center gap-8 text-lg md:flex">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -93,7 +92,6 @@ export default function Header() {
           })}
         </nav>
 
-    
         <motion.div
           className="md:hidden"
           initial={{ opacity: 0, x: -20 }}
@@ -103,7 +101,6 @@ export default function Header() {
           <Logo />
         </motion.div>
 
-   
         <motion.div
           className="hidden items-center gap-3 md:flex"
           initial={{ opacity: 0, x: 20 }}
@@ -113,25 +110,27 @@ export default function Header() {
           <Activity mode={session ? "visible" : "hidden"}>
             <Link
               href={"/messages" as Route}
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "rounded-full p-5.5")}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "rounded-full p-5.5",
+              )}
             >
-				<MessageCircle className="size-5" />
-			</Link>
+              <MessageCircle className="size-5" />
+            </Link>
           </Activity>
 
           <ModeToggle />
           <UserMenu />
         </motion.div>
 
-       
         <div className="flex items-center gap-2 md:hidden">
           <Activity mode={session ? "visible" : "hidden"}>
             <Link
               href={"/messages" as Route}
               className="text-muted-foreground bg-muted/70 hover:bg-muted/70 cursor-pointer rounded-full p-3 transition-colors"
             >
-				<MessageCircle className="size-5" />
-			</Link>
+              <MessageCircle className="size-5" />
+            </Link>
           </Activity>
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -178,7 +177,6 @@ export default function Header() {
                   <SheetTitle className="sr-only text-left">Menu</SheetTitle>
                   <div className="flex items-center justify-between">
                     <Logo />
-                   
                   </div>
                 </SheetHeader>
                 <nav className="flex flex-1 flex-col items-center justify-center gap-8 p-6">

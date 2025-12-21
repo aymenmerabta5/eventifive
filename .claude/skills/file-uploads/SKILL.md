@@ -3,7 +3,7 @@ name: file-uploads
 description: Handle file uploads with Cloudflare R2 - presigned URLs, upload confirmation, file management. Use when working with image uploads, document storage, or file operations.
 ---
 
-# File Uploads (Cloudflare R2)
+# File Uploads (Cloudflare R2 via Bun S3Client)
 
 ## Methodology - ALWAYS FOLLOW
 
@@ -169,20 +169,46 @@ if (size > MAX_SIZE) {
 
 ---
 
-## Presigned URLs
+## Bun S3Client
 
-### Generation
+The project uses Bun's native S3 client which is ~5x faster than AWS SDK.
+
+### S3 Client Setup
 ```typescript
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client } from "bun";
 
-const command = new PutObjectCommand({
-  Bucket: process.env.S3_BUCKET_NAME,
-  Key: `${userId}/events/${eventId}/${fileId}`,
-  ContentType: contentType,
+export const s3Client = new S3Client({
+  bucket: env.S3_BUCKET_NAME,
+  region: "auto",
+  endpoint: env.NEXT_PUBLIC_S3_ENDPOINT,
+  accessKeyId: env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+});
+```
+
+### File Operations
+```typescript
+// Write file
+await s3Client.write(s3Key, buffer, { type: contentType });
+
+// Delete file
+await s3Client.delete(s3Key);
+
+// Check if exists
+const exists = await s3Client.exists(s3Key);
+```
+
+### Presigned URLs
+```typescript
+// Upload URL (PUT)
+const uploadUrl = s3Client.presign(s3Key, {
+  method: "PUT",
+  expiresIn: 900, // 15 minutes
+  type: contentType,
 });
 
-const uploadUrl = await getSignedUrl(s3Client, command, {
+// Download URL (GET)
+const downloadUrl = s3Client.presign(s3Key, {
   expiresIn: 3600, // 1 hour
 });
 ```

@@ -48,7 +48,7 @@ export const listUserPaymentsRouter = protectedProcedure
             .from(userSubscription)
             .innerJoin(
               subscriptionPlan,
-              eq(userSubscription.planId, subscriptionPlan.id)
+              eq(userSubscription.planId, subscriptionPlan.id),
             )
             .where(eq(userSubscription.id, p.subscriptionId));
 
@@ -83,7 +83,7 @@ export const listUserPaymentsRouter = protectedProcedure
           type,
           description,
         };
-      })
+      }),
     );
 
     return result;

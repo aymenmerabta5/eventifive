@@ -39,7 +39,7 @@ export function useEventUpdate() {
   const updateEvent = async (
     data: UpdateEventInput,
     newImages: File[] = [],
-    removeImageIds: string[] = []
+    removeImageIds: string[] = [],
   ): Promise<boolean> => {
     // Validate locally first
     const parsed = updateEventSchema.safeParse(data);
@@ -57,7 +57,10 @@ export function useEventUpdate() {
         formData.append("description", parsed.data.description);
       }
       if (parsed.data.bigDescription !== undefined) {
-        formData.append("bigDescription", JSON.stringify(parsed.data.bigDescription));
+        formData.append(
+          "bigDescription",
+          JSON.stringify(parsed.data.bigDescription),
+        );
       }
       formData.append("type", parsed.data.type);
       formData.append("startDate", parsed.data.startDate);
@@ -95,7 +98,9 @@ export function useEventUpdate() {
 
       toast.success(result.message || "Event updated successfully");
       void queryClient.invalidateQueries({ queryKey: ["my-events"] });
-      void queryClient.invalidateQueries({ queryKey: ["event-images", data.eventId] });
+      void queryClient.invalidateQueries({
+        queryKey: ["event-images", data.eventId],
+      });
       router.push("/dashboard?view=my-events");
 
       return true;

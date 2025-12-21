@@ -14,20 +14,46 @@ export function registerEventTools(server: McpServer) {
     {
       description: "Create a test event",
       inputSchema: z.object({
-        title: z.string().optional().describe("Event title (auto-generated if not provided)"),
+        title: z
+          .string()
+          .optional()
+          .describe("Event title (auto-generated if not provided)"),
         type: z
           .enum(eventTypeValues)
           .optional()
           .default("conference")
-          .describe("Event type: congress, seminar, workshop, scientific_meeting, conference, symposium"),
-        startDate: z.string().optional().describe("Start date (ISO format, defaults to 30 days from now)"),
-        endDate: z.string().optional().describe("End date (ISO format, defaults to 3 days after start)"),
-        organizerId: z.string().optional().describe("Organizer user ID (uses first user in DB if not provided)"),
+          .describe(
+            "Event type: congress, seminar, workshop, scientific_meeting, conference, symposium",
+          ),
+        startDate: z
+          .string()
+          .optional()
+          .describe("Start date (ISO format, defaults to 30 days from now)"),
+        endDate: z
+          .string()
+          .optional()
+          .describe("End date (ISO format, defaults to 3 days after start)"),
+        organizerId: z
+          .string()
+          .optional()
+          .describe(
+            "Organizer user ID (uses first user in DB if not provided)",
+          ),
         location: z.string().optional().describe("Event location"),
         description: z.string().optional().describe("Event description"),
         theme: z.string().optional().describe("Event theme"),
-        priceAmount: z.number().int().min(0).optional().default(0).describe("Registration price in cents (0 for free event)"),
-        priceCurrency: z.string().optional().default("DZD").describe("Price currency (default: DZD)"),
+        priceAmount: z
+          .number()
+          .int()
+          .min(0)
+          .optional()
+          .default(0)
+          .describe("Registration price in cents (0 for free event)"),
+        priceCurrency: z
+          .string()
+          .optional()
+          .default("DZD")
+          .describe("Price currency (default: DZD)"),
       }),
     },
     async (input) => {
@@ -35,7 +61,10 @@ export function registerEventTools(server: McpServer) {
         let organizerId = input.organizerId;
 
         if (!organizerId) {
-          const [firstUser] = await db.select({ id: user.id }).from(user).limit(1);
+          const [firstUser] = await db
+            .select({ id: user.id })
+            .from(user)
+            .limit(1);
           if (!firstUser) {
             return {
               content: [
@@ -75,7 +104,9 @@ export function registerEventTools(server: McpServer) {
           type: input.type || "conference",
           startDate,
           endDate,
-          location: input.location || `${faker.location.city()}, ${faker.location.country()}`,
+          location:
+            input.location ||
+            `${faker.location.city()}, ${faker.location.country()}`,
           theme: input.theme || faker.company.catchPhrase(),
           organizerId,
           priceAmount,
@@ -123,7 +154,8 @@ export function registerEventTools(server: McpServer) {
                 })
                 .where(eq(event.id, eventId));
             } catch (error) {
-              chargilySyncError = error instanceof Error ? error.message : String(error);
+              chargilySyncError =
+                error instanceof Error ? error.message : String(error);
             }
           }
         }
@@ -148,16 +180,20 @@ export function registerEventTools(server: McpServer) {
                     chargilyProductId,
                     chargilyPriceId,
                   },
-                  chargily: priceAmount > 0
-                    ? {
-                        synced: !!chargilyPriceId,
-                        configured: isChargilyConfigured(),
-                        error: chargilySyncError,
-                      }
-                    : { synced: false, reason: "Free event - no Chargily sync needed" },
+                  chargily:
+                    priceAmount > 0
+                      ? {
+                          synced: !!chargilyPriceId,
+                          configured: isChargilyConfigured(),
+                          error: chargilySyncError,
+                        }
+                      : {
+                          synced: false,
+                          reason: "Free event - no Chargily sync needed",
+                        },
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -173,7 +209,7 @@ export function registerEventTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // Create a free event (no Chargily sync)
@@ -182,15 +218,31 @@ export function registerEventTools(server: McpServer) {
     {
       description: "Create a free test event (no payment required)",
       inputSchema: z.object({
-        title: z.string().optional().describe("Event title (auto-generated if not provided)"),
+        title: z
+          .string()
+          .optional()
+          .describe("Event title (auto-generated if not provided)"),
         type: z
           .enum(eventTypeValues)
           .optional()
           .default("conference")
-          .describe("Event type: congress, seminar, workshop, scientific_meeting, conference, symposium"),
-        startDate: z.string().optional().describe("Start date (ISO format, defaults to 30 days from now)"),
-        endDate: z.string().optional().describe("End date (ISO format, defaults to 3 days after start)"),
-        organizerId: z.string().optional().describe("Organizer user ID (uses first user in DB if not provided)"),
+          .describe(
+            "Event type: congress, seminar, workshop, scientific_meeting, conference, symposium",
+          ),
+        startDate: z
+          .string()
+          .optional()
+          .describe("Start date (ISO format, defaults to 30 days from now)"),
+        endDate: z
+          .string()
+          .optional()
+          .describe("End date (ISO format, defaults to 3 days after start)"),
+        organizerId: z
+          .string()
+          .optional()
+          .describe(
+            "Organizer user ID (uses first user in DB if not provided)",
+          ),
         location: z.string().optional().describe("Event location"),
         description: z.string().optional().describe("Event description"),
         theme: z.string().optional().describe("Event theme"),
@@ -201,7 +253,10 @@ export function registerEventTools(server: McpServer) {
         let organizerId = input.organizerId;
 
         if (!organizerId) {
-          const [firstUser] = await db.select({ id: user.id }).from(user).limit(1);
+          const [firstUser] = await db
+            .select({ id: user.id })
+            .from(user)
+            .limit(1);
           if (!firstUser) {
             return {
               content: [
@@ -237,7 +292,9 @@ export function registerEventTools(server: McpServer) {
           type: input.type || "conference",
           startDate,
           endDate,
-          location: input.location || `${faker.location.city()}, ${faker.location.country()}`,
+          location:
+            input.location ||
+            `${faker.location.city()}, ${faker.location.country()}`,
           theme: input.theme || faker.company.catchPhrase(),
           organizerId,
           priceAmount: 0,
@@ -267,7 +324,7 @@ export function registerEventTools(server: McpServer) {
                   },
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -283,7 +340,7 @@ export function registerEventTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // List existing events
@@ -292,7 +349,13 @@ export function registerEventTools(server: McpServer) {
     {
       description: "List existing events in the database",
       inputSchema: z.object({
-        limit: z.number().min(1).max(100).optional().default(10).describe("Number of events to return"),
+        limit: z
+          .number()
+          .min(1)
+          .max(100)
+          .optional()
+          .default(10)
+          .describe("Number of events to return"),
       }),
     },
     async (input) => {
@@ -325,7 +388,7 @@ export function registerEventTools(server: McpServer) {
                   events,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -341,7 +404,7 @@ export function registerEventTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // Get event details
@@ -383,7 +446,7 @@ export function registerEventTools(server: McpServer) {
                   event: eventData,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -399,6 +462,6 @@ export function registerEventTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 }

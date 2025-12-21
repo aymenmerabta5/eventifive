@@ -39,14 +39,14 @@ export function AvatarSection({
       .slice(0, 2) || "U";
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-6 pb-8 border-b border-border/50">
+    <div className="border-border/50 flex flex-col gap-6 border-b pb-8 sm:flex-row sm:items-start">
       {/* Avatar with upload overlay */}
-      <div className="relative group shrink-0">
+      <div className="group relative shrink-0">
         <div className="relative">
           {/* Decorative ring */}
-          <div className="absolute -inset-1 rounded-full bg-linear-to-br from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="from-primary/20 via-primary/10 absolute -inset-1 rounded-full bg-linear-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-          <Avatar className="relative h-24 w-24 sm:h-28 sm:w-28 ring-2 ring-border/50 transition-all duration-300 group-hover:ring-primary/30">
+          <Avatar className="ring-border/50 group-hover:ring-primary/30 relative h-24 w-24 ring-2 transition-all duration-300 sm:h-28 sm:w-28">
             {userImage && imageUrl && (
               <AvatarImage
                 src={imageUrl}
@@ -54,7 +54,7 @@ export function AvatarSection({
                 className="object-cover"
               />
             )}
-            <AvatarFallback className="bg-linear-to-br from-primary to-primary/70 text-primary-foreground text-xl sm:text-2xl font-semibold">
+            <AvatarFallback className="from-primary to-primary/70 text-primary-foreground bg-linear-to-br text-xl font-semibold sm:text-2xl">
               {isLoadingImage ? (
                 <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
@@ -68,11 +68,11 @@ export function AvatarSection({
             type="button"
             onClick={onTriggerUpload}
             disabled={isUploading}
-            className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 opacity-0 transition-all duration-200 group-hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
+            className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/60 opacity-0 transition-all duration-200 group-hover:opacity-100 disabled:cursor-not-allowed"
             aria-label="Change profile picture"
           >
             {isUploading ? (
-              <Loader2 className="h-6 w-6 text-white animate-spin" />
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
             ) : (
               <Camera className="h-6 w-6 text-white" />
             )}
@@ -92,8 +92,8 @@ export function AvatarSection({
       {/* Photo info and upload button */}
       <div className="flex-1 space-y-3">
         <div>
-          <h3 className="font-medium text-foreground">Profile Photo</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h3 className="text-foreground font-medium">Profile Photo</h3>
+          <p className="text-muted-foreground mt-1 text-sm">
             This will be displayed on your profile and in comments.
           </p>
         </div>
@@ -103,7 +103,7 @@ export function AvatarSection({
             type="button"
             onClick={onTriggerUpload}
             disabled={isUploading}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border/50 bg-background hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-border/50 bg-background hover:bg-muted/50 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isUploading ? (
               <>

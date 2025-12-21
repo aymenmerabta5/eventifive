@@ -37,7 +37,10 @@ import type { EventFormCardProps, WizardStep, InvitesData } from "./types";
 import type { EventType } from "@/server/db/schema";
 import type { ExistingImage } from "@/components/uploader";
 
-export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps) {
+export function EventFormCard({
+  mode,
+  eventId: propEventId,
+}: EventFormCardProps) {
   // For create mode: track the created event ID
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
   const [eventImages, setEventImages] = useState<File[]>([]);
@@ -50,7 +53,9 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
   const prefill = useEventPrefill(mode === "update" ? propEventId : undefined);
 
   // For update mode: fetch existing images
-  const existingImagesQuery = useEventImages(mode === "update" ? propEventId : undefined);
+  const existingImagesQuery = useEventImages(
+    mode === "update" ? propEventId : undefined,
+  );
 
   // Form state
   const form = useEventForm(mode, prefill.initialValues ?? undefined);
@@ -85,7 +90,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
     removeCommitteeMutation,
   } = useEventInvites(
     activeEventId ?? null,
-    !!activeEventId && (mode === "update" || step !== "details")
+    !!activeEventId && (mode === "update" || step !== "details"),
   );
 
   // Rooms (for sessions step)
@@ -98,7 +103,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
     isDeleting: isDeletingRoom,
   } = useEventRooms(
     activeEventId ?? null,
-    !!activeEventId && (mode === "update" || step === "sessions")
+    !!activeEventId && (mode === "update" || step === "sessions"),
   );
 
   // Sessions (for sessions step)
@@ -110,7 +115,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
     deleteSession,
   } = useEventSessions(
     activeEventId ?? null,
-    !!activeEventId && (mode === "update" || step === "sessions")
+    !!activeEventId && (mode === "update" || step === "sessions"),
   );
 
   const nowMinDateTime = useMemo(() => getNowMinDateTime(), []);
@@ -118,8 +123,8 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
   // Transform existing images to ExistingImage format
   const existingImagesForUploader = useMemo((): ExistingImage[] => {
     return existingImagesQuery.images
-      .filter(img => !removeImageIds.includes(img.fileId))
-      .map(img => ({
+      .filter((img) => !removeImageIds.includes(img.fileId))
+      .map((img) => ({
         fileId: img.fileId,
         url: img.url,
         fileName: img.fileName,
@@ -129,7 +134,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
   }, [existingImagesQuery.images, removeImageIds]);
 
   const handleRemoveExistingImage = useCallback((fileId: string) => {
-    setRemoveImageIds(prev => [...prev, fileId]);
+    setRemoveImageIds((prev) => [...prev, fileId]);
   }, []);
 
   const handleNext = async () => {
@@ -150,7 +155,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
               priceAmount: form.state.values.priceAmount,
               priceCurrency: form.state.values.priceCurrency,
             },
-            eventImages
+            eventImages,
           ));
         if (id) {
           setCreatedEventId(id);
@@ -187,7 +192,7 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           priceCurrency: form.state.values.priceCurrency,
         },
         eventImages,
-        removeImageIds
+        removeImageIds,
       );
     }
   };
@@ -235,11 +240,15 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
 
   // Parse event dates for SessionsStep
   const eventStartDate = useMemo(() => {
-    return form.state.values.startDate ? new Date(form.state.values.startDate) : new Date();
+    return form.state.values.startDate
+      ? new Date(form.state.values.startDate)
+      : new Date();
   }, [form.state.values.startDate]);
 
   const eventEndDate = useMemo(() => {
-    return form.state.values.endDate ? new Date(form.state.values.endDate) : new Date();
+    return form.state.values.endDate
+      ? new Date(form.state.values.endDate)
+      : new Date();
   }, [form.state.values.endDate]);
 
   return (
@@ -258,28 +267,41 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
         <div className="space-y-6">
           <Activity mode={showWizard ? "visible" : "hidden"}>
             <StepProgress
-                steps={WIZARD_STEPS as unknown as Array<{ key: string; label: string; description: string }>}
-                currentKey={step}
-              />
+              steps={
+                WIZARD_STEPS as unknown as Array<{
+                  key: string;
+                  label: string;
+                  description: string;
+                }>
+              }
+              currentKey={step}
+            />
           </Activity>
 
           {/* Loading state for update mode */}
-          <Activity mode={isUpdateMode && prefill.isPending ? "visible" : "hidden"}>
-              <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" />
-                Loading event details...
-              </div>
-          </Activity>
-
-          {/* Error state for update mode */}
-          <Activity mode={isUpdateMode && prefill.notFound ? "visible" : "hidden"}>
-            <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              Unable to load this event. Please return to your events and try again.
+          <Activity
+            mode={isUpdateMode && prefill.isPending ? "visible" : "hidden"}
+          >
+            <div className="border-border/60 bg-muted/60 text-muted-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+              <Loader2 className="size-4 animate-spin" />
+              Loading event details...
             </div>
           </Activity>
 
-          <Activity mode={isUpdateMode && prefill.missingEventId ? "visible" : "hidden"}>
-            <div className="rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground">
+          {/* Error state for update mode */}
+          <Activity
+            mode={isUpdateMode && prefill.notFound ? "visible" : "hidden"}
+          >
+            <div className="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm">
+              Unable to load this event. Please return to your events and try
+              again.
+            </div>
+          </Activity>
+
+          <Activity
+            mode={isUpdateMode && prefill.missingEventId ? "visible" : "hidden"}
+          >
+            <div className="border-border text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-sm">
               Select an event from My Events to update it here.
             </div>
           </Activity>
@@ -299,11 +321,17 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
               <EventDetailsForm
                 form={form}
                 nowMinDateTime={nowMinDateTime}
-                disabled={isCreating || isUpdating || (isUpdateMode && prefill.isPending)}
+                disabled={
+                  isCreating ||
+                  isUpdating ||
+                  (isUpdateMode && prefill.isPending)
+                }
               />
 
               {/* Images section for create mode */}
-              <Activity mode={isCreateMode && step === "details" ? "visible" : "hidden"}>
+              <Activity
+                mode={isCreateMode && step === "details" ? "visible" : "hidden"}
+              >
                 <EventImagesSection
                   disabled={!!createdEventId}
                   onFilesChange={setEventImages}
@@ -311,7 +339,13 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
               </Activity>
 
               {/* Images section for update mode */}
-              <Activity mode={isUpdateMode && !prefill.isPending && !prefill.notFound ? "visible" : "hidden"}>
+              <Activity
+                mode={
+                  isUpdateMode && !prefill.isPending && !prefill.notFound
+                    ? "visible"
+                    : "hidden"
+                }
+              >
                 <EventImagesSection
                   disabled={isUpdating}
                   onFilesChange={setEventImages}
@@ -324,7 +358,16 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           )}
 
           {/* Update mode: Show invites section below form */}
-          <Activity mode={isUpdateMode && activeEventId && !prefill.isPending && !prefill.notFound ? "visible" : "hidden"}>
+          <Activity
+            mode={
+              isUpdateMode &&
+              activeEventId &&
+              !prefill.isPending &&
+              !prefill.notFound
+                ? "visible"
+                : "hidden"
+            }
+          >
             <div className="space-y-6 border-t pt-6">
               <h3 className="text-lg font-semibold">Manage Invites</h3>
               <InvitesStep
@@ -366,7 +409,16 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           </Activity>
 
           {/* Step 2: Invites (create mode only) */}
-          <Activity mode={isCreateMode && step === "invites" && createdEventId && createdEventId !== null ? "visible" : "hidden"}>
+          <Activity
+            mode={
+              isCreateMode &&
+              step === "invites" &&
+              createdEventId &&
+              createdEventId !== null
+                ? "visible"
+                : "hidden"
+            }
+          >
             <InvitesStep
               eventId={createdEventId ?? ""}
               eventType={form.state.values.type}
@@ -380,7 +432,13 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           </Activity>
 
           {/* Step 3: Sessions (create mode only) */}
-          <Activity mode={isCreateMode && step === "sessions" && createdEventId ? "visible" : "hidden"}>
+          <Activity
+            mode={
+              isCreateMode && step === "sessions" && createdEventId
+                ? "visible"
+                : "hidden"
+            }
+          >
             <SessionsStep
               eventId={createdEventId ?? ""}
               eventStartDate={eventStartDate}
@@ -401,7 +459,9 @@ export function EventFormCard({ mode, eventId: propEventId }: EventFormCardProps
           </Activity>
 
           {/* Step 4: Review (create mode only) */}
-          <Activity mode={isCreateMode && step === "review" ? "visible" : "hidden"}>
+          <Activity
+            mode={isCreateMode && step === "review" ? "visible" : "hidden"}
+          >
             <ReviewStep
               invitesData={invitesData}
               isLoading={invitesQuery.isPending}

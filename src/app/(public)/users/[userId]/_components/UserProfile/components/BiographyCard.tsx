@@ -16,7 +16,10 @@ interface BiographyCardProps {
   emailVerified: boolean;
 }
 
-export function BiographyCard({ biography, emailVerified }: BiographyCardProps) {
+export function BiographyCard({
+  biography,
+  emailVerified,
+}: BiographyCardProps) {
   return (
     <Card className="border-border/60 bg-background/70 rounded-3xl shadow-lg backdrop-blur-sm">
       <CardHeader className="border-border/50 flex-row items-center justify-between border-b px-6 py-4">

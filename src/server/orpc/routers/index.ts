@@ -24,15 +24,15 @@ import { sessionsRouter } from "./sessions";
  * - sessions: Program session and room management (createRoom, updateRoom, deleteRoom, listRooms, createSession, updateSession, deleteSession, listSessions, getSession)
  */
 export const appRouter = {
-	events: eventsRouter,
-	profile: profileRouter,
-	files: filesRouter,
-	payment: paymentRouter,
-	subscription: subscriptionRouter,
-	messages: messagesRouter,
-	submissions: submissionsRouter,
-	reviews: reviewsRouter,
-	sessions: sessionsRouter,
+  events: eventsRouter,
+  profile: profileRouter,
+  files: filesRouter,
+  payment: paymentRouter,
+  subscription: subscriptionRouter,
+  messages: messagesRouter,
+  submissions: submissionsRouter,
+  reviews: reviewsRouter,
+  sessions: sessionsRouter,
 };
 
 export type AppRouter = typeof appRouter;

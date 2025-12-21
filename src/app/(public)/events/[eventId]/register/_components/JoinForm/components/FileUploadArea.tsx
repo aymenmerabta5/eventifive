@@ -28,14 +28,14 @@ export function FileUploadArea({
         "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all",
         isDragOver
           ? "border-primary bg-primary/5"
-          : "border-border hover:border-primary/50 hover:bg-muted/30"
+          : "border-border hover:border-primary/50 hover:bg-muted/30",
       )}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-        <FileUp className="h-6 w-6 text-muted-foreground" />
+      <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
+        <FileUp className="text-muted-foreground h-6 w-6" />
       </div>
       <p className="mt-4 text-sm font-medium">Drag and drop your file here</p>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="text-muted-foreground mt-1 text-xs">
         or click to browse from your computer (max 3 files)
       </p>
       <Input
@@ -47,7 +47,7 @@ export function FileUploadArea({
         onChange={onFileChange}
         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       />
-      <p className="mt-4 text-xs text-muted-foreground">
+      <p className="text-muted-foreground mt-4 text-xs">
         PDF, DOC, DOCX up to 10MB each
       </p>
     </div>

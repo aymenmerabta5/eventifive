@@ -26,12 +26,12 @@ export function FileList({
             key={`${file.name}-${file.size}-${index}`}
             className="flex items-center gap-4"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <FileText className="h-6 w-6 text-primary" />
+            <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
+              <FileText className="text-primary h-6 w-6" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{file.name}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
@@ -40,7 +40,7 @@ export function FileList({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="text-muted-foreground hover:text-destructive h-8 w-8"
                 onClick={() => onRemoveFile(index)}
               >
                 <X className="h-4 w-4" />
@@ -50,7 +50,7 @@ export function FileList({
         ))}
 
         {canAddMore ? (
-          <div className="relative flex items-center justify-center rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+          <div className="border-border text-muted-foreground relative flex items-center justify-center rounded-lg border border-dashed p-3 text-xs">
             <span>Add more files (up to 3)</span>
             <Input
               id="file-more"

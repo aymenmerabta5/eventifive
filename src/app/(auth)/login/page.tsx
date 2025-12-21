@@ -7,21 +7,21 @@ import ReturnBack from "@/components/return-back";
 import Loader from "@/components/loader";
 
 export default function LoginPage() {
-	const [showSignIn, setShowSignIn] = useState<boolean>(true);
+  const [showSignIn, setShowSignIn] = useState<boolean>(true);
 
-	return showSignIn ? (
-		<>
-			<ReturnBack />
-			<Suspense fallback={<Loader />}>
-				<SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-			</Suspense>
-		</>
-	) : (
-		<>
-			<ReturnBack />
-			<Suspense fallback={<Loader />}>
-				<SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
-			</Suspense>
-		</>
-	);
+  return showSignIn ? (
+    <>
+      <ReturnBack />
+      <Suspense fallback={<Loader />}>
+        <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
+      </Suspense>
+    </>
+  ) : (
+    <>
+      <ReturnBack />
+      <Suspense fallback={<Loader />}>
+        <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
+      </Suspense>
+    </>
+  );
 }

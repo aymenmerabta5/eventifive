@@ -5,7 +5,7 @@ import { useImageUpload, useProfileForm } from "./hooks";
 import { AvatarSection, ProfileForm } from "./components";
 import type { ProfileInfoProps } from "./types";
 
-export function ProfileInfo({ user }: ProfileInfoProps) {
+export function ProfileInfo({ user, onSessionRefresh }: ProfileInfoProps) {
   const {
     fileInputRef,
     imageUrl,
@@ -13,9 +13,9 @@ export function ProfileInfo({ user }: ProfileInfoProps) {
     isUploading,
     handleFileChange,
     triggerFileInput,
-  } = useImageUpload();
+  } = useImageUpload(onSessionRefresh);
 
-  const { form } = useProfileForm(user);
+  const { form } = useProfileForm(user, onSessionRefresh);
 
   return (
     <div className="space-y-8">

@@ -1,10 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
-import type { CreateSessionInput, UpdateSessionInput } from "@/lib/schemas/sessions";
+import type {
+  CreateSessionInput,
+  UpdateSessionInput,
+} from "@/lib/schemas/sessions";
 import type { SessionWithRelations } from "@/components/calendar";
 
-export function useEventSessions(eventId: string | null, enabled: boolean = true) {
+export function useEventSessions(
+  eventId: string | null,
+  enabled: boolean = true,
+) {
   const sessionsQuery = useQuery({
     ...orpc.sessions.listSessions.queryOptions({
       input: { eventId: eventId ?? "" },
@@ -20,7 +26,7 @@ export function useEventSessions(eventId: string | null, enabled: boolean = true
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to create session"),
-    })
+    }),
   );
 
   const updateSessionMutation = useMutation(
@@ -31,7 +37,7 @@ export function useEventSessions(eventId: string | null, enabled: boolean = true
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to update session"),
-    })
+    }),
   );
 
   const deleteSessionMutation = useMutation(
@@ -42,7 +48,7 @@ export function useEventSessions(eventId: string | null, enabled: boolean = true
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to delete session"),
-    })
+    }),
   );
 
   // Helper functions for easier usage
@@ -59,7 +65,9 @@ export function useEventSessions(eventId: string | null, enabled: boolean = true
   };
 
   // Transform sessions to include proper Date objects
-  const sessions: SessionWithRelations[] = (sessionsQuery.data?.sessions ?? []).map((s) => ({
+  const sessions: SessionWithRelations[] = (
+    sessionsQuery.data?.sessions ?? []
+  ).map((s) => ({
     ...s,
     startAt: new Date(s.startAt),
     endAt: new Date(s.endAt),

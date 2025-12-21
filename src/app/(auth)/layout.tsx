@@ -1,13 +1,11 @@
 export default function AuthLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<>
-		<div className="grid grid-rows-[1fr] h-svh">
-			{children}
-		</div>
-		</>
-	);
+  return (
+    <>
+      <div className="grid h-svh grid-rows-[1fr]">{children}</div>
+    </>
+  );
 }

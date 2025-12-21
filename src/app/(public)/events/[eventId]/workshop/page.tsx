@@ -4,14 +4,11 @@ import { useParams } from "next/navigation";
 import { WorkshopForm } from "./_components/WorkshopForm";
 
 export default function WorkshopPage() {
-	const params = useParams<{ eventType: string; eventId: string }>();
+  const params = useParams<{ eventType: string; eventId: string }>();
 
-	return (
-		<div className="min-h-screen from-background to-muted/20">
-			<WorkshopForm
-				eventId={params.eventId}
-				eventType={params.eventType}
-			/>
-		</div>
-	);
+  return (
+    <div className="from-background to-muted/20 min-h-screen">
+      <WorkshopForm eventId={params.eventId} eventType={params.eventType} />
+    </div>
+  );
 }

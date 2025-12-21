@@ -49,9 +49,6 @@ export default async function EventTypePage({
   }
 
   return (
-    <EventTypePageClient
-      eventType={eventType}
-      eventTypeParam={eventType}
-    />
+    <EventTypePageClient eventType={eventType} eventTypeParam={eventType} />
   );
 }

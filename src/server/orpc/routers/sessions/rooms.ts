@@ -220,7 +220,7 @@ const listRoomsOutputSchema = z.object({
       name: z.string(),
       capacity: z.number().nullable(),
       location: z.string().nullable(),
-    })
+    }),
   ),
 });
 

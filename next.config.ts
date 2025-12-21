@@ -7,10 +7,10 @@ import type { NextConfig } from "next";
 
 /** @type {import("next").NextConfig} */
 const config: NextConfig = {
-    typedRoutes: true,
-    reactCompiler: true,
-    cacheComponents: true,
-    // output: "standalone", later
+  typedRoutes: true,
+  reactCompiler: true,
+  cacheComponents: true,
+  // output: "standalone", later
 };
 
 export default config;

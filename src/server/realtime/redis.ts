@@ -1,4 +1,4 @@
-import Redis from "ioredis"
+import Redis from "ioredis";
 import { env } from "@/env";
 
 /**
@@ -8,8 +8,8 @@ import { env } from "@/env";
  */
 
 const redisOptions = {
-	enableReadyCheck: false, // Upstash doesn't support INFO command
-	maxRetriesPerRequest: null, // Required for pub/sub
+  enableReadyCheck: false, // Upstash doesn't support INFO command
+  maxRetriesPerRequest: null, // Required for pub/sub
 };
 
 const publisher = new Redis(env.REDIS_URL, redisOptions);

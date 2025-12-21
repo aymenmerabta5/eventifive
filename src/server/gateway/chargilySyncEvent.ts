@@ -13,7 +13,9 @@ export interface EventSyncResult {
  * Sync a single event to Chargily (create product + price)
  * Only syncs if priceAmount > 0 and not already synced
  */
-export async function syncEventToChargily(eventId: string): Promise<EventSyncResult> {
+export async function syncEventToChargily(
+  eventId: string,
+): Promise<EventSyncResult> {
   const result: EventSyncResult = {
     productsCreated: 0,
     pricesCreated: 0,
@@ -23,7 +25,10 @@ export async function syncEventToChargily(eventId: string): Promise<EventSyncRes
   const client = getChargilyClient();
 
   // Get the event
-  const [eventData] = await db.select().from(event).where(eq(event.id, eventId));
+  const [eventData] = await db
+    .select()
+    .from(event)
+    .where(eq(event.id, eventId));
 
   if (!eventData) {
     result.errors.push(`Event ${eventId} not found`);
@@ -70,8 +75,11 @@ export async function syncEventToChargily(eventId: string): Promise<EventSyncRes
       eventData.chargilyProductId = chargilyProduct.id;
       result.productsCreated++;
     } catch (error) {
-      const message = error instanceof Error ? error.message : JSON.stringify(error);
-      result.errors.push(`Failed to create product for event "${eventData.title}": ${message}`);
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      result.errors.push(
+        `Failed to create product for event "${eventData.title}": ${message}`,
+      );
       return result;
     }
   }
@@ -100,8 +108,11 @@ export async function syncEventToChargily(eventId: string): Promise<EventSyncRes
 
       result.pricesCreated++;
     } catch (error) {
-      const message = error instanceof Error ? error.message : JSON.stringify(error);
-      result.errors.push(`Failed to create price for event "${eventData.title}": ${message}`);
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      result.errors.push(
+        `Failed to create price for event "${eventData.title}": ${message}`,
+      );
     }
   }
 

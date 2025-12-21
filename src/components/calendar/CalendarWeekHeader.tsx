@@ -13,8 +13,8 @@ export function CalendarWeekHeader({
   canGoNext = true,
 }: CalendarWeekHeaderProps) {
   return (
-    <div className="flex border-b border-border sticky top-0 z-30 bg-background w-max min-w-full">
-      <div className="w-[80px] md:w-[104px] flex items-center gap-1 md:gap-2 p-1.5 md:p-2 border-r border-border shrink-0">
+    <div className="border-border bg-background sticky top-0 z-30 flex w-max min-w-full border-b">
+      <div className="border-border flex w-[80px] shrink-0 items-center gap-1 border-r p-1.5 md:w-[104px] md:gap-2 md:p-2">
         <Button
           variant="ghost"
           size="icon"
@@ -37,9 +37,9 @@ export function CalendarWeekHeader({
       {weekDays.map((day) => (
         <div
           key={day.toISOString()}
-          className="flex-1 border-r border-border last:border-r-0 p-1.5 md:p-2 min-w-44 flex items-center"
+          className="border-border flex min-w-44 flex-1 items-center border-r p-1.5 last:border-r-0 md:p-2"
         >
-          <div className="text-xs md:text-sm font-medium text-foreground">
+          <div className="text-foreground text-xs font-medium md:text-sm">
             {format(day, "dd EEE").toUpperCase()}
           </div>
         </div>

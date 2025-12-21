@@ -17,10 +17,26 @@ interface InvitesStepProps {
   eventType: string;
   invitesData: InvitesData | undefined;
   isLoading: boolean;
-  inviteSpeakerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; email: string; affiliation?: string }>;
-  inviteReviewerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; email: string }>;
-  removeSpeakerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; inviteId: number }>;
-  removeReviewerMutation: UseMutationResult<{ ok: true }, Error, { eventId: string; inviteId: number }>;
+  inviteSpeakerMutation: UseMutationResult<
+    { ok: true },
+    Error,
+    { eventId: string; email: string; affiliation?: string }
+  >;
+  inviteReviewerMutation: UseMutationResult<
+    { ok: true },
+    Error,
+    { eventId: string; email: string }
+  >;
+  removeSpeakerMutation: UseMutationResult<
+    { ok: true },
+    Error,
+    { eventId: string; inviteId: number }
+  >;
+  removeReviewerMutation: UseMutationResult<
+    { ok: true },
+    Error,
+    { eventId: string; inviteId: number }
+  >;
 }
 
 export function InvitesStep({
@@ -90,7 +106,8 @@ export function InvitesStep({
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <div className="text-sm font-medium">
-                    {invitesData.speaker.userName || invitesData.speaker.userEmail}
+                    {invitesData.speaker.userName ||
+                      invitesData.speaker.userEmail}
                   </div>
                   {invitesData.speaker.userName && (
                     <div className="text-muted-foreground text-xs">
@@ -104,7 +121,9 @@ export function InvitesStep({
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={getStatusBadgeVariant(invitesData.speaker.status)}>
+                  <Badge
+                    variant={getStatusBadgeVariant(invitesData.speaker.status)}
+                  >
                     {invitesData.speaker.status}
                   </Badge>
                   {invitesData.speaker.status !== "accepted" && (
@@ -119,7 +138,7 @@ export function InvitesStep({
                       }
                       disabled={removeSpeakerMutation.isPending}
                     >
-                      <Trash2 className="size-4 text-destructive" />
+                      <Trash2 className="text-destructive size-4" />
                     </Button>
                   )}
                 </div>
@@ -164,7 +183,8 @@ export function InvitesStep({
             Reviewers ({reviewerCount}/{REQUIRED_REVIEWERS})
           </div>
           <div className="text-muted-foreground mt-1 text-xs">
-            Invite {REQUIRED_REVIEWERS} reviewers. All must accept for the event to start.
+            Invite {REQUIRED_REVIEWERS} reviewers. All must accept for the event
+            to start.
           </div>
 
           <div className="mt-4 space-y-3">
@@ -197,7 +217,7 @@ export function InvitesStep({
                         }
                         disabled={removeReviewerMutation.isPending}
                       >
-                        <Trash2 className="size-4 text-destructive" />
+                        <Trash2 className="text-destructive size-4" />
                       </Button>
                     )}
                   </div>

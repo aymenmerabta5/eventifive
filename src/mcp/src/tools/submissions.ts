@@ -20,8 +20,14 @@ export function registerSubmissionTools(server: McpServer) {
       description: "Create a test submission for an event",
       inputSchema: z.object({
         eventId: z.string().describe("Event ID for the submission"),
-        title: z.string().optional().describe("Submission title (auto-generated if not provided)"),
-        abstract: z.string().optional().describe("Submission abstract (auto-generated if not provided)"),
+        title: z
+          .string()
+          .optional()
+          .describe("Submission title (auto-generated if not provided)"),
+        abstract: z
+          .string()
+          .optional()
+          .describe("Submission abstract (auto-generated if not provided)"),
         keywords: z.string().optional().describe("Comma-separated keywords"),
         type: z
           .enum(submissionTypeValues)
@@ -33,7 +39,10 @@ export function registerSubmissionTools(server: McpServer) {
           .optional()
           .default("draft")
           .describe("Status: draft, accepted, rejected"),
-        submitterId: z.string().optional().describe("Submitter user ID (uses first user if not provided)"),
+        submitterId: z
+          .string()
+          .optional()
+          .describe("Submitter user ID (uses first user if not provided)"),
       }),
     },
     async (input) => {
@@ -58,7 +67,10 @@ export function registerSubmissionTools(server: McpServer) {
 
         let submitterId = input.submitterId;
         if (!submitterId) {
-          const [firstUser] = await db.select({ id: user.id }).from(user).limit(1);
+          const [firstUser] = await db
+            .select({ id: user.id })
+            .from(user)
+            .limit(1);
           if (!firstUser) {
             return {
               content: [
@@ -120,7 +132,7 @@ export function registerSubmissionTools(server: McpServer) {
                   },
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -136,7 +148,7 @@ export function registerSubmissionTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // Create multiple submissions
@@ -146,8 +158,15 @@ export function registerSubmissionTools(server: McpServer) {
       description: "Create multiple test submissions for an event",
       inputSchema: z.object({
         eventId: z.string().describe("Event ID for the submissions"),
-        count: z.number().min(1).max(50).describe("Number of submissions to create (1-50)"),
-        type: z.enum(submissionTypeValues).optional().describe("Submission type (random if not specified)"),
+        count: z
+          .number()
+          .min(1)
+          .max(50)
+          .describe("Number of submissions to create (1-50)"),
+        type: z
+          .enum(submissionTypeValues)
+          .optional()
+          .describe("Submission type (random if not specified)"),
         status: z
           .enum(submissionStatusValues)
           .optional()
@@ -250,7 +269,7 @@ export function registerSubmissionTools(server: McpServer) {
                   submissions,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -266,7 +285,7 @@ export function registerSubmissionTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // List submissions for an event
@@ -276,7 +295,13 @@ export function registerSubmissionTools(server: McpServer) {
       description: "List submissions for an event",
       inputSchema: z.object({
         eventId: z.string().describe("Event ID"),
-        limit: z.number().min(1).max(100).optional().default(20).describe("Number of submissions to return"),
+        limit: z
+          .number()
+          .min(1)
+          .max(100)
+          .optional()
+          .default(20)
+          .describe("Number of submissions to return"),
       }),
     },
     async (input) => {
@@ -306,7 +331,7 @@ export function registerSubmissionTools(server: McpServer) {
                   submissions,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -322,6 +347,6 @@ export function registerSubmissionTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 }

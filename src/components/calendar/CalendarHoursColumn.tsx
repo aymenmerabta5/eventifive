@@ -11,12 +11,12 @@ export function CalendarHoursColumn({
     <div
       ref={scrollRef}
       onScroll={onScroll}
-      className="w-[80px] md:w-[104px] border-r border-border shrink-0 overflow-y-auto relative scrollbar-hide"
+      className="border-border scrollbar-hide relative w-[80px] shrink-0 overflow-y-auto border-r md:w-[104px]"
     >
       {HOURS_24.map((hour) => (
         <div
           key={hour}
-          className="border-b border-border p-2 md:p-3 text-xs md:text-sm text-muted-foreground"
+          className="border-border text-muted-foreground border-b p-2 text-xs md:p-3 md:text-sm"
           style={{ height: `${HOUR_HEIGHT}px` }}
         >
           {hour}

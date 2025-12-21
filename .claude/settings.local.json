@@ -12,7 +12,13 @@
       "Bash(git log:*)",
       "Bash(ls:*)",
       "Bash(dir:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "WebFetch(domain:localhost)",
+      "WebSearch",
+      "WebFetch(domain:bun.com)",
+      "WebFetch(domain:orm.drizzle.team)",
+      "Bash(bun run typecheck:*)",
+      "WebFetch(domain:www.better-auth.com)"
     ],
     "deny": [],
     "ask": []

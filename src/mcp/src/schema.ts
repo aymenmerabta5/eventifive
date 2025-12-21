@@ -15,11 +15,7 @@ import {
 // ---------------------------
 // ENUMS
 // ---------------------------
-export const rolesEnum = pgEnum("role", [
-  "super_admin",
-  "organizer",
-  "user",
-]);
+export const rolesEnum = pgEnum("role", ["super_admin", "organizer", "user"]);
 
 export const eventTypeEnum = pgEnum("event_type", [
   "congress",
@@ -115,7 +111,7 @@ export const userRoles = pgTable(
   (table) => [
     unique("user_roles_user_role_unique").on(table.userId, table.roleId),
     index("user_roles_user_id_idx").on(table.userId),
-  ]
+  ],
 );
 
 export const session = pgTable(
@@ -132,7 +128,7 @@ export const session = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
-  (table) => [index("session_user_id_idx").on(table.userId)]
+  (table) => [index("session_user_id_idx").on(table.userId)],
 );
 
 export const account = pgTable(
@@ -154,7 +150,7 @@ export const account = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("account_user_id_idx").on(table.userId)]
+  (table) => [index("account_user_id_idx").on(table.userId)],
 );
 
 export const verification = pgTable("verification", {
@@ -198,7 +194,7 @@ export const event = pgTable(
     index("event_organizer_id_idx").on(table.organizerId),
     index("event_start_date_idx").on(table.startDate),
     index("event_type_idx").on(table.type),
-  ]
+  ],
 );
 
 export const eventImages = pgTable(
@@ -215,7 +211,7 @@ export const eventImages = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("event_images_event_id_idx").on(table.eventId)]
+  (table) => [index("event_images_event_id_idx").on(table.eventId)],
 );
 
 export const eventCommittee = pgTable(
@@ -233,7 +229,7 @@ export const eventCommittee = pgTable(
   (table) => [
     unique("event_committee_event_user_unique").on(table.eventId, table.userId),
     index("event_committee_event_id_idx").on(table.eventId),
-  ]
+  ],
 );
 
 export const eventSpeakers = pgTable(
@@ -254,7 +250,7 @@ export const eventSpeakers = pgTable(
   (table) => [
     unique("event_speakers_event_user_unique").on(table.eventId, table.userId),
     index("event_speakers_event_id_idx").on(table.eventId),
-  ]
+  ],
 );
 
 export const eventReviewers = pgTable(
@@ -274,7 +270,7 @@ export const eventReviewers = pgTable(
   (table) => [
     unique("event_reviewers_event_user_unique").on(table.eventId, table.userId),
     index("event_reviewers_event_id_idx").on(table.eventId),
-  ]
+  ],
 );
 
 // ---------------------------
@@ -303,7 +299,7 @@ export const files = pgTable(
   (table) => [
     index("files_user_id_idx").on(table.userId),
     index("files_event_id_idx").on(table.eventId),
-  ]
+  ],
 );
 
 // ---------------------------
@@ -331,7 +327,7 @@ export const submission = pgTable(
     index("submission_event_id_idx").on(table.eventId),
     index("submission_submitter_id_idx").on(table.submitterId),
     index("submission_status_idx").on(table.status),
-  ]
+  ],
 );
 
 export const submissionFile = pgTable(
@@ -347,7 +343,9 @@ export const submissionFile = pgTable(
     purpose: varchar("purpose", { length: 100 }), // e.g., "abstract_pdf", "full_paper"
     uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
   },
-  (table) => [index("submission_file_submission_id_idx").on(table.submissionId)]
+  (table) => [
+    index("submission_file_submission_id_idx").on(table.submissionId),
+  ],
 );
 
 // ---------------------------
@@ -372,11 +370,11 @@ export const review = pgTable(
   (table) => [
     unique("review_submission_reviewer_unique").on(
       table.submissionId,
-      table.reviewerId
+      table.reviewerId,
     ),
     index("review_submission_id_idx").on(table.submissionId),
     index("review_reviewer_id_idx").on(table.reviewerId),
-  ]
+  ],
 );
 
 export const reviewAssignment = pgTable(
@@ -396,11 +394,11 @@ export const reviewAssignment = pgTable(
   (table) => [
     unique("review_assignment_submission_reviewer_unique").on(
       table.submissionId,
-      table.reviewerId
+      table.reviewerId,
     ),
     index("review_assignment_submission_id_idx").on(table.submissionId),
     index("review_assignment_reviewer_id_idx").on(table.reviewerId),
-  ]
+  ],
 );
 
 // ---------------------------
@@ -417,7 +415,7 @@ export const room = pgTable(
     capacity: integer("capacity"),
     location: varchar("location", { length: 255 }),
   },
-  (table) => [index("room_event_id_idx").on(table.eventId)]
+  (table) => [index("room_event_id_idx").on(table.eventId)],
 );
 
 export const programSession = pgTable(
@@ -441,7 +439,7 @@ export const programSession = pgTable(
   (table) => [
     index("program_session_event_id_idx").on(table.eventId),
     index("program_session_start_at_idx").on(table.startAt),
-  ]
+  ],
 );
 
 export const sessionAssignment = pgTable(
@@ -459,10 +457,10 @@ export const sessionAssignment = pgTable(
   (table) => [
     unique("session_assignment_session_submission_unique").on(
       table.sessionId,
-      table.submissionId
+      table.submissionId,
     ),
     index("session_assignment_session_id_idx").on(table.sessionId),
-  ]
+  ],
 );
 
 // ---------------------------
@@ -484,7 +482,7 @@ export const workshop = pgTable(
     startAt: timestamp("start_at"),
     endAt: timestamp("end_at"),
   },
-  (table) => [index("workshop_event_id_idx").on(table.eventId)]
+  (table) => [index("workshop_event_id_idx").on(table.eventId)],
 );
 
 export const workshopRegistration = pgTable(
@@ -503,11 +501,11 @@ export const workshopRegistration = pgTable(
   (table) => [
     unique("workshop_registration_workshop_user_unique").on(
       table.workshopId,
-      table.userId
+      table.userId,
     ),
     index("workshop_registration_workshop_id_idx").on(table.workshopId),
     index("workshop_registration_user_id_idx").on(table.userId),
-  ]
+  ],
 );
 
 // ---------------------------
@@ -545,10 +543,10 @@ export const subscriptionPrice = pgTable(
   (table) => [
     unique("subscription_price_plan_period_unique").on(
       table.planId,
-      table.billingPeriod
+      table.billingPeriod,
     ),
     index("subscription_price_plan_id_idx").on(table.planId),
-  ]
+  ],
 );
 
 export const userSubscription = pgTable(
@@ -574,7 +572,7 @@ export const userSubscription = pgTable(
   (table) => [
     index("user_subscription_user_id_idx").on(table.userId),
     index("user_subscription_status_idx").on(table.status),
-  ]
+  ],
 );
 
 // ---------------------------
@@ -601,11 +599,11 @@ export const eventRegistration = pgTable(
   (table) => [
     unique("event_registration_event_user_unique").on(
       table.eventId,
-      table.userId
+      table.userId,
     ),
     index("event_registration_event_id_idx").on(table.eventId),
     index("event_registration_user_id_idx").on(table.userId),
-  ]
+  ],
 );
 
 export const payment = pgTable(
@@ -615,11 +613,11 @@ export const payment = pgTable(
     // Either for event registration or subscription (one should be set)
     registrationId: integer("registration_id").references(
       () => eventRegistration.id,
-      { onDelete: "cascade" }
+      { onDelete: "cascade" },
     ),
     subscriptionId: text("subscription_id").references(
       () => userSubscription.id,
-      { onDelete: "cascade" }
+      { onDelete: "cascade" },
     ),
     userId: text("user_id")
       .notNull()
@@ -642,7 +640,7 @@ export const payment = pgTable(
     index("payment_user_id_idx").on(table.userId),
     index("payment_status_idx").on(table.status),
     index("payment_chargily_checkout_id_idx").on(table.chargilyCheckoutId),
-  ]
+  ],
 );
 
 // messaging section we may support group chats in another world xD
@@ -664,7 +662,7 @@ export const conversations = pgTable(
     unique("conversations_users_unique").on(table.userId1, table.userId2),
     index("conversations_user_id_1_idx").on(table.userId1),
     index("conversations_user_id_2_idx").on(table.userId2),
-  ]
+  ],
 );
 
 export const messages = pgTable(
@@ -684,7 +682,7 @@ export const messages = pgTable(
   (table) => [
     index("messages_conversation_id_idx").on(table.conversationId),
     index("messages_created_at_idx").on(table.createdAt),
-  ]
+  ],
 );
 
 // ---------------------------

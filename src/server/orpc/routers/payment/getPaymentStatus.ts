@@ -45,7 +45,7 @@ export const getPaymentStatusRouter = protectedProcedure
         .from(userSubscription)
         .innerJoin(
           subscriptionPlan,
-          eq(userSubscription.planId, subscriptionPlan.id)
+          eq(userSubscription.planId, subscriptionPlan.id),
         )
         .where(eq(userSubscription.id, paymentRecord.subscriptionId));
 

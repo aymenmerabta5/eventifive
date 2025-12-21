@@ -9,7 +9,7 @@ import EmailLayout from "./EmailLayout";
 export default function ResetPasswordEmail({ link }: { link: string }) {
   return (
     <EmailLayout>
-      <Section className="my-6 rounded-lg bg-card px-6 py-12 text-center shadow-lg">
+      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center shadow-lg">
         <Section className="text-center">
           <Heading
             as="h1"

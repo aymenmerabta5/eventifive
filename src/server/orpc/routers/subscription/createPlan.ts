@@ -3,7 +3,12 @@ import { protectedProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
-import { subscriptionPlan, subscriptionPrice, userRoles, roles } from "@/server/db/schema";
+import {
+  subscriptionPlan,
+  subscriptionPrice,
+  userRoles,
+  roles,
+} from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { syncSinglePlan } from "@/server/gateway/chargilySync";
 import { isChargilyConfigured } from "@/server/gateway/chargily";

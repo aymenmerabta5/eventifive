@@ -114,7 +114,10 @@ export function formatTimeRange(startAt: Date, endAt: Date): string {
 /**
  * Format a time range in 12h format (e.g., "2:30 PM – 4:00 PM")
  */
-export function formatTimeRange12h(start: Date | string, end: Date | string): string {
+export function formatTimeRange12h(
+  start: Date | string,
+  end: Date | string,
+): string {
   const startStr = timeFormatter.format(new Date(start));
   const endStr = timeFormatter.format(new Date(end));
   return `${startStr} – ${endStr}`;
@@ -125,7 +128,10 @@ export function formatTimeRange12h(start: Date | string, end: Date | string): st
  * Same day: "Jan 15, 2024 • 2:30 PM – 4:00 PM"
  * Different days: "Jan 15, 2024, 2:30 PM → Jan 16, 2024, 4:00 PM"
  */
-export function formatSchedule(start: Date | string, end: Date | string): string {
+export function formatSchedule(
+  start: Date | string,
+  end: Date | string,
+): string {
   const startDate = new Date(start);
   const endDate = new Date(end);
 
@@ -193,7 +199,8 @@ export function formatRelativeTimeLong(date: Date | string): string {
     return targetDate.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-      year: targetDate.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+      year:
+        targetDate.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
     });
   }
 }
@@ -262,7 +269,10 @@ export function getNowMinDateTime(): string {
 /**
  * Add N days to a datetime-local input value and return a new datetime-local value
  */
-export function addDaysToDateTimeLocalInputValue(value: string, days: number): string {
+export function addDaysToDateTimeLocalInputValue(
+  value: string,
+  days: number,
+): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
   if (!match) return "";
 

@@ -19,7 +19,7 @@ export const client = env.CHARGILY_SK
 export function getChargilyClient(): ChargilyClient {
   if (!client) {
     throw new Error(
-      "Chargily is not configured. Set CHARGILY_SK environment variable."
+      "Chargily is not configured. Set CHARGILY_SK environment variable.",
     );
   }
   return client;

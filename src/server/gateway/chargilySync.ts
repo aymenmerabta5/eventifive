@@ -22,7 +22,10 @@ export async function syncPlansToChargily(): Promise<SyncResult> {
     .select()
     .from(subscriptionPlan)
     .where(
-      and(isNull(subscriptionPlan.chargilyProductId), eq(subscriptionPlan.isActive, true))
+      and(
+        isNull(subscriptionPlan.chargilyProductId),
+        eq(subscriptionPlan.isActive, true),
+      ),
     );
 
   // 2. Create products in Chargily for each plan
@@ -45,8 +48,7 @@ export async function syncPlansToChargily(): Promise<SyncResult> {
 
       result.plansCreated++;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unknown error";
+      const message = error instanceof Error ? error.message : "Unknown error";
       result.errors.push(`Failed to sync plan "${plan.name}": ${message}`);
     }
   }
@@ -58,13 +60,16 @@ export async function syncPlansToChargily(): Promise<SyncResult> {
       plan: subscriptionPlan,
     })
     .from(subscriptionPrice)
-    .innerJoin(subscriptionPlan, eq(subscriptionPrice.planId, subscriptionPlan.id))
+    .innerJoin(
+      subscriptionPlan,
+      eq(subscriptionPrice.planId, subscriptionPlan.id),
+    )
     .where(
       and(
         isNull(subscriptionPrice.chargilyPriceId),
         // Only sync prices for plans that have been synced to Chargily
-        isNotNull(subscriptionPlan.chargilyProductId)
-      )
+        isNotNull(subscriptionPlan.chargilyProductId),
+      ),
     );
 
   // 4. Create prices in Chargily for each price
@@ -96,10 +101,9 @@ export async function syncPlansToChargily(): Promise<SyncResult> {
 
       result.pricesCreated++;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unknown error";
+      const message = error instanceof Error ? error.message : "Unknown error";
       result.errors.push(
-        `Failed to sync price for "${plan.name}" (${price.billingPeriod}): ${message}`
+        `Failed to sync price for "${plan.name}" (${price.billingPeriod}): ${message}`,
       );
     }
   }
@@ -151,8 +155,7 @@ export async function syncSinglePlan(planId: string): Promise<SyncResult> {
       plan.chargilyProductId = chargilyProduct.id;
       result.plansCreated++;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unknown error";
+      const message = error instanceof Error ? error.message : "Unknown error";
       result.errors.push(`Failed to sync plan: ${message}`);
       return result;
     }
@@ -165,8 +168,8 @@ export async function syncSinglePlan(planId: string): Promise<SyncResult> {
     .where(
       and(
         eq(subscriptionPrice.planId, planId),
-        isNull(subscriptionPrice.chargilyPriceId)
-      )
+        isNull(subscriptionPrice.chargilyPriceId),
+      ),
     );
 
   for (const price of prices) {
@@ -192,10 +195,9 @@ export async function syncSinglePlan(planId: string): Promise<SyncResult> {
 
       result.pricesCreated++;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unknown error";
+      const message = error instanceof Error ? error.message : "Unknown error";
       result.errors.push(
-        `Failed to sync price (${price.billingPeriod}): ${message}`
+        `Failed to sync price (${price.billingPeriod}): ${message}`,
       );
     }
   }

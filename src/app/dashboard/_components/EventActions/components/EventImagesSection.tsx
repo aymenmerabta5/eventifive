@@ -30,8 +30,8 @@ export function EventImagesSection({
       </Label>
 
       {isLoadingImages ? (
-        <div className="flex items-center justify-center rounded-3xl border-2 border-dashed border-border p-8">
-          <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="border-border flex items-center justify-center rounded-3xl border-2 border-dashed p-8">
+          <div className="text-muted-foreground flex items-center gap-2">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span>Loading existing images...</span>
           </div>

@@ -180,8 +180,12 @@ export const updateSessionRouter = protectedProcedure
     }
 
     // Validate new times are within event range if provided
-    const newStartAt = input.startAt ? new Date(input.startAt) : sessionRow.session.startAt;
-    const newEndAt = input.endAt ? new Date(input.endAt) : sessionRow.session.endAt;
+    const newStartAt = input.startAt
+      ? new Date(input.startAt)
+      : sessionRow.session.startAt;
+    const newEndAt = input.endAt
+      ? new Date(input.endAt)
+      : sessionRow.session.endAt;
     const eventStart = new Date(sessionRow.eventStartDate);
     const eventEnd = new Date(sessionRow.eventEndDate);
     eventEnd.setHours(23, 59, 59, 999);
@@ -195,12 +199,15 @@ export const updateSessionRouter = protectedProcedure
     try {
       const updateData: Partial<typeof programSession.$inferInsert> = {};
       if (input.title !== undefined) updateData.title = input.title;
-      if (input.description !== undefined) updateData.description = input.description;
-      if (input.startAt !== undefined) updateData.startAt = new Date(input.startAt);
+      if (input.description !== undefined)
+        updateData.description = input.description;
+      if (input.startAt !== undefined)
+        updateData.startAt = new Date(input.startAt);
       if (input.endAt !== undefined) updateData.endAt = new Date(input.endAt);
       if (input.roomId !== undefined) updateData.roomId = input.roomId;
       if (input.chairId !== undefined) updateData.chairId = input.chairId;
-      if (input.meetingLink !== undefined) updateData.meetingLink = input.meetingLink;
+      if (input.meetingLink !== undefined)
+        updateData.meetingLink = input.meetingLink;
 
       const [updatedSession] = await db
         .update(programSession)
@@ -263,7 +270,9 @@ export const deleteSessionRouter = protectedProcedure
     }
 
     try {
-      await db.delete(programSession).where(eq(programSession.id, input.sessionId));
+      await db
+        .delete(programSession)
+        .where(eq(programSession.id, input.sessionId));
 
       return {
         status: "success" as const,

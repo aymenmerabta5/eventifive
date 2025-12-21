@@ -88,7 +88,7 @@ export const Button = ({ className, children, ...props }: ButtonProps) => {
         "flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full bg-green-500 px-4 py-2 font-medium text-white ring-offset-2 transition duration-200 dark:ring-offset-black",
         className,
         buttonVariants({ variant: "default" }),
-        "rounded-4xl"
+        "rounded-4xl",
       )}
       {...buttonProps}
       onClick={handleClick}

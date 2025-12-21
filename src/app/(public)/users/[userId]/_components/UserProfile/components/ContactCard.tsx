@@ -54,8 +54,8 @@ export function ContactCard({
 
         <div
           className={cn(
-            "grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2 w-full",
-            isOwnProfile && "sm:grid-cols-1"
+            "grid w-full grid-cols-1 gap-3 pt-2 sm:grid-cols-2",
+            isOwnProfile && "sm:grid-cols-1",
           )}
         >
           {email && !isOwnProfile && (
@@ -79,7 +79,7 @@ export function ContactCard({
           )}
           <Button
             variant="secondary"
-            className="rounded-xl border-dashed w-full"
+            className="w-full rounded-xl border-dashed"
             onClick={onShare}
           >
             <IconShare className="mr-2 h-4 w-4" />

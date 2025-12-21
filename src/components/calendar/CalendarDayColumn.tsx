@@ -28,7 +28,7 @@ export function CalendarDayColumn({
 
   // Filter sessions for this day
   const daySessions = sessions.filter(
-    (s) => format(s.startAt, "yyyy-MM-dd") === dayStr
+    (s) => format(s.startAt, "yyyy-MM-dd") === dayStr,
   );
 
   const handleHourClick = (hourIndex: number) => {
@@ -43,12 +43,12 @@ export function CalendarDayColumn({
     <div
       ref={scrollRef}
       onScroll={onScroll(dayIndex)}
-      className="flex-1 border-r border-border last:border-r-0 relative min-w-44 overflow-y-auto scrollbar-hide"
+      className="border-border scrollbar-hide relative min-w-44 flex-1 overflow-y-auto border-r last:border-r-0"
     >
       {HOURS_24.map((hour, index) => (
         <div
           key={hour}
-          className={`border-b border-border ${isEditable ? "cursor-pointer hover:bg-muted/50" : ""}`}
+          className={`border-border border-b ${isEditable ? "hover:bg-muted/50 cursor-pointer" : ""}`}
           style={{ height: `${HOUR_HEIGHT}px` }}
           onClick={() => handleHourClick(index)}
         />

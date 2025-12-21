@@ -20,13 +20,24 @@ export function registerReviewTools(server: McpServer) {
       description: "Create a review for a submission",
       inputSchema: z.object({
         submissionId: z.string().describe("Submission ID to review"),
-        reviewerId: z.string().optional().describe("Reviewer user ID (uses random user if not provided)"),
-        score: z.number().min(1).max(10).optional().describe("Review score (1-10, auto-generated if not provided)"),
+        reviewerId: z
+          .string()
+          .optional()
+          .describe("Reviewer user ID (uses random user if not provided)"),
+        score: z
+          .number()
+          .min(1)
+          .max(10)
+          .optional()
+          .describe("Review score (1-10, auto-generated if not provided)"),
         recommendation: z
           .enum(reviewRecommendationValues)
           .optional()
           .describe("Recommendation: accept, reject"),
-        comment: z.string().optional().describe("Review comment (auto-generated if not provided)"),
+        comment: z
+          .string()
+          .optional()
+          .describe("Review comment (auto-generated if not provided)"),
       }),
     },
     async (input) => {
@@ -62,7 +73,10 @@ export function registerReviewTools(server: McpServer) {
             .limit(1);
 
           if (!randomUser) {
-            const [anyUser] = await db.select({ id: user.id }).from(user).limit(1);
+            const [anyUser] = await db
+              .select({ id: user.id })
+              .from(user)
+              .limit(1);
             if (!anyUser) {
               return {
                 content: [
@@ -84,9 +98,12 @@ export function registerReviewTools(server: McpServer) {
         const now = new Date();
 
         const score = input.score || Math.floor(Math.random() * 5) + 5;
-        const recommendation = input.recommendation || (score >= 6 ? "accept" : "reject");
+        const recommendation =
+          input.recommendation || (score >= 6 ? "accept" : "reject");
 
-        const comment = input.comment || generateReviewComments(recommendation, submissionData.title);
+        const comment =
+          input.comment ||
+          generateReviewComments(recommendation, submissionData.title);
 
         await db.insert(review).values({
           id: reviewId,
@@ -123,7 +140,7 @@ export function registerReviewTools(server: McpServer) {
                   },
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -139,7 +156,7 @@ export function registerReviewTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // Create multiple reviews for submissions
@@ -203,8 +220,13 @@ export function registerReviewTools(server: McpServer) {
         const now = new Date();
 
         for (const sub of submissions) {
-          const availableReviewers = users.filter((u) => u.id !== sub.submitterId);
-          const reviewerCount = Math.min(input.reviewsPerSubmission || 2, availableReviewers.length);
+          const availableReviewers = users.filter(
+            (u) => u.id !== sub.submitterId,
+          );
+          const reviewerCount = Math.min(
+            input.reviewsPerSubmission || 2,
+            availableReviewers.length,
+          );
 
           for (let i = 0; i < reviewerCount; i++) {
             const reviewer = availableReviewers[i % availableReviewers.length];
@@ -257,7 +279,7 @@ export function registerReviewTools(server: McpServer) {
                   reviews: createdReviews,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -273,7 +295,7 @@ export function registerReviewTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // List reviews for a submission
@@ -311,7 +333,7 @@ export function registerReviewTools(server: McpServer) {
                   reviews,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -327,11 +349,14 @@ export function registerReviewTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 }
 
-function generateReviewComments(recommendation: string, _title?: string): string {
+function generateReviewComments(
+  recommendation: string,
+  _title?: string,
+): string {
   const positiveComments = [
     "The paper presents a well-structured approach with clear methodology.",
     "The research contributes significantly to the field.",

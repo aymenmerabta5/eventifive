@@ -7,20 +7,17 @@ import About from "./_components/About";
 import Platform from "./_components/Platform";
 import GradientTransition from "./_components/GradientTransition";
 import Loader from "@/components/loader";
- 
 
 export default function Home() {
-
-	return (
-		<Suspense fallback={<Loader />}>
-			<div className="flex flex-col">
-				<Hero />
-				<GradientTransition />
-				<About/>
-				<WhoWeAre />
-				<Platform />
-			</div>
-		</Suspense>
-	);
+  return (
+    <Suspense fallback={<Loader />}>
+      <div className="flex flex-col">
+        <Hero />
+        <GradientTransition />
+        <About />
+        <WhoWeAre />
+        <Platform />
+      </div>
+    </Suspense>
+  );
 }
-

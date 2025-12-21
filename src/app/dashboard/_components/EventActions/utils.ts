@@ -14,12 +14,14 @@ export {
  */
 export function checkEventReadiness(
   speaker: SpeakerInvite | null,
-  reviewers: ReviewerInvite[]
+  reviewers: ReviewerInvite[],
 ): EventReadiness {
   const hasSpeaker = speaker !== null;
   const speakerAccepted = speaker?.status === "accepted";
   const reviewerCount = reviewers.length;
-  const reviewersAccepted = reviewers.filter((r) => r.status === "accepted").length;
+  const reviewersAccepted = reviewers.filter(
+    (r) => r.status === "accepted",
+  ).length;
   const isReady = speakerAccepted && reviewersAccepted === REQUIRED_REVIEWERS;
 
   return {
@@ -34,7 +36,9 @@ export function checkEventReadiness(
 /**
  * Get status badge variant based on invite status
  */
-export function getStatusBadgeVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+export function getStatusBadgeVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "accepted":
       return "default";

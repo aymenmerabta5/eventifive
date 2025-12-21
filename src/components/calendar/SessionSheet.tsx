@@ -1,6 +1,13 @@
 "use client";
 
-import { ExternalLink, MapPin, Clock, User, Pencil, Trash2 } from "lucide-react";
+import {
+  ExternalLink,
+  MapPin,
+  Clock,
+  User,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -35,13 +42,13 @@ export function SessionSheet({
         </SheetHeader>
 
         <div className="mt-6 space-y-4 p-6">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-3 text-sm">
             <Clock className="size-4" />
             <span>{timeStr}</span>
           </div>
 
           {location && (
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-3 text-sm">
               <MapPin className="size-4" />
               <span>{location}</span>
             </div>
@@ -49,10 +56,12 @@ export function SessionSheet({
 
           {session.room && (
             <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Room</p>
+              <p className="text-muted-foreground mb-1 text-xs font-medium">
+                Room
+              </p>
               <p className="text-sm font-medium">{session.room.name}</p>
               {session.room.capacity && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Capacity: {session.room.capacity}
                 </p>
               )}
@@ -65,19 +74,24 @@ export function SessionSheet({
                 <User className="size-4" />
                 <span>Chair</span>
               </div>
-              <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-md">
+              <div className="bg-muted flex items-center gap-2 rounded-md px-3 py-2">
                 <Avatar className="size-8">
                   {session.chair.image ? (
-                    <AvatarImage src={session.chair.image} alt={session.chair.name} />
+                    <AvatarImage
+                      src={session.chair.image}
+                      alt={session.chair.name}
+                    />
                   ) : (
                     <AvatarFallback>
                       {session.chair.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{session.chair.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
+                    {session.chair.name}
+                  </p>
+                  <p className="text-muted-foreground truncate text-xs">
                     {session.chair.email}
                   </p>
                 </div>
@@ -99,7 +113,7 @@ export function SessionSheet({
           )}
 
           {isEditable && (
-            <div className="flex gap-2 pt-4 border-t">
+            <div className="flex gap-2 border-t pt-4">
               <Button
                 variant="outline"
                 className="flex-1"

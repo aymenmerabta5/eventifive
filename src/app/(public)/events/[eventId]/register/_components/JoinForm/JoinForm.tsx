@@ -56,10 +56,10 @@ export function JoinForm({ eventId, eventType }: JoinFormProps) {
             <FileUp className="mr-2 h-3.5 w-3.5" />
             Committee Registration
           </Badge>
-          <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
             Submit your application
           </h1>
-          <p className="mx-auto max-w-xl text-balance text-muted-foreground">
+          <p className="text-muted-foreground mx-auto max-w-xl text-balance">
             Share your details and upload your supporting file so we can review
             your application for the committee.
           </p>
@@ -69,8 +69,8 @@ export function JoinForm({ eventId, eventType }: JoinFormProps) {
         <Card className="border-border/60 shadow-xl backdrop-blur">
           <CardHeader className="pb-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                <User className="h-5 w-5 text-primary" />
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-xl">
+                <User className="text-primary h-5 w-5" />
               </div>
               <div>
                 <CardTitle>Your Information</CardTitle>
@@ -92,10 +92,10 @@ export function JoinForm({ eventId, eventType }: JoinFormProps) {
               {/* File Upload Area */}
               <div className="space-y-3">
                 <Label className="flex items-center gap-2 text-sm font-medium">
-                  <FileUp className="h-4 w-4 text-muted-foreground" />
+                  <FileUp className="text-muted-foreground h-4 w-4" />
                   Supporting document
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {isLoadingQuota
                     ? "Checking upload limit..."
                     : `${quotaInfo.uploadedCount}/${quotaInfo.maxFiles} already uploaded for this event`}
@@ -120,7 +120,7 @@ export function JoinForm({ eventId, eventType }: JoinFormProps) {
               </div>
 
               <CardFooter className="flex-col gap-4 px-0 pt-4 sm:flex-row sm:justify-between">
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   By submitting, you agree to our terms and conditions.
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

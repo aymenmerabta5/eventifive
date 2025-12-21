@@ -12,7 +12,7 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(
   password: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> {
   const [salt, hash] = hashedPassword.split(":");
   if (!salt || !hash) return false;

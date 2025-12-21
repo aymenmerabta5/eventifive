@@ -45,12 +45,12 @@ export function useSignInForm() {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onError: (error: any) => {
             toast.error(
-              error.error?.message || "An error occurred while signing in"
+              error.error?.message || "An error occurred while signing in",
             );
             turnstile?.reset();
             setToken(null);
           },
-        }
+        },
       );
     },
     validators: {
@@ -84,7 +84,7 @@ export function useSignInForm() {
           onError: (error) => {
             toast.error(error.error.message || error.error.statusText);
           },
-        }
+        },
       );
     });
   }, [router]);

@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       console.error("Webhook received but CHARGILY_SK is not configured");
       return NextResponse.json(
         { error: "Payment gateway not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       console.error("Missing paymentId in webhook metadata", data.metadata);
       return NextResponse.json(
         { error: "Missing paymentId in metadata" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -100,14 +100,14 @@ export async function POST(request: Request) {
     console.error("Webhook processing error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 async function handlePaymentSuccess(
   paymentRecord: typeof payment.$inferSelect,
-  data: ChargilyWebhookData
+  data: ChargilyWebhookData,
 ) {
   const now = new Date();
 
@@ -133,7 +133,7 @@ async function handlePaymentSuccess(
       .where(eq(userSubscription.id, paymentRecord.subscriptionId));
 
     console.log(
-      `Subscription ${paymentRecord.subscriptionId} activated for payment ${paymentRecord.id}`
+      `Subscription ${paymentRecord.subscriptionId} activated for payment ${paymentRecord.id}`,
     );
   }
 
@@ -147,7 +147,7 @@ async function handlePaymentSuccess(
       .where(eq(eventRegistration.id, paymentRecord.registrationId));
 
     console.log(
-      `Event registration ${paymentRecord.registrationId} marked as paid for payment ${paymentRecord.id}`
+      `Event registration ${paymentRecord.registrationId} marked as paid for payment ${paymentRecord.id}`,
     );
   }
 
@@ -156,7 +156,7 @@ async function handlePaymentSuccess(
 
 async function handlePaymentFailure(
   paymentRecord: typeof payment.$inferSelect,
-  data: ChargilyWebhookData
+  data: ChargilyWebhookData,
 ) {
   // Update payment with failure info
   await db
@@ -173,7 +173,7 @@ async function handlePaymentFailure(
 }
 
 async function handlePaymentExpired(
-  paymentRecord: typeof payment.$inferSelect
+  paymentRecord: typeof payment.$inferSelect,
 ) {
   // Update payment status
   await db
@@ -191,7 +191,7 @@ async function handlePaymentExpired(
       .where(eq(userSubscription.id, paymentRecord.subscriptionId));
 
     console.log(
-      `Pending subscription ${paymentRecord.subscriptionId} deleted due to expired checkout`
+      `Pending subscription ${paymentRecord.subscriptionId} deleted due to expired checkout`,
     );
   }
 

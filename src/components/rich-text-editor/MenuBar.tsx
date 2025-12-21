@@ -122,7 +122,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
               }}
               className={cn(
                 "cursor-pointer",
-                editorState?.isParagraph && "bg-primary text-primary-foreground",
+                editorState?.isParagraph &&
+                  "bg-primary text-primary-foreground",
               )}
             >
               <TextIcon className="h-4 w-4" />
@@ -247,7 +248,7 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
           <TooltipContent>Ordered List</TooltipContent>
         </Tooltip>
       </div>
-      <div className="w-px h-6 bg-border mx-2" />
+      <div className="bg-border mx-2 h-6 w-px" />
       <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -260,7 +261,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
               }}
               className={cn(
                 "cursor-pointer",
-                editorState?.isAlignLeft && "bg-primary text-primary-foreground",
+                editorState?.isAlignLeft &&
+                  "bg-primary text-primary-foreground",
               )}
             >
               <AlignLeftIcon className="h-4 w-4" />
@@ -279,7 +281,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
               }}
               className={cn(
                 "cursor-pointer",
-                editorState?.isAlignCenter && "bg-primary text-primary-foreground",
+                editorState?.isAlignCenter &&
+                  "bg-primary text-primary-foreground",
               )}
             >
               <AlignCenterIcon className="h-4 w-4" />
@@ -298,7 +301,8 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
               }}
               className={cn(
                 "cursor-pointer",
-                editorState?.isAlignRight && "bg-primary text-primary-foreground",
+                editorState?.isAlignRight &&
+                  "bg-primary text-primary-foreground",
               )}
             >
               <AlignRightIcon className="h-4 w-4" />

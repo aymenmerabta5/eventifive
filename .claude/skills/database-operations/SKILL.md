@@ -3,7 +3,7 @@ name: database-operations
 description: Create and manage database operations with Drizzle ORM - schema changes, queries, migrations, transactions. Use when working with database modifications, adding tables/columns, writing complex queries, or managing data.
 ---
 
-# Database Operations
+# Database Operations (Bun SQL + Drizzle ORM)
 
 ## Methodology - ALWAYS FOLLOW
 
@@ -41,21 +41,42 @@ Present the plan and wait for explicit approval before any implementation.
 
 ### Commands
 ```bash
-pnpm db:push      # Push schema to DB (dev - quick iteration)
-pnpm db:generate  # Generate migration files
-pnpm db:migrate   # Run migrations (production)
-pnpm db:studio    # Open Drizzle Studio GUI
-pnpm db:seed      # Seed sample data
-pnpm db:reset     # Reset database (destructive!)
+bun run db:push      # Push schema to DB (dev - quick iteration)
+bun run db:generate  # Generate migration files
+bun run db:migrate   # Run migrations (production)
+bun run db:studio    # Open Drizzle Studio GUI
+bun run db:seed      # Seed sample data
+bun run db:reset     # Reset database (destructive!)
 ```
 
 ### Key Files
 - Schema: `src/server/db/schema.ts`
-- Client: `src/server/db/index.ts`
+- Client: `src/server/db/index.ts` (Bun SQL)
 - Config: `drizzle.config.ts`
 
 ### Table Prefix
 All tables use `eventifive_*` prefix.
+
+---
+
+## Bun SQL Integration
+
+The database uses Bun's native PostgreSQL driver (`Bun.SQL`) which is ~50% faster than postgres.js.
+
+### Connection Setup
+```typescript
+import { drizzle } from "drizzle-orm/bun-sql";
+import { SQL } from "bun";
+
+const client = new SQL(env.DATABASE_URL);
+export const db = drizzle({ client, schema });
+```
+
+### Why Bun SQL?
+- Native Zig implementation (faster than Node.js drivers)
+- No external dependencies
+- Automatic connection pooling
+- Works with Drizzle ORM seamlessly
 
 ---
 

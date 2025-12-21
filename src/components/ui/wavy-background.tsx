@@ -30,39 +30,43 @@ export const WavyBackground = ({
   const animationRef = useRef<number>(0);
   const noiseRef = useRef(createNoise3D());
   const stateRef = useRef({ w: 0, h: 0, nt: 0 });
-  
+
   const getSpeed = useMemo(() => {
     return speed === "fast" ? 0.002 : 0.001;
   }, [speed]);
 
   // Purple theme colors matching the tailwind config (oklch converted to hex)
-  const waveColors = useMemo(() => colors ?? [
-    "#8b5cf6", // primary purple
-    "#a78bfa", // lighter purple (chart-2)
-    "#818cf8", // blue-purple (chart-3)
-    "#a855f7", // purple (chart-4)
-    "#7c3aed", // darker purple (chart-5)
-  ], [colors]);
+  const waveColors = useMemo(
+    () =>
+      colors ?? [
+        "#8b5cf6", // primary purple
+        "#a78bfa", // lighter purple (chart-2)
+        "#818cf8", // blue-purple (chart-3)
+        "#a855f7", // purple (chart-4)
+        "#7c3aed", // darker purple (chart-5)
+      ],
+    [colors],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    
+
     const state = stateRef.current;
     const noise = noiseRef.current;
-    
+
     const resize = () => {
       state.w = ctx.canvas.width = document.documentElement.clientWidth;
       state.h = ctx.canvas.height = document.documentElement.clientHeight;
       ctx.filter = `blur(${blur}px)`;
     };
-    
+
     resize();
     state.nt = 0;
-    
+
     const drawWave = (n: number) => {
       state.nt += getSpeed;
       for (let i = 0; i < n; i++) {
@@ -84,10 +88,10 @@ export const WavyBackground = ({
       drawWave(5);
       animationRef.current = requestAnimationFrame(render);
     };
-    
+
     window.addEventListener("resize", resize);
     render();
-    
+
     return () => {
       cancelAnimationFrame(animationRef.current);
       window.removeEventListener("resize", resize);
@@ -99,19 +103,19 @@ export const WavyBackground = ({
     setIsSafari(
       typeof window !== "undefined" &&
         navigator.userAgent.includes("Safari") &&
-        !navigator.userAgent.includes("Chrome")
+        !navigator.userAgent.includes("Chrome"),
     );
   }, []);
 
   return (
     <div
       className={cn(
-        "h-screen flex flex-col items-center justify-center bg-background overflow-x-hidden",
-        containerClassName
+        "bg-background flex h-screen flex-col items-center justify-center overflow-x-hidden",
+        containerClassName,
       )}
     >
       <canvas
-        className="absolute inset-0 z-0 bg-background"
+        className="bg-background absolute inset-0 z-0"
         ref={canvasRef}
         id="canvas"
         style={{

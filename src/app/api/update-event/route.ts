@@ -2,9 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/server/better-auth";
 import { headers } from "next/headers";
-import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "@/server/bucket/s3Client";
-import { env } from "@/env";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
 import { event, files, eventImages } from "@/server/db/schema";
@@ -19,7 +17,7 @@ async function uploadEventImage(
   file: File,
   eventId: string,
   userId: string,
-  isGallery: boolean = false
+  isGallery: boolean = false,
 ): Promise<{ fileId: string; s3Key: string } | null> {
   try {
     const validation = validateFile(file.name, file.size, file.type);
@@ -39,16 +37,12 @@ async function uploadEventImage(
     const folder = isGallery ? "gallery" : "cover";
     const s3Key = `${userId}/events/${eventId}/${folder}/${fileId}-${sanitizedName}`;
 
+    // Upload to S3 using Bun's native S3 client
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: env.S3_BUCKET_NAME,
-        Key: s3Key,
-        Body: buffer,
-        ContentType: file.type,
-      })
-    );
+    await s3Client.write(s3Key, buffer, {
+      type: file.type,
+    });
 
     await db.insert(files).values({
       id: fileId,
@@ -74,7 +68,7 @@ async function uploadEventImage(
 async function deleteEventImage(
   fileId: string,
   userId: string,
-  eventId: string
+  eventId: string,
 ): Promise<boolean> {
   try {
     // Get the file record to find the S3 key
@@ -85,8 +79,8 @@ async function deleteEventImage(
         and(
           eq(files.id, fileId),
           eq(files.userId, userId),
-          eq(files.eventId, eventId)
-        )
+          eq(files.eventId, eventId),
+        ),
       );
 
     if (!fileRecord) {
@@ -94,13 +88,8 @@ async function deleteEventImage(
       return false;
     }
 
-    // Delete from S3
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: env.S3_BUCKET_NAME,
-        Key: fileRecord.s3Key,
-      })
-    );
+    // Delete from S3 using Bun's native S3 client
+    await s3Client.delete(fileRecord.s3Key);
 
     // Delete from eventImages table
     await db.delete(eventImages).where(eq(eventImages.fileId, fileId));
@@ -132,7 +121,7 @@ export async function POST(req: NextRequest) {
     if (!eventId) {
       return NextResponse.json(
         { message: "Event ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -144,20 +133,25 @@ export async function POST(req: NextRequest) {
 
     if (!eventData) {
       return NextResponse.json(
-        { message: "Event not found or you do not have permission to update it" },
-        { status: 404 }
+        {
+          message: "Event not found or you do not have permission to update it",
+        },
+        { status: 404 },
       );
     }
 
     const rawBigDescription = formData.get("bigDescription");
     let bigDescription: unknown = undefined;
-    if (typeof rawBigDescription === "string" && rawBigDescription.trim().length > 0) {
+    if (
+      typeof rawBigDescription === "string" &&
+      rawBigDescription.trim().length > 0
+    ) {
       try {
         bigDescription = JSON.parse(rawBigDescription);
       } catch {
         return NextResponse.json(
           { message: "Invalid bigDescription JSON" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -184,7 +178,7 @@ export async function POST(req: NextRequest) {
           message: "Validation failed",
           errors: parsed.error.flatten().fieldErrors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -202,12 +196,12 @@ export async function POST(req: NextRequest) {
 
     const newImages = formData.getAll("images") as File[];
     const validNewImages = newImages.filter(
-      (f): f is File => f instanceof File && f.size > 0
+      (f): f is File => f instanceof File && f.size > 0,
     );
 
     // Calculate final image count
     const keptImageCount = existingImages.filter(
-      (img) => !removeImageIds.includes(img.fileId)
+      (img) => !removeImageIds.includes(img.fileId),
     ).length;
     const totalImagesAfter = keptImageCount + validNewImages.length;
 
@@ -216,7 +210,7 @@ export async function POST(req: NextRequest) {
         {
           message: `Maximum ${MAX_EVENT_IMAGES} image(s) allowed total. You have ${keptImageCount} existing and are trying to add ${validNewImages.length} new.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -249,7 +243,7 @@ export async function POST(req: NextRequest) {
 
     // Get remaining images after deletion to determine if first new image is cover
     const remainingExisting = existingImages.filter(
-      (img) => !deleteResults.deleted.includes(img.fileId)
+      (img) => !deleteResults.deleted.includes(img.fileId),
     );
     const needsCover = remainingExisting.length === 0;
 
@@ -286,7 +280,7 @@ export async function POST(req: NextRequest) {
         bigDescription:
           parsed.data.bigDescription === undefined
             ? eventData.bigDescription
-            : parsed.data.bigDescription ?? null,
+            : (parsed.data.bigDescription ?? null),
         type: parsed.data.type,
         startDate: new Date(parsed.data.startDate),
         endDate: new Date(parsed.data.endDate),
@@ -322,7 +316,7 @@ export async function POST(req: NextRequest) {
           error instanceof Error ? error.message : "Failed to update event",
         status: "error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -344,7 +338,7 @@ export async function GET(req: NextRequest) {
     if (!eventId) {
       return NextResponse.json(
         { message: "Event ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -357,7 +351,7 @@ export async function GET(req: NextRequest) {
     if (!eventData || eventData.organizerId !== session.user.id) {
       return NextResponse.json(
         { message: "Event not found or you do not have permission" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -377,9 +371,8 @@ export async function GET(req: NextRequest) {
       .where(eq(eventImages.eventId, eventId));
 
     // Generate presigned URLs for each image
-    const { generatePresignedDownloadUrl } = await import(
-      "@/server/bucket/presignedUrls"
-    );
+    const { generatePresignedDownloadUrl } =
+      await import("@/server/bucket/presignedUrls");
 
     const imagesWithUrls = await Promise.all(
       images.map(async (img) => {
@@ -393,7 +386,7 @@ export async function GET(req: NextRequest) {
           contentType: img.contentType,
           url: downloadUrl,
         };
-      })
+      }),
     );
 
     // Sort so default (cover) image is first
@@ -417,7 +410,7 @@ export async function GET(req: NextRequest) {
             : "Failed to fetch event images",
         status: "error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,45 +1,45 @@
-"use client"
+"use client";
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
-import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import type { Route } from "next"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/sidebar";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
 
 export function NavMain({
   items,
 }: {
   items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
+    title: string;
+    url: string;
+    icon?: Icon;
+  }[];
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const isActive = (url: string) => {
-    if (url === "#") return false
-    const [path, query] = url.split("?")
-    if (pathname !== path) return false
-    if (!query) return true
-    const params = new URLSearchParams(query)
+    if (url === "#") return false;
+    const [path, query] = url.split("?");
+    if (pathname !== path) return false;
+    if (!query) return true;
+    const params = new URLSearchParams(query);
     for (const [key, value] of params.entries()) {
-      if (searchParams.get(key) !== value) return false
+      if (searchParams.get(key) !== value) return false;
     }
-    return true
-  }
-  
+    return true;
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -67,7 +67,7 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               {item.url !== "#" ? (
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   tooltip={item.title}
                   asChild
                   isActive={isActive(item.url)}
@@ -78,7 +78,7 @@ export function NavMain({
                   </Link>
                 </SidebarMenuButton>
               ) : (
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   tooltip={item.title}
                   isActive={isActive(item.url)}
                 >
@@ -91,5 +91,5 @@ export function NavMain({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

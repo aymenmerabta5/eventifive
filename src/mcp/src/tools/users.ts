@@ -13,11 +13,27 @@ export function registerUserTools(server: McpServer) {
     {
       description: "Create a test user with email/password authentication",
       inputSchema: z.object({
-        name: z.string().optional().describe("User's full name (auto-generated if not provided)"),
-        email: z.email().optional().describe("User's email (auto-generated if not provided)"),
-        password: z.string().optional().default("password123").describe("Password for the account"),
-        institution: z.string().optional().describe("User's institution/organization"),
-        researchDomain: z.string().optional().describe("User's research domain/field"),
+        name: z
+          .string()
+          .optional()
+          .describe("User's full name (auto-generated if not provided)"),
+        email: z
+          .email()
+          .optional()
+          .describe("User's email (auto-generated if not provided)"),
+        password: z
+          .string()
+          .optional()
+          .default("password123")
+          .describe("Password for the account"),
+        institution: z
+          .string()
+          .optional()
+          .describe("User's institution/organization"),
+        researchDomain: z
+          .string()
+          .optional()
+          .describe("User's research domain/field"),
       }),
     },
     async (input) => {
@@ -28,7 +44,9 @@ export function registerUserTools(server: McpServer) {
 
         const userName = input.name || faker.person.fullName();
         const userEmail = input.email || faker.internet.email().toLowerCase();
-        const hashedPassword = await hashPassword(input.password || "password123");
+        const hashedPassword = await hashPassword(
+          input.password || "password123",
+        );
 
         await db.insert(user).values({
           id: userId,
@@ -36,7 +54,8 @@ export function registerUserTools(server: McpServer) {
           email: userEmail,
           emailVerified: true,
           institution: input.institution || faker.company.name(),
-          researchDomain: input.researchDomain || faker.science.chemicalElement().name,
+          researchDomain:
+            input.researchDomain || faker.science.chemicalElement().name,
           createdAt: now,
           updatedAt: now,
         });
@@ -68,7 +87,7 @@ export function registerUserTools(server: McpServer) {
                   },
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -84,7 +103,7 @@ export function registerUserTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // Create multiple users at once
@@ -93,8 +112,16 @@ export function registerUserTools(server: McpServer) {
     {
       description: "Create multiple test users at once",
       inputSchema: z.object({
-        count: z.number().min(1).max(50).describe("Number of users to create (1-50)"),
-        password: z.string().optional().default("password123").describe("Password for all accounts"),
+        count: z
+          .number()
+          .min(1)
+          .max(50)
+          .describe("Number of users to create (1-50)"),
+        password: z
+          .string()
+          .optional()
+          .default("password123")
+          .describe("Password for all accounts"),
       }),
     },
     async (input) => {
@@ -106,7 +133,9 @@ export function registerUserTools(server: McpServer) {
           password: string;
         }> = [];
 
-        const hashedPassword = await hashPassword(input.password || "password123");
+        const hashedPassword = await hashPassword(
+          input.password || "password123",
+        );
         const now = new Date();
 
         for (let i = 0; i < input.count; i++) {
@@ -155,7 +184,7 @@ export function registerUserTools(server: McpServer) {
                   users,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -171,7 +200,7 @@ export function registerUserTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 
   // List existing users
@@ -180,7 +209,13 @@ export function registerUserTools(server: McpServer) {
     {
       description: "List existing users in the database",
       inputSchema: z.object({
-        limit: z.number().min(1).max(100).optional().default(10).describe("Number of users to return"),
+        limit: z
+          .number()
+          .min(1)
+          .max(100)
+          .optional()
+          .default(10)
+          .describe("Number of users to return"),
       }),
     },
     async (input) => {
@@ -207,7 +242,7 @@ export function registerUserTools(server: McpServer) {
                   users,
                 },
                 null,
-                2
+                2,
               ),
             },
           ],
@@ -223,6 +258,6 @@ export function registerUserTools(server: McpServer) {
           isError: true,
         };
       }
-    }
+    },
   );
 }

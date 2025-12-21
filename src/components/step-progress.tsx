@@ -18,7 +18,6 @@ function getIndex(steps: StepProgressStep[], key: string) {
   return idx < 0 ? 0 : idx;
 }
 
-
 export function StepProgress({ steps, currentKey, className }: Props) {
   const currentIndex = getIndex(steps, currentKey);
 
@@ -35,9 +34,12 @@ export function StepProgress({ steps, currentKey, className }: Props) {
                 <div
                   className={cn(
                     "grid size-9 place-items-center rounded-full border text-sm font-semibold",
-                    isComplete && "border-primary bg-primary text-primary-foreground",
+                    isComplete &&
+                      "border-primary bg-primary text-primary-foreground",
                     isCurrent && "border-primary bg-primary/10 text-primary",
-                    !isComplete && !isCurrent && "border-border bg-muted text-muted-foreground",
+                    !isComplete &&
+                      !isCurrent &&
+                      "border-border bg-muted text-muted-foreground",
                   )}
                   aria-current={isCurrent ? "step" : undefined}
                 >
@@ -76,5 +78,3 @@ export function StepProgress({ steps, currentKey, className }: Props) {
     </nav>
   );
 }
-
-

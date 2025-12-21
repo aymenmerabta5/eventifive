@@ -25,7 +25,7 @@ export function useUserProfile(userId: string) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Could not start the conversation"
+          : "Could not start the conversation",
       );
     } finally {
       setIsContacting(false);

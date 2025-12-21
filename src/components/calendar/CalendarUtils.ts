@@ -3,12 +3,15 @@ export const START_HOUR = 8;
 export const END_HOUR = 23;
 
 // Hours from 8 AM to 11 PM (8:00 - 23:00)
-export const HOURS_24 = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => {
-  const hour = i + START_HOUR;
-  if (hour === 12) return "12 PM";
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
-});
+export const HOURS_24 = Array.from(
+  { length: END_HOUR - START_HOUR + 1 },
+  (_, i) => {
+    const hour = i + START_HOUR;
+    if (hour === 12) return "12 PM";
+    if (hour < 12) return `${hour} AM`;
+    return `${hour - 12} PM`;
+  },
+);
 
 export const HOUR_HEIGHT = 120; // Height per hour slot for better visibility
 export const INITIAL_SCROLL_OFFSET = 0; // Start at top (8 AM)

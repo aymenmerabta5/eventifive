@@ -14,14 +14,14 @@ import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import ReturnBack from "@/components/return-back";
 
 export default function SetResetPasswordForm() {
-    const router = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") as string;
 
   useEffect(() => {
     if (!token) {
-        router.push("/reset-password");
-        toast.error("Provide a token to reset your password");
+      router.push("/reset-password");
+      toast.error("Provide a token to reset your password");
     }
   }, [token, router]);
 
@@ -36,24 +36,30 @@ export default function SetResetPasswordForm() {
       onSubmit: setPasswordSchema,
     },
     onSubmit: async ({ value }) => {
-        await authClient.resetPassword({
-            newPassword: value.password,
-            token: token,
-        }, {
-            onSuccess: () => {
-                toast.success("Password reset successfully");
-                router.push("/login");
-            },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onError: (error: any) => {
-                toast.error(error.error?.message || "An error occurred while resetting your password");
-            }
-        })
+      await authClient.resetPassword(
+        {
+          newPassword: value.password,
+          token: token,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Password reset successfully");
+            router.push("/login");
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onError: (error: any) => {
+            toast.error(
+              error.error?.message ||
+                "An error occurred while resetting your password",
+            );
+          },
+        },
+      );
     },
   });
 
   return (
-    <div className="relative flex mt-12 items-center justify-center p-4">
+    <div className="relative mt-12 flex items-center justify-center p-4">
       <ReturnBack />
       <div className="relative w-full max-w-lg">
         <div
@@ -145,7 +151,9 @@ export default function SetResetPasswordForm() {
                   className="mt-6 h-11 w-full rounded-4xl"
                   disabled={!state.canSubmit || state.isSubmitting}
                 >
-                  {state.isSubmitting ? "Setting your password..." : "Set you password"}
+                  {state.isSubmitting
+                    ? "Setting your password..."
+                    : "Set you password"}
                 </StatefulButton>
               )}
             </form.Subscribe>

@@ -21,7 +21,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { CalendarView } from "@/components/calendar";
-import type { CreateSessionData, UpdateSessionData, ChairOption } from "@/components/calendar";
+import type {
+  CreateSessionData,
+  UpdateSessionData,
+  ChairOption,
+} from "@/components/calendar";
 import type { Room } from "@/server/db/schema";
 
 interface SessionsStepProps {
@@ -31,7 +35,11 @@ interface SessionsStepProps {
   // Room management
   rooms: Room[];
   isLoadingRooms: boolean;
-  onCreateRoom: (data: { name: string; capacity?: number; location?: string }) => Promise<unknown>;
+  onCreateRoom: (data: {
+    name: string;
+    capacity?: number;
+    location?: string;
+  }) => Promise<unknown>;
   onDeleteRoom: (roomId: number) => Promise<unknown>;
   isCreatingRoom: boolean;
   isDeletingRoom: boolean;
@@ -124,7 +132,7 @@ export function SessionsStep({
       <Collapsible open={roomsOpen} onOpenChange={setRoomsOpen}>
         <div className="rounded-lg border">
           <CollapsibleTrigger asChild>
-            <button className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors">
+            <button className="hover:bg-muted/50 flex w-full items-center justify-between p-4 text-left transition-colors">
               <div className="flex items-center gap-2">
                 <MapPin className="size-4" />
                 <span className="text-sm font-medium">
@@ -140,14 +148,16 @@ export function SessionsStep({
           </CollapsibleTrigger>
 
           <CollapsibleContent>
-            <div className="border-t p-4 space-y-4">
-              <p className="text-xs text-muted-foreground">
+            <div className="space-y-4 border-t p-4">
+              <p className="text-muted-foreground text-xs">
                 Create rooms to assign sessions to specific locations.
               </p>
 
               {/* Room List */}
               {isLoadingRooms ? (
-                <div className="text-sm text-muted-foreground">Loading rooms...</div>
+                <div className="text-muted-foreground text-sm">
+                  Loading rooms...
+                </div>
               ) : rooms.length > 0 ? (
                 <div className="space-y-2">
                   {rooms.map((room) => (
@@ -157,7 +167,7 @@ export function SessionsStep({
                     >
                       <div>
                         <div className="text-sm font-medium">{room.name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-muted-foreground text-xs">
                           {room.location && <span>{room.location}</span>}
                           {room.location && room.capacity && <span> • </span>}
                           {room.capacity && (
@@ -171,19 +181,19 @@ export function SessionsStep({
                         onClick={() => handleDeleteRoom(room.id)}
                         disabled={isDeletingRoom}
                       >
-                        <Trash2 className="size-4 text-destructive" />
+                        <Trash2 className="text-destructive size-4" />
                       </Button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-sm text-muted-foreground py-2">
+                <div className="text-muted-foreground py-2 text-sm">
                   No rooms created yet.
                 </div>
               )}
 
               {/* Add Room Form */}
-              <div className="space-y-3 pt-2 border-t">
+              <div className="space-y-3 border-t pt-2">
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Room Name *</Label>
@@ -231,11 +241,11 @@ export function SessionsStep({
       {/* Chair Options Info */}
       {chairOptions.length === 0 && (
         <div className="rounded-lg border border-dashed p-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <Users className="size-4" />
             <span>
-              No speakers or committee members available to assign as session chair.
-              Invite and have them accept first on the previous step.
+              No speakers or committee members available to assign as session
+              chair. Invite and have them accept first on the previous step.
             </span>
           </div>
         </div>
@@ -243,7 +253,7 @@ export function SessionsStep({
 
       {/* Calendar Section */}
       <div className="rounded-lg border">
-        <div className="flex items-center gap-2 p-4 border-b">
+        <div className="flex items-center gap-2 border-b p-4">
           <CalendarIcon className="size-4" />
           <span className="text-sm font-medium">
             Session Schedule ({sessions.length} sessions)

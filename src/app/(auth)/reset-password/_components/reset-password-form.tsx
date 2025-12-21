@@ -30,7 +30,7 @@ const ResetPasswordForm = () => {
         toast.error("Please solve the captcha");
         return;
       }
-      await authClient.forgetPassword(
+      await authClient.requestPasswordReset(
         {
           email: value.email,
           fetchOptions: {

@@ -4,7 +4,7 @@ import type { AdminEvent, EventStatus } from "./types";
 export { formatDate, formatDateTime, formatSchedule } from "@/lib/date";
 
 export const getEventStatus = (event: AdminEvent): EventStatus => {
-	const now = Date.now();
-	const endTime = new Date(event.endDate).getTime();
-	return endTime >= now ? "Upcoming" : "Completed";
+  const now = Date.now();
+  const endTime = new Date(event.endDate).getTime();
+  return endTime >= now ? "Upcoming" : "Completed";
 };

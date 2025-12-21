@@ -8,7 +8,13 @@ import type { Event } from "@/server/db/schema";
 // TEACHING: Extended to include imageUrl for S3 presigned URLs
 type EventCardData = Pick<
   Event,
-  "id" | "title" | "type" | "startDate" | "endDate" | "location" | "smallDescription"
+  | "id"
+  | "title"
+  | "type"
+  | "startDate"
+  | "endDate"
+  | "location"
+  | "smallDescription"
 > & {
   imageUrl?: string | null;
 };
@@ -53,7 +59,7 @@ export default function EventRow({
         </Button>
       </header>
 
-      <div className="bg-linear-to-r from-transparent via-border to-transparent h-px" />
+      <div className="via-border h-px bg-linear-to-r from-transparent to-transparent" />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
         {events.map((event) => (

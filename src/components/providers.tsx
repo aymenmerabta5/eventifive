@@ -7,25 +7,28 @@ import dynamic from "next/dynamic";
 import { Toaster } from "./ui/sonner";
 import { TooltipProvider } from "./ui/tooltip";
 
-const ThemeProvider = dynamic(() => import("./theme-provider").then(mod => ({ default: mod.default })), {
-	ssr: false,
-});
+const ThemeProvider = dynamic(
+  () => import("./theme-provider").then((mod) => ({ default: mod.default })),
+  {
+    ssr: false,
+  },
+);
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-	return (
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="system"
-			enableSystem
-			disableTransitionOnChange
-		>
-			<QueryClientProvider client={queryClient}>
-				<TooltipProvider>
-					{children}
-					<ReactQueryDevtools />
-				</TooltipProvider>
-			</QueryClientProvider>
-			<Toaster richColors />
-		</ThemeProvider>
-	);
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          {children}
+          <ReactQueryDevtools />
+        </TooltipProvider>
+      </QueryClientProvider>
+      <Toaster richColors />
+    </ThemeProvider>
+  );
 }

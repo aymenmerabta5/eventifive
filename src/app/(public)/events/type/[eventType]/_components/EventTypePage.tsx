@@ -40,7 +40,9 @@ export default function EventTypePageClient({
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title_asc" | "title_desc">("newest");
+  const [sortBy, setSortBy] = useState<
+    "newest" | "oldest" | "title_asc" | "title_desc"
+  >("newest");
   const [showLoading, setShowLoading] = useState(true);
 
   useEffect(() => {
@@ -117,10 +119,10 @@ export default function EventTypePageClient({
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-        <div className="mb-10 relative">
-          <Link 
+        <div className="relative mb-10">
+          <Link
             href="/events"
-            className="absolute left-0 top-0 inline-flex items-center justify-center rounded-lg border-2 border-border bg-background p-2 text-foreground transition-all duration-200 hover:border-primary hover:bg-primary/10 hover:text-primary"
+            className="border-border bg-background text-foreground hover:border-primary hover:bg-primary/10 hover:text-primary absolute top-0 left-0 inline-flex items-center justify-center rounded-lg border-2 p-2 transition-all duration-200"
           >
             <IconArrowLeft className="size-6" />
           </Link>
@@ -137,8 +139,8 @@ export default function EventTypePageClient({
 
         {/* Search and Filter Bar */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative flex-1 max-w-md">
-            <IconSearch className="text-muted-foreground absolute left-3 top-1/2 size-5 -translate-y-1/2" />
+          <div className="relative max-w-md flex-1">
+            <IconSearch className="text-muted-foreground absolute top-1/2 left-3 size-5 -translate-y-1/2" />
             <Input
               type="text"
               placeholder="Search events by title, description, or location..."
@@ -148,12 +150,14 @@ export default function EventTypePageClient({
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm whitespace-nowrap">Sort by:</span>
+            <span className="text-muted-foreground text-sm whitespace-nowrap">
+              Sort by:
+            </span>
             <Select
               value={sortBy}
-              onValueChange={(value: "newest" | "oldest" | "title_asc" | "title_desc") =>
-                setSortBy(value)
-              }
+              onValueChange={(
+                value: "newest" | "oldest" | "title_asc" | "title_desc",
+              ) => setSortBy(value)}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
@@ -169,7 +173,9 @@ export default function EventTypePageClient({
         </div>
 
         <div className="flex flex-col gap-2">
-          {data.pages.length > 0 && data.pages[0] && data.pages[0].data.length > 0 ? (
+          {data.pages.length > 0 &&
+          data.pages[0] &&
+          data.pages[0].data.length > 0 ? (
             <>
               {data.pages.map((page) => {
                 return (

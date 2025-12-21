@@ -2,7 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { client } from "@/utils/orpc";
 import type { Event } from "@/server/db/schema";
-import { IconCalendar, IconClock, IconMapPin, IconTag } from "@tabler/icons-react";
+import {
+  IconCalendar,
+  IconClock,
+  IconMapPin,
+  IconTag,
+} from "@tabler/icons-react";
 import ParticipationOptions from "./Testimonials";
 import { EventRegistrationSection } from "./EventRegistrationSection";
 import { Badge } from "@/components/ui/badge";
@@ -13,202 +18,243 @@ import type { JSONContent } from "@tiptap/react";
 import { EventImageGallery } from "./EventImageGallery";
 import { formatDateFull, formatTime } from "@/lib/date";
 
-
 export default async function EventDetailPage({
-	params,
+  params,
 }: {
-	params: Promise<{ eventType: string; eventId: string }>;
+  params: Promise<{ eventType: string; eventId: string }>;
 }) {
-	const { eventId } = await params;
+  const { eventId } = await params;
 
-	// Fetch event using oRPC
-	const event = await client.events.get({ id: eventId }).catch(() => null);
-	if (!event) {
-		notFound();
-	}
+  // Fetch event using oRPC
+  const event = await client.events.get({ id: eventId }).catch(() => null);
+  if (!event) {
+    notFound();
+  }
 
-	const bigDescriptionIsRichText = typeof event.bigDescription === "object" && event.bigDescription !== null;
-	const bigDescriptionAsString = typeof event.bigDescription === "string" ? event.bigDescription : null;
+  const bigDescriptionIsRichText =
+    typeof event.bigDescription === "object" && event.bigDescription !== null;
+  const bigDescriptionAsString =
+    typeof event.bigDescription === "string" ? event.bigDescription : null;
 
-	const now = new Date();
-	const eventStart = new Date(event.startDate);
-	const delayDate = new Date();
-	delayDate.setDate(now.getDate() + 7);
-	const isEventMoreThan7DaysAway = eventStart > delayDate;
+  const now = new Date();
+  const eventStart = new Date(event.startDate);
+  const delayDate = new Date();
+  delayDate.setDate(now.getDate() + 7);
+  const isEventMoreThan7DaysAway = eventStart > delayDate;
 
-	return (
-		<main className="relative min-h-screen">
-			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.25)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.25)_1px,transparent_1px)] bg-size-[24px_24px]" />
+  return (
+    <main className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.25)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.25)_1px,transparent_1px)] bg-size-[24px_24px]" />
 
-			<div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-				<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<div className="space-y-2">
+      <div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-center sm:text-left">
+              {event.organizerName}
+            </p>
+            <h1 className="text-foreground text-center text-4xl leading-tight font-bold tracking-tight sm:text-left sm:text-5xl">
+              Event Details
+            </h1>
+            <p className="text-muted-foreground text-center text-sm sm:text-left">
+              Discover dates, location, and key information about this event.
+            </p>
+          </div>
+          <Button asChild className="group bg-primary gap-2 rounded-4xl">
+            <Link href="/events" aria-label="Back to events list">
+              <span
+                aria-hidden
+                className="transition-transform group-hover:-translate-x-0.5"
+              >
+                ←
+              </span>
+              Back to Events
+            </Link>
+          </Button>
+        </div>
 
-						<p className="text-center text-muted-foreground sm:text-left">
-							{event.organizerName}
-						</p>
-						<h1 className="text-center text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-left sm:text-5xl">
-							Event Details
-						</h1>
-						<p className="text-center text-sm text-muted-foreground sm:text-left">
-							Discover dates, location, and key information about this event.
-						</p>
-					</div>
-					<Button asChild className="group gap-2 rounded-4xl bg-primary">
-						<Link href="/events" aria-label="Back to events list">
-							<span aria-hidden className="transition-transform group-hover:-translate-x-0.5">
-								←
-							</span>
-							Back to Events
-						</Link>
-					</Button>
-				</div>
+        {/* Event Image Gallery */}
+        <EventImageGallery
+          imageUrls={event.imageUrls}
+          eventTitle={event.title}
+        />
 
-				{/* Event Image Gallery */}
-				<EventImageGallery imageUrls={event.imageUrls} eventTitle={event.title} />
+        <Card className="group overflow-hidden">
+          <CardHeader className="bg-card/50 border-b p-6">
+            <div className="space-y-3">
+              <Badge variant="secondary" className="w-fit capitalize">
+                {event.type.replaceAll("_", " ")}
+              </Badge>
+              <CardTitle className="text-foreground text-2xl leading-tight font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                {event.title}
+              </CardTitle>
+              <div className="text-muted-foreground flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:gap-4">
+                <div className="inline-flex items-center gap-2">
+                  <IconMapPin className="text-primary size-4" strokeWidth={2} />
+                  <span>{event.location ?? "To be announced"}</span>
+                </div>
+                <div
+                  className="bg-border hidden h-4 w-px sm:block"
+                  aria-hidden
+                />
+                <div className="inline-flex items-center gap-2">
+                  <IconCalendar
+                    className="text-primary size-4"
+                    strokeWidth={2}
+                  />
+                  <span>
+                    {formatDateFull(event.startDate)} ·{" "}
+                    {formatTime(event.startDate)} —{" "}
+                    {formatDateFull(event.endDate)} ·{" "}
+                    {formatTime(event.endDate)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
 
-				<Card className="group overflow-hidden">
-					<CardHeader className="border-b bg-card/50 p-6">
-						<div className="space-y-3">
-							<Badge variant="secondary" className="w-fit capitalize">
-								{event.type.replaceAll("_", " ")}
-							</Badge>
-							<CardTitle className="text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-								{event.title}
-							</CardTitle>
-							<div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
-								<div className="inline-flex items-center gap-2">
-									<IconMapPin className="size-4 text-primary" strokeWidth={2} />
-									<span>{event.location ?? "To be announced"}</span>
-								</div>
-								<div className="hidden h-4 w-px bg-border sm:block" aria-hidden />
-								<div className="inline-flex items-center gap-2">
-									<IconCalendar className="size-4 text-primary" strokeWidth={2} />
-									<span>
-										{formatDateFull(event.startDate)} · {formatTime(event.startDate)} —{" "}
-										{formatDateFull(event.endDate)} · {formatTime(event.endDate)}
-									</span>
-								</div>
-							</div>
-						</div>
-					</CardHeader>
+          <CardContent className="pt-6">
+            <section aria-labelledby="schedule-heading" className="space-y-4">
+              <h2
+                id="schedule-heading"
+                className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+              >
+                Schedule
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="bg-card rounded-lg border p-4">
+                  <div className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <IconCalendar
+                      className="text-primary size-4"
+                      strokeWidth={2}
+                    />
+                    Start
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-foreground text-base font-semibold">
+                      {formatDateFull(event.startDate)}
+                    </p>
+                    <p className="text-muted-foreground inline-flex items-center gap-2 text-sm">
+                      <IconClock
+                        className="text-primary size-4"
+                        strokeWidth={2}
+                      />
+                      {formatTime(event.startDate)}
+                    </p>
+                  </div>
+                </div>
 
-					<CardContent className="pt-6">
-						<section aria-labelledby="schedule-heading" className="space-y-4">
-							<h2
-								id="schedule-heading"
-								className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-							>
-								Schedule
-							</h2>
-							<div className="grid gap-4 sm:grid-cols-2">
-								<div className="rounded-lg border bg-card p-4">
-									<div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-										<IconCalendar className="size-4 text-primary" strokeWidth={2} />
-										Start
-									</div>
-									<div className="space-y-1">
-										<p className="text-base font-semibold text-foreground">
-											{formatDateFull(event.startDate)}
-										</p>
-										<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-											<IconClock className="size-4 text-primary" strokeWidth={2} />
-											{formatTime(event.startDate)}
-										</p>
-									</div>
-								</div>
+                <div className="bg-card rounded-lg border p-4">
+                  <div className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <IconCalendar
+                      className="text-primary size-4"
+                      strokeWidth={2}
+                    />
+                    End
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-foreground text-base font-semibold">
+                      {formatDateFull(event.endDate)}
+                    </p>
+                    <p className="text-muted-foreground inline-flex items-center gap-2 text-sm">
+                      <IconClock
+                        className="text-primary size-4"
+                        strokeWidth={2}
+                      />
+                      {formatTime(event.endDate)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-								<div className="rounded-lg border bg-card p-4">
-									<div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-										<IconCalendar className="size-4 text-primary" strokeWidth={2} />
-										End
-									</div>
-									<div className="space-y-1">
-										<p className="text-base font-semibold text-foreground">
-											{formatDateFull(event.endDate)}
-										</p>
-										<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-											<IconClock className="size-4 text-primary" strokeWidth={2} />
-											{formatTime(event.endDate)}
-										</p>
-									</div>
-								</div>
-							</div>
-						</section>
+            <div className="bg-border my-6 h-px w-full" aria-hidden />
 
-						<div className="my-6 h-px w-full bg-border" aria-hidden />
+            <section aria-labelledby="details-heading" className="space-y-4">
+              <h2
+                id="details-heading"
+                className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
+              >
+                Details
+              </h2>
+              <dl className="grid gap-4 sm:grid-cols-2">
+                <div className="bg-card rounded-lg border p-4">
+                  <dt className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <IconTag className="text-primary size-4" strokeWidth={2} />
+                    Type
+                  </dt>
+                  <dd className="text-muted-foreground text-sm capitalize">
+                    {event.type.replaceAll("_", " ")}
+                  </dd>
+                </div>
 
-						<section aria-labelledby="details-heading" className="space-y-4">
-							<h2
-								id="details-heading"
-								className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-							>
-								Details
-							</h2>
-							<dl className="grid gap-4 sm:grid-cols-2">
-								<div className="rounded-lg border bg-card p-4">
-									<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-										<IconTag className="size-4 text-primary" strokeWidth={2} />
-										Type
-									</dt>
-									<dd className="text-sm text-muted-foreground capitalize">
-										{event.type.replaceAll("_", " ")}
-									</dd>
-								</div>
+                <div className="bg-card rounded-lg border p-4">
+                  <dt className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <IconMapPin
+                      className="text-primary size-4"
+                      strokeWidth={2}
+                    />
+                    Location
+                  </dt>
+                  <dd className="text-muted-foreground text-sm">
+                    {event.location ?? "To be announced"}
+                  </dd>
+                </div>
 
-								<div className="rounded-lg border bg-card p-4">
-									<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-										<IconMapPin className="size-4 text-primary" strokeWidth={2} />
-										Location
-									</dt>
-									<dd className="text-sm text-muted-foreground">
-										{event.location ?? "To be announced"}
-									</dd>
-								</div>
+                <div className="bg-card rounded-lg border p-4 sm:col-span-2">
+                  <dt className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <IconTag className="text-primary size-4" strokeWidth={2} />
+                    Description
+                  </dt>
+                  <dd className="text-muted-foreground text-sm leading-relaxed">
+                    {bigDescriptionIsRichText ? (
+                      <Editor
+                        value={
+                          event.bigDescription as
+                            | JSONContent
+                            | string
+                            | undefined
+                        }
+                        content={
+                          event.bigDescription as JSONContent | undefined
+                        }
+                        readOnly
+                      />
+                    ) : bigDescriptionAsString ? (
+                      bigDescriptionAsString
+                    ) : (
+                      (event.smallDescription ?? "No description available.")
+                    )}
+                  </dd>
+                </div>
 
-								<div className="rounded-lg border bg-card p-4 sm:col-span-2">
-									<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-										<IconTag className="size-4 text-primary" strokeWidth={2} />
-										Description
-									</dt>
-									<dd className="text-sm leading-relaxed text-muted-foreground">
-										{bigDescriptionIsRichText ? (
-											<Editor
-												value={event.bigDescription as JSONContent | string | undefined}
-												content={event.bigDescription as JSONContent | undefined}
-												readOnly
-											/>
-										) : bigDescriptionAsString ? (
-											bigDescriptionAsString
-										) : (
-											(event.smallDescription ?? "No description available.")
-										)}
-									</dd>
-								</div>
+                {event.theme && (
+                  <div className="bg-card rounded-lg border p-4 sm:col-span-2">
+                    <dt className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                      <IconTag
+                        className="text-primary size-4"
+                        strokeWidth={2}
+                      />
+                      Theme
+                    </dt>
+                    <dd className="text-muted-foreground text-sm">
+                      {event.theme}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </section>
+          </CardContent>
+        </Card>
 
-								{event.theme && (
-									<div className="rounded-lg border bg-card p-4 sm:col-span-2">
-										<dt className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-											<IconTag className="size-4 text-primary" strokeWidth={2} />
-											Theme
-										</dt>
-										<dd className="text-sm text-muted-foreground">{event.theme}</dd>
-									</div>
-								)}
-							</dl>
-						</section>
-					</CardContent>
-				</Card>
+        <EventRegistrationSection
+          eventId={event.id}
+          priceAmount={event.priceAmount}
+          priceCurrency={event.priceCurrency}
+          eventTitle={event.title}
+        />
 
-				<EventRegistrationSection
-					eventId={event.id}
-					priceAmount={event.priceAmount}
-					priceCurrency={event.priceCurrency}
-					eventTitle={event.title}
-				/>
-
-				{isEventMoreThan7DaysAway && <ParticipationOptions />}
-			</div>
-		</main>
-	);
+        {isEventMoreThan7DaysAway && <ParticipationOptions />}
+      </div>
+    </main>
+  );
 }

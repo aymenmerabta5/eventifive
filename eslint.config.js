@@ -17,9 +17,7 @@ export default tseslint.config(
     plugins: {
       drizzle,
     },
-    extends: [
-      ...tseslint.configs.recommended,
-    ],
+    extends: [...tseslint.configs.recommended],
     rules: {
       "@typescript-eslint/array-type": "off",
       "@typescript-eslint/consistent-type-definitions": "off",

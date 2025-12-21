@@ -18,13 +18,9 @@ export function SocialSignIn({ isPending, onSignIn }: SocialSignInProps) {
         </span>
       </div>
 
-      <Button
-        variant="outline"
-        className="rounded-3xl px-4"
-        onClick={onSignIn}
-      >
+      <Button variant="outline" className="rounded-3xl px-4" onClick={onSignIn}>
         <Activity mode={isPending ? "visible" : "hidden"}>
-          <Loader2 className="animate-spin size-4" />
+          <Loader2 className="size-4 animate-spin" />
         </Activity>
         <Activity mode={isPending ? "hidden" : "visible"}>
           <SiGoogle className="me-3" />

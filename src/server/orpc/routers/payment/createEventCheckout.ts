@@ -5,7 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
 import { event, eventRegistration, payment } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
-import { getChargilyClient, generateCallbackUrls } from "@/server/gateway/chargily";
+import {
+  getChargilyClient,
+  generateCallbackUrls,
+} from "@/server/gateway/chargily";
 import { syncEventToChargily } from "@/server/gateway/chargilySyncEvent";
 import { paymentMethodSchema } from "@/lib/schemas/payment";
 
@@ -30,7 +33,10 @@ export const createEventCheckoutRouter = protectedProcedure
     const userId = session.user.id;
 
     // 1. Get event and verify it's a paid event
-    const [eventData] = await db.select().from(event).where(eq(event.id, input.eventId));
+    const [eventData] = await db
+      .select()
+      .from(event)
+      .where(eq(event.id, input.eventId));
 
     if (!eventData) {
       throw new ORPCError("NOT_FOUND", { message: "Event not found" });
@@ -49,8 +55,8 @@ export const createEventCheckoutRouter = protectedProcedure
       .where(
         and(
           eq(eventRegistration.eventId, input.eventId),
-          eq(eventRegistration.userId, userId)
-        )
+          eq(eventRegistration.userId, userId),
+        ),
       );
 
     if (existingReg && existingReg.paymentStatus === "paid") {
@@ -65,11 +71,15 @@ export const createEventCheckoutRouter = protectedProcedure
       if (syncResult.errors.length > 0) {
         console.error("Failed to sync event to Chargily:", syncResult.errors);
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: "Event payment is not yet configured. Please try again later.",
+          message:
+            "Event payment is not yet configured. Please try again later.",
         });
       }
       // Refetch event to get Chargily IDs
-      const [refreshed] = await db.select().from(event).where(eq(event.id, input.eventId));
+      const [refreshed] = await db
+        .select()
+        .from(event)
+        .where(eq(event.id, input.eventId));
       if (!refreshed?.chargilyPriceId) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
           message: "Failed to configure event payment.",
@@ -163,7 +173,9 @@ export const createEventCheckoutRouter = protectedProcedure
       await db.delete(payment).where(eq(payment.id, paymentId));
       // If we created a new registration, delete it too
       if (!existingReg) {
-        await db.delete(eventRegistration).where(eq(eventRegistration.id, registrationId));
+        await db
+          .delete(eventRegistration)
+          .where(eq(eventRegistration.id, registrationId));
       } else {
         // Revert status to unpaid
         await db

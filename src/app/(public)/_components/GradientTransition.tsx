@@ -1,5 +1,5 @@
 export default function GradientTransition() {
   return (
-    <div className="bg-linear-to-b dark:from-background dark:to-(--dark-blue) from-background to-blue-50 min-h-12"></div>
+    <div className="dark:from-background from-background min-h-12 bg-linear-to-b to-blue-50 dark:to-(--dark-blue)"></div>
   );
 }

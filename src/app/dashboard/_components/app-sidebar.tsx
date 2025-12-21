@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import Logo from "@/components/logo";
 import { authClient } from "@/lib/auth-client";
 import { navigationData } from "@/lib/navigation-data";
 
-import { NavDocuments } from "./nav-documents"
-import { NavMain } from "./nav-main"
-import { NavSecondary } from "./nav-secondary"
-import { NavUser } from "./nav-user"
+import { NavDocuments } from "./nav-documents";
+import { NavMain } from "./nav-main";
+import { NavSecondary } from "./nav-secondary";
+import { NavUser } from "./nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +17,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 import type { User as BetterAuthUser } from "better-auth";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -32,7 +32,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-                <Logo />
+              <Logo />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -46,5 +46,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

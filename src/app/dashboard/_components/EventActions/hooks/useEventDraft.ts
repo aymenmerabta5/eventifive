@@ -29,7 +29,7 @@ export function useEventDraft() {
 
   const createDraft = async (
     data: CreateDraftInput,
-    images: File[]
+    images: File[],
   ): Promise<string | null> => {
     // Validate locally first
     const parsed = createDraftEventSchema.safeParse(data);
@@ -44,7 +44,10 @@ export function useEventDraft() {
       formData.append("title", parsed.data.title);
       formData.append("description", parsed.data.description);
       if (parsed.data.bigDescription !== undefined) {
-        formData.append("bigDescription", JSON.stringify(parsed.data.bigDescription));
+        formData.append(
+          "bigDescription",
+          JSON.stringify(parsed.data.bigDescription),
+        );
       }
       formData.append("type", parsed.data.type);
       formData.append("startDate", parsed.data.startDate);

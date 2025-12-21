@@ -3,19 +3,18 @@ import { client } from "@/utils/orpc";
 import { UserProfile } from "./_components/UserProfile";
 
 export default async function UserProfilePage({
-	params,
+  params,
 }: {
-	params: Promise<{ userId: string }>;
+  params: Promise<{ userId: string }>;
 }) {
-	const { userId } = await params;
+  const { userId } = await params;
 
-	// Fetch user profile using oRPC
-	const userProfile = await client.profile.get({ userId }).catch(() => null);
+  // Fetch user profile using oRPC
+  const userProfile = await client.profile.get({ userId }).catch(() => null);
 
-	if (!userProfile) {
-		notFound();
-	}
+  if (!userProfile) {
+    notFound();
+  }
 
-	return <UserProfile user={userProfile} />;
+  return <UserProfile user={userProfile} />;
 }
-

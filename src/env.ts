@@ -11,31 +11,31 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string()
         : z.string().optional(),
-    
-        // Better Auth
+
+    // Better Auth
     BETTER_AUTH_URL: z.string().url(),
-        
-        // Email (Resend)
+
+    // Email (Resend)
     RESEND_API_KEY: z.string().min(1),
     RESEND_SENDER_EMAIL: z.string().email(),
-        
-        // Cloudflare Turnstile (Server-side secret)
+
+    // Cloudflare Turnstile (Server-side secret)
     CLOUDFLARE_TURNSTYLE_SK: z.string().min(1),
 
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1),
-        
-        // CORS
+
+    // CORS
     CORS_ORIGIN: z.string().url().default("http://localhost:3000"),
-        
-        // Optional
+
+    // Optional
     OPEN_AI_API_KEY: z.string().min(1).optional(),
     DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
     ARCJET_API: z.string().min(1),
-    
+
     // Cloudflare R2
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
@@ -80,7 +80,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-    NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK: process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK,
+    NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK:
+      process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK,
     ARCJET_API: process.env.ARCJET_API,
     NEXT_PUBLIC_S3_ENDPOINT: process.env.NEXT_PUBLIC_S3_ENDPOINT,
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,

@@ -13,7 +13,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
 export const navigationData = {
   navMain: [
@@ -125,5 +125,4 @@ export const navigationData = {
       icon: IconFileWord,
     },
   ],
-}
-
+};

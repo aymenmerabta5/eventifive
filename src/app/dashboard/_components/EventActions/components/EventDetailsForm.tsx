@@ -11,13 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Editor from "@/components/rich-text-editor/Editor";
-import {
-  Calendar,
-  MapPin,
-  Type,
-  FileText,
-  DollarSign,
-} from "lucide-react";
+import { Calendar, MapPin, Type, FileText, DollarSign } from "lucide-react";
 import { eventTypeOptions } from "../constants";
 import { addDaysToDateTimeLocalInputValue } from "../utils";
 import type { EventFormInstance } from "../hooks/useEventForm";
@@ -151,7 +145,7 @@ export function EventDetailsForm({
                 Event Big Description
               </Label>
               <Editor
-                className="w-full bg-background"
+                className="bg-background w-full"
                 content={field.state.value as JSONContent | undefined}
                 value={field.state.value as JSONContent | string | undefined}
                 onChange={(value) => field.handleChange(value)}
@@ -203,7 +197,9 @@ export function EventDetailsForm({
           {(field) => {
             const startDate = form.state.values.startDate;
             const endMin = startDate || nowMinDateTime;
-            const endMax = startDate ? addDaysToDateTimeLocalInputValue(startDate, 15) : "";
+            const endMax = startDate
+              ? addDaysToDateTimeLocalInputValue(startDate, 15)
+              : "";
 
             return (
               <div className="space-y-2">
@@ -287,7 +283,9 @@ export function EventDetailsForm({
               step="100"
               value={field.state.value}
               onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                field.handleChange(parseInt(e.target.value) || 0)
+              }
               placeholder="0 for free event"
               className="w-full"
               disabled={disabled}

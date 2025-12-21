@@ -4,7 +4,10 @@ import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
 import { userRoles, roles } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
-import { syncPlansToChargily, syncSinglePlan } from "@/server/gateway/chargilySync";
+import {
+  syncPlansToChargily,
+  syncSinglePlan,
+} from "@/server/gateway/chargilySync";
 import { isChargilyConfigured } from "@/server/gateway/chargily";
 import { syncResultSchema } from "@/lib/schemas/payment";
 
@@ -36,7 +39,8 @@ export const syncPlansRouter = protectedProcedure
     // Check if Chargily is configured
     if (!isChargilyConfigured()) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Chargily is not configured. Please set CHARGILY_SK environment variable.",
+        message:
+          "Chargily is not configured. Please set CHARGILY_SK environment variable.",
       });
     }
 

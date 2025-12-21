@@ -22,7 +22,9 @@ export function useEventImages(eventId: string | undefined) {
     queryFn: async (): Promise<EventImage[]> => {
       if (!eventId) return [];
 
-      const res = await fetch(`/api/update-event?eventId=${encodeURIComponent(eventId)}`);
+      const res = await fetch(
+        `/api/update-event?eventId=${encodeURIComponent(eventId)}`,
+      );
       const data = (await res.json()) as EventImagesResponse;
 
       if (!res.ok) {

@@ -13,24 +13,24 @@ import { toast } from "sonner";
 import type { PlanOutput } from "@/lib/schemas/payment";
 
 function formatPrice(amount: number): string {
-  return (amount).toLocaleString("fr-DZ");
+  return amount.toLocaleString("fr-DZ");
 }
 
 function PricingCardSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {[1, 2, 3].map((i) => (
-        <Card key={i} className="relative flex flex-col animate-pulse">
+        <Card key={i} className="relative flex animate-pulse flex-col">
           <CardHeader className="space-y-4">
-            <div className="h-8 bg-muted rounded w-24" />
-            <div className="h-16 bg-muted rounded" />
-            <div className="h-12 bg-muted rounded w-32" />
+            <div className="bg-muted h-8 w-24 rounded" />
+            <div className="bg-muted h-16 rounded" />
+            <div className="bg-muted h-12 w-32 rounded" />
           </CardHeader>
           <CardContent className="flex-1 space-y-6">
-            <div className="h-10 bg-muted rounded" />
+            <div className="bg-muted h-10 rounded" />
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((j) => (
-                <div key={j} className="h-6 bg-muted rounded" />
+                <div key={j} className="bg-muted h-6 rounded" />
               ))}
             </div>
           </CardContent>
@@ -54,7 +54,7 @@ export default function PricingCard() {
   } = useQuery(
     orpc.subscription.listPlans.queryOptions({
       input: { includeInactive: false },
-    })
+    }),
   );
 
   // Create checkout mutation
@@ -77,7 +77,7 @@ export default function PricingCard() {
 
   const handleSubscribe = async (plan: PlanOutput) => {
     const price = plan.prices.find(
-      (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly")
+      (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly"),
     );
 
     if (!price) {
@@ -105,9 +105,9 @@ export default function PricingCard() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto p-4 space-y-7">
+      <div className="mx-auto w-full max-w-7xl space-y-7 p-4">
         <div className="flex items-center justify-center gap-4">
-          <div className="h-12 w-48 bg-muted rounded-full animate-pulse" />
+          <div className="bg-muted h-12 w-48 animate-pulse rounded-full" />
         </div>
         <PricingCardSkeleton />
       </div>
@@ -116,7 +116,7 @@ export default function PricingCard() {
 
   if (error) {
     return (
-      <div className="w-full max-w-7xl mx-auto p-4 text-center">
+      <div className="mx-auto w-full max-w-7xl p-4 text-center">
         <p className="text-destructive">
           Failed to load pricing plans. Please try again later.
         </p>
@@ -126,7 +126,7 @@ export default function PricingCard() {
 
   if (!plans || plans.length === 0) {
     return (
-      <div className="w-full max-w-7xl mx-auto p-4 text-center">
+      <div className="mx-auto w-full max-w-7xl p-4 text-center">
         <p className="text-muted-foreground">
           No pricing plans available at the moment.
         </p>
@@ -141,11 +141,11 @@ export default function PricingCard() {
   const popularIndex = sortedPlans.length === 3 ? 1 : -1;
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 space-y-7">
+    <div className="mx-auto w-full max-w-7xl space-y-7 p-4">
       <div className="flex items-center justify-center gap-4">
-        <div className="relative inline-flex items-center bg-card border border-border rounded-full p-1 shadow-sm">
+        <div className="bg-card border-border relative inline-flex items-center rounded-full border p-1 shadow-sm">
           <motion.div
-            className="absolute bg-primary rounded-full h-[calc(100%-8px)] shadow-sm"
+            className="bg-primary absolute h-[calc(100%-8px)] rounded-full shadow-sm"
             initial={false}
             animate={{
               x: isYearly ? "calc(100% + 8px)" : "4px",
@@ -155,7 +155,7 @@ export default function PricingCard() {
           />
           <button
             onClick={() => setIsYearly(false)}
-            className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`relative z-10 rounded-full px-6 py-2 text-sm font-medium transition-colors ${
               !isYearly
                 ? "text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
@@ -165,7 +165,7 @@ export default function PricingCard() {
           </button>
           <button
             onClick={() => setIsYearly(true)}
-            className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`relative z-10 rounded-full px-6 py-2 text-sm font-medium transition-colors ${
               isYearly
                 ? "text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
@@ -176,16 +176,16 @@ export default function PricingCard() {
         </div>
       </div>
       <div className="text-center">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           Save up to 25% by paying yearly
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {sortedPlans.map((plan, index) => {
           const isPopular = index === popularIndex;
           const price = plan.prices.find(
-            (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly")
+            (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly"),
           );
           const isLoading = loadingPriceId === price?.id;
           const isAvailable = !!price?.chargilyPriceId;
@@ -195,13 +195,13 @@ export default function PricingCard() {
               key={plan.id}
               className={`relative flex flex-col ${
                 isPopular
-                  ? "border-primary shadow-lg scale-105 bg-background/70 backdrop-blur-sm"
+                  ? "border-primary bg-background/70 scale-105 shadow-lg backdrop-blur-sm"
                   : "border-border"
               }`}
             >
               {isPopular && (
                 <div className="absolute -top-3 right-6">
-                  <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                  <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold">
                     Popular
                   </span>
                 </div>
@@ -211,7 +211,7 @@ export default function PricingCard() {
                 <CardTitle className="text-2xl font-bold">
                   {plan.displayName}
                 </CardTitle>
-                <p className="text-sm text-muted-foreground min-h-[60px]">
+                <p className="text-muted-foreground min-h-[60px] text-sm">
                   {plan.description}
                 </p>
 
@@ -219,7 +219,7 @@ export default function PricingCard() {
                   <span className="text-4xl font-bold">
                     {price ? formatPrice(price.amount) : "N/A"}
                   </span>
-                  <span className="text-2xl font-medium text-muted-foreground">
+                  <span className="text-muted-foreground text-2xl font-medium">
                     DA
                   </span>
                   {isYearly ? (
@@ -254,10 +254,10 @@ export default function PricingCard() {
                 <div className="space-y-3">
                   {plan.features?.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-start gap-3">
-                      <div className="rounded-full p-1 mt-0.5 bg-primary/10">
-                        <Check className="h-4 w-4 text-primary" />
+                      <div className="bg-primary/10 mt-0.5 rounded-full p-1">
+                        <Check className="text-primary h-4 w-4" />
                       </div>
-                      <span className="text-sm flex-1 text-foreground">
+                      <span className="text-foreground flex-1 text-sm">
                         {feature}
                       </span>
                     </div>

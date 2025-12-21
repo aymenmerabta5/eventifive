@@ -13,12 +13,14 @@ interface ReviewStepProps {
 export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
   const readiness = checkEventReadiness(
     invitesData?.speaker ?? null,
-    invitesData?.reviewers ?? []
+    invitesData?.reviewers ?? [],
   );
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground text-sm">Loading review data...</div>
+      <div className="text-muted-foreground text-sm">
+        Loading review data...
+      </div>
     );
   }
 
@@ -41,8 +43,8 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
             <div className="flex items-center gap-2">
               {!readiness.hasSpeaker ? (
                 <>
-                  <XCircle className="size-4 text-destructive" />
-                  <span className="text-sm text-destructive">Not invited</span>
+                  <XCircle className="text-destructive size-4" />
+                  <span className="text-destructive text-sm">Not invited</span>
                 </>
               ) : readiness.speakerAccepted ? (
                 <>
@@ -74,8 +76,8 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
                 </>
               ) : readiness.reviewerCount < REQUIRED_REVIEWERS ? (
                 <>
-                  <XCircle className="size-4 text-destructive" />
-                  <span className="text-sm text-destructive">
+                  <XCircle className="text-destructive size-4" />
+                  <span className="text-destructive text-sm">
                     {readiness.reviewerCount}/{REQUIRED_REVIEWERS} Invited
                   </span>
                 </>

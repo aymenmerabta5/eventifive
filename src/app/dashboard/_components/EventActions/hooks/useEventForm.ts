@@ -1,5 +1,8 @@
 import { useForm } from "@tanstack/react-form";
-import { createDraftEventSchema, updateEventSchema } from "@/lib/schemas/schemas";
+import {
+  createDraftEventSchema,
+  updateEventSchema,
+} from "@/lib/schemas/schemas";
 import type { EventFormMode, EventUpdateValues } from "../types";
 import type { JSONContent } from "@tiptap/react";
 import type { EventType } from "@/server/db/schema";
@@ -17,7 +20,10 @@ const defaultValues: EventUpdateValues = {
   priceCurrency: "DZD",
 };
 
-export function useEventForm(mode: EventFormMode, initialValues?: Partial<EventUpdateValues>) {
+export function useEventForm(
+  mode: EventFormMode,
+  initialValues?: Partial<EventUpdateValues>,
+) {
   const schema = mode === "create" ? createDraftEventSchema : updateEventSchema;
 
   return useForm({
@@ -25,13 +31,15 @@ export function useEventForm(mode: EventFormMode, initialValues?: Partial<EventU
       eventId: initialValues?.eventId ?? defaultValues.eventId,
       title: initialValues?.title ?? defaultValues.title,
       description: initialValues?.description ?? defaultValues.description,
-      bigDescription: initialValues?.bigDescription ?? defaultValues.bigDescription,
+      bigDescription:
+        initialValues?.bigDescription ?? defaultValues.bigDescription,
       type: initialValues?.type ?? defaultValues.type,
       startDate: initialValues?.startDate ?? defaultValues.startDate,
       endDate: initialValues?.endDate ?? defaultValues.endDate,
       location: initialValues?.location ?? defaultValues.location,
       priceAmount: initialValues?.priceAmount ?? defaultValues.priceAmount,
-      priceCurrency: initialValues?.priceCurrency ?? defaultValues.priceCurrency,
+      priceCurrency:
+        initialValues?.priceCurrency ?? defaultValues.priceCurrency,
     } as {
       eventId: string;
       title: string;

@@ -3,6 +3,7 @@ import type { JSONContent } from "@tiptap/react";
 
 export interface ProfileInfoProps {
   user: typeof authClient.$Infer.Session.user;
+  onSessionRefresh: () => void;
 }
 
 export interface ProfileFormValues {

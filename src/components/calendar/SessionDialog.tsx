@@ -29,7 +29,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { SessionDialogProps, CreateSessionData, UpdateSessionData } from "./types";
+import type {
+  SessionDialogProps,
+  CreateSessionData,
+  UpdateSessionData,
+} from "./types";
 import { formatTimeString } from "./CalendarUtils";
 
 export function SessionDialog({
@@ -138,9 +142,21 @@ export function SessionDialog({
 
   // Disable dates outside event range
   const isDateDisabled = (date: Date) => {
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const startOnly = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
-    const endOnly = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+    );
+    const startOnly = new Date(
+      eventStartDate.getFullYear(),
+      eventStartDate.getMonth(),
+      eventStartDate.getDate(),
+    );
+    const endOnly = new Date(
+      eventEndDate.getFullYear(),
+      eventEndDate.getMonth(),
+      eventEndDate.getDate(),
+    );
     return dateOnly < startOnly || dateOnly > endOnly;
   };
 
@@ -148,7 +164,9 @@ export function SessionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Session" : "Create Session"}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Session" : "Create Session"}
+          </DialogTitle>
           <DialogDescription>
             {isEditMode
               ? "Update the session details below."
@@ -187,7 +205,7 @@ export function SessionDialog({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
+                      !date && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 size-4" />
@@ -207,17 +225,18 @@ export function SessionDialog({
                   />
                 </PopoverContent>
               </Popover>
-              <p className="text-xs text-muted-foreground">
-                Event runs from {format(eventStartDate, "MMM d")} to {format(eventEndDate, "MMM d, yyyy")}
+              <p className="text-muted-foreground text-xs">
+                Event runs from {format(eventStartDate, "MMM d")} to{" "}
+                {format(eventEndDate, "MMM d, yyyy")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="startTime">Start Time *</Label>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Clock className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                       id="startTime"
                       type="time"
@@ -232,7 +251,7 @@ export function SessionDialog({
                 <div className="grid gap-2">
                   <Label htmlFor="endTime">End Time *</Label>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Clock className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                       id="endTime"
                       type="time"
@@ -245,7 +264,7 @@ export function SessionDialog({
                 </div>
               </div>
               {timeError && (
-                <p className="text-xs text-destructive">{timeError}</p>
+                <p className="text-destructive text-xs">{timeError}</p>
               )}
             </div>
 
@@ -253,7 +272,9 @@ export function SessionDialog({
               <Label htmlFor="room">Room</Label>
               <Select
                 value={roomId || "none"}
-                onValueChange={(value) => setRoomId(value === "none" ? "" : value)}
+                onValueChange={(value) =>
+                  setRoomId(value === "none" ? "" : value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a room (optional)" />
@@ -274,7 +295,9 @@ export function SessionDialog({
               <Label htmlFor="chair">Session Chair</Label>
               <Select
                 value={chairId || "none"}
-                onValueChange={(value) => setChairId(value === "none" ? "" : value)}
+                onValueChange={(value) =>
+                  setChairId(value === "none" ? "" : value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a chair (optional)" />
@@ -289,8 +312,9 @@ export function SessionDialog({
                 </SelectContent>
               </Select>
               {chairOptions.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Invite speakers or committee members first to assign them as chair.
+                <p className="text-muted-foreground text-xs">
+                  Invite speakers or committee members first to assign them as
+                  chair.
                 </p>
               )}
             </div>

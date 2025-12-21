@@ -49,7 +49,7 @@ export function useSignUpForm() {
             turnstile?.reset();
             setToken(null);
           },
-        }
+        },
       );
     },
     validators: {
@@ -84,7 +84,7 @@ export function useSignUpForm() {
           onError: (error) => {
             toast.error(error.error.message || error.error.statusText);
           },
-        }
+        },
       );
     });
   }, [router]);

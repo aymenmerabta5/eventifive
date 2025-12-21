@@ -28,10 +28,10 @@ function PaymentSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-16 w-16 text-primary mx-auto animate-spin" />
-          <h1 className="text-2xl font-bold text-foreground">
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Loader2 className="text-primary mx-auto h-16 w-16 animate-spin" />
+          <h1 className="text-foreground text-2xl font-bold">
             Confirming your payment...
           </h1>
           <p className="text-muted-foreground">
@@ -46,17 +46,17 @@ function PaymentSuccessContent() {
   const isPending = paymentStatus?.status === "pending";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="max-w-md w-full text-center space-y-6">
+    <div className="bg-background flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6 text-center">
         {isPaid ? (
           <>
             <div className="flex justify-center">
-              <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-4">
+              <div className="rounded-full bg-green-100 p-4 dark:bg-green-900/30">
                 <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">
+              <h1 className="text-foreground text-3xl font-bold">
                 Payment Successful!
               </h1>
               <p className="text-muted-foreground">
@@ -66,11 +66,11 @@ function PaymentSuccessContent() {
             </div>
             {paymentStatus?.subscription && (
               <div className="bg-muted/50 rounded-lg p-4 text-left">
-                <h3 className="font-semibold mb-2">Subscription Details</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="mb-2 font-semibold">Subscription Details</h3>
+                <p className="text-muted-foreground text-sm">
                   Plan: {paymentStatus.subscription.planName}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Amount: {paymentStatus.amount.toLocaleString()}{" "}
                   {paymentStatus.currency}
                 </p>
@@ -91,10 +91,10 @@ function PaymentSuccessContent() {
         ) : isPending ? (
           <>
             <div className="flex justify-center">
-              <Loader2 className="h-16 w-16 text-primary animate-spin" />
+              <Loader2 className="text-primary h-16 w-16 animate-spin" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-foreground text-2xl font-bold">
                 Processing Payment...
               </h1>
               <p className="text-muted-foreground">
@@ -106,14 +106,12 @@ function PaymentSuccessContent() {
         ) : (
           <>
             <div className="flex justify-center">
-              <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-4">
+              <div className="rounded-full bg-green-100 p-4 dark:bg-green-900/30">
                 <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">
-                Thank You!
-              </h1>
+              <h1 className="text-foreground text-3xl font-bold">Thank You!</h1>
               <p className="text-muted-foreground">
                 Your payment has been received. Check your email for
                 confirmation.
@@ -138,8 +136,8 @@ export default function PaymentSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-16 w-16 text-primary animate-spin" />
+        <div className="bg-background flex min-h-screen items-center justify-center">
+          <Loader2 className="text-primary h-16 w-16 animate-spin" />
         </div>
       }
     >

@@ -25,7 +25,7 @@ export function PersonalInfoFields({
             htmlFor="name"
             className="flex items-center gap-2 text-sm font-medium"
           >
-            <User className="h-4 w-4 text-muted-foreground" />
+            <User className="text-muted-foreground h-4 w-4" />
             Full name
           </Label>
           <Input
@@ -46,7 +46,7 @@ export function PersonalInfoFields({
             htmlFor="email"
             className="flex items-center gap-2 text-sm font-medium"
           >
-            <Mail className="h-4 w-4 text-muted-foreground" />
+            <Mail className="text-muted-foreground h-4 w-4" />
             Email
             <Badge variant="outline" className="ml-auto text-[10px]">
               Verified
@@ -58,9 +58,9 @@ export function PersonalInfoFields({
             type="email"
             value={personalInfo.email}
             readOnly
-            className="h-11 bg-muted/50"
+            className="bg-muted/50 h-11"
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             We&apos;ll use this email to contact you about your application.
           </p>
         </div>
@@ -74,7 +74,7 @@ export function PersonalInfoFields({
           htmlFor="researchDomain"
           className="flex items-center gap-2 text-sm font-medium"
         >
-          <FlaskConical className="h-4 w-4 text-muted-foreground" />
+          <FlaskConical className="text-muted-foreground h-4 w-4" />
           Research domain
         </Label>
         <Input
@@ -87,7 +87,7 @@ export function PersonalInfoFields({
           autoComplete="organization-title"
           className="h-11"
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Example: Artificial Intelligence, Human-Computer Interaction, Data
           Science...
         </p>

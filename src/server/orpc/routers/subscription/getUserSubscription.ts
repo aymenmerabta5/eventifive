@@ -27,20 +27,20 @@ export const getUserSubscriptionRouter = protectedProcedure
       .from(userSubscription)
       .innerJoin(
         subscriptionPlan,
-        eq(userSubscription.planId, subscriptionPlan.id)
+        eq(userSubscription.planId, subscriptionPlan.id),
       )
       .innerJoin(
         subscriptionPrice,
-        eq(userSubscription.priceId, subscriptionPrice.id)
+        eq(userSubscription.priceId, subscriptionPrice.id),
       )
       .where(
         and(
           eq(userSubscription.userId, userId),
           or(
             eq(userSubscription.status, "active"),
-            eq(userSubscription.status, "pending")
-          )
-        )
+            eq(userSubscription.status, "pending"),
+          ),
+        ),
       );
 
     if (!subscription) {

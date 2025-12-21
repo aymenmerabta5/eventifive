@@ -18,7 +18,8 @@ export const auth = betterAuth({
         "Reset your password",
         ResetPasswordEmail,
         {
-          link: env.BETTER_AUTH_URL + `/reset-password/set-password?token=${token}`,
+          link:
+            env.BETTER_AUTH_URL + `/reset-password/set-password?token=${token}`,
         },
         {
           from: env.RESEND_SENDER_EMAIL,
@@ -30,11 +31,11 @@ export const auth = betterAuth({
     onPasswordReset: async ({ user }, _request) => {
       console.log(`Password for user ${user.email} has been reset.`);
     },
-
   },
   user: {
     changeEmail: {
       enabled: true,
+      updateEmailWithoutVerification: true,
     },
     additionalFields: {
       biography: {
@@ -53,20 +54,20 @@ export const auth = betterAuth({
         input: false,
         fieldName: "researchDomain",
       },
-    }
+    },
   },
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-    }
+    },
   },
   plugins: [
     captcha({
       secretKey: env.CLOUDFLARE_TURNSTYLE_SK,
       provider: "cloudflare-turnstile",
     }),
-  ]
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;

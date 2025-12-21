@@ -19,7 +19,7 @@ export const listPlansRouter = publicProcedure
       .select()
       .from(subscriptionPlan)
       .where(
-        input.includeInactive ? undefined : eq(subscriptionPlan.isActive, true)
+        input.includeInactive ? undefined : eq(subscriptionPlan.isActive, true),
       )
       .orderBy(asc(subscriptionPlan.sortOrder));
 
@@ -52,7 +52,7 @@ export const listPlansRouter = publicProcedure
             chargilySyncedAt: price.chargilySyncedAt,
           })),
         };
-      })
+      }),
     );
 
     return result;

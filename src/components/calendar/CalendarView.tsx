@@ -1,6 +1,15 @@
 "use client";
 
-import { format, startOfWeek, addWeeks, subWeeks, addDays, isAfter, isBefore, isSameDay } from "date-fns";
+import {
+  format,
+  startOfWeek,
+  addWeeks,
+  subWeeks,
+  addDays,
+  isAfter,
+  isBefore,
+  isSameDay,
+} from "date-fns";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +19,12 @@ import { CalendarWeekHeader } from "./CalendarWeekHeader";
 import { CalendarHoursColumn } from "./CalendarHoursColumn";
 import { CalendarDayColumn } from "./CalendarDayColumn";
 import { INITIAL_SCROLL_OFFSET } from "./CalendarUtils";
-import type { CalendarViewProps, SessionWithRelations, CreateSessionData, UpdateSessionData } from "./types";
+import type {
+  CalendarViewProps,
+  SessionWithRelations,
+  CreateSessionData,
+  UpdateSessionData,
+} from "./types";
 
 export function CalendarView({
   eventId,
@@ -36,10 +50,12 @@ export function CalendarView({
   const daysScrollRefs = useRef<(HTMLDivElement | null)[]>([]);
   const hasScrolledRef = useRef(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedSession, setSelectedSession] = useState<SessionWithRelations | null>(null);
+  const [selectedSession, setSelectedSession] =
+    useState<SessionWithRelations | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSession, setEditingSession] = useState<SessionWithRelations | null>(null);
+  const [editingSession, setEditingSession] =
+    useState<SessionWithRelations | null>(null);
 
   const today = new Date();
 
@@ -75,14 +91,22 @@ export function CalendarView({
   };
 
   // Get week days array, filtering to only show days within event range
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i)).filter(
-    (day) => {
-      const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-      const eventStart = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
-      const eventEnd = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
-      return dayStart >= eventStart && dayStart <= eventEnd;
-    }
-  );
+  const weekDays = Array.from({ length: 7 }, (_, i) =>
+    addDays(currentWeekStart, i),
+  ).filter((day) => {
+    const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+    const eventStart = new Date(
+      eventStartDate.getFullYear(),
+      eventStartDate.getMonth(),
+      eventStartDate.getDate(),
+    );
+    const eventEnd = new Date(
+      eventEndDate.getFullYear(),
+      eventEndDate.getMonth(),
+      eventEndDate.getDate(),
+    );
+    return dayStart >= eventStart && dayStart <= eventEnd;
+  });
 
   // Get sessions for current view
   const getVisibleSessions = () => {
@@ -107,7 +131,7 @@ export function CalendarView({
   }, []);
 
   const isTodayInWeek = weekDays.some(
-    (day) => format(day, "yyyy-MM-dd") === format(today, "yyyy-MM-dd")
+    (day) => format(day, "yyyy-MM-dd") === format(today, "yyyy-MM-dd"),
   );
 
   // Initial scroll to 9 AM
@@ -139,17 +163,18 @@ export function CalendarView({
     });
   };
 
-  const handleDayScroll = (index: number) => (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    if (hoursScrollRef.current) {
-      hoursScrollRef.current.scrollTop = scrollTop;
-    }
-    daysScrollRefs.current.forEach((ref, idx) => {
-      if (ref && idx !== index) {
-        ref.scrollTop = scrollTop;
+  const handleDayScroll =
+    (index: number) => (e: React.UIEvent<HTMLDivElement>) => {
+      const scrollTop = e.currentTarget.scrollTop;
+      if (hoursScrollRef.current) {
+        hoursScrollRef.current.scrollTop = scrollTop;
       }
-    });
-  };
+      daysScrollRefs.current.forEach((ref, idx) => {
+        if (ref && idx !== index) {
+          ref.scrollTop = scrollTop;
+        }
+      });
+    };
 
   const handleSessionClick = (session: SessionWithRelations) => {
     setSelectedSession(session);
@@ -194,15 +219,15 @@ export function CalendarView({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="text-muted-foreground size-8 animate-spin" />
       </div>
     );
   }
 
   if (weekDays.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
+      <div className="text-muted-foreground flex h-full items-center justify-center">
         No days to display for this event period.
       </div>
     );
@@ -231,11 +256,12 @@ export function CalendarView({
         onSubmit={handleDialogSubmit}
       />
 
-      <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex h-full flex-col overflow-hidden">
         {isEditable && (
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background">
-            <div className="text-sm text-muted-foreground">
-              {format(eventStartDate, "MMM d")} - {format(eventEndDate, "MMM d, yyyy")}
+          <div className="border-border bg-background flex items-center justify-between border-b px-4 py-2">
+            <div className="text-muted-foreground text-sm">
+              {format(eventStartDate, "MMM d")} -{" "}
+              {format(eventEndDate, "MMM d, yyyy")}
             </div>
             <Button size="sm" onClick={handleCreateClick}>
               <Plus className="mr-2 size-4" />
@@ -245,7 +271,7 @@ export function CalendarView({
         )}
 
         <div className="flex-1 overflow-x-auto">
-          <div className="flex flex-col h-full min-w-full w-max">
+          <div className="flex h-full w-max min-w-full flex-col">
             <CalendarWeekHeader
               weekDays={weekDays}
               onPreviousWeek={goToPreviousWeek}
@@ -254,7 +280,7 @@ export function CalendarView({
               canGoNext={canGoNext()}
             />
 
-            <div className="flex flex-1 min-h-0">
+            <div className="flex min-h-0 flex-1">
               <CalendarHoursColumn
                 onScroll={handleHoursScroll}
                 scrollRef={hoursScrollRef}

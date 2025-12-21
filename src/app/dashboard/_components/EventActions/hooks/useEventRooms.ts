@@ -19,7 +19,7 @@ export function useEventRooms(eventId: string | null, enabled: boolean = true) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to create room"),
-    })
+    }),
   );
 
   const updateRoomMutation = useMutation(
@@ -30,7 +30,7 @@ export function useEventRooms(eventId: string | null, enabled: boolean = true) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to update room"),
-    })
+    }),
   );
 
   const deleteRoomMutation = useMutation(
@@ -41,7 +41,7 @@ export function useEventRooms(eventId: string | null, enabled: boolean = true) {
       },
       onError: (error: Error) =>
         toast.error(error.message || "Failed to delete room"),
-    })
+    }),
   );
 
   // Helper functions for easier usage

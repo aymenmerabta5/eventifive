@@ -70,9 +70,7 @@ export function FormNavigation({
           {isLoading ? "Working..." : "Next"}
         </StatefulButton>
       ) : (
-        <Button
-          onClick={() => router.push("/dashboard?view=my-events")}
-        >
+        <Button onClick={() => router.push("/dashboard?view=my-events")}>
           Done
         </Button>
       )}

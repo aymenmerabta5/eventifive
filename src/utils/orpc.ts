@@ -4,57 +4,59 @@ import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { AppRouterClient } from "@/server/orpc/routers/index";
-import { RPCLink as WebSocketRPCLink } from '@orpc/client/websocket'
+import { RPCLink as WebSocketRPCLink } from "@orpc/client/websocket";
 import { env } from "@/env";
 
 export const queryClient = new QueryClient({
-	queryCache: new QueryCache({
-		onError: (error) => {
-			toast.error(`Error: ${error.message}`, {
-				action: {
-					label: "retry",
-					onClick: () => {
-						queryClient.invalidateQueries();
-					},
-				},
-			});
-		},
-	}),
+  queryCache: new QueryCache({
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`, {
+        action: {
+          label: "retry",
+          onClick: () => {
+            queryClient.invalidateQueries();
+          },
+        },
+      });
+    },
+  }),
 });
 
 const httpLink = new RPCLink({
-	url: `${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/api/rpc`,
-	fetch(url, options) {
-		return fetch(url, {
-			...options,
-			credentials: "include",
-		});
-	},
-	headers: async () => {
-		if (typeof window !== "undefined") {
-			return {};
-		}
+  url: `${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/api/rpc`,
+  fetch(url, options) {
+    return fetch(url, {
+      ...options,
+      credentials: "include",
+    });
+  },
+  headers: async () => {
+    if (typeof window !== "undefined") {
+      return {};
+    }
 
-		const { headers } = await import("next/headers");
-		return Object.fromEntries(await headers());
-	},
+    const { headers } = await import("next/headers");
+    return Object.fromEntries(await headers());
+  },
 });
 
 // Handle both full URLs (ws://host:port) and host:port format
-const websocketUrl = env.NEXT_PUBLIC_WEBSOCKET_URL.startsWith('ws://') || env.NEXT_PUBLIC_WEBSOCKET_URL.startsWith('wss://')
-	? env.NEXT_PUBLIC_WEBSOCKET_URL
-	: `ws://${env.NEXT_PUBLIC_WEBSOCKET_URL}`;
+const websocketUrl =
+  env.NEXT_PUBLIC_WEBSOCKET_URL.startsWith("ws://") ||
+  env.NEXT_PUBLIC_WEBSOCKET_URL.startsWith("wss://")
+    ? env.NEXT_PUBLIC_WEBSOCKET_URL
+    : `ws://${env.NEXT_PUBLIC_WEBSOCKET_URL}`;
 const websocket = new WebSocket(websocketUrl);
 
 const webSocketLink = new WebSocketRPCLink({
-	websocket
+  websocket,
 });
 
 export const link = new DynamicLink((options, path) => {
-	if (path[0] === 'websocketsRouter') {
-		return webSocketLink;
-	}
-	return httpLink;
+  if (path[0] === "websocketsRouter") {
+    return webSocketLink;
+  }
+  return httpLink;
 });
 
 export const client: AppRouterClient = createORPCClient(link);

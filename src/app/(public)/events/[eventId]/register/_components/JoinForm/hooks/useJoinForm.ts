@@ -39,7 +39,7 @@ export function useJoinForm(eventId: string) {
       maxFiles: MAX_FILES,
       remainingSlots: Math.max(0, MAX_FILES - uploadedCount - files.length),
     }),
-    [uploadedCount, files.length]
+    [uploadedCount, files.length],
   );
 
   const canAddMoreFiles = quotaInfo.remainingSlots > 0;
@@ -51,7 +51,7 @@ export function useJoinForm(eventId: string) {
       email,
       researchDomain,
     }),
-    [name, email, researchDomain]
+    [name, email, researchDomain],
   );
 
   // Initialize user data
@@ -60,7 +60,7 @@ export function useJoinForm(eventId: string) {
     setName(user.name ?? "");
     setEmail(user.email ?? "");
     setResearchDomain(
-      (user as { researchDomain?: string | null }).researchDomain ?? ""
+      (user as { researchDomain?: string | null }).researchDomain ?? "",
     );
   }, [user]);
 
@@ -71,7 +71,7 @@ export function useJoinForm(eventId: string) {
     let cancelled = false;
     setIsLoadingQuota(true);
 
-    fetch(`/api/upload-file?eventId=${encodeURIComponent(eventId)}`)
+    fetch(`/api/submit-documents?eventId=${encodeURIComponent(eventId)}`)
       .then(async (res) => {
         const json = (await res.json()) as QuotaResponse;
         if (!res.ok)
@@ -112,7 +112,7 @@ export function useJoinForm(eventId: string) {
         return next;
       });
     },
-    [uploadedCount]
+    [uploadedCount],
   );
 
   const handleFileChange = useCallback(
@@ -127,7 +127,7 @@ export function useJoinForm(eventId: string) {
       addFiles(selected);
       event.target.value = "";
     },
-    [canAddMoreFiles, addFiles]
+    [canAddMoreFiles, addFiles],
   );
 
   const handleDrop = useCallback(
@@ -142,7 +142,7 @@ export function useJoinForm(eventId: string) {
       const dropped = Array.from(event.dataTransfer.files ?? []);
       addFiles(dropped);
     },
-    [canAddMoreFiles, addFiles]
+    [canAddMoreFiles, addFiles],
   );
 
   const handleDragOver = useCallback(
@@ -150,7 +150,7 @@ export function useJoinForm(eventId: string) {
       event.preventDefault();
       setIsDragOver(true);
     },
-    []
+    [],
   );
 
   const handleDragLeave = useCallback(() => {
@@ -199,7 +199,7 @@ export function useJoinForm(eventId: string) {
             formData.set("researchDomain", researchDomain);
           }
 
-          const uploadResponse = await fetch("/api/upload-file", {
+          const uploadResponse = await fetch("/api/submit-documents", {
             method: "POST",
             body: formData,
           });
@@ -224,13 +224,13 @@ export function useJoinForm(eventId: string) {
         toast.error(
           error instanceof Error
             ? error.message
-            : "An unexpected error occurred while uploading your file."
+            : "An unexpected error occurred while uploading your file.",
         );
       } finally {
         setIsSubmitting(false);
       }
     },
-    [name, files, user, uploadedCount, eventId, researchDomain]
+    [name, files, user, uploadedCount, eventId, researchDomain],
   );
 
   return {
