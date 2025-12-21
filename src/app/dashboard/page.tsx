@@ -3,6 +3,7 @@
 import { AppSidebar } from "./_components/app-sidebar";
 import { ChartAreaInteractive } from "./_components/ChartAreaInteractive";
 import { SectionCards } from "./_components/SectionCards";
+import { AdminSectionCards } from "./_components/AdminSectionCards";
 import { SiteHeader } from "./_components/site-header";
 import { EventFormCard } from "./_components/EventActions";
 import { MyEvents } from "./_components/MyEvents";
@@ -12,9 +13,12 @@ import { useSearchParams } from "next/navigation";
 import ShareEvent from "./_components/EventActions/components/ShareEvent";
 import { Suspense } from "react";
 import Loader from "@/components/loader";
+import { authClient } from "@/lib/auth-client";
 
 function Dashboard() {
   const searchParams = useSearchParams();
+  const { data: session } = authClient.useSession();
+
   const view = searchParams.get("view");
   const eventId = searchParams.get("eventId");
   const showShareEvent = view === "share-event";
@@ -22,6 +26,8 @@ function Dashboard() {
   const showUpdateEvent = view === "update-event";
   const showMyEvents = view === "my-events";
   const showEventApprovals = view === "event-approvals";
+
+  const isAdmin = session?.user?.isAdmin ?? false;
 
   return (
     <SidebarProvider
@@ -66,7 +72,7 @@ function Dashboard() {
                 </div>
               ) : (
                 <>
-                  <SectionCards />
+                  {isAdmin ? <AdminSectionCards /> : <SectionCards />}
                   <div className="px-4 lg:px-6">
                     <ChartAreaInteractive />
                   </div>

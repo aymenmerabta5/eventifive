@@ -8,13 +8,15 @@ import { messagesRouter } from "./websockets";
 import { submissionsRouter } from "./submissions";
 import { reviewsRouter } from "./reviews";
 import { sessionsRouter } from "./sessions";
-import { dashboardRouter } from "./dashboard";
+import { adminRouter } from "./admin";
+import { organizerRouter } from "./organizer";
 
 /**
  * Main application router
  *
  * Organized by domain:
- * - dashboard: Dashboard statistics and charts (getStats, getChartData)
+ * - admin: Admin-only routes (dashboard stats, management)
+ * - organizer: Organizer routes (dashboard, events, etc.)
  * - events: Event CRUD operations (create, update, delete, list, listByType, myEvents)
  * - profile: User profile management (update, uploadImage, getImage)
  * - files: File storage operations (requestUpload, confirmUpload, getDownloadUrl, list, delete)
@@ -26,7 +28,8 @@ import { dashboardRouter } from "./dashboard";
  * - sessions: Program session and room management (createRoom, updateRoom, deleteRoom, listRooms, createSession, updateSession, deleteSession, listSessions, getSession)
  */
 export const appRouter = {
-  dashboard: dashboardRouter,
+  admin: adminRouter,
+  organizer: organizerRouter,
   events: eventsRouter,
   profile: profileRouter,
   files: filesRouter,

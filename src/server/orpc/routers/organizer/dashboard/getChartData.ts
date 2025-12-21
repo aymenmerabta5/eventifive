@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../index";
+import { protectedProcedure } from "../../../index";
 import {
   chartDataInputSchema,
   chartDataOutputSchema,
@@ -18,7 +18,7 @@ const RANGE_TO_DAYS: Record<string, number> = {
 };
 
 export const getChartDataRouter = protectedProcedure
-  .route({ method: "GET", path: "/dashboard/chart" })
+  .route({ method: "GET", path: "/organizer/dashboard/chart" })
   .input(chartDataInputSchema)
   .output(chartDataOutputSchema)
   .handler(async ({ context, input }) => {

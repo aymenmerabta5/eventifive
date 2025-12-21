@@ -4,7 +4,11 @@ import { orpc } from "@/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { IconCalendarEvent, IconInfinity } from "@tabler/icons-react";
+import {
+  IconCalendarEvent,
+  IconInfinity,
+  IconShieldCheck,
+} from "@tabler/icons-react";
 import Link from "next/link";
 
 export function QuotaIndicator() {
@@ -27,6 +31,7 @@ export function QuotaIndicator() {
 
   const { quotaUsage, plan } = subscription;
   const isUnlimited = quotaUsage.limit === -1;
+  const isAdmin = plan.name === "admin";
   const percentage = isUnlimited
     ? 0
     : Math.min((quotaUsage.used / quotaUsage.limit) * 100, 100);
@@ -37,11 +42,15 @@ export function QuotaIndicator() {
     <div className="rounded-lg border p-3">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <IconCalendarEvent className="size-4 text-primary" />
-          <span>Event Quota</span>
+          {isAdmin ? (
+            <IconShieldCheck className="size-4 text-primary" />
+          ) : (
+            <IconCalendarEvent className="size-4 text-primary" />
+          )}
+          <span>{isAdmin ? "Admin Access" : "Event Quota"}</span>
         </div>
         <Badge
-          variant={isAtLimit ? "destructive" : isNearLimit ? "secondary" : "outline"}
+          variant={isAdmin ? "default" : isAtLimit ? "destructive" : isNearLimit ? "secondary" : "outline"}
           className="text-xs"
         >
           {plan.displayName}
@@ -52,7 +61,7 @@ export function QuotaIndicator() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <IconInfinity className="size-4" />
           <span>Unlimited events</span>
-          <span className="text-foreground font-medium">
+          <span className="font-medium text-foreground">
             ({quotaUsage.used} active)
           </span>
         </div>

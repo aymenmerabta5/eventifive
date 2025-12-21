@@ -15,6 +15,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  // Admin users bypass subscription check
+  if (session.user.isAdmin) {
+    return <>{children}</>;
+  }
+
   // Check if user has an active subscription
   const subscription = await client.subscription
     .getUserSubscription({})

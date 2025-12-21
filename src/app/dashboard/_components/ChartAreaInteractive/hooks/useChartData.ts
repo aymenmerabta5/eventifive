@@ -9,7 +9,7 @@ export function useChartData(range: TimeRange) {
   const { data, isPending, error } = useQuery<ChartData>({
     queryKey: [QUERY_KEY_BASE, range],
     queryFn: () =>
-      client.dashboard.getChartData({ range }) as Promise<ChartData>,
+      client.organizer.dashboard.getChartData({ range }) as Promise<ChartData>,
     staleTime: STALE_TIME,
   });
 

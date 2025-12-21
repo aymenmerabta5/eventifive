@@ -1,7 +1,7 @@
 import { getStatsRouter } from "./getStats";
 import { getChartDataRouter } from "./getChartData";
 
-export const dashboardRouter = {
+export const organizerDashboardRouter = {
   getStats: getStatsRouter,
   getChartData: getChartDataRouter,
 };

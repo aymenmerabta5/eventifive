@@ -5,6 +5,8 @@ import {
   event,
   userSubscription,
   subscriptionPlan,
+  roles,
+  userRoles,
 } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
@@ -17,6 +19,20 @@ const outputSchema = z.object({
   message: z.string(),
   eventId: z.string().optional(),
 });
+
+/**
+ * Check if user is a super admin
+ */
+async function checkIsAdmin(userId: string): Promise<boolean> {
+  const [adminRole] = await db
+    .select({ roleName: roles.name })
+    .from(userRoles)
+    .innerJoin(roles, eq(userRoles.roleId, roles.id))
+    .where(and(eq(userRoles.userId, userId), eq(roles.name, "super_admin")))
+    .limit(1);
+
+  return !!adminRole;
+}
 
 /**
  * Check if user has an active subscription and is within quota
@@ -74,20 +90,25 @@ export const createDraftEventRouter = protectedProcedure
       throw new ORPCError("UNAUTHORIZED");
     }
 
-    // Check subscription and quota
-    const quota = await checkSubscriptionAndQuota(session.user.id);
+    // Check if user is admin - admins can create unlimited events
+    const isAdmin = await checkIsAdmin(session.user.id);
 
-    if (!quota.hasSubscription) {
-      throw new ORPCError("FORBIDDEN", {
-        message:
-          "You need an active subscription to create events. Please subscribe to a plan.",
-      });
-    }
+    if (!isAdmin) {
+      // Check subscription and quota for non-admin users
+      const quota = await checkSubscriptionAndQuota(session.user.id);
 
-    if (!quota.canCreate) {
-      throw new ORPCError("FORBIDDEN", {
-        message: `You have reached your event quota (${quota.used}/${quota.limit}). Please upgrade your plan or wait for existing events to end.`,
-      });
+      if (!quota.hasSubscription) {
+        throw new ORPCError("FORBIDDEN", {
+          message:
+            "You need an active subscription to create events. Please subscribe to a plan.",
+        });
+      }
+
+      if (!quota.canCreate) {
+        throw new ORPCError("FORBIDDEN", {
+          message: `You have reached your event quota (${quota.used}/${quota.limit}). Please upgrade your plan or wait for existing events to end.`,
+        });
+      }
     }
 
     try {

@@ -6,6 +6,7 @@ import { registerEventTools } from "./tools/events.js";
 import { registerSubmissionTools } from "./tools/submissions.js";
 import { registerReviewTools } from "./tools/reviews.js";
 import { registerSeedTools } from "./tools/seed.js";
+import { registerRoleTools } from "./tools/roles.js";
 
 // Create server instance
 const server = new McpServer({
@@ -19,6 +20,7 @@ registerEventTools(server);
 registerSubmissionTools(server);
 registerReviewTools(server);
 registerSeedTools(server);
+registerRoleTools(server);
 
 // Run the server
 async function main() {

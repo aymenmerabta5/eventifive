@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../index";
+import { protectedProcedure } from "../../../index";
 import { dashboardStatsOutputSchema } from "@/lib/schemas/dashboard";
 import {
   cache,
@@ -19,7 +19,7 @@ import {
 import type { DashboardStatsOutput } from "@/lib/schemas/dashboard";
 
 export const getStatsRouter = protectedProcedure
-  .route({ method: "GET", path: "/dashboard/stats" })
+  .route({ method: "GET", path: "/organizer/dashboard/stats" })
   .output(dashboardStatsOutputSchema)
   .handler(async ({ context }) => {
     const { session } = context;

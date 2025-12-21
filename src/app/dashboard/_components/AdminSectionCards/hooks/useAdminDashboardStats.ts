@@ -3,13 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/utils/orpc";
 import { QUERY_KEY, STALE_TIME } from "../constants";
-import type { DashboardStats } from "../types";
+import type { AdminDashboardStats } from "../types";
 
-export function useDashboardStats() {
-  const { data, isPending, error } = useQuery<DashboardStats>({
+export function useAdminDashboardStats() {
+  const { data, isPending, error } = useQuery<AdminDashboardStats>({
     queryKey: QUERY_KEY,
     queryFn: () =>
-      client.organizer.dashboard.getStats() as Promise<DashboardStats>,
+      client.admin.dashboard.getStats() as Promise<AdminDashboardStats>,
     staleTime: STALE_TIME,
   });
 

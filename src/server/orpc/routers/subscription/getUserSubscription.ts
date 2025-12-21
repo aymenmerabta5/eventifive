@@ -6,9 +6,25 @@ import {
   subscriptionPlan,
   subscriptionPrice,
   event,
+  roles,
+  userRoles,
 } from "@/server/db/schema";
 import { eq, and, or, gte, count } from "drizzle-orm";
 import { userSubscriptionOutputSchema } from "@/lib/schemas/payment";
+
+/**
+ * Check if user is a super admin
+ */
+async function checkIsAdmin(userId: string): Promise<boolean> {
+  const [adminRole] = await db
+    .select({ roleName: roles.name })
+    .from(userRoles)
+    .innerJoin(roles, eq(userRoles.roleId, roles.id))
+    .where(and(eq(userRoles.userId, userId), eq(roles.name, "super_admin")))
+    .limit(1);
+
+  return !!adminRole;
+}
 
 /**
  * Count non-ended events (upcoming + ongoing) for a user
@@ -31,6 +47,41 @@ export const getUserSubscriptionRouter = protectedProcedure
   .handler(async ({ context }) => {
     const { session } = context;
     const userId = session.user.id;
+
+    // Check if user is admin - admins get unlimited quota
+    const isAdmin = await checkIsAdmin(userId);
+
+    if (isAdmin) {
+      const usedEvents = await countActiveEvents(userId);
+
+      // Return admin subscription with unlimited quota
+      return {
+        id: "admin",
+        status: "active" as const,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        cancelledAt: null,
+        createdAt: new Date(),
+        plan: {
+          id: "admin",
+          name: "admin",
+          displayName: "Administrator",
+          features: ["Unlimited events", "Platform management", "Full access"],
+          eventQuota: -1, // -1 = unlimited
+        },
+        price: {
+          id: "admin",
+          billingPeriod: "yearly" as const,
+          amount: 0,
+          currency: "DZD",
+        },
+        quotaUsage: {
+          used: usedEvents,
+          limit: -1, // unlimited
+          canCreate: true,
+        },
+      };
+    }
 
     // Get user's active or pending subscription
     const [subscription] = await db
