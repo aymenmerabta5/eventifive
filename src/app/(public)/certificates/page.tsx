@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Award, Download, ExternalLink, Loader2, Calendar, MapPin } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { CertificateTemplate } from "@/lib/certificates/CertificateTemplate";
+import { generateQRCodeDataUrl } from "@/lib/certificates/generateQRCode";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { CertificateRole } from "@/server/db/schema";
@@ -75,6 +76,13 @@ export default function CertificatesPage() {
         certificateId,
       });
 
+      // Generate QR code with verification URL
+      const baseUrl = window.location.origin;
+      const qrCodeDataUrl = await generateQRCodeDataUrl(
+        certData.verificationCode,
+        baseUrl
+      );
+
       const doc = (
         <CertificateTemplate
           recipientName={certData.recipientName}
@@ -87,6 +95,7 @@ export default function CertificatesPage() {
           sessionTitle={certData.sessionTitle}
           verificationCode={certData.verificationCode}
           issuedAt={certData.issuedAt}
+          qrCodeDataUrl={qrCodeDataUrl}
         />
       );
 

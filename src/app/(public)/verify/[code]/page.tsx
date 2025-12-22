@@ -68,7 +68,7 @@ export default function VerifyCertificatePage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="space-y-4 text-center">
           <Loader2 className="text-primary mx-auto h-16 w-16 animate-spin" />
           <h1 className="text-foreground text-2xl font-bold">
@@ -84,7 +84,7 @@ export default function VerifyCertificatePage({ params }: PageProps) {
 
   if (error) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6 text-center">
           <div className="flex justify-center">
             <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
@@ -110,7 +110,7 @@ export default function VerifyCertificatePage({ params }: PageProps) {
   // Certificate not found
   if (!data?.certificate) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6 text-center">
           <div className="flex justify-center">
             <div className="rounded-full bg-yellow-100 p-4 dark:bg-yellow-900/30">
@@ -141,7 +141,7 @@ export default function VerifyCertificatePage({ params }: PageProps) {
   const isValid = data.valid;
 
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-lg space-y-6">
         {/* Status Header */}
         <div className="text-center">

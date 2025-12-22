@@ -5,36 +5,17 @@ import {
   Page,
   View,
   Text,
+  Image,
   StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
 import type { CertificateRole } from "@/server/db/schema";
-
-// Register fonts for formal certificate look
-Font.register({
-  family: "Times New Roman",
-  fonts: [
-    {
-      src: "https://cdn.jsdelivr.net/npm/@canvas-fonts/times-new-roman@1.0.4/Times%20New%20Roman.ttf",
-      fontWeight: "normal",
-    },
-    {
-      src: "https://cdn.jsdelivr.net/npm/@canvas-fonts/times-new-roman@1.0.4/Times%20New%20Roman%20Bold.ttf",
-      fontWeight: "bold",
-    },
-    {
-      src: "https://cdn.jsdelivr.net/npm/@canvas-fonts/times-new-roman@1.0.4/Times%20New%20Roman%20Italic.ttf",
-      fontStyle: "italic",
-    },
-  ],
-});
 
 // Formal certificate styles
 const styles = StyleSheet.create({
   page: {
     backgroundColor: "#FFFEF7",
     padding: 40,
-    fontFamily: "Times New Roman",
+    fontFamily: "Times-Roman",
   },
   outerBorder: {
     border: "3pt solid #1a365d",
@@ -128,28 +109,19 @@ const styles = StyleSheet.create({
   footer: {
     textAlign: "center",
     marginTop: 30,
+    width: "100%",
   },
   verificationSection: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 10,
     gap: 20,
   },
-  qrPlaceholder: {
-    width: 80,
-    height: 80,
-    border: "1pt solid #e2e8f0",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f7fafc",
-  },
-  qrText: {
-    fontSize: 8,
-    color: "#a0aec0",
-    textAlign: "center",
+  qrCode: {
+    width: 70,
+    height: 70,
   },
   verificationInfo: {
     textAlign: "left",
@@ -169,6 +141,23 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#718096",
     marginTop: 8,
+  },
+  branding: {
+    marginTop: 15,
+    paddingTop: 10,
+    borderTop: "1pt solid #e2e8f0",
+    width: "100%",
+    textAlign: "center",
+  },
+  brandingText: {
+    fontSize: 9,
+    color: "#a0aec0",
+    letterSpacing: 1,
+  },
+  brandingHighlight: {
+    fontSize: 10,
+    color: "#1a365d",
+    fontWeight: "bold",
   },
   cornerDecoration: {
     position: "absolute",
@@ -212,9 +201,12 @@ interface CertificateTemplateProps {
   sessionTitle: string | null;
   verificationCode: string;
   issuedAt: Date;
+  qrCodeDataUrl: string;
 }
 
-const getRoleText = (role: CertificateRole): { title: string; description: string } => {
+const getRoleText = (
+  role: CertificateRole
+): { title: string; description: string } => {
   switch (role) {
     case "speaker":
       return {
@@ -279,6 +271,7 @@ export function CertificateTemplate({
   sessionTitle,
   verificationCode,
   issuedAt,
+  qrCodeDataUrl,
 }: CertificateTemplateProps) {
   const roleInfo = getRoleText(role);
 
@@ -303,9 +296,7 @@ export function CertificateTemplate({
 
             {/* Main Content */}
             <View style={styles.mainContent}>
-              <Text style={styles.certifyText}>
-                This is to certify that
-              </Text>
+              <Text style={styles.certifyText}>This is to certify that</Text>
 
               <Text style={styles.recipientName}>{recipientName}</Text>
 
@@ -322,9 +313,7 @@ export function CertificateTemplate({
               )}
 
               {sessionTitle && (
-                <Text style={styles.sessionTitle}>
-                  Workshop: {sessionTitle}
-                </Text>
+                <Text style={styles.sessionTitle}>Workshop: {sessionTitle}</Text>
               )}
             </View>
 
@@ -333,11 +322,7 @@ export function CertificateTemplate({
             {/* Footer with Verification */}
             <View style={styles.footer}>
               <View style={styles.verificationSection}>
-                <View style={styles.qrPlaceholder}>
-                  <Text style={styles.qrText}>
-                    Scan to{"\n"}verify
-                  </Text>
-                </View>
+                <Image style={styles.qrCode} src={qrCodeDataUrl} />
                 <View style={styles.verificationInfo}>
                   <Text style={styles.verificationLabel}>Verification Code</Text>
                   <Text style={styles.verificationCode}>{verificationCode}</Text>
@@ -345,6 +330,15 @@ export function CertificateTemplate({
                     Issued on {formatDate(issuedAt)}
                   </Text>
                 </View>
+              </View>
+
+              {/* Eventifive Branding */}
+              <View style={styles.branding}>
+                <Text style={styles.brandingText}>
+                  This certificate was issued through{" "}
+                  <Text style={styles.brandingHighlight}>Eventifive</Text>
+                  {" "}- Event Management Platform
+                </Text>
               </View>
             </View>
           </View>

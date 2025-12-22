@@ -4,7 +4,6 @@ import { useEventRegistration } from "./hooks";
 import {
   LoadingState,
   ErrorState,
-  EmptyState,
   RegistrationHeader,
   RegistrationTabs,
 } from "./components";
@@ -18,7 +17,6 @@ export function EventRegistration({ eventId }: EventRegistrationProps) {
     participants,
     workshopSubmissions,
     committeeSubmissions,
-    isEmpty,
     isPending,
     isRefetching,
     isParticipantsLoading,
@@ -63,21 +61,8 @@ export function EventRegistration({ eventId }: EventRegistrationProps) {
     );
   }
 
-  // Empty state - no registrations yet
-  if (isEmpty) {
-    return (
-      <div className="space-y-6">
-        <RegistrationHeader
-          onRefresh={handleRefresh}
-          onBack={handleBack}
-          isRefetching={isRefetching}
-        />
-        <EmptyState />
-      </div>
-    );
-  }
-
-  // Main content
+  // Main content (removed isEmpty check - CertificatesTab has its own data source
+  // and individual tabs handle their own empty states)
   return (
     <div className="space-y-6">
       <RegistrationHeader
