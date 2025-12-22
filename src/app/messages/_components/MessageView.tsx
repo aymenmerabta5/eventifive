@@ -13,12 +13,13 @@ import {
 } from "lucide-react";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
-import { useMessages, useSendMessage } from "../_lib/hooks";
+import { OnlineIndicator } from "./OnlineIndicator";
+import { useMessages, useSendMessage, useUserPresence } from "../_lib/hooks";
 import type { Conversation, Message } from "../_lib/types";
 import Link from "next/link";
 import type { Route } from "next";
 import { getInitials } from "@/lib/string";
-import { formatDateHeader } from "@/lib/date";
+import { formatDateHeader, formatRelativeTime } from "@/lib/date";
 
 interface CurrentUser {
   id: string;
@@ -49,6 +50,9 @@ export function MessageView({
   } = useMessages(conversation.id);
 
   const sendMessage = useSendMessage();
+
+  // Track online status of the other user
+  const { isOnline, lastSeenAt } = useUserPresence(conversation.otherUser.id);
 
   // Flatten pages into single array, reversed for chronological order
   const messages = useMemo(() => {
@@ -121,12 +125,20 @@ export function MessageView({
               {getInitials(otherUser.name)}
             </AvatarFallback>
           </Avatar>
+          <OnlineIndicator isOnline={isOnline} size="sm" />
         </div>
 
         <div className="min-w-0 flex-1">
           <h2 className="text-foreground truncate font-semibold">
             {otherUser.name}
           </h2>
+          <p className="text-muted-foreground text-xs">
+            {isOnline
+              ? "Online"
+              : lastSeenAt
+                ? `Last seen ${formatRelativeTime(lastSeenAt)}`
+                : "Offline"}
+          </p>
         </div>
 
         <div className="flex items-center gap-1">

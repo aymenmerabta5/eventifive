@@ -9,6 +9,7 @@ import { authClient } from "@/lib/auth-client";
 import {
   useConversations,
   useMessageSubscription,
+  useHeartbeat,
   type RealtimeMessage,
 } from "./_lib";
 import { Loader2 } from "lucide-react";
@@ -47,6 +48,9 @@ export default function MessagesPage() {
     currentUserId: currentUser?.id ?? "",
     onNewMessage: handleNewMessage,
   });
+
+  // Keep presence alive with heartbeat
+  useHeartbeat({ enabled: !!currentUser });
 
   useEffect(() => {
     setPendingConversationId(conversationIdFromParams);

@@ -5,16 +5,19 @@ import { cn } from "@/lib/utils";
 import type { Conversation } from "../_lib/types";
 import { getInitials } from "@/lib/string";
 import { formatRelativeTime } from "@/lib/date";
+import { OnlineIndicator } from "./OnlineIndicator";
 
 interface ConversationItemProps {
   conversation: Conversation;
   isSelected: boolean;
+  isOnline?: boolean;
   onClick: () => void;
 }
 
 export function ConversationItem({
   conversation,
   isSelected,
+  isOnline = false,
   onClick,
 }: ConversationItemProps) {
   const { otherUser, lastMessage, updatedAt } = conversation;
@@ -37,6 +40,7 @@ export function ConversationItem({
             {getInitials(otherUser.name)}
           </AvatarFallback>
         </Avatar>
+        <OnlineIndicator isOnline={isOnline} size="md" />
       </div>
 
       <div className="min-w-0 flex-1">

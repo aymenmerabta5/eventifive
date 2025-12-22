@@ -3,6 +3,8 @@ import { getConversationsRouter } from "./getConversations";
 import { getMessagesRouter } from "./getMessages";
 import { createConversationRouter } from "./createConversation";
 import { subscribeMessagesRouter } from "./subscribeMessages";
+import { subscribePresenceRouter } from "./subscribePresence";
+import { getPresenceRouter } from "./getPresence";
 
 export const messagesRouter = {
   send: sendMessageRouter,
@@ -10,6 +12,8 @@ export const messagesRouter = {
   listMessages: getMessagesRouter,
   createConversation: createConversationRouter,
   subscribe: subscribeMessagesRouter,
+  subscribePresence: subscribePresenceRouter,
+  getPresence: getPresenceRouter,
 };
 
 // Export with the old name for backwards compatibility
@@ -22,4 +26,6 @@ export {
   getMessagesRouter,
   createConversationRouter,
   subscribeMessagesRouter,
+  subscribePresenceRouter,
+  getPresenceRouter,
 };

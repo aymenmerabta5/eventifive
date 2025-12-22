@@ -6,3 +6,4 @@ export { MessageInput } from "./MessageInput";
 export { EmptyState } from "./EmptyState";
 export { TypingIndicator } from "./TypingIndicator";
 export { NewConversationDialog } from "./NewConversationDialog";
+export { OnlineIndicator } from "./OnlineIndicator";

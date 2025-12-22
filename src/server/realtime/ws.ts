@@ -4,9 +4,15 @@ import { onError } from "@orpc/server";
 import { auth } from "../better-auth/config-ws";
 import type { ServerWebSocket } from "bun";
 import type { NextRequest } from "next/server";
+import {
+  setUserOnline,
+  setUserOffline,
+  refreshPresence,
+} from "./presence";
 
 interface WSData {
   headers: Headers;
+  userId?: string;
 }
 
 const rpcHandler = new RPCHandler(appRouter, {
@@ -91,6 +97,12 @@ Bun.serve<WSData>({
         headers: ws.data.headers,
       });
 
+      // Track user presence if authenticated
+      if (session?.user?.id) {
+        ws.data.userId = session.user.id;
+        await setUserOnline(session.user.id);
+      }
+
       await rpcHandler.upgrade(adapter as unknown as WebSocket, {
         context: {
           session: session as Parameters<
@@ -100,17 +112,37 @@ Bun.serve<WSData>({
         },
       });
     },
-    message(ws, message) {
+    async message(ws, message) {
       const adapter = wsAdapters.get(ws);
-      if (adapter) {
-        adapter.emit("message", message);
+      if (!adapter) return;
+
+      // Handle heartbeat messages
+      const messageStr =
+        typeof message === "string" ? message : message.toString();
+
+      try {
+        const parsed = JSON.parse(messageStr);
+        if (parsed.type === "heartbeat" && ws.data.userId) {
+          await refreshPresence(ws.data.userId);
+          ws.send(JSON.stringify({ type: "heartbeat_ack" }));
+          return;
+        }
+      } catch {
+        // Not JSON or not a heartbeat, pass to oRPC
       }
+
+      adapter.emit("message", message);
     },
-    close(ws) {
+    async close(ws) {
       const adapter = wsAdapters.get(ws);
       if (adapter) {
         adapter.emit("close");
         wsAdapters.delete(ws);
+      }
+
+      // Update presence when user disconnects
+      if (ws.data.userId) {
+        await setUserOffline(ws.data.userId);
       }
     },
   },

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, PenSquare } from "lucide-react";
 import { ConversationItem } from "./ConversationItem";
 import { NewConversationDialog } from "./NewConversationDialog";
+import { usePresence } from "../_lib/hooks";
 import type { Conversation } from "../_lib/types";
 
 interface ConversationListProps {
@@ -23,6 +24,15 @@ export function ConversationList({
 }: ConversationListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNewConversationOpen, setIsNewConversationOpen] = useState(false);
+
+  // Get all user IDs for presence tracking
+  const userIds = useMemo(
+    () => conversations.map((c) => c.otherUser.id),
+    [conversations],
+  );
+
+  // Track presence for all conversation users
+  const { isOnline } = usePresence({ userIds });
 
   const filteredConversations = conversations.filter((conversation) =>
     conversation.otherUser.name
@@ -88,6 +98,7 @@ export function ConversationList({
                 key={conversation.id}
                 conversation={conversation}
                 isSelected={selectedId === conversation.id}
+                isOnline={isOnline(conversation.otherUser.id)}
                 onClick={() => onSelect(conversation.id)}
               />
             ))}

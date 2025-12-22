@@ -43,3 +43,15 @@ export interface ConversationWithStatus extends Conversation {
   unreadCount: number;
   isOnline: boolean;
 }
+
+// Presence types
+export interface PresenceState {
+  isOnline: boolean;
+  lastSeenAt: Date | null;
+}
+
+export interface PresenceEvent {
+  userId: string;
+  status: "online" | "offline";
+  lastSeenAt?: Date;
+}

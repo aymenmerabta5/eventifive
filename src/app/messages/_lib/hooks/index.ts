@@ -17,3 +17,11 @@ export { useSendMessage } from "./use-send-message";
 export { useMessageSubscription } from "./use-message-subscription";
 
 export { useCreateConversation } from "./use-create-conversation";
+
+export {
+  usePresence,
+  useUserPresence,
+  PRESENCE_QUERY_KEY,
+} from "./use-presence";
+
+export { useHeartbeat } from "./use-heartbeat";

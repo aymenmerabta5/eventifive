@@ -87,6 +87,7 @@ export const user = pgTable("user", {
   institution: varchar("institution", { length: 100 }),
   researchDomain: varchar("research_domain", { length: 100 }),
   biography: jsonb("biography"),
+  lastSeenAt: timestamp("last_seen_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
