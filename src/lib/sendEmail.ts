@@ -3,8 +3,6 @@
  *   All rights reserved.
  *   Strict Notice: Unauthorized copying, use, or distribution of this code is strictly prohibited. Violators may be prosecuted and reported to law enforcement.
  */
-"use server";
-import "server-only";
 import { env } from "@/env";
 import { Resend } from "resend";
 import { render } from "@react-email/render";

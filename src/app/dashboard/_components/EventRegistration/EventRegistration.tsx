@@ -87,6 +87,7 @@ export function EventRegistration({ eventId }: EventRegistrationProps) {
       />
 
       <RegistrationTabs
+        eventId={eventId}
         participants={participants}
         committeeSubmissions={committeeSubmissions}
         workshopSubmissions={workshopSubmissions}

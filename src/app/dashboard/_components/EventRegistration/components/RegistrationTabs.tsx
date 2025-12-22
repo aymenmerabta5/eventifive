@@ -2,10 +2,11 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, Presentation } from "lucide-react";
+import { Users, FileText, Presentation, Award } from "lucide-react";
 import { ParticipantsTab } from "./ParticipantsTab";
 import { CommitteeTab } from "./CommitteeTab";
 import { WorkshopTab } from "./WorkshopTab";
+import { CertificatesTab } from "./CertificatesTab";
 import type {
   Participant,
   CommitteeSubmission,
@@ -13,6 +14,7 @@ import type {
 } from "../types";
 
 interface RegistrationTabsProps {
+  eventId: string;
   participants: Participant[];
   committeeSubmissions: CommitteeSubmission[];
   workshopSubmissions: WorkshopSubmission[];
@@ -24,6 +26,7 @@ interface RegistrationTabsProps {
 }
 
 export function RegistrationTabs({
+  eventId,
   participants,
   committeeSubmissions,
   workshopSubmissions,
@@ -59,6 +62,10 @@ export function RegistrationTabs({
             {workshopSubmissions.length}
           </Badge>
         </TabsTrigger>
+        <TabsTrigger value="certificates" className="gap-2">
+          <Award className="size-4" />
+          <span className="text-md hidden sm:inline">Certificates</span>
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="participants">
@@ -83,6 +90,10 @@ export function RegistrationTabs({
           onReject={onRejectWorkshop}
           isUpdating={isUpdating}
         />
+      </TabsContent>
+
+      <TabsContent value="certificates">
+        <CertificatesTab eventId={eventId} />
       </TabsContent>
     </Tabs>
   );

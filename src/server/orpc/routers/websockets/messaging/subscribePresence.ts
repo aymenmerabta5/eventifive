@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { protectedProcedure } from "../../../index";
 import { eventIterator } from "@orpc/server";
 import { subscribeToPresence } from "@/server/realtime/presence";
 

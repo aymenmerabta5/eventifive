@@ -136,6 +136,37 @@ export const getSessionSchema = z.object({
 });
 
 // =====================
+// MY SESSIONS SCHEMAS
+// =====================
+
+export const mySessionRoleEnum = z.enum(["chair", "speaker", "committee"]);
+
+export const mySessionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  startAt: z.date(),
+  endAt: z.date(),
+  qaEnabled: z.boolean(),
+  qaModerated: z.boolean(),
+  eventId: z.string(),
+  eventTitle: z.string(),
+  room: z
+    .object({
+      id: z.number(),
+      name: z.string(),
+      location: z.string().nullable(),
+    })
+    .nullable(),
+  role: mySessionRoleEnum,
+  qaUrl: z.string(),
+});
+
+export const mySessionsOutputSchema = z.object({
+  sessions: z.array(mySessionSchema),
+});
+
+// =====================
 // INFERRED TYPES
 // =====================
 
@@ -149,3 +180,6 @@ export type UpdateSessionInput = z.infer<typeof updateSessionSchema>;
 export type DeleteSessionInput = z.infer<typeof deleteSessionSchema>;
 export type ListSessionsInput = z.infer<typeof listSessionsSchema>;
 export type GetSessionInput = z.infer<typeof getSessionSchema>;
+export type MySessionRole = z.infer<typeof mySessionRoleEnum>;
+export type MySession = z.infer<typeof mySessionSchema>;
+export type MySessionsOutput = z.infer<typeof mySessionsOutputSchema>;

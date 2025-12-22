@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { protectedProcedure } from "../../../index";
 import { db } from "@/server/db";
 import { conversations, user, messages } from "@/server/db/schema";
 import { eq, or, desc, and, lt } from "drizzle-orm";

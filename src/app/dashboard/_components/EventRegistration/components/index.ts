@@ -15,3 +15,4 @@ export { CommitteeStatsCards } from "./CommitteeStatsCards";
 export { WorkshopTab } from "./WorkshopTab";
 export { WorkshopSubmissionCard } from "./WorkshopSubmissionCard";
 export { WorkshopStatsCards } from "./WorkshopStatsCards";
+export { CertificatesTab } from "./CertificatesTab";

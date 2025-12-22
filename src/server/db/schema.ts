@@ -75,6 +75,13 @@ export const eventSpeakerStatusEnum = pgEnum("event_speaker_status", [
   "rejected",
 ]);
 
+export const certificateRoleEnum = pgEnum("certificate_role", [
+  "speaker",
+  "committee",
+  "reviewer",
+  "facilitator",
+]);
+
 // ---------------------------
 // USERS, ROLES, AUTH
 // ---------------------------
@@ -437,6 +444,8 @@ export const programSession = pgTable(
       onDelete: "set null",
     }),
     meetingLink: varchar("meeting_link", { length: 500 }),
+    qaEnabled: boolean("qa_enabled").notNull().default(true),
+    qaModerated: boolean("qa_moderated").notNull().default(false),
   },
   (table) => [
     index("program_session_event_id_idx").on(table.eventId),
@@ -689,6 +698,128 @@ export const messages = pgTable(
 );
 
 // ---------------------------
+// SESSION Q&A (Questions & Answers)
+// ---------------------------
+export const sessionQuestions = pgTable(
+  "session_questions",
+  {
+    id: text("id").primaryKey(),
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => programSession.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    isAnonymous: boolean("is_anonymous").notNull().default(false),
+    isApproved: boolean("is_approved").notNull().default(true),
+    isAnswered: boolean("is_answered").notNull().default(false),
+    likeCount: integer("like_count").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("session_questions_session_id_idx").on(table.sessionId),
+    index("session_questions_user_id_idx").on(table.userId),
+    index("session_questions_created_at_idx").on(table.createdAt),
+  ],
+);
+
+export const sessionQuestionLikes = pgTable(
+  "session_question_likes",
+  {
+    id: serial("id").primaryKey(),
+    questionId: text("question_id")
+      .notNull()
+      .references(() => sessionQuestions.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("session_question_likes_question_user_unique").on(
+      table.questionId,
+      table.userId,
+    ),
+    index("session_question_likes_question_id_idx").on(table.questionId),
+  ],
+);
+
+export const sessionQuestionAnswers = pgTable(
+  "session_question_answers",
+  {
+    id: text("id").primaryKey(),
+    questionId: text("question_id")
+      .notNull()
+      .references(() => sessionQuestions.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("session_question_answers_question_id_idx").on(table.questionId),
+  ],
+);
+
+// ---------------------------
+// CERTIFICATES
+// ---------------------------
+export const certificate = pgTable(
+  "certificate",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id")
+      .notNull()
+      .references(() => event.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    // Certificate details
+    role: certificateRoleEnum("role").notNull(),
+    verificationCode: varchar("verification_code", { length: 20 })
+      .unique()
+      .notNull(),
+
+    // Snapshots at issue time (preserved even if user/event changes)
+    recipientName: varchar("recipient_name", { length: 255 }).notNull(),
+    recipientEmail: varchar("recipient_email", { length: 255 }).notNull(),
+    eventTitle: varchar("event_title", { length: 255 }).notNull(),
+    eventType: eventTypeEnum("event_type").notNull(),
+    eventStartDate: timestamp("event_start_date").notNull(),
+    eventEndDate: timestamp("event_end_date").notNull(),
+    eventLocation: varchar("event_location", { length: 255 }),
+
+    // Optional context for speakers/facilitators
+    sessionTitle: varchar("session_title", { length: 255 }),
+    contributionDetails: jsonb("contribution_details"),
+
+    // Timestamps
+    issuedAt: timestamp("issued_at").notNull().defaultNow(),
+    downloadedAt: timestamp("downloaded_at"),
+    revokedAt: timestamp("revoked_at"),
+    revokeReason: varchar("revoke_reason", { length: 255 }),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("certificate_event_user_role_unique").on(
+      table.eventId,
+      table.userId,
+      table.role,
+    ),
+    index("certificate_event_id_idx").on(table.eventId),
+    index("certificate_user_id_idx").on(table.userId),
+    index("certificate_verification_code_idx").on(table.verificationCode),
+  ],
+);
+
+// ---------------------------
 // INFERRED TYPES
 // ---------------------------
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -765,6 +896,20 @@ export type NewProgramSession = InferInsertModel<typeof programSession>;
 export type SessionAssignment = InferSelectModel<typeof sessionAssignment>;
 export type NewSessionAssignment = InferInsertModel<typeof sessionAssignment>;
 
+// Session Q&A types
+export type SessionQuestion = InferSelectModel<typeof sessionQuestions>;
+export type NewSessionQuestion = InferInsertModel<typeof sessionQuestions>;
+
+export type SessionQuestionLike = InferSelectModel<typeof sessionQuestionLikes>;
+export type NewSessionQuestionLike = InferInsertModel<typeof sessionQuestionLikes>;
+
+export type SessionQuestionAnswer = InferSelectModel<typeof sessionQuestionAnswers>;
+export type NewSessionQuestionAnswer = InferInsertModel<typeof sessionQuestionAnswers>;
+
+// Certificate types
+export type Certificate = InferSelectModel<typeof certificate>;
+export type NewCertificate = InferInsertModel<typeof certificate>;
+
 // ---------------------------
 // ENUM VALUE ARRAYS (for use in zod schemas and UI)
 // ---------------------------
@@ -779,6 +924,7 @@ export const paymentStatusValues = paymentStatusEnum.enumValues;
 export const roleValues = rolesEnum.enumValues;
 export const billingPeriodValues = billingPeriodEnum.enumValues;
 export const subscriptionStatusValues = subscriptionStatusEnum.enumValues;
+export const certificateRoleValues = certificateRoleEnum.enumValues;
 
 // Enum types (union types derived from the arrays)
 export type EventType = (typeof eventTypeValues)[number];
@@ -792,3 +938,4 @@ export type PaymentStatus = (typeof paymentStatusValues)[number];
 export type Role = (typeof roleValues)[number];
 export type BillingPeriod = (typeof billingPeriodValues)[number];
 export type SubscriptionStatus = (typeof subscriptionStatusValues)[number];
+export type CertificateRole = (typeof certificateRoleValues)[number];

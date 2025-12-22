@@ -1,31 +1,14 @@
-import { sendMessageRouter } from "./sendMessage";
-import { getConversationsRouter } from "./getConversations";
-import { getMessagesRouter } from "./getMessages";
-import { createConversationRouter } from "./createConversation";
-import { subscribeMessagesRouter } from "./subscribeMessages";
-import { subscribePresenceRouter } from "./subscribePresence";
-import { getPresenceRouter } from "./getPresence";
+import { messagingSystem } from "./messaging";
+import { questionAnswerSystem } from "./question-answer";
 
-export const messagesRouter = {
-  send: sendMessageRouter,
-  listConversations: getConversationsRouter,
-  listMessages: getMessagesRouter,
-  createConversation: createConversationRouter,
-  subscribe: subscribeMessagesRouter,
-  subscribePresence: subscribePresenceRouter,
-  getPresence: getPresenceRouter,
+// Export both systems
+export const websocketsRouter = {
+  messages: messagingSystem,
+  qa: questionAnswerSystem,
 };
 
-// Export with the old name for backwards compatibility
-export const websocketsRouter = messagesRouter;
+// Re-export systems for direct access
+export { messagingSystem, questionAnswerSystem };
 
-// Re-export individual routers for backwards compatibility
-export {
-  sendMessageRouter,
-  getConversationsRouter,
-  getMessagesRouter,
-  createConversationRouter,
-  subscribeMessagesRouter,
-  subscribePresenceRouter,
-  getPresenceRouter,
-};
+// Backwards compatibility - export messagesRouter pointing to messaging system
+export const messagesRouter = messagingSystem;

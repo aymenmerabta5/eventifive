@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { protectedProcedure } from "../../../index";
 import { getPresenceState } from "@/server/realtime/presence";
 
 const inputGetPresenceSchema = z.object({

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { protectedProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
 import { messages, conversations, user } from "@/server/db/schema";

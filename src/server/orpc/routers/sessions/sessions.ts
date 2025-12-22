@@ -12,6 +12,90 @@ import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { env } from "@/env";
+import { sendEmail } from "@/lib/sendEmail";
+import { SessionChairAssignedEmail } from "@/lib/emails/SessionChairAssignedEmail";
+import QRCode from "qrcode";
+
+// Helper function to format date
+const formatSessionDate = (date: Date): string => {
+  return new Date(date).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// Helper function to format time range
+const formatSessionTime = (startAt: Date, endAt: Date): string => {
+  const formatTime = (d: Date) =>
+    new Date(d).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  return `${formatTime(startAt)} - ${formatTime(endAt)}`;
+};
+
+// Helper function to send chair notification email
+async function sendChairNotificationEmail(
+  chairId: string,
+  sessionId: string,
+  sessionTitle: string,
+  eventId: string,
+  eventTitle: string,
+  startAt: Date,
+  endAt: Date,
+  roomName: string | null,
+) {
+  try {
+    // Get chair user info
+    const chairData = await db
+      .select({ name: user.name, email: user.email })
+      .from(user)
+      .where(eq(user.id, chairId))
+      .limit(1);
+
+    if (chairData.length === 0 || !chairData[0]) {
+      console.error("Chair user not found:", chairId);
+      return;
+    }
+
+    const chair = chairData[0];
+    const qaUrl = `${env.BETTER_AUTH_URL}/events/${eventId}/sessions/${sessionId}/qa`;
+
+    // Generate QR code as data URL
+    const qrCodeDataUrl = await QRCode.toDataURL(qaUrl, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+    });
+
+    // Send email (fire and forget)
+    sendEmail(
+      chair.email,
+      `You're the Chair for: ${sessionTitle}`,
+      SessionChairAssignedEmail,
+      {
+        recipientName: chair.name,
+        sessionTitle,
+        eventTitle,
+        sessionDate: formatSessionDate(startAt),
+        sessionTime: formatSessionTime(startAt, endAt),
+        roomName,
+        qaUrl,
+        qrCodeDataUrl,
+      },
+    ).catch((error) => {
+      console.error("Failed to send chair notification email:", error);
+    });
+  } catch (error) {
+    console.error("Error preparing chair notification email:", error);
+  }
+}
 
 // =====================
 // SESSION OUTPUT SCHEMA (shared)
@@ -26,6 +110,8 @@ const sessionSchema = z.object({
   roomId: z.number().nullable(),
   chairId: z.string().nullable(),
   meetingLink: z.string().nullable(),
+  qaEnabled: z.boolean(),
+  qaModerated: z.boolean(),
 });
 
 const sessionWithRelationsSchema = sessionSchema.extend({
@@ -122,6 +208,39 @@ export const createSessionRouter = protectedProcedure
         })
         .returning();
 
+      // Send email notification to chair if assigned
+      if (input.chairId) {
+        // Get room name if roomId is provided
+        let roomName: string | null = null;
+        if (input.roomId) {
+          const roomData = await db
+            .select({ name: room.name })
+            .from(room)
+            .where(eq(room.id, input.roomId))
+            .limit(1);
+          roomName = roomData[0]?.name ?? null;
+        }
+
+        // Get event title
+        const eventTitleData = await db
+          .select({ title: event.title })
+          .from(event)
+          .where(eq(event.id, input.eventId))
+          .limit(1);
+
+        // Send notification (fire and forget - don't block)
+        sendChairNotificationEmail(
+          input.chairId,
+          sessionId,
+          input.title,
+          input.eventId,
+          eventTitleData[0]?.title ?? "Event",
+          sessionStart,
+          sessionEnd,
+          roomName,
+        );
+      }
+
       return {
         status: "success" as const,
         message: "Session created successfully",
@@ -214,6 +333,47 @@ export const updateSessionRouter = protectedProcedure
         .set(updateData)
         .where(eq(programSession.id, input.sessionId))
         .returning();
+
+      // Send email notification if chair was changed to a new person
+      const oldChairId = sessionRow.session.chairId;
+      const newChairId = input.chairId;
+
+      if (
+        newChairId !== undefined &&
+        newChairId !== null &&
+        newChairId !== oldChairId
+      ) {
+        // Get room name
+        let roomName: string | null = null;
+        const finalRoomId = input.roomId ?? sessionRow.session.roomId;
+        if (finalRoomId) {
+          const roomData = await db
+            .select({ name: room.name })
+            .from(room)
+            .where(eq(room.id, finalRoomId))
+            .limit(1);
+          roomName = roomData[0]?.name ?? null;
+        }
+
+        // Get event title
+        const eventTitleData = await db
+          .select({ title: event.title })
+          .from(event)
+          .where(eq(event.id, sessionRow.session.eventId))
+          .limit(1);
+
+        // Send notification (fire and forget)
+        sendChairNotificationEmail(
+          newChairId,
+          input.sessionId,
+          input.title ?? sessionRow.session.title,
+          sessionRow.session.eventId,
+          eventTitleData[0]?.title ?? "Event",
+          newStartAt,
+          newEndAt,
+          roomName,
+        );
+      }
 
       return {
         status: "success" as const,
@@ -310,6 +470,8 @@ export const listSessionsRouter = publicProcedure
           roomId: programSession.roomId,
           chairId: programSession.chairId,
           meetingLink: programSession.meetingLink,
+          qaEnabled: programSession.qaEnabled,
+          qaModerated: programSession.qaModerated,
           room: {
             id: room.id,
             name: room.name,
@@ -369,6 +531,8 @@ export const getSessionRouter = publicProcedure
           roomId: programSession.roomId,
           chairId: programSession.chairId,
           meetingLink: programSession.meetingLink,
+          qaEnabled: programSession.qaEnabled,
+          qaModerated: programSession.qaModerated,
           room: {
             id: room.id,
             name: room.name,
@@ -404,6 +568,8 @@ export const getSessionRouter = publicProcedure
           roomId: s.roomId,
           chairId: s.chairId,
           meetingLink: s.meetingLink,
+          qaEnabled: s.qaEnabled,
+          qaModerated: s.qaModerated,
           room: s.room?.id ? s.room : null,
           chair: s.chair?.id ? s.chair : null,
         },

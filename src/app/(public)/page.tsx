@@ -6,7 +6,6 @@ import WhoWeAre from "./_components/WhoWeAre";
 import About from "./_components/About";
 import Platform from "./_components/Platform";
 import GradientTransition from "./_components/GradientTransition";
-import Loader from "@/components/loader";
 import HomePageSkeleton from "./_components/HomePageSkeleton";
 
 export default function Home() {
