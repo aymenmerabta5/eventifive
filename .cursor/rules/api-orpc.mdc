@@ -77,9 +77,9 @@ events.get             // Get event by ID
 events.list            // List events with filters
 events.update          // Update event details
 
-// Invite system endpoints
-events.inviteSpeaker   // Invite speaker (max 1 per event)
-events.inviteReviewer  // Invite reviewer (max 3 per event)
+// Invite system endpoints (all unlimited per event, one invite per user)
+events.inviteSpeaker   // Invite speaker (unlimited per event)
+events.inviteReviewer  // Invite reviewer (unlimited per event)
 events.inviteCommittee // Invite committee member (unlimited)
 events.acceptSpeaker   // Accept speaker invite
 events.rejectSpeaker   // Reject speaker invite
@@ -114,10 +114,14 @@ subscription.syncPlans  // Sync plans with Chargily
 
 ### Sessions Router (`src/server/orpc/routers/sessions/`)
 ```typescript
-sessions.createRoom, sessions.updateRoom, sessions.deleteRoom
-sessions.listRooms, sessions.createSession, sessions.updateSession
+// Room management
+sessions.createRoom, sessions.updateRoom, sessions.deleteRoom, sessions.listRooms
+
+// Session management (with chairId, qaEnabled, qaModerated fields)
+sessions.createSession   // Create session with optional chair assignment
+sessions.updateSession   // Update session (sends email to new chair)
 sessions.deleteSession, sessions.listSessions, sessions.getSession
-sessions.mySessions  // Sessions where user is speaker/chair
+sessions.mySessions      // Sessions where user is chair
 ```
 
 ### Admin Router (`src/server/orpc/routers/admin/`)

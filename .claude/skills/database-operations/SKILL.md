@@ -241,11 +241,29 @@ user: {
 }
 ```
 
-### Program Session Updates
+### Program Session Fields
 ```typescript
 programSession: {
-  // ... existing fields
-  qaEnabled: boolean    // Enable Q&A for session
-  qaModerated: boolean  // Require approval for questions
+  id: text,
+  eventId: text,
+  title: varchar(255),
+  description: text,
+  startAt: timestamp,
+  endAt: timestamp,
+  roomId: integer,        // FK to room table
+  chairId: text,          // FK to user table (session moderator)
+  meetingLink: varchar(500),
+  qaEnabled: boolean,     // Enable Q&A for session (default: true)
+  qaModerated: boolean,   // Require approval for questions (default: false)
+}
+```
+
+### Session Assignment (Speakers via Submissions)
+```typescript
+sessionAssignment: {
+  id: serial,
+  sessionId: text,        // FK to programSession
+  submissionId: text,     // FK to submission (speakers are submission authors)
+  displayOrder: integer,  // Order of presentations
 }
 ```

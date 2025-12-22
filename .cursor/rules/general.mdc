@@ -28,7 +28,7 @@ To understand the structure of the project well you can visit CLAUDE.md
 
 ## Project Overview
 
-Eventifive is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, subscriptions, real-time messaging, and program/session management.
+Eventifive is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, subscriptions, real-time messaging, program/session management, certificates, and session Q&A.
 
 ## Tech Stack
 

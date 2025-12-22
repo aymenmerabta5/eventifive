@@ -132,48 +132,76 @@ export const eventTypeEnum = pgEnum("event_type", [
 
 ```typescript
 // TEACHING: Invites use separate tables for speakers, reviewers, and committee
-// Each has different constraints (speakers: max 1, reviewers: max 3, committee: unlimited)
+// All are unlimited per event, but one user can only be invited once per event
 
-// Speaker invitations (max 1 per event)
+// Speaker invitations (unlimited per event, unique per user)
 export const eventSpeakers = pgTable("event_speakers", {
+  id: serial("id").primaryKey(),
   eventId: text("event_id").references(() => event.id),
-  speakerId: text("speaker_id").references(() => user.id),
+  userId: text("user_id").references(() => user.id),
+  affiliation: varchar("affiliation", { length: 255 }),
   status: eventSpeakerStatusEnum("status").default("pending"),
-});
+  invitedAt: timestamp("invited_at").defaultNow(),
+  respondedAt: timestamp("responded_at"),
+}, (table) => [
+  unique("event_speakers_event_user_unique").on(table.eventId, table.userId),
+]);
 
-// Reviewer invitations (max 3 per event)
+// Reviewer invitations (unlimited per event, unique per user)
 export const eventReviewers = pgTable("event_reviewers", {
+  id: serial("id").primaryKey(),
   eventId: text("event_id").references(() => event.id),
-  reviewerId: text("reviewer_id").references(() => user.id),
+  userId: text("user_id").references(() => user.id),
   status: eventSpeakerStatusEnum("status").default("pending"),
-});
+  invitedAt: timestamp("invited_at").defaultNow(),
+  respondedAt: timestamp("responded_at"),
+}, (table) => [
+  unique("event_reviewers_event_user_unique").on(table.eventId, table.userId),
+]);
 
 // Committee members (unlimited)
 export const eventCommittee = pgTable("event_committee", {
   eventId: text("event_id").references(() => event.id),
-  committeeId: text("committee_id").references(() => user.id),
+  userId: text("user_id").references(() => user.id),
 });
 ```
 
 ## Calendar/Schedule Tables
 
 ```typescript
-// TEACHING: Program sessions for event scheduling
+// TEACHING: Program sessions for event scheduling with chair and Q&A support
 export const programSession = pgTable("program_session", {
   id: text("id").primaryKey(),
   eventId: text("event_id").references(() => event.id),
   title: varchar("title", { length: 255 }),
-  startTime: timestamp("start_time"),
-  endTime: timestamp("end_time"),
-  roomId: text("room_id").references(() => room.id),
+  description: text("description"),
+  startAt: timestamp("start_at"),
+  endAt: timestamp("end_at"),
+  roomId: integer("room_id").references(() => room.id),
+  chairId: text("chair_id").references(() => user.id),  // Session moderator
+  meetingLink: varchar("meeting_link", { length: 500 }),
+  qaEnabled: boolean("qa_enabled").default(true),       // Enable Q&A
+  qaModerated: boolean("qa_moderated").default(false),  // Require approval
 });
 
+// TEACHING: Rooms belong to events, have capacity for scheduling
 export const room = pgTable("room", {
-  id: text("id").primaryKey(),
+  id: serial("id").primaryKey(),
   eventId: text("event_id").references(() => event.id),
   name: varchar("name", { length: 100 }),
   capacity: integer("capacity"),
+  location: varchar("location", { length: 255 }),
 });
+
+// TEACHING: Session assignments link sessions to submissions (speakers are submission authors)
+export const sessionAssignment = pgTable("session_assignment", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").references(() => programSession.id, { onDelete: "cascade" }),
+  submissionId: text("submission_id").references(() => submission.id, { onDelete: "cascade" }),
+  displayOrder: integer("display_order"),
+}, (table) => [
+  unique("session_assignment_session_submission_unique").on(table.sessionId, table.submissionId),
+]);
 ```
 
 ## Currency Handling
@@ -286,11 +314,12 @@ export const certificate = pgTable("certificate", {
 
 ```typescript
 // TEACHING: Sessions can enable/disable Q&A and moderation
-export const programSession = pgTable("program_session", {
-  // ... existing fields
-  qaEnabled: boolean("qa_enabled").notNull().default(true),   // Enable Q&A
-  qaModerated: boolean("qa_moderated").notNull().default(false), // Require approval
-});
+// qaEnabled: When true, attendees can ask questions during the session
+// qaModerated: When true, questions require chair/organizer approval before appearing
+
+// Chair receives email notification with Q&A link and QR code when assigned
+// Q&A page: src/app/(public)/events/[eventId]/sessions/[sessionId]/qa/
+// Real-time updates via WebSocket (port 8081) + Redis pub/sub
 ```
 
 ## User Presence Field

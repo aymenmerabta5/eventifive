@@ -68,8 +68,8 @@ eventTypeEnum: "congress" | "seminar" | "workshop" | "scientific_meeting" | "con
 ## Invite System
 
 ### Constraints
-- **Speakers**: Max 1 per event
-- **Reviewers**: Max 3 per event
+- **Speakers**: Unlimited per event (one user can only be invited once per event)
+- **Reviewers**: Unlimited per event (one user can only be invited once per event)
 - **Committee**: Unlimited
 
 ### Status Flow
@@ -105,6 +105,11 @@ events.listInvites({ eventId })  // Event's sent invites
 
 ## Program Sessions & Rooms
 
+### Session Structure
+- **Chair**: The session moderator/facilitator (one per session)
+- **Speakers**: Come from submissions assigned to the session via `sessionAssignment`
+- **Q&A Settings**: `qaEnabled` and `qaModerated` flags control Q&A behavior
+
 ### Creating a Room
 ```typescript
 await client.sessions.createRoom({
@@ -119,16 +124,17 @@ await client.sessions.createRoom({
 await client.sessions.createSession({
   eventId,
   title: "Opening Keynote",
-  startTime: new Date("2025-06-15T09:00:00"),
-  endTime: new Date("2025-06-15T10:00:00"),
-  roomId: "room-id",
+  startAt: new Date("2025-06-15T09:00:00"),
+  endAt: new Date("2025-06-15T10:00:00"),
+  roomId: 1,  // Room ID (integer)
+  chairId: "user-id",  // Optional chair assignment
+  meetingLink: "https://...",  // Optional online meeting link
 });
 ```
 
-### Assigning Speakers
-```typescript
-await client.sessions.assignSpeaker({ sessionId, speakerId });
-```
+### Session Chair vs Speakers
+- **Chair**: Assigned directly to session (`chairId` field), receives email notification with Q&A link and QR code
+- **Speakers**: Authors of submissions assigned to session via `sessionAssignment` table
 
 ### Calendar Components
 - `CalendarView` - Main calendar display
@@ -241,13 +247,13 @@ certificates.revoke({ certificateId, reason })
 
 ---
 
-## Session Q&A System
+## Session Q&A System (Real-time)
 
 ### Session Q&A Settings
 ```typescript
 // On programSession table
-qaEnabled: boolean   // Enable/disable Q&A
-qaModerated: boolean // Require approval for questions
+qaEnabled: boolean   // Enable/disable Q&A (default: true)
+qaModerated: boolean // Require approval for questions (default: false)
 ```
 
 ### Q&A Endpoints
@@ -269,18 +275,22 @@ qa.approve({ questionId })
 qa.delete({ questionId })
 
 // Real-time subscription
-qa.subscribe({ sessionId })  // WebSocket subscription
+qa.subscribe({ sessionId })  // WebSocket subscription via Redis pub/sub
 ```
 
 ### Q&A Tables
-- `sessionQuestions` - Questions with content, anonymous flag, approval status
-- `sessionQuestionLikes` - Like tracking (one per user)
+- `sessionQuestions` - Questions with content, anonymous flag, approval status, like count
+- `sessionQuestionLikes` - Like tracking (one per user per question)
 - `sessionQuestionAnswers` - Answers from chairs/organizers
 
-### Real-time Features
-- Questions appear in real-time via WebSocket
-- Like counts update live
-- Moderation status updates live
+### Real-time Implementation
+- **WebSocket Server**: Bun native WebSocket on port 8081
+- **Redis Pub/Sub**: Used for cross-process message broadcasting
+- Questions, likes, answers, and approvals broadcast in real-time
+- Uses `useQaSubscription` hook on client for subscription management
+
+### Q&A Page Location
+`src/app/(public)/events/[eventId]/sessions/[sessionId]/qa/`
 
 ---
 
