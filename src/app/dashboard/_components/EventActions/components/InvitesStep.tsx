@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Link2, Trash2, UserPlus, Users } from "lucide-react";
-import { MAX_SPEAKERS, REQUIRED_REVIEWERS } from "../constants";
+import { Trash2, UserPlus, Users } from "lucide-react";
+import { REQUIRED_REVIEWERS } from "../constants";
 import { getStatusBadgeVariant } from "../utils";
 import type { InvitesData } from "../types";
 import type { UseMutationResult } from "@tanstack/react-query";
@@ -79,7 +79,7 @@ export function InvitesStep({
     setReviewerEmail("");
   };
 
-  const hasSpeaker = !!invitesData?.speaker;
+  const speakerCount = invitesData?.speakers.length ?? 0;
   const reviewerCount = invitesData?.reviewers.length ?? 0;
   const canAddReviewer = reviewerCount < REQUIRED_REVIEWERS;
 
@@ -91,63 +91,64 @@ export function InvitesStep({
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Speaker Section */}
+        {/* Speakers Section */}
         <div className="rounded-lg border p-4">
           <div className="flex items-center gap-2 text-sm font-medium">
             <UserPlus className="size-4" />
-            Speaker ({hasSpeaker ? 1 : 0}/{MAX_SPEAKERS})
+            Speakers ({speakerCount})
           </div>
           <div className="text-muted-foreground mt-1 text-xs">
-            Invite one speaker for your event. They must accept the invitation.
+            Invite speakers for your event. At least one must accept the
+            invitation.
           </div>
 
-          {hasSpeaker && invitesData?.speaker ? (
-            <div className="mt-4 rounded-md border p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <div className="text-sm font-medium">
-                    {invitesData.speaker.userName ||
-                      invitesData.speaker.userEmail}
+          <div className="mt-4 space-y-3">
+            {invitesData?.speakers.map((speaker) => (
+              <div key={speaker.id} className="rounded-md border p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="text-sm font-medium">
+                      {speaker.userName || speaker.userEmail}
+                    </div>
+                    {speaker.userName && (
+                      <div className="text-muted-foreground text-xs">
+                        {speaker.userEmail}
+                      </div>
+                    )}
+                    {speaker.affiliation && (
+                      <div className="text-muted-foreground text-xs">
+                        {speaker.affiliation}
+                      </div>
+                    )}
                   </div>
-                  {invitesData.speaker.userName && (
-                    <div className="text-muted-foreground text-xs">
-                      {invitesData.speaker.userEmail}
-                    </div>
-                  )}
-                  {invitesData.speaker.affiliation && (
-                    <div className="text-muted-foreground text-xs">
-                      {invitesData.speaker.affiliation}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={getStatusBadgeVariant(invitesData.speaker.status)}
-                  >
-                    {invitesData.speaker.status}
-                  </Badge>
-                  {invitesData.speaker.status !== "accepted" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() =>
-                        removeSpeakerMutation.mutate({
-                          eventId,
-                          inviteId: invitesData.speaker!.id,
-                        })
-                      }
-                      disabled={removeSpeakerMutation.isPending}
-                    >
-                      <Trash2 className="text-destructive size-4" />
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getStatusBadgeVariant(speaker.status)}>
+                      {speaker.status}
+                    </Badge>
+                    {speaker.status !== "accepted" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          removeSpeakerMutation.mutate({
+                            eventId,
+                            inviteId: speaker.id,
+                          })
+                        }
+                        disabled={removeSpeakerMutation.isPending}
+                      >
+                        <Trash2 className="text-destructive size-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="mt-4 space-y-3">
+            ))}
+
+            {/* Add Speaker Form - always visible */}
+            <div className="space-y-2 pt-2">
+              <Label>Add Speaker</Label>
               <div className="space-y-2">
-                <Label>Email</Label>
                 <Input
                   placeholder="speaker@email.com"
                   type="email"
@@ -155,25 +156,22 @@ export function InvitesStep({
                   onChange={(e) => setSpeakerEmail(e.target.value)}
                   disabled={inviteSpeakerMutation.isPending}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label>Affiliation (optional)</Label>
                 <Input
-                  placeholder="University / Company"
+                  placeholder="Affiliation (optional)"
                   value={speakerAffiliation}
                   onChange={(e) => setSpeakerAffiliation(e.target.value)}
                   disabled={inviteSpeakerMutation.isPending}
                 />
+                <Button
+                  className="w-full"
+                  onClick={handleInviteSpeaker}
+                  disabled={inviteSpeakerMutation.isPending}
+                >
+                  Invite Speaker
+                </Button>
               </div>
-              <Button
-                className="w-full"
-                onClick={handleInviteSpeaker}
-                disabled={inviteSpeakerMutation.isPending}
-              >
-                Invite Speaker
-              </Button>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Reviewers Section */}

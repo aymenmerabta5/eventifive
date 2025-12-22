@@ -18,6 +18,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { QA_QUERY_KEY } from "../_lib";
+
+type AnswerRole = "organizer" | "chair" | "committee" | "speaker";
 
 interface Answer {
   id: string;
@@ -25,8 +28,28 @@ interface Answer {
   userName: string;
   userImage: string | null;
   content: string;
+  role: AnswerRole;
   createdAt: Date;
 }
+
+const roleBadgeConfig: Record<AnswerRole, { label: string; className: string }> = {
+  organizer: {
+    label: "Organizer",
+    className: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+  },
+  chair: {
+    label: "Chair",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  },
+  committee: {
+    label: "Committee",
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+  },
+  speaker: {
+    label: "Speaker",
+    className: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+  },
+};
 
 interface Question {
   id: string;
@@ -73,9 +96,9 @@ export function QuestionCard({
   const queryClient = useQueryClient();
 
   const likeMutation = useMutation({
-    mutationFn: () => orpc.qa.like.call({ questionId: question.id }),
+    mutationFn: () => orpc.websocketsRouter.qa.like.call({ questionId: question.id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["qa", "list"] });
+      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to like question");
@@ -84,11 +107,11 @@ export function QuestionCard({
 
   const answerMutation = useMutation({
     mutationFn: (content: string) =>
-      orpc.qa.answer.call({ questionId: question.id, content }),
+      orpc.websocketsRouter.qa.answer.call({ questionId: question.id, content }),
     onSuccess: () => {
       setAnswerContent("");
       setShowAnswerForm(false);
-      queryClient.invalidateQueries({ queryKey: ["qa", "list"] });
+      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
       toast.success("Answer submitted!");
     },
     onError: (error: Error) => {
@@ -97,9 +120,9 @@ export function QuestionCard({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => orpc.qa.delete.call({ questionId: question.id }),
+    mutationFn: () => orpc.websocketsRouter.qa.delete.call({ questionId: question.id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["qa", "list"] });
+      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
       toast.success("Question deleted");
     },
     onError: (error: Error) => {
@@ -109,9 +132,9 @@ export function QuestionCard({
 
   const approveMutation = useMutation({
     mutationFn: (approved: boolean) =>
-      orpc.qa.approve.call({ questionId: question.id, approved }),
+      orpc.websocketsRouter.qa.approve.call({ questionId: question.id, approved }),
     onSuccess: (_, approved) => {
-      queryClient.invalidateQueries({ queryKey: ["qa", "list"] });
+      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
       toast.success(approved ? "Question approved" : "Question rejected");
     },
     onError: (error: Error) => {
@@ -135,9 +158,11 @@ export function QuestionCard({
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={question.userImage ?? undefined} />
-            <AvatarFallback>
-              {question.userName.charAt(0).toUpperCase()}
+            {!question.isAnonymous && question.userImage && (
+              <AvatarImage src={question.userImage} />
+            )}
+            <AvatarFallback className={question.isAnonymous ? "bg-muted text-muted-foreground" : ""}>
+              {question.isAnonymous ? "A" : question.userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -172,28 +197,31 @@ export function QuestionCard({
       {/* Answers */}
       {question.answers.length > 0 && (
         <div className="border-primary/20 bg-primary/5 mb-4 space-y-3 rounded-lg border-l-4 p-3">
-          {question.answers.map((answer) => (
-            <div key={answer.id} className="flex gap-3">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={answer.userImage ?? undefined} />
-                <AvatarFallback>
-                  {answer.userName.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{answer.userName}</span>
-                  <Badge variant="outline" className="text-xs">
-                    Moderator
-                  </Badge>
-                  <span className="text-muted-foreground text-xs">
-                    {formatRelativeTime(answer.createdAt)}
-                  </span>
+          {question.answers.map((answer) => {
+            const badgeConfig = roleBadgeConfig[answer.role];
+            return (
+              <div key={answer.id} className="flex gap-3">
+                <Avatar className="h-6 w-6">
+                  {answer.userImage && <AvatarImage src={answer.userImage} />}
+                  <AvatarFallback>
+                    {answer.userName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{answer.userName}</span>
+                    <Badge variant="secondary" className={cn("text-xs", badgeConfig.className)}>
+                      {badgeConfig.label}
+                    </Badge>
+                    <span className="text-muted-foreground text-xs">
+                      {formatRelativeTime(answer.createdAt)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm whitespace-pre-wrap">{answer.content}</p>
                 </div>
-                <p className="mt-1 text-sm whitespace-pre-wrap">{answer.content}</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

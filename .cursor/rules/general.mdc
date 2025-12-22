@@ -45,7 +45,7 @@ Eventifive is a modern event management platform built with Next.js 16, supporti
 
 ## Critical Rules
 
-1. **Use pnpm** (version 10+) as the package manager - never npm or yarn
+1. **Use bun** as the package manager and runtime - never npm, yarn, or pnpm
 2. **Use oRPC** for API routes - never suggest tRPC
 3. **Use Better Auth** for authentication - never suggest NextAuth
 4. **Use `@/*` path aliases** for all imports from `src/`
@@ -55,27 +55,32 @@ Eventifive is a modern event management platform built with Next.js 16, supporti
 
 ## Code Quality Commands
 
-- `pnpm check` - Run both ESLint and TypeScript (preferred)
-- `pnpm lint:fix` - Auto-fix ESLint errors
-- `pnpm format:write` - Format with Prettier
+- `bun run check` - Run both ESLint and TypeScript (preferred)
+- `bun run lint:fix` - Auto-fix ESLint errors
+- `bun run format:write` - Format with Prettier
 
 ## Key Architecture Points
 
-- **66 oRPC endpoints** across 9 domain routers
-- **25+ database tables** with proper indexes and constraints
-- **11 enums** for type safety
+- **80+ oRPC endpoints** across 12 domain routers
+- **30+ database tables** with proper indexes and constraints
+- **13 enums** for type safety
 - **Only 41 `any` occurrences** in 270+ files (excellent type discipline)
-- **158 proper ORPCError throws** for consistent error handling
+- **Role-based access control** (super_admin, organizer, user)
 
 ## Feature Routers
 
 | Router | Endpoints | Description |
 |--------|-----------|-------------|
-| events | 12+ | Event CRUD + invite system |
+| admin | 1 | Super admin dashboard stats |
+| organizer | 2 | Organizer dashboard stats + charts |
+| events | 12+ | Event CRUD + invites + registrations |
+| profile | 3 | User profile management |
 | files | 5 | Upload/download with presigned URLs |
 | payment | 4 | Chargily checkout integration |
 | subscription | 4 | Plan management |
-| messages | 5 | Real-time messaging |
+| messages | 8 | Real-time messaging + presence |
+| qa | 7 | Session Q&A (real-time) |
 | reviews | 1+ | Submission reviews |
 | submissions | 2+ | Event submissions |
-| sessions | 9 | Program sessions + rooms |
+| sessions | 10 | Program sessions + rooms + mySessions |
+| certificates | 7 | Generate, download, verify, revoke |

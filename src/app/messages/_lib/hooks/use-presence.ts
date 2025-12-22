@@ -37,7 +37,7 @@ export function usePresence({ userIds, enabled = true }: UsePresenceOptions) {
     queryKey: PRESENCE_QUERY_KEY(userIds),
     queryFn: async () => {
       if (userIds.length === 0) return {};
-      return client.messages.getPresence({ userIds });
+      return client.websocketsRouter.messages.getPresence({ userIds });
     },
     enabled: enabled && userIds.length > 0,
     staleTime: 30 * 1000, // 30 seconds
@@ -79,7 +79,7 @@ export function usePresence({ userIds, enabled = true }: UsePresenceOptions) {
 
     const subscribe = async () => {
       try {
-        const subscription = await client.messages.subscribePresence({
+        const subscription = await client.websocketsRouter.messages.subscribePresence({
           userIds,
         });
 

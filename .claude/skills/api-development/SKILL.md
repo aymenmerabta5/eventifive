@@ -50,6 +50,7 @@ Present the plan and wait for explicit approval before any implementation.
 ### Procedures
 - `publicProcedure` - No auth required
 - `protectedProcedure` - Requires authenticated session
+- `adminProcedure` - Requires super_admin role (extends protectedProcedure)
 
 ---
 
@@ -85,6 +86,24 @@ export const listRouter = publicProcedure
   .output(z.array(itemSchema))
   .handler(async () => {
     return await db.select().from(items);
+  });
+```
+
+### Creating an Admin Endpoint
+```typescript
+import { adminProcedure } from "../index";
+import { z } from "zod";
+
+export const adminStatsRouter = adminProcedure
+  .route({ method: "GET", path: "/admin/stats" })
+  .output(z.object({
+    totalUsers: z.number(),
+    totalEvents: z.number(),
+  }))
+  .handler(async ({ context }) => {
+    // Only super_admin can access this
+    // Implementation
+    return { totalUsers: 100, totalEvents: 50 };
   });
 ```
 
@@ -165,18 +184,23 @@ z.array(z.string())         // Array of strings
 
 ---
 
-## Existing Routers (66 endpoints)
+## Existing Routers (80+ endpoints)
 
 | Router | Path | Purpose |
 |--------|------|---------|
-| events | `/events/*` | Event CRUD, invites |
+| admin | `/admin/*` | Super admin dashboard stats |
+| organizer | `/organizer/*` | Organizer dashboard stats + charts |
+| events | `/events/*` | Event CRUD, invites, registrations, myEvents, myRegistrations |
+| profile | `/profile/*` | User profile management |
 | files | `/files/*` | Upload/download/delete |
 | payment | `/payment/*` | Checkout, status |
 | subscription | `/subscription/*` | Plans, current |
-| messages | `/messages/*` | Real-time messaging |
+| messages | `/messages/*` | Real-time messaging + presence |
+| qa | `/qa/*` | Session Q&A (ask, like, answer, approve, subscribe) |
 | reviews | `/reviews/*` | Submission reviews |
 | submissions | `/submissions/*` | Event submissions |
-| sessions | `/sessions/*` | Program sessions, rooms |
+| sessions | `/sessions/*` | Program sessions, rooms, mySessions |
+| certificates | `/certificates/*` | Generate, download, verify, revoke |
 
 ---
 

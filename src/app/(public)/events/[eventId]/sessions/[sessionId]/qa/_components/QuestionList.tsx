@@ -9,6 +9,7 @@ interface Answer {
   userName: string;
   userImage: string | null;
   content: string;
+  role: "organizer" | "chair" | "committee" | "speaker";
   createdAt: Date;
 }
 

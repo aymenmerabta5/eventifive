@@ -19,7 +19,7 @@ async function runDev() {
   });
 
   const nextProcess = spawn({
-    cmd: ["bun", "--bun", "next", "dev", "--turbo"],
+    cmd: ["bun", "--bun", "next", "dev"],
     stdout: "pipe",
     stderr: "pipe",
   });

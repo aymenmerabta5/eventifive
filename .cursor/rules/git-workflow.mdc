@@ -86,7 +86,7 @@ git commit -m "fix(header): correct mobile menu alignment"
 
 ```bash
 # TEACHING: Always verify before pushing
-pnpm check          # Lint + TypeScript
+bun run check       # Lint + TypeScript
 git diff --staged   # Review your changes
 git log --oneline -5 # Check recent commits make sense
 ```

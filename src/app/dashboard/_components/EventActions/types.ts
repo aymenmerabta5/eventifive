@@ -58,15 +58,15 @@ export interface EventFormCardProps {
 }
 
 export interface EventReadiness {
-  hasSpeaker: boolean;
-  speakerAccepted: boolean;
+  speakerCount: number;
+  speakersAccepted: number;
   reviewerCount: number;
   reviewersAccepted: number;
   isReady: boolean;
 }
 
 export interface InvitesData {
-  speaker: SpeakerInvite | null;
+  speakers: SpeakerInvite[];
   reviewers: ReviewerInvite[];
   committee: CommitteeMember[];
 }

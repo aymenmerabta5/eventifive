@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { event, eventImages, files, eventTypeValues } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { eq, desc, asc, and, sql } from "drizzle-orm";
+import { eq, desc, asc, and, sql, gt } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 // TEACHING: We add imageUrl to the output schema
@@ -34,6 +34,7 @@ const inputSchema = z.object({
     .enum(["newest", "oldest", "title_asc", "title_desc"])
     .optional()
     .default("newest"),
+  status: z.enum(["upcoming", "all"]).optional().default("upcoming"),
 });
 
 const outputSchema = z.object({
@@ -48,11 +49,17 @@ export const listEventsByTypeRouter = publicProcedure
   .output(outputSchema)
   .handler(async ({ input }) => {
     try {
-      const { eventType, page, limit, search, sortBy } = input;
+      const { eventType, page, limit, search, sortBy, status } = input;
       const offset = page * limit;
 
       // Build where conditions
       const conditions = [eq(event.type, eventType)];
+
+      // Filter by status (default to upcoming only)
+      if (status === "upcoming") {
+        const now = new Date();
+        conditions.push(gt(event.startDate, now));
+      }
 
       if (search && search.trim()) {
         const searchTerm = `%${search.trim()}%`;

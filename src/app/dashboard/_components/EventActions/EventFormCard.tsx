@@ -205,7 +205,7 @@ export function EventFormCard({
   // Transform invites data to match expected types
   const invitesData: InvitesData | undefined = invitesQuery.data
     ? {
-        speaker: invitesQuery.data.speaker,
+        speakers: invitesQuery.data.speakers,
         reviewers: invitesQuery.data.reviewers,
         committee: invitesQuery.data.committee,
       }
@@ -215,15 +215,17 @@ export function EventFormCard({
   const chairOptions = useMemo((): ChairOption[] => {
     const options: ChairOption[] = [];
 
-    // Add accepted speaker
-    if (invitesData?.speaker?.status === "accepted") {
-      options.push({
-        id: invitesData.speaker.userId,
-        name: invitesData.speaker.userName || invitesData.speaker.userEmail,
-        email: invitesData.speaker.userEmail,
-        image: null,
+    // Add accepted speakers
+    invitesData?.speakers
+      .filter((speaker) => speaker.status === "accepted")
+      .forEach((speaker) => {
+        options.push({
+          id: speaker.userId,
+          name: speaker.userName || speaker.userEmail,
+          email: speaker.userEmail,
+          image: null,
+        });
       });
-    }
 
     // Add committee members
     invitesData?.committee.forEach((member) => {

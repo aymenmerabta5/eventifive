@@ -10,7 +10,7 @@ export function useCreateConversation() {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      const response = await client.messages.createConversation({
+      const response = await client.websocketsRouter.messages.createConversation({
         userId,
       });
       return response;

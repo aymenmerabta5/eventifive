@@ -180,8 +180,7 @@ export const createSessionRouter = protectedProcedure
     const sessionEnd = new Date(input.endAt);
     const eventStart = new Date(eventRow.startDate);
     const eventEnd = new Date(eventRow.endDate);
-
-    // Set event end to end of day for comparison
+    eventStart.setHours(8, 0, 0, 0);
     eventEnd.setHours(23, 59, 59, 999);
 
     if (sessionStart < eventStart || sessionEnd > eventEnd) {
@@ -307,6 +306,8 @@ export const updateSessionRouter = protectedProcedure
       : sessionRow.session.endAt;
     const eventStart = new Date(sessionRow.eventStartDate);
     const eventEnd = new Date(sessionRow.eventEndDate);
+    // Normalize to full day range: start of first day to end of last day
+    eventStart.setHours(8, 0, 0, 0);
     eventEnd.setHours(23, 59, 59, 999);
 
     if (newStartAt < eventStart || newEndAt > eventEnd) {

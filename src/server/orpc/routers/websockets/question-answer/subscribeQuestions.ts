@@ -44,6 +44,7 @@ const answerEventSchema = z.object({
     userName: z.string(),
     userImage: z.string().nullable(),
     content: z.string(),
+    role: z.enum(["organizer", "chair", "committee", "speaker"]),
     createdAt: z.date(),
   }),
 });

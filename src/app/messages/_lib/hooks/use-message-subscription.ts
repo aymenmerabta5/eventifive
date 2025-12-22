@@ -93,7 +93,7 @@ export function useMessageSubscription({
 
     const subscribe = async () => {
       try {
-        const subscription = await client.messages.subscribe({
+        const subscription = await client.websocketsRouter.messages.subscribe({
           conversationId,
         });
 

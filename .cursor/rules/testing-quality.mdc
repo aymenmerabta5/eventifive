@@ -32,17 +32,17 @@ The codebase already has excellent type safety (only 41 `any` in 270+ files) whi
 
 ```bash
 # Run these before committing
-pnpm check        # ESLint + TypeScript - catches most issues
-pnpm lint:fix     # Auto-fix ESLint errors
-pnpm format:write # Format with Prettier
-pnpm typecheck    # TypeScript only
+bun run check        # ESLint + TypeScript - catches most issues
+bun run lint:fix     # Auto-fix ESLint errors
+bun run format:write # Format with Prettier
+bun run typecheck    # TypeScript only
 ```
 
 ## Pre-Commit Checklist
 
-1. **No TypeScript errors** - `pnpm typecheck`
-2. **No ESLint errors** - `pnpm lint`
-3. **Code is formatted** - `pnpm format:write`
+1. **No TypeScript errors** - `bun run typecheck`
+2. **No ESLint errors** - `bun run lint`
+3. **Code is formatted** - `bun run format:write`
 4. **No console.log** left in production code (except intentional logging)
 5. **No commented-out code** - delete it, git has history
 

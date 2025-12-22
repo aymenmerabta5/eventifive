@@ -11,22 +11,27 @@ export {
 
 /**
  * Check if an event is ready to start based on speaker and reviewer acceptance
+ * Event is ready when at least one speaker has accepted and all reviewers have accepted
  */
 export function checkEventReadiness(
-  speaker: SpeakerInvite | null,
+  speakers: SpeakerInvite[],
   reviewers: ReviewerInvite[],
 ): EventReadiness {
-  const hasSpeaker = speaker !== null;
-  const speakerAccepted = speaker?.status === "accepted";
+  const speakerCount = speakers.length;
+  const speakersAccepted = speakers.filter(
+    (s) => s.status === "accepted",
+  ).length;
   const reviewerCount = reviewers.length;
   const reviewersAccepted = reviewers.filter(
     (r) => r.status === "accepted",
   ).length;
-  const isReady = speakerAccepted && reviewersAccepted === REQUIRED_REVIEWERS;
+  // Event is ready when at least one speaker has accepted and all reviewers have accepted
+  const isReady =
+    speakersAccepted >= 1 && reviewersAccepted === REQUIRED_REVIEWERS;
 
   return {
-    hasSpeaker,
-    speakerAccepted,
+    speakerCount,
+    speakersAccepted,
     reviewerCount,
     reviewersAccepted,
     isReady,

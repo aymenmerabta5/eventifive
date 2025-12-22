@@ -5,21 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, MessageSquareText } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
 import { toast } from "sonner";
+import { QA_QUERY_KEY } from "../_lib";
 
 interface QuestionFormProps {
   sessionId: string;
   qaEnabled: boolean;
   qaModerated: boolean;
+  isSessionManager: boolean;
 }
 
 export function QuestionForm({
   sessionId,
   qaEnabled,
   qaModerated,
+  isSessionManager,
 }: QuestionFormProps) {
   const [content, setContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -27,7 +30,7 @@ export function QuestionForm({
 
   const askMutation = useMutation({
     mutationFn: (data: { content: string; isAnonymous: boolean }) =>
-      orpc.qa.ask.call({
+      orpc.websocketsRouter.qa.ask.call({
         sessionId,
         content: data.content,
         isAnonymous: data.isAnonymous,
@@ -36,7 +39,7 @@ export function QuestionForm({
       setContent("");
       setIsAnonymous(false);
       queryClient.invalidateQueries({
-        queryKey: ["qa", "list"],
+        queryKey: QA_QUERY_KEY(sessionId),
       });
       if (qaModerated) {
         toast.success(
@@ -63,6 +66,23 @@ export function QuestionForm({
         <p className="text-muted-foreground">
           Q&A is not enabled for this session
         </p>
+      </div>
+    );
+  }
+
+  // Session managers (organizer, chair, committee, speaker) can only answer, not ask
+  if (isSessionManager) {
+    return (
+      <div className="bg-primary/5 border-primary/20 mb-6 rounded-lg border p-4">
+        <div className="flex items-center gap-3">
+          <MessageSquareText className="text-primary h-5 w-5" />
+          <div>
+            <p className="font-medium">Session Host Mode</p>
+            <p className="text-muted-foreground text-sm">
+              As a session host, you can answer and moderate questions from participants.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

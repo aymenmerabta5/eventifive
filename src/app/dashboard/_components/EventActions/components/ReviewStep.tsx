@@ -12,7 +12,7 @@ interface ReviewStepProps {
 
 export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
   const readiness = checkEventReadiness(
-    invitesData?.speaker ?? null,
+    invitesData?.speakers ?? [],
     invitesData?.reviewers ?? [],
   );
 
@@ -30,31 +30,38 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
       <div className="rounded-lg border p-4">
         <div className="text-sm font-medium">Event Readiness</div>
         <div className="text-muted-foreground mt-1 text-xs">
-          Your event can start when the speaker and all reviewers accept.
+          Your event can start when at least one speaker and all reviewers
+          accept.
         </div>
 
         <div className="mt-4 space-y-3">
-          {/* Speaker Status */}
+          {/* Speakers Status */}
           <div className="flex items-center justify-between rounded-md border p-3">
             <div className="flex items-center gap-2">
               <User className="size-4" />
-              <span className="text-sm">Speaker</span>
+              <span className="text-sm">Speakers</span>
             </div>
             <div className="flex items-center gap-2">
-              {!readiness.hasSpeaker ? (
+              {readiness.speakerCount === 0 ? (
                 <>
                   <XCircle className="text-destructive size-4" />
                   <span className="text-destructive text-sm">Not invited</span>
                 </>
-              ) : readiness.speakerAccepted ? (
+              ) : readiness.speakersAccepted >= 1 ? (
                 <>
                   <CheckCircle2 className="size-4 text-green-600" />
-                  <span className="text-sm text-green-600">Accepted</span>
+                  <span className="text-sm text-green-600">
+                    {readiness.speakersAccepted}/{readiness.speakerCount}{" "}
+                    Accepted
+                  </span>
                 </>
               ) : (
                 <>
                   <Clock className="size-4 text-yellow-600" />
-                  <span className="text-sm text-yellow-600">Pending</span>
+                  <span className="text-sm text-yellow-600">
+                    {readiness.speakersAccepted}/{readiness.speakerCount}{" "}
+                    Accepted
+                  </span>
                 </>
               )}
             </div>

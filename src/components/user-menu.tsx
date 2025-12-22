@@ -20,6 +20,7 @@ import {
   IconMail,
   IconAward,
   IconMicrophone,
+  IconTicket,
 } from "@tabler/icons-react";
 
 export default function UserMenu() {
@@ -80,6 +81,12 @@ export default function UserMenu() {
           <Link href="/invites" className="flex cursor-pointer items-center">
             <IconMail className="mr-2 h-4 w-4" />
             <span>Invites</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/registrations" className="flex cursor-pointer items-center">
+            <IconTicket className="mr-2 h-4 w-4" />
+            <span>My Registrations</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

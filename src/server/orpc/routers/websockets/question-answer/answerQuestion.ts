@@ -13,6 +13,8 @@ const inputAnswerQuestionSchema = z.object({
   content: z.string().min(1).max(2000),
 });
 
+const answerRoleSchema = z.enum(["organizer", "chair", "committee", "speaker"]);
+
 const outputAnswerQuestionSchema = z.object({
   id: z.string(),
   questionId: z.string(),
@@ -20,6 +22,7 @@ const outputAnswerQuestionSchema = z.object({
   userName: z.string(),
   userImage: z.string().nullable(),
   content: z.string(),
+  role: answerRoleSchema,
   createdAt: z.date(),
 });
 
@@ -100,6 +103,15 @@ export const answerQuestionRouter = protectedProcedure
       })
       .where(eq(sessionQuestions.id, questionId));
 
+    // Determine the role to display (priority: organizer > chair > committee > speaker)
+    const role = managerInfo.isOrganizer
+      ? "organizer"
+      : managerInfo.isChair
+        ? "chair"
+        : managerInfo.isCommitteeMember
+          ? "committee"
+          : "speaker";
+
     const answer = {
       id: answerId,
       questionId,
@@ -107,6 +119,7 @@ export const answerQuestionRouter = protectedProcedure
       userName: userData[0]?.name ?? "Unknown",
       userImage: userData[0]?.image ?? null,
       content,
+      role: role as "organizer" | "chair" | "committee" | "speaker",
       createdAt: now,
     };
 

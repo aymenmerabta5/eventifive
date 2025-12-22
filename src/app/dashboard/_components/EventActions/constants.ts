@@ -27,5 +27,4 @@ export const WIZARD_STEPS = [
 ] as const;
 
 // Business rules
-export const MAX_SPEAKERS = 1;
 export const REQUIRED_REVIEWERS = 3;

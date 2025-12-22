@@ -96,6 +96,14 @@ await db.transaction(async (tx) => {
 ## Key Enums
 
 ```typescript
+// Roles for RBAC (role-based access control)
+export const rolesEnum = pgEnum("role", ["super_admin", "organizer", "user"]);
+
+// Certificate roles
+export const certificateRoleEnum = pgEnum("certificate_role", [
+  "speaker", "committee", "reviewer", "facilitator"
+]);
+
 // Payment status flow: unpaid → pending → paid (or refunded)
 export const paymentStatusEnum = pgEnum("payment_status", [
   "unpaid", "pending", "paid", "refunded"
@@ -112,6 +120,11 @@ export const subscriptionStatusEnum = pgEnum("subscription_status", [
 // Speaker/reviewer invite status
 export const eventSpeakerStatusEnum = pgEnum("event_speaker_status", [
   "pending", "accepted", "rejected"
+]);
+
+// Event types
+export const eventTypeEnum = pgEnum("event_type", [
+  "congress", "seminar", "workshop", "scientific_meeting", "conference", "symposium"
 ]);
 ```
 
@@ -192,4 +205,100 @@ export const session = pgTable("session", {
 import { parseUserAgent } from "@/lib/session-parser";
 const deviceInfo = parseUserAgent(session.userAgent);
 // Returns: { browser, os, deviceType, deviceLabel }
+```
+
+## Roles System Tables
+
+```typescript
+// TEACHING: Role-based access control with userRoles junction table
+export const roles = pgTable("roles", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: rolesEnum("name").notNull().default("user"),
+});
+
+export const userRoles = pgTable("user_roles", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+  roleId: integer("role_id").references(() => roles.id, { onDelete: "cascade" }),
+  assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+});
+```
+
+## Session Q&A Tables
+
+```typescript
+// TEACHING: Real-time Q&A for program sessions
+export const sessionQuestions = pgTable("session_questions", {
+  id: text("id").primaryKey(),
+  sessionId: text("session_id").references(() => programSession.id),
+  userId: text("user_id").references(() => user.id),
+  content: text("content").notNull(),
+  isAnonymous: boolean("is_anonymous").notNull().default(false),
+  isApproved: boolean("is_approved").notNull().default(true),  // For moderation
+  isAnswered: boolean("is_answered").notNull().default(false),
+  likeCount: integer("like_count").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const sessionQuestionLikes = pgTable("session_question_likes", {
+  questionId: text("question_id").references(() => sessionQuestions.id),
+  userId: text("user_id").references(() => user.id),
+  // Unique constraint on (questionId, userId)
+});
+
+export const sessionQuestionAnswers = pgTable("session_question_answers", {
+  id: text("id").primaryKey(),
+  questionId: text("question_id").references(() => sessionQuestions.id),
+  userId: text("user_id").references(() => user.id),  // Chair/organizer
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+```
+
+## Certificates Table
+
+```typescript
+// TEACHING: Certificates with snapshots of event/user data at issue time
+export const certificate = pgTable("certificate", {
+  id: text("id").primaryKey(),
+  eventId: text("event_id").references(() => event.id),
+  userId: text("user_id").references(() => user.id),
+  role: certificateRoleEnum("role").notNull(),  // speaker, committee, reviewer, facilitator
+  verificationCode: varchar("verification_code", { length: 20 }).unique().notNull(),
+
+  // Snapshots (preserved even if user/event changes)
+  recipientName: varchar("recipient_name", { length: 255 }).notNull(),
+  recipientEmail: varchar("recipient_email", { length: 255 }).notNull(),
+  eventTitle: varchar("event_title", { length: 255 }).notNull(),
+  eventType: eventTypeEnum("event_type").notNull(),
+  eventStartDate: timestamp("event_start_date").notNull(),
+  eventEndDate: timestamp("event_end_date").notNull(),
+
+  // Timestamps
+  issuedAt: timestamp("issued_at").notNull().defaultNow(),
+  downloadedAt: timestamp("downloaded_at"),
+  revokedAt: timestamp("revoked_at"),
+  revokeReason: varchar("revoke_reason", { length: 255 }),
+});
+```
+
+## Program Session Q&A Settings
+
+```typescript
+// TEACHING: Sessions can enable/disable Q&A and moderation
+export const programSession = pgTable("program_session", {
+  // ... existing fields
+  qaEnabled: boolean("qa_enabled").notNull().default(true),   // Enable Q&A
+  qaModerated: boolean("qa_moderated").notNull().default(false), // Require approval
+});
+```
+
+## User Presence Field
+
+```typescript
+// TEACHING: Track when users were last seen (for presence system)
+export const user = pgTable("user", {
+  // ... existing fields
+  lastSeenAt: timestamp("last_seen_at"),  // Updated when user goes offline
+});
 ```

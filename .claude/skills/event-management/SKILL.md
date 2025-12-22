@@ -1,6 +1,6 @@
 ---
 name: event-management
-description: Create and manage events, invites (speakers, reviewers, committee), program sessions, rooms, and calendar features. Use when building event features, managing invitations, or working with the event lifecycle.
+description: Create and manage events, invites (speakers, reviewers, committee), program sessions, rooms, calendar features, certificates, and session Q&A. Use when building event features, managing invitations, certificates, or working with the event lifecycle.
 ---
 
 # Event Management
@@ -44,16 +44,23 @@ Present the plan and wait for explicit approval before any implementation.
 | Event Router | `src/server/orpc/routers/events/` |
 | Invite Router | `src/server/orpc/routers/events/invites.ts` |
 | Session Router | `src/server/orpc/routers/sessions/` |
-| Event Pages | `src/app/(public)/events/[eventType]/[eventId]/` |
-| Calendar | `src/app/(public)/events/[eventType]/[eventId]/calender/` |
+| Certificates Router | `src/server/orpc/routers/certificates/` |
+| Q&A Router | `src/server/orpc/routers/websockets/question-answer/` |
+| Event Pages | `src/app/(public)/events/[eventId]/` |
+| Session Q&A Page | `src/app/(public)/events/[eventId]/sessions/[sessionId]/qa/` |
+| Calendar | `src/app/(public)/events/[eventId]/calender/` |
+| Certificates Page | `src/app/(public)/certificates/` |
+| My Sessions Page | `src/app/(public)/sessions/` |
+| My Registrations | `src/app/(public)/registrations/` |
 | Dashboard Forms | `src/app/dashboard/_components/EventActions/` |
 | Invites Page | `src/app/(public)/invites/` |
+| Certificate Templates | `src/lib/certificates/` |
 
 ---
 
 ## Event Types
 ```typescript
-eventTypeEnum: conference, workshop, seminar, webinar, meetup, hackathon
+eventTypeEnum: "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium"
 ```
 
 ---
@@ -190,8 +197,112 @@ When a reviewer accepts an invite, they're automatically assigned to existing su
 
 ---
 
+## Certificates System
+
+### Certificate Roles
+```typescript
+certificateRoleEnum: "speaker" | "committee" | "reviewer" | "facilitator"
+```
+
+### Certificate Endpoints
+```typescript
+// Get eligible recipients for an event
+certificates.getEligibleRecipients({ eventId })
+
+// Generate certificates
+certificates.generate({ eventId, recipients: [{ userId, role }] })
+
+// List certificates
+certificates.listByEvent({ eventId })  // Organizer view
+certificates.listMyCertificates()      // User's certificates
+
+// Download/verify
+certificates.download({ certificateId })
+certificates.verify({ verificationCode })
+
+// Revoke
+certificates.revoke({ certificateId, reason })
+```
+
+### Certificate Features
+- Unique verification codes (QR scannable)
+- Snapshots event/user info at issue time
+- Email notification on issuance
+- Revocation with reason tracking
+- PDF generation with template
+
+### Certificate Table Fields
+- `role`: speaker, committee, reviewer, facilitator
+- `verificationCode`: unique 20-char code
+- `recipientName`, `recipientEmail`: snapshot at issue
+- `eventTitle`, `eventType`, `eventLocation`: snapshot
+- `sessionTitle`: optional for speakers
+- `issuedAt`, `downloadedAt`, `revokedAt`
+
+---
+
+## Session Q&A System
+
+### Session Q&A Settings
+```typescript
+// On programSession table
+qaEnabled: boolean   // Enable/disable Q&A
+qaModerated: boolean // Require approval for questions
+```
+
+### Q&A Endpoints
+```typescript
+// Ask questions
+qa.ask({ sessionId, content, isAnonymous })
+
+// Get questions
+qa.list({ sessionId })
+
+// Like/upvote
+qa.like({ questionId })
+
+// Answer (chair/organizer)
+qa.answer({ questionId, content })
+
+// Moderate (chair/organizer)
+qa.approve({ questionId })
+qa.delete({ questionId })
+
+// Real-time subscription
+qa.subscribe({ sessionId })  // WebSocket subscription
+```
+
+### Q&A Tables
+- `sessionQuestions` - Questions with content, anonymous flag, approval status
+- `sessionQuestionLikes` - Like tracking (one per user)
+- `sessionQuestionAnswers` - Answers from chairs/organizers
+
+### Real-time Features
+- Questions appear in real-time via WebSocket
+- Like counts update live
+- Moderation status updates live
+
+---
+
+## My Sessions & Registrations
+
+### My Sessions
+```typescript
+// Get sessions where user is speaker or chair
+sessions.mySessions()  // Returns sessions user is involved in
+```
+
+### My Registrations
+```typescript
+// Get events user registered for
+events.myRegistrations()  // Returns user's event registrations with payment status
+```
+
+---
+
 ## Related Features
 
 - **Submissions**: `src/server/orpc/routers/submissions/`
 - **Reviews**: `src/server/orpc/routers/reviews/`
 - **Payments**: `src/server/orpc/routers/payment/`
+- **Messaging**: `src/server/orpc/routers/websockets/messaging/`

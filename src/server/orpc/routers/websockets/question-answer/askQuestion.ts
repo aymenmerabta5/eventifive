@@ -12,6 +12,7 @@ import {
 } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { publishSessionQAEvent } from "@/server/realtime/session-qa";
+import { getSessionManagerInfo } from "./utils";
 
 const inputAskQuestionSchema = z.object({
   sessionId: z.string().min(1),
@@ -65,6 +66,16 @@ export const askQuestionRouter = protectedProcedure
     if (!sessionData.qaEnabled) {
       throw new ORPCError("BAD_REQUEST", {
         message: "Q&A is not enabled for this session",
+      });
+    }
+
+    // Check if user is a session manager (organizer, chair, committee, speaker)
+    // Session managers can only answer questions, not ask them
+    const managerInfo = await getSessionManagerInfo(sessionId, userId);
+    if (managerInfo?.isSessionManager) {
+      throw new ORPCError("FORBIDDEN", {
+        message:
+          "Session hosts cannot ask questions. You can answer and moderate questions from participants.",
       });
     }
 

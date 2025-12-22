@@ -159,25 +159,93 @@ export const myStatusEnum = pgEnum("my_status", [
 
 ---
 
-## Existing Enums (11 total)
+## Existing Enums (13 total)
+- `rolesEnum`: super_admin, organizer, user
+- `certificateRoleEnum`: speaker, committee, reviewer, facilitator
 - `paymentStatusEnum`: unpaid, pending, paid, refunded
 - `billingPeriodEnum`: monthly, yearly
 - `subscriptionStatusEnum`: pending, active, cancelled, expired
 - `eventSpeakerStatusEnum`: pending, accepted, rejected
-- `eventTypeEnum`: conference, workshop, seminar, etc.
-- `submissionStatusEnum`: draft, submitted, under_review, accepted, rejected
+- `eventTypeEnum`: congress, seminar, workshop, scientific_meeting, conference, symposium
+- `submissionTypeEnum`: oral, poster, displayed_paper
+- `submissionStatusEnum`: draft, accepted, rejected
+- `reviewRecommendationEnum`: accept, reject
+- `fileTypeEnum`: image, document
+- `fileStatusEnum`: pending, completed, failed
 
 ---
 
-## Core Tables Overview
+## Core Tables Overview (30+ tables)
 
 | Category | Tables |
 |----------|--------|
 | Auth | user, session, account, verification |
-| Events | event, eventImages, eventSettings |
+| Roles | roles, userRoles |
+| Events | event, eventImages |
 | Invites | eventSpeakers, eventReviewers, eventCommittee |
 | Submissions | submission, submissionFile, review, reviewAssignment |
-| Schedule | programSession, room, sessionAssignment |
+| Schedule | programSession, room, sessionAssignment, workshop, workshopRegistration |
+| Session Q&A | sessionQuestions, sessionQuestionLikes, sessionQuestionAnswers |
 | Payments | subscriptionPlan, subscriptionPrice, userSubscription, payment, eventRegistration |
-| Messaging | conversation, message |
-| Files | file |
+| Messaging | conversations, messages |
+| Files | files |
+| Certificates | certificate |
+
+---
+
+## New Tables Details
+
+### Roles System
+```typescript
+// User roles for RBAC
+roles: { id, name (super_admin | organizer | user) }
+userRoles: { userId, roleId, assignedAt }
+```
+
+### Session Q&A
+```typescript
+// Questions during sessions
+sessionQuestions: {
+  id, sessionId, userId, content,
+  isAnonymous, isApproved, isAnswered, likeCount,
+  createdAt, updatedAt
+}
+
+// Likes on questions
+sessionQuestionLikes: { questionId, userId, createdAt }
+
+// Answers from chairs/organizers
+sessionQuestionAnswers: { id, questionId, userId, content, createdAt }
+```
+
+### Certificates
+```typescript
+certificate: {
+  id, eventId, userId,
+  role (speaker | committee | reviewer | facilitator),
+  verificationCode,
+  // Snapshots at issue time
+  recipientName, recipientEmail,
+  eventTitle, eventType, eventStartDate, eventEndDate, eventLocation,
+  sessionTitle, contributionDetails,
+  // Timestamps
+  issuedAt, downloadedAt, revokedAt, revokeReason
+}
+```
+
+### User Table Updates
+```typescript
+user: {
+  // ... existing fields
+  lastSeenAt: timestamp  // For presence system
+}
+```
+
+### Program Session Updates
+```typescript
+programSession: {
+  // ... existing fields
+  qaEnabled: boolean    // Enable Q&A for session
+  qaModerated: boolean  // Require approval for questions
+}
+```

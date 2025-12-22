@@ -10,6 +10,7 @@ import { QuestionForm } from "./_components/QuestionForm";
 import { QuestionList } from "./_components/QuestionList";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useQASubscription, QA_QUERY_KEY } from "./_lib";
 
 export default function SessionQAPage() {
   const params = useParams<{ eventId: string; sessionId: string }>();
@@ -43,14 +44,20 @@ export default function SessionQAPage() {
     data: questionsData,
     isLoading: isQuestionsLoading,
   } = useQuery({
-    ...orpc.qa.list.queryOptions({
-      input: {
+    queryKey: QA_QUERY_KEY(sessionId),
+    queryFn: () =>
+      orpc.websocketsRouter.qa.list.call({
         sessionId,
         includeUnapproved: true, // Will be filtered by backend based on permissions
-      },
-    }),
+      }),
     enabled: !!sessionId && !!authSession,
-    refetchInterval: 10000, // Refetch every 10 seconds for near-real-time
+  });
+
+  // Subscribe to real-time Q&A updates
+  useQASubscription({
+    sessionId,
+    currentUserId: authSession?.user?.id ?? "",
+    enabled: !!sessionId && !!authSession,
   });
 
   // Loading states
@@ -122,6 +129,7 @@ export default function SessionQAPage() {
             sessionId={sessionId}
             qaEnabled={questionsData?.qaEnabled ?? true}
             qaModerated={questionsData?.qaModerated ?? false}
+            isSessionManager={questionsData?.isSessionManager ?? false}
           />
 
           <QuestionList

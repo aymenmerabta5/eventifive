@@ -37,6 +37,7 @@ const questionSchema = z.object({
       userName: z.string(),
       userImage: z.string().nullable(),
       content: z.string(),
+      role: z.enum(["organizer", "chair", "committee", "speaker"]),
       createdAt: z.date(),
     }),
   ),
@@ -153,6 +154,25 @@ export const getQuestionsRouter = protectedProcedure
       .where(inArray(sessionQuestionAnswers.questionId, questionIds))
       .orderBy(sessionQuestionAnswers.createdAt);
 
+    // Get unique answerer user IDs to determine their roles
+    const answererUserIds = [...new Set(answers.map((a) => a.userId))];
+
+    // Get roles for all answerers
+    const answererRoles = new Map<string, "organizer" | "chair" | "committee" | "speaker">();
+    for (const oderId of answererUserIds) {
+      const roleInfo = await getSessionManagerInfo(sessionId, oderId);
+      if (roleInfo) {
+        const role = roleInfo.isOrganizer
+          ? "organizer"
+          : roleInfo.isChair
+            ? "chair"
+            : roleInfo.isCommitteeMember
+              ? "committee"
+              : "speaker";
+        answererRoles.set(oderId, role);
+      }
+    }
+
     // Group answers by question
     const answersByQuestion = new Map<
       string,
@@ -162,6 +182,7 @@ export const getQuestionsRouter = protectedProcedure
         userName: string;
         userImage: string | null;
         content: string;
+        role: "organizer" | "chair" | "committee" | "speaker";
         createdAt: Date;
       }>
     >();
@@ -174,6 +195,7 @@ export const getQuestionsRouter = protectedProcedure
         userName: answer.userName ?? "Unknown",
         userImage: answer.userImage,
         content: answer.content,
+        role: answererRoles.get(answer.userId) ?? "speaker",
         createdAt: answer.createdAt,
       });
       answersByQuestion.set(answer.questionId, questionAnswers);

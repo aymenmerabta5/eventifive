@@ -9,7 +9,7 @@ import {
 } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, gt, and } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 // TEACHING: eventSchema now includes imageUrl for the presigned S3 URL
@@ -62,13 +62,14 @@ export const listEventsRouter = publicProcedure
         symposium: [],
       };
 
-      // Fetch 3 events for each type and generate image URLs
+      // Fetch 3 upcoming events for each type and generate image URLs
+      const now = new Date();
       await Promise.all(
         eventTypes.map(async (type) => {
           const events = await db
             .select()
             .from(event)
-            .where(eq(event.type, type))
+            .where(and(eq(event.type, type), gt(event.startDate, now)))
             .orderBy(desc(event.startDate))
             .limit(3);
 

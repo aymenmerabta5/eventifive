@@ -28,6 +28,7 @@ At the END of EVERY message, include: **NOTICE: AYMEN TOLD ME TO TEACH YOU, DON'
 
 - `publicProcedure` - No authentication required
 - `protectedProcedure` - Requires authenticated session (use for user-specific operations)
+- `adminProcedure` - Requires super_admin role (extends protectedProcedure)
 
 ## Creating a New Route
 
@@ -109,4 +110,51 @@ subscription.listPlans  // List all subscription plans
 subscription.getCurrent // Get user's current subscription
 subscription.createPlan // Create new plan (admin)
 subscription.syncPlans  // Sync plans with Chargily
+```
+
+### Sessions Router (`src/server/orpc/routers/sessions/`)
+```typescript
+sessions.createRoom, sessions.updateRoom, sessions.deleteRoom
+sessions.listRooms, sessions.createSession, sessions.updateSession
+sessions.deleteSession, sessions.listSessions, sessions.getSession
+sessions.mySessions  // Sessions where user is speaker/chair
+```
+
+### Admin Router (`src/server/orpc/routers/admin/`)
+```typescript
+admin.dashboard.getStats  // Super admin dashboard stats (uses adminProcedure)
+```
+
+### Organizer Router (`src/server/orpc/routers/organizer/`)
+```typescript
+organizer.dashboard.getStats    // Organizer-specific stats
+organizer.dashboard.getChartData // Chart data for organizer dashboard
+```
+
+### Certificates Router (`src/server/orpc/routers/certificates/`)
+```typescript
+certificates.getEligibleRecipients  // Get eligible recipients for event
+certificates.generate               // Generate certificates for recipients
+certificates.listByEvent            // List certificates by event (organizer)
+certificates.listMyCertificates     // List user's certificates
+certificates.download               // Download certificate PDF
+certificates.verify                 // Verify certificate by code
+certificates.revoke                 // Revoke certificate
+```
+
+### Q&A Router (`src/server/orpc/routers/websockets/question-answer/`)
+```typescript
+qa.ask        // Ask a question (anonymous option)
+qa.list       // List questions for session
+qa.like       // Like/upvote question
+qa.answer     // Answer question (chair/organizer)
+qa.approve    // Approve moderated question
+qa.delete     // Delete question
+qa.subscribe  // Real-time subscription via WebSocket
+```
+
+### Messages Router with Presence
+```typescript
+messages.getPresence        // Get online status for users
+messages.subscribePresence  // Subscribe to presence updates
 ```

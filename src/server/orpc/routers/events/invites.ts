@@ -14,7 +14,6 @@ import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 
 // Constants
-const MAX_SPEAKERS = 1;
 const REQUIRED_REVIEWERS = 3;
 
 async function assertOrganizer(eventId: string, organizerId: string) {
@@ -113,7 +112,7 @@ const committeeSchema = z.object({
 });
 
 const listInvitesOutput = z.object({
-  speaker: speakerInviteSchema.nullable(),
+  speakers: z.array(speakerInviteSchema),
   reviewers: z.array(reviewerInviteSchema),
   committee: z.array(committeeSchema),
 });
@@ -127,7 +126,7 @@ export const listInvitesRouter = protectedProcedure
     const organizerId = context.session.user.id;
     await assertOrganizer(input.eventId, organizerId);
 
-    // Get speaker (max 1)
+    // Get all speakers
     const speakerRows = await db
       .select({
         id: eventSpeakers.id,
@@ -142,23 +141,19 @@ export const listInvitesRouter = protectedProcedure
       })
       .from(eventSpeakers)
       .innerJoin(user, eq(user.id, eventSpeakers.userId))
-      .where(eq(eventSpeakers.eventId, input.eventId))
-      .limit(1);
+      .where(eq(eventSpeakers.eventId, input.eventId));
 
-    const firstSpeaker = speakerRows[0];
-    const speaker = firstSpeaker
-      ? {
-          id: firstSpeaker.id,
-          eventId: firstSpeaker.eventId,
-          userId: firstSpeaker.userId,
-          userName: firstSpeaker.userName,
-          userEmail: firstSpeaker.userEmail,
-          affiliation: firstSpeaker.affiliation ?? null,
-          status: firstSpeaker.status as "pending" | "accepted" | "rejected",
-          invitedAt: firstSpeaker.invitedAt,
-          respondedAt: firstSpeaker.respondedAt ?? null,
-        }
-      : null;
+    const speakers = speakerRows.map((s) => ({
+      id: s.id,
+      eventId: s.eventId,
+      userId: s.userId,
+      userName: s.userName,
+      userEmail: s.userEmail,
+      affiliation: s.affiliation ?? null,
+      status: s.status as "pending" | "accepted" | "rejected",
+      invitedAt: s.invitedAt,
+      respondedAt: s.respondedAt ?? null,
+    }));
 
     // Get reviewers
     const reviewerRows = await db
@@ -210,10 +205,10 @@ export const listInvitesRouter = protectedProcedure
       assignedAt: c.assignedAt,
     }));
 
-    return { speaker, reviewers, committee };
+    return { speakers, reviewers, committee };
   });
 
-// Invite speaker (max 1 per event)
+// Invite speaker (unlimited per event)
 export const inviteSpeakerRouter = protectedProcedure
   .route({ method: "POST", path: "/events/invites/speaker" })
   .input(inviteSpeakerInput)
@@ -223,19 +218,6 @@ export const inviteSpeakerRouter = protectedProcedure
     await assertOrganizer(input.eventId, organizerId);
 
     const foundUser = await findUserByEmail(input.email);
-
-    // Check if event already has a speaker
-    const [existingCount] = await db
-      .select({ count: count() })
-      .from(eventSpeakers)
-      .where(eq(eventSpeakers.eventId, input.eventId));
-
-    if ((existingCount?.count ?? 0) >= MAX_SPEAKERS) {
-      throw new ORPCError("BAD_REQUEST", {
-        message:
-          "Event already has a speaker. Remove the current speaker first.",
-      });
-    }
 
     // Check if user is already a speaker for this event
     const [existing] = await db
@@ -251,7 +233,7 @@ export const inviteSpeakerRouter = protectedProcedure
 
     if (existing) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "This user is already the speaker for this event",
+        message: "This user is already a speaker for this event",
       });
     }
 
