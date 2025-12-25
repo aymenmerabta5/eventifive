@@ -65,12 +65,18 @@ async function checkSubscriptionAndQuota(userId: string): Promise<{
     return { hasSubscription: false, canCreate: false, used: 0, limit: 0 };
   }
 
-  // Count non-ended events
+  // Count only published, non-ended events toward quota
   const now = new Date();
   const [result] = await db
     .select({ count: count() })
     .from(event)
-    .where(and(eq(event.organizerId, userId), gte(event.endDate, now)));
+    .where(
+      and(
+        eq(event.organizerId, userId),
+        gte(event.endDate, now),
+        eq(event.status, "published")
+      )
+    );
 
   const used = result?.count ?? 0;
   const limit = subscription.eventQuota;

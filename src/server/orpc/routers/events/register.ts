@@ -34,14 +34,26 @@ export const registerForEventRouter = protectedProcedure
       throw new ORPCError("NOT_FOUND", { message: "Event not found" });
     }
 
-    // 2. Check if it's a paid event
+    // 2. Check if event is published
+    if (eventData.status !== "published") {
+      throw new ORPCError("BAD_REQUEST", {
+        message:
+          eventData.status === "cancelled"
+            ? "This event has been cancelled."
+            : eventData.status === "archived"
+              ? "This event has been archived."
+              : "This event is not yet published.",
+      });
+    }
+
+    // 3. Check if it's a paid event
     if (eventData.priceAmount > 0) {
       throw new ORPCError("BAD_REQUEST", {
         message: "This event requires payment. Please use the checkout flow.",
       });
     }
 
-    // 3. Check if already registered
+    // 4. Check if already registered
     const [existing] = await db
       .select()
       .from(eventRegistration)
@@ -60,7 +72,7 @@ export const registerForEventRouter = protectedProcedure
       };
     }
 
-    // 4. Create registration (free events are automatically "paid")
+    // 5. Create registration (free events are automatically "paid")
     const [newReg] = await db
       .insert(eventRegistration)
       .values({

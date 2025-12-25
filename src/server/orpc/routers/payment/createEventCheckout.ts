@@ -42,6 +42,16 @@ export const createEventCheckoutRouter = protectedProcedure
       throw new ORPCError("NOT_FOUND", { message: "Event not found" });
     }
 
+    // Check if event is published
+    if (eventData.status !== "published") {
+      throw new ORPCError("BAD_REQUEST", {
+        message:
+          eventData.status === "cancelled"
+            ? "This event has been cancelled."
+            : "This event is not available for registration.",
+      });
+    }
+
     if (eventData.priceAmount <= 0) {
       throw new ORPCError("BAD_REQUEST", {
         message: "This is a free event. No payment required.",

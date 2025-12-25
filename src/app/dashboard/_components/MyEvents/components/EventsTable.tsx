@@ -26,6 +26,10 @@ export function EventsTable({
   onDelete,
   onApprovals,
   onShare,
+  onPublish,
+  onUnpublish,
+  onCancel,
+  onArchive,
 }: EventsTableProps) {
   return (
     <Card>
@@ -58,6 +62,10 @@ export function EventsTable({
                 onDelete={onDelete}
                 onApprovals={onApprovals}
                 onShare={onShare}
+                onPublish={onPublish}
+                onUnpublish={onUnpublish}
+                onCancel={onCancel}
+                onArchive={onArchive}
               />
             ))}
           </TableBody>

@@ -1,408 +1,167 @@
 # Eventifive
 
-**Version:** 0.1.0  
-**Status:** Private / Proprietary
+A modern event management platform built with Next.js 16 and Bun.
 
-Eventifive is a modern event management platform built with Next.js 16 and the latest web technologies. Features include event management, submission/review workflows, payment processing, subscription plans, and real-time messaging.
+## Tech Stack
 
-## 🔒 License
+| Layer | Technology |
+|-------|------------|
+| Runtime | Bun (package manager + runtime) |
+| Framework | Next.js 16 (App Router, React 19, Turbopack) |
+| Language | TypeScript (strict mode) |
+| API | oRPC (type-safe, 80+ endpoints) |
+| Auth | Better Auth (email/password, Google OAuth) |
+| Database | Drizzle ORM + Bun SQL (PostgreSQL) |
+| Realtime | Bun native WebSocket + Redis/ioredis |
+| UI | Tailwind CSS 4 + shadcn/ui |
+| Storage | Cloudflare R2 via Bun S3Client |
+| Payments | Chargily (Algerian market) |
 
-**This project is proprietary and confidential.**
+## Prerequisites
 
-All rights reserved. This software and its source code are the exclusive property of eventifive. Unauthorized copying, distribution, modification, or use of this software is strictly prohibited. See the [LICENSE](./LICENSE) file for full details.
+- **Bun 1.1+** - Runtime and package manager
+- **PostgreSQL** - Database
+- **Redis** - Caching and real-time features
 
-## 🛠️ Technology Stack
-
-This project is built with:
-
-**Core Framework:**
-- **[Next.js 16](https://nextjs.org)** - React framework with App Router, Turbopack, and React Compiler
-- **[React 19](https://react.dev)** - UI library with latest features
-- **[TypeScript](https://www.typescriptlang.org/)** - Type safety throughout
-
-**Backend & API:**
-- **[oRPC](https://orpc.unnoq.com/)** - Type-safe API layer with OpenAPI support
-- **[Better Auth](https://www.better-auth.com/)** - Modern authentication solution
-- **[Drizzle ORM](https://orm.drizzle.team)** - TypeScript ORM for PostgreSQL
-- **[PostgreSQL](https://www.postgresql.org/)** - Primary database
-- **[WebSocket (ws)](https://github.com/websockets/ws)** - Real-time communication server
-
-**Data & State Management:**
-- **[Tanstack Query](https://tanstack.com/query)** - Powerful data synchronization
-- **[Redis (Upstash)](https://upstash.com/)** - Caching and pub/sub
-
-**UI & Styling:**
-- **[Tailwind CSS 4](https://tailwindcss.com)** - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - Re-usable component patterns
-- **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible components
-- **[Framer Motion](https://www.framer.com/motion/)** - Animation library
-- **[Lucide Icons](https://lucide.dev/)** - Icon library
-- **[TipTap](https://tiptap.dev/)** - Rich text editor
-- **[Tanstack Form](https://tanstack.com/form)** - Form state management
-
-**File Storage & Services:**
-- **[Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/)** - S3-compatible object storage
-- **[Resend](https://resend.com/)** - Email service
-- **[Chargily](https://chargily.com/)** - Payment gateway (Algerian market)
-
-**Security & Validation:**
-- **[Arcjet](https://arcjet.com/)** - Security and rate limiting
-- **[Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/)** - CAPTCHA alternative
-- **[Zod](https://zod.dev/)** - Schema validation
-
-## 📋 Prerequisites
-
-- **Node.js 20+** - Runtime environment
-- **pnpm 10+** - Package manager (required, not npm/yarn)
-- **PostgreSQL** - Database server
-- **Redis** (optional for local dev) - For caching and real-time features (can use Upstash cloud)
-
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Install Dependencies
 
 ```bash
-pnpm install
+bun install
 ```
 
 ### 2. Environment Setup
-
-Create a `.env` file in the root directory. Copy `.env.example` and fill in your values:
 
 ```bash
 cp .env.example .env
 ```
 
-**Core Required Variables:**
+Fill in your environment variables. Required:
 
 ```env
-# Database
 DATABASE_URL="postgresql://user:password@localhost:5432/eventifive"
-
-# Authentication
 BETTER_AUTH_SECRET="generate-with-openssl-rand-base64-32"
 BETTER_AUTH_URL="http://localhost:3000"
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# Email (Resend)
-RESEND_API_KEY="your-resend-api-key"
-RESEND_SENDER_EMAIL="your-verified@email.com"
-
-# Security
-CLOUDFLARE_TURNSTYLE_SK="your-turnstile-secret-key"
-NEXT_PUBLIC_CLOUDFLARE_TURNSTYLE_PK="your-turnstile-public-key"
-ARCJET_API="your-arcjet-key"
-
-# File Storage (Cloudflare R2)
-NEXT_PUBLIC_S3_ENDPOINT="https://your-account-id.r2.cloudflarestorage.com"
-S3_BUCKET_NAME="your-bucket-name"
-AWS_ACCESS_KEY_ID="your-r2-access-key"
-AWS_SECRET_ACCESS_KEY="your-r2-secret-key"
-
-# Redis (Upstash)
-REDIS_REST_URL="your-redis-url"
-REDIS_REST_TOKEN="your-redis-token"
-
-# WebSocket
-NEXT_PUBLIC_WEBSOCKET_URL="ws://localhost:8081"
+REDIS_URL="redis://localhost:6379"
 ```
 
-**Optional Variables:**
-- `CHARGILY_SK` / `NEXT_PUBLIC_CHARGILY_PK` - Payment gateway (optional in development)
-- `OPEN_AI_API_KEY` - OpenAI integration (optional)
-
-See [.env.example](.env.example) for the complete list with detailed descriptions.
+See `.env.example` for the complete list.
 
 ### 3. Database Setup
 
 ```bash
-# Generate migrations
-pnpm db:generate
-
-# Run migrations
-pnpm db:migrate
-
-# Or push schema directly (for development)
-pnpm db:push
-
-# Open Drizzle Studio (database GUI)
-pnpm db:studio
+bun run db:push      # Push schema (dev)
+bun run db:seed      # Seed sample data
+bun run db:studio    # Open Drizzle Studio
 ```
 
 ### 4. Run Development Server
 
 ```bash
-pnpm dev
+bun run dev
 ```
 
-This command starts both:
-- Next.js development server at [http://localhost:3000](http://localhost:3000)
-- WebSocket server at `ws://localhost:8081`
+Starts Next.js at `http://localhost:3000` and WebSocket at `ws://localhost:8081`.
 
-Both servers run concurrently for full real-time functionality.
+## Scripts
 
-## 📜 Available Scripts
+```bash
+# Development
+bun run dev           # Start dev server (Next.js + WebSocket)
+bun run build         # Production build
+bun run preview       # Build and start locally
 
-**Development:**
-- `pnpm dev` - Start development server (Next.js + WebSocket) with Turbopack
-- `pnpm build` - Build for production
-- `pnpm start` - Start production server (Next.js + WebSocket)
-- `pnpm preview` - Build and preview production locally
-- `pnpm ws` - Run WebSocket server independently
+# Code Quality
+bun run check         # ESLint + TypeScript
+bun run lint:fix      # Auto-fix ESLint
+bun run typecheck     # TypeScript only
+bun run format:write  # Prettier format
 
-**Code Quality:**
-- `pnpm check` - Run both lint and typecheck (recommended)
-- `pnpm lint` - Run ESLint
-- `pnpm lint:fix` - Fix ESLint errors automatically
-- `pnpm typecheck` - Run TypeScript type checking
-- `pnpm format:check` - Check code formatting
-- `pnpm format:write` - Format code with Prettier
+# Database
+bun run db:push       # Push schema to DB
+bun run db:generate   # Generate migrations
+bun run db:migrate    # Run migrations
+bun run db:studio     # Drizzle Studio GUI
+bun run db:seed       # Seed sample data
+bun run db:init       # Reset + Generate + Push + Seed
 
-**Database:**
-- `pnpm db:push` - Push schema changes directly (fast, for development)
-- `pnpm db:generate` - Generate Drizzle migrations
-- `pnpm db:migrate` - Run database migrations
-- `pnpm db:studio` - Open Drizzle Studio GUI
-- `pnpm db:seed` - Seed database with sample data
-- `pnpm db:reset` - Reset database (⚠️ destructive)
-
-## 📁 Project Structure
-
-```
-eventifive/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── (auth)/            # Authentication pages (login, signup, etc.)
-│   │   ├── (public)/          # Public pages (landing, events, pricing, invites)
-│   │   ├── api/               # API routes
-│   │   │   ├── auth/          # Better Auth endpoints
-│   │   │   ├── rpc/           # oRPC API endpoints
-│   │   │   └── arcjet/        # Security middleware
-│   │   └── dashboard/         # Protected dashboard pages
-│   ├── components/            # React components
-│   │   ├── ui/               # shadcn/ui components
-│   │   └── rich-text-editor/ # TipTap rich text editor
-│   ├── lib/                   # Utility libraries and helpers
-│   ├── server/                # Server-side code
-│   │   ├── better-auth/      # Authentication configuration
-│   │   ├── bucket/           # S3/R2 file storage
-│   │   ├── db/               # Database schema, connection, seeds
-│   │   ├── gateway/          # Payment gateway integration
-│   │   ├── orpc/             # oRPC routers, context, procedures
-│   │   ├── realtime/         # WebSocket server and Redis
-│   │   └── utils/            # Server utilities
-│   ├── env.ts                 # Environment variable validation
-│   └── styles/               # Global styles
-├── .cursor/rules/             # Cursor AI rules
-├── .env.example               # Environment variables template
-├── CLAUDE.md                  # Claude Code development guide
-├── LICENSE                    # Proprietary license
-└── README.md                 # This file
+# WebSocket
+bun run ws            # WebSocket server only
 ```
 
-## 🔐 Authentication
+## Project Structure
 
-This project uses [Better Auth](https://www.better-auth.com/) for authentication, providing:
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/             # Auth pages (login, signup)
+│   ├── (public)/           # Public pages (events, certificates)
+│   ├── dashboard/          # Protected dashboard
+│   ├── messages/           # Real-time messaging
+│   └── api/                # API routes (auth, rpc, webhooks)
+├── components/
+│   ├── ui/                 # shadcn/ui components
+│   └── rich-text-editor/   # TipTap editor
+├── server/
+│   ├── orpc/routers/       # API routers (12 domains)
+│   ├── db/                 # Drizzle schema & Bun SQL
+│   ├── better-auth/        # Auth configuration
+│   ├── gateway/            # Chargily integration
+│   ├── bucket/             # R2 file storage
+│   ├── cache/              # Redis caching
+│   └── realtime/           # WebSocket + Redis
+├── lib/
+│   ├── schemas/            # Zod validation
+│   ├── certificates/       # Certificate generation
+│   └── emails/             # Email templates
+└── mcp/                    # Test data MCP server
+```
 
-- **Email/Password authentication** with email verification
-- **Google OAuth** social login
-- **Password reset** via email (Resend integration)
-- **Session management** with secure cookies and device tracking
-- **Multi-device session control** - view and revoke sessions from any device
-- **CAPTCHA protection** with Cloudflare Turnstile
-- **Type-safe auth client** for React components
-- Separate configurations for HTTP and WebSocket servers
+## Key Features
 
-### Session Management
-
-Users can manage their active sessions from settings:
-- View all logged-in devices with browser/OS info
-- See IP addresses and last activity time
-- Revoke individual sessions or logout everywhere
-- Device type detection (mobile, tablet, desktop)
-
-## 🗄️ Database Management
-
-The project uses Drizzle ORM with PostgreSQL:
-
-- **Type-safe database queries** with full TypeScript support
-- **Automatic migrations** with `drizzle-kit`
-- **Visual database browser** with Drizzle Studio
-- **Schema defined in** `src/server/db/schema.ts`
-
-**Key entities:**
-- Users, Roles, and Authentication (Better Auth tables)
-- Events (congress, seminar, workshop, conference, symposium)
-- Submissions (oral, poster, displayed paper) with review workflow
-- Reviews and Review Assignments
-- Program Sessions, Rooms, and Session Assignments
-- Event Registration and Payments
-- Subscription Plans and User Subscriptions
-- File Storage metadata and Event Images
-- Messaging (conversations and messages)
-- Invites (speakers, reviewers, committee members)
-
-**Database Enums:**
-- `paymentStatusEnum`: unpaid, pending, paid, refunded
-- `billingPeriodEnum`: monthly, yearly
-- `subscriptionStatusEnum`: pending, active, cancelled, expired
-- `eventSpeakerStatusEnum`: pending, accepted, rejected
-
-## 🔌 API Layer (oRPC)
-
-The project uses [oRPC](https://orpc.unnoq.com/) for type-safe API communication:
-
-- **Type-safe procedures** - Full TypeScript inference from server to client
-- **OpenAPI documentation** - Auto-generated at `/api/rpc/api-reference`
-- **Public & Protected routes** - Authentication middleware built-in
-- **WebSocket RPC support** - Real-time bidirectional communication
-- **Input/Output validation** - Zod schemas for all endpoints
-
-**API Structure:**
-- `publicProcedure` - No authentication required
-- `protectedProcedure` - Requires authenticated session
-- Routers in `src/server/orpc/routers/`
-- HTTP endpoint: `/api/rpc`
-- WebSocket endpoint: `ws://localhost:8081`
-
-## 📡 Real-time Features
-
-WebSocket server provides real-time capabilities:
-
-- **Live messaging** - Direct user-to-user conversations
-- **Redis pub/sub** - Event broadcasting across server instances
-- **Session authentication** - Secure WebSocket connections
-- **oRPC over WebSocket** - Same type-safe API patterns as HTTP
-
-## 📦 File Storage
-
-Cloudflare R2 integration for file uploads:
-
-- **Presigned URLs** - Secure client-side uploads
-- **File types** - Images and documents
-- **Metadata tracking** - Database records for all files
-- **Upload workflow**: Request URL → Client upload → Confirm completion
-
-## 💳 Payment Integration
-
-Chargily payment gateway for Algerian market:
-
-- **Event registration payments** - Pay to join events with configurable pricing
-- **Subscription payments** - Monthly and yearly billing plans
-- **DZD currency support** - Amounts in whole units (not cents)
-- **Webhook handling** for payment status updates
-- **Automatic price sync** - Products/prices synced to Chargily on demand
-- Optional in development mode
-
-### Payment Flow
-
-1. User initiates checkout (event registration or subscription)
-2. API syncs price to Chargily if needed
-3. Creates checkout session, returns URL
-4. User redirected to Chargily payment page
-5. After payment, redirected to success/failure URL
-6. Payment status updated via webhook or polling
-
-### Subscription Plans
-
-Three-tier subscription system:
-- **Basic** - Essential features
-- **Standard** - Advanced features
-- **Premium** - Full access
-
-Plans support monthly and yearly billing (25% yearly discount).
-
-## 🎨 UI Components
-
-UI components are built with:
-
-- [Radix UI](https://www.radix-ui.com/) - Unstyled, accessible components
-- [shadcn/ui](https://ui.shadcn.com/) patterns - Pre-built component patterns
-- [Tailwind CSS](https://tailwindcss.com) - Styling with v4 features
-- [Lucide Icons](https://lucide.dev/) - Icon library
-- [Framer Motion](https://www.framer.com/motion/) - Animations
-- Dark mode support with `next-themes`
-
-## ⚙️ Key Features
-
-**Event Management:**
+**Event Management**
 - Multiple event types (congress, seminar, workshop, conference, symposium)
-- Event creation and organization with multi-step wizard
-- Speaker, reviewer, and committee invitation system
+- Event lifecycle (draft, published, cancelled, archived)
+- Speaker, reviewer, and committee invitations
 - Event registration with payment processing
-- Event image uploads (1 cover + 3 gallery images)
-- Rich text descriptions with TipTap editor
-- Configurable event pricing (free or paid)
 
-**Calendar/Schedule Management:**
-- Interactive calendar view for event sessions
-- Week and day view modes
-- Session creation with room assignments
-- Real-time current time indicator
-- Speaker assignments to sessions
+**Certificates**
+- Generate certificates for speakers, reviewers, committee, facilitators
+- QR code verification
+- Email notifications and revocation support
 
-**Submission System:**
-- Abstract and paper submissions (oral, poster, displayed paper)
-- Multi-author support
-- File upload with metadata tracking
-- Submission status workflow (draft → accepted/rejected)
+**Session Q&A**
+- Real-time questions during sessions
+- Like/upvote questions
+- Moderation support
+- Anonymous question option
 
-**Review Process:**
-- Reviewer invitation and assignment system
-- Review recommendations (accept, reject)
-- Comments and scoring system
-- Due date tracking
+**Real-time Features**
+- Direct messaging with presence indicators
+- WebSocket-based live updates
+- Redis pub/sub for scaling
 
-**Invite System:**
-- Invite speakers to events (max 1 per event)
-- Invite reviewers (max 3 per event)
-- Invite committee members (unlimited)
-- Accept/reject invites with status tracking
-- Dedicated invites management page
+**Submissions & Reviews**
+- Abstract and paper submissions
+- Review assignments and workflow
+- Accept/reject with comments
 
-**Program Management:**
-- Session scheduling
-- Room assignments
-- Workshop registration with capacity limits
-- Session-to-submission assignments
+## API Structure
 
-**User System:**
-- Role-based access control (super_admin, organizer, user)
-- User profiles with institution and research domain
-- Biography management with rich text editor
-- Session management across multiple devices
-- Subscription status tracking
-- Invites inbox for managing received invitations
+```typescript
+// Procedure types
+publicProcedure     // No auth required
+protectedProcedure  // Requires login
+adminProcedure      // Requires super_admin role
+```
 
-**Messaging:**
-- Direct user-to-user conversations
-- Real-time message delivery via WebSocket
-- Message history and persistence
+12 API routers: admin, organizer, events, profile, files, payment, subscription, messages, qa, submissions, reviews, sessions, certificates.
 
-## ⚙️ Configuration Files
+## License
 
-- `next.config.ts` - Next.js configuration (typed routes, React Compiler)
-- `tailwind.config.ts` - Tailwind CSS v4 configuration (auto-generated)
-- `drizzle.config.ts` - Drizzle ORM configuration
-- `eslint.config.js` - ESLint flat config
-- `tsconfig.json` - TypeScript configuration with strict mode
-- `components.json` - shadcn/ui component configuration
-- `.env.example` - Environment variables template
-- `CLAUDE.md` - Development guide for Claude Code
-
-## 🚫 Restrictions
-
-**IMPORTANT:** This is proprietary software. You may not:
-
-- Use this software for commercial purposes
-- Redistribute or share the source code
-- Modify or create derivative works
-- Deploy publicly without authorization
-- Reverse engineer the software
-
-For licensing inquiries, please contact the project owner.
+This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**© 2025 eventifive. All rights reserved.**
+**eventifive**

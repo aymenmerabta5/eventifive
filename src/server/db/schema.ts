@@ -83,6 +83,13 @@ export const certificateRoleEnum = pgEnum("certificate_role", [
   "facilitator",
 ]);
 
+export const eventStatusEnum = pgEnum("event_status", [
+  "draft",
+  "published",
+  "cancelled",
+  "archived",
+]);
+
 // ---------------------------
 // USERS, ROLES, AUTH
 // ---------------------------
@@ -196,6 +203,12 @@ export const event = pgTable(
     chargilyProductId: varchar("chargily_product_id", { length: 100 }),
     chargilyPriceId: varchar("chargily_price_id", { length: 100 }),
     chargilySyncedAt: timestamp("chargily_synced_at"),
+    // Event lifecycle status
+    status: eventStatusEnum("status").notNull().default("draft"),
+    publishedAt: timestamp("published_at"),
+    cancelledAt: timestamp("cancelled_at"),
+    archivedAt: timestamp("archived_at"),
+    cancellationReason: varchar("cancellation_reason", { length: 500 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -203,6 +216,7 @@ export const event = pgTable(
     index("event_organizer_id_idx").on(table.organizerId),
     index("event_start_date_idx").on(table.startDate),
     index("event_type_idx").on(table.type),
+    index("event_status_idx").on(table.status),
   ],
 );
 
@@ -955,6 +969,7 @@ export const roleValues = rolesEnum.enumValues;
 export const billingPeriodValues = billingPeriodEnum.enumValues;
 export const subscriptionStatusValues = subscriptionStatusEnum.enumValues;
 export const certificateRoleValues = certificateRoleEnum.enumValues;
+export const eventStatusValues = eventStatusEnum.enumValues;
 
 // Enum types (union types derived from the arrays)
 export type EventType = (typeof eventTypeValues)[number];
@@ -969,3 +984,4 @@ export type Role = (typeof roleValues)[number];
 export type BillingPeriod = (typeof billingPeriodValues)[number];
 export type SubscriptionStatus = (typeof subscriptionStatusValues)[number];
 export type CertificateRole = (typeof certificateRoleValues)[number];
+export type EventStatus = (typeof eventStatusValues)[number];

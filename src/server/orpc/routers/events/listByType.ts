@@ -53,9 +53,12 @@ export const listEventsByTypeRouter = publicProcedure
       const offset = page * limit;
 
       // Build where conditions
-      const conditions = [eq(event.type, eventType)];
+      const conditions = [
+        eq(event.type, eventType),
+        eq(event.status, "published"), // Only show published events
+      ];
 
-      // Filter by status (default to upcoming only)
+      // Filter by date status (default to upcoming only)
       if (status === "upcoming") {
         const now = new Date();
         conditions.push(gt(event.startDate, now));

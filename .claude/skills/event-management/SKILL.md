@@ -42,6 +42,7 @@ Present the plan and wait for explicit approval before any implementation.
 | Component | Location |
 |-----------|----------|
 | Event Router | `src/server/orpc/routers/events/` |
+| Lifecycle Routers | `src/server/orpc/routers/events/{publish,unpublish,cancel,archive}.ts` |
 | Invite Router | `src/server/orpc/routers/events/invites.ts` |
 | Session Router | `src/server/orpc/routers/sessions/` |
 | Certificates Router | `src/server/orpc/routers/certificates/` |
@@ -173,11 +174,117 @@ useEventSessions()  // Manage sessions
 
 ## Event Lifecycle
 
-### 4-Phase Management
-1. **Setup** - Create event, add details
-2. **Invites** - Invite speakers, reviewers
-3. **Submissions** - Accept submissions, assign reviewers
-4. **Program** - Schedule sessions, assign rooms
+### Status System
+Events have an explicit status that controls visibility and registration:
+
+```typescript
+eventStatusEnum: "draft" | "published" | "cancelled" | "archived"
+```
+
+| Status | Visible to Public | Registrations | Editable |
+|--------|-------------------|---------------|----------|
+| `draft` | No | No | Yes |
+| `published` | Yes | Yes | Yes (with restrictions) |
+| `cancelled` | Yes (with notice) | No | No |
+| `archived` | No | No | No |
+
+### Status Transitions
+```
+                    ┌─────────────┐
+                    │   draft     │ (initial state)
+                    └──────┬──────┘
+                           │ publish (endDate >= now)
+                           ▼
+                    ┌─────────────┐
+         ┌──────────│  published  │──────────┐
+         │          └──────┬──────┘          │
+         │                 │                 │
+    unpublish         cancel             archive
+  (0 registrations)    (any)          (endDate < now)
+         │                 │                 │
+         ▼                 ▼                 ▼
+    ┌─────────┐      ┌───────────┐    ┌───────────┐
+    │  draft  │      │ cancelled │───▶│ archived  │
+    └─────────┘      └───────────┘    └───────────┘
+```
+
+### Lifecycle Endpoints
+```typescript
+// Publish a draft event (multiple validations)
+events.publish({ eventId })
+// Validation:
+//   - status=draft
+//   - endDate >= now
+//   - at least 1 accepted speaker
+//   - at least 3 accepted reviewers
+// Sets: status="published", publishedAt=now
+
+// Unpublish to draft (BLOCKS if registrations exist)
+events.unpublish({ eventId })
+// Validation: status=published, 0 registrations
+// Sets: status="draft", publishedAt=null
+
+// Cancel event with reason
+events.cancel({ eventId, reason?: string })
+// Validation: status not cancelled/archived
+// Sets: status="cancelled", cancelledAt=now, cancellationReason
+// Returns: { registrationCount } for notification purposes
+
+// Archive event (past/cancelled only)
+events.archive({ eventId })
+// Validation: (endDate < now) OR status=cancelled
+// Sets: status="archived", archivedAt=now
+```
+
+### Display Status (Computed)
+For published events, a display status is computed from dates:
+
+```typescript
+type EventDisplayStatus =
+  | "Draft"      // status === "draft"
+  | "Published"  // status === "published" (generic)
+  | "Upcoming"   // published && now < startDate
+  | "Live"       // published && startDate <= now <= endDate
+  | "Completed"  // published && now > endDate
+  | "Cancelled"  // status === "cancelled"
+  | "Archived"   // status === "archived"
+```
+
+### Critical Rules
+1. **Cannot publish past events**: If `endDate < now`, publish is blocked
+2. **Can publish ongoing events**: If `startDate < now < endDate`, allowed
+3. **Publish requires team**: At least 1 accepted speaker + 3 accepted reviewers
+4. **Quota counts only published**: Draft events don't count toward limit
+5. **Registration requires published**: Non-published events block registration
+6. **Unpublish protected**: Can't unpublish if registrations exist
+7. **Published date restrictions**: Can't set endDate to past for published events
+
+### Database Schema Fields
+```typescript
+// Event table additions
+status: eventStatusEnum("status").notNull().default("draft"),
+publishedAt: timestamp("published_at"),
+cancelledAt: timestamp("cancelled_at"),
+archivedAt: timestamp("archived_at"),
+cancellationReason: varchar("cancellation_reason", { length: 500 }),
+```
+
+### Frontend Status Utilities
+```typescript
+// src/app/dashboard/_components/MyEvents/utils.ts
+getEventDisplayStatus(event)  // Get display status string
+getStatusBadgeVariant(status) // Get badge variant for status
+canPublish(event)             // Check if can publish
+canUnpublish(event)           // Check if can unpublish
+canCancel(event)              // Check if can cancel
+canArchive(event)             // Check if can archive
+```
+
+### 4-Phase Event Management
+1. **Setup** - Create event (draft), add details
+2. **Publish** - Review and publish to public
+3. **Manage** - Handle registrations, submissions, reviews
+4. **Complete** - Event ends, archive when done
 
 ---
 

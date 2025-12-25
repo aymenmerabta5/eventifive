@@ -7,12 +7,14 @@ import {
   IconClock,
   IconMapPin,
   IconTag,
+  IconAlertTriangle,
 } from "@tabler/icons-react";
 import ParticipationOptions from "./Testimonials";
 import { EventRegistrationSection } from "./EventRegistrationSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Editor from "@/components/rich-text-editor/Editor";
 import type { JSONContent } from "@tiptap/react";
 import { EventImageGallery } from "./EventImageGallery";
@@ -100,6 +102,19 @@ export default async function EventDetailPage({
           imageUrls={event.imageUrls}
           eventTitle={event.title}
         />
+
+        {/* Cancellation Banner */}
+        {event.status === "cancelled" && (
+          <Alert variant="destructive" className="mb-6">
+            <IconAlertTriangle className="h-5 w-5" />
+            <AlertTitle>This event has been cancelled</AlertTitle>
+            {event.cancellationReason && (
+              <AlertDescription>
+                Reason: {event.cancellationReason}
+              </AlertDescription>
+            )}
+          </Alert>
+        )}
 
         <Card className="group overflow-hidden">
           <CardHeader className="bg-card/50 border-b p-6">
@@ -269,14 +284,17 @@ export default async function EventDetailPage({
           </CardContent>
         </Card>
 
-        <EventRegistrationSection
-          eventId={event.id}
-          priceAmount={event.priceAmount}
-          priceCurrency={event.priceCurrency}
-          eventTitle={event.title}
-          isAuthenticated={!!session?.user}
-          registrationStatus={registrationStatus}
-        />
+        {/* Only show registration section for published events */}
+        {event.status === "published" && (
+          <EventRegistrationSection
+            eventId={event.id}
+            priceAmount={event.priceAmount}
+            priceCurrency={event.priceCurrency}
+            eventTitle={event.title}
+            isAuthenticated={!!session?.user}
+            registrationStatus={registrationStatus}
+          />
+        )}
 
         {isEventMoreThan7DaysAway && <ParticipationOptions />}
       </div>

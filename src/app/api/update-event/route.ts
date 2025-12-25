@@ -140,6 +140,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check if updating dates for published events
+    const newEndDateStr = formData.get("endDate") as string;
+    if (
+      eventData.status === "published" &&
+      newEndDateStr
+    ) {
+      const newEndDate = new Date(newEndDateStr);
+      const now = new Date();
+      if (newEndDate < now) {
+        return NextResponse.json(
+          {
+            message:
+              "Cannot set end date in the past for a published event. Unpublish or cancel the event first.",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const rawBigDescription = formData.get("bigDescription");
     let bigDescription: unknown = undefined;
     if (

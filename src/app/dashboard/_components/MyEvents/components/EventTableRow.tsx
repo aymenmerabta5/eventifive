@@ -16,9 +16,22 @@ import {
   Users,
   Share2,
   Trash2,
+  Send,
+  RotateCcw,
+  XCircle,
+  Archive,
 } from "lucide-react";
 import { EVENT_TYPE_LABELS } from "../constants";
-import { formatSchedule, formatDate, getEventStatus } from "../utils";
+import {
+  formatSchedule,
+  formatDate,
+  getEventDisplayStatus,
+  getStatusBadgeVariant,
+  canPublish,
+  canUnpublish,
+  canCancel,
+  canArchive,
+} from "../utils";
 import type { AdminEvent, EventActionHandlers } from "../types";
 
 interface EventTableRowProps extends EventActionHandlers {
@@ -31,8 +44,13 @@ export function EventTableRow({
   onDelete,
   onApprovals,
   onShare,
+  onPublish,
+  onUnpublish,
+  onCancel,
+  onArchive,
 }: EventTableRowProps) {
-  const status = getEventStatus(event);
+  const displayStatus = getEventDisplayStatus(event);
+  const badgeVariant = getStatusBadgeVariant(displayStatus);
 
   return (
     <TableRow>
@@ -57,9 +75,7 @@ export function EventTableRow({
         </div>
       </TableCell>
       <TableCell>
-        <Badge variant={status === "Upcoming" ? "default" : "outline"}>
-          {status}
-        </Badge>
+        <Badge variant={badgeVariant}>{displayStatus}</Badge>
       </TableCell>
       <TableCell>
         <DropdownMenu>
@@ -71,6 +87,30 @@ export function EventTableRow({
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
+
+            {/* Status actions */}
+            {canPublish(event) && onPublish && (
+              <DropdownMenuItem onClick={() => onPublish(event)}>
+                <Send className="mr-2 h-4 w-4" />
+                Publish
+              </DropdownMenuItem>
+            )}
+            {canUnpublish(event) && onUnpublish && (
+              <DropdownMenuItem onClick={() => onUnpublish(event)}>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Unpublish
+              </DropdownMenuItem>
+            )}
+            {canArchive(event) && onArchive && (
+              <DropdownMenuItem onClick={() => onArchive(event)}>
+                <Archive className="mr-2 h-4 w-4" />
+                Archive
+              </DropdownMenuItem>
+            )}
+
+            <DropdownMenuSeparator />
+
+            {/* Standard actions */}
             <DropdownMenuItem onClick={() => onUpdate(event)}>
               <Pencil className="mr-2 h-4 w-4" />
               Update
@@ -83,6 +123,19 @@ export function EventTableRow({
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            {/* Destructive actions */}
+            {canCancel(event) && onCancel && (
+              <DropdownMenuItem
+                onClick={() => onCancel(event)}
+                className="text-destructive focus:text-destructive"
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                Cancel Event
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               onClick={() => onDelete(event)}
               className="text-destructive focus:text-destructive"

@@ -69,7 +69,13 @@ export const listEventsRouter = publicProcedure
           const events = await db
             .select()
             .from(event)
-            .where(and(eq(event.type, type), gt(event.startDate, now)))
+            .where(
+              and(
+                eq(event.type, type),
+                gt(event.startDate, now),
+                eq(event.status, "published")
+              )
+            )
             .orderBy(desc(event.startDate))
             .limit(3);
 

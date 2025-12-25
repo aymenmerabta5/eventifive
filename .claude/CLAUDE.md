@@ -215,6 +215,33 @@ Required (see `.env` for full list):
 - Cache invalidation helpers
 - Organizer and admin dashboard separation
 
+### Event Lifecycle System
+Events follow a managed lifecycle with explicit status transitions:
+
+**Statuses:**
+- `draft` - Initial state, invisible to public, editable
+- `published` - Visible to public, accepts registrations
+- `cancelled` - Visible with cancellation notice, no registrations
+- `archived` - Hidden from public, historical record
+
+**Key Rules:**
+- Events start as `draft` and must be explicitly published
+- Cannot publish events where `endDate < now` (past events blocked)
+- Can publish ongoing events (`startDate < now < endDate`)
+- Only `published` events count toward organizer quota
+- Registration blocked for non-published events
+- Unpublishing requires zero registrations
+
+**Display Status (computed):**
+- Draft, Published, Cancelled, Archived (from database)
+- Upcoming, Live, Completed (computed from dates for published events)
+
+**Lifecycle Endpoints:**
+- `events.publish` - Publish draft event
+- `events.unpublish` - Revert to draft (if 0 registrations)
+- `events.cancel` - Cancel event with reason
+- `events.archive` - Archive past/cancelled events
+
 ## Database Enums
 
 ```typescript
@@ -226,6 +253,7 @@ certificateRoleEnum: "speaker" | "committee" | "reviewer" | "facilitator"
 
 // Events
 eventTypeEnum: "congress" | "seminar" | "workshop" | "scientific_meeting" | "conference" | "symposium"
+eventStatusEnum: "draft" | "published" | "cancelled" | "archived"
 
 // Payments
 paymentStatusEnum: "unpaid" | "pending" | "paid" | "refunded"

@@ -4,6 +4,10 @@ import { listEventsRouter } from "./list";
 import { listEventsByTypeRouter } from "./listByType";
 import { myEventsRouter } from "./myEvents";
 import { getEventRouter } from "./get";
+import { publishEventRouter } from "./publish";
+import { cancelEventRouter } from "./cancel";
+import { archiveEventRouter } from "./archive";
+import { unpublishEventRouter } from "./unpublish";
 import {
   listInvitesRouter,
   inviteSpeakerRouter,
@@ -30,6 +34,10 @@ export const eventsRouter = {
   listByType: listEventsByTypeRouter,
   myEvents: myEventsRouter,
   get: getEventRouter,
+  publish: publishEventRouter,
+  cancel: cancelEventRouter,
+  archive: archiveEventRouter,
+  unpublish: unpublishEventRouter,
   listInvites: listInvitesRouter,
   inviteSpeaker: inviteSpeakerRouter,
   inviteCommittee: inviteCommitteeRouter,
@@ -55,6 +63,10 @@ export {
   listEventsByTypeRouter,
   myEventsRouter,
   getEventRouter,
+  publishEventRouter,
+  cancelEventRouter,
+  archiveEventRouter,
+  unpublishEventRouter,
   registerForEventRouter,
   listParticipantsRouter,
   getRegistrationStatusRouter,

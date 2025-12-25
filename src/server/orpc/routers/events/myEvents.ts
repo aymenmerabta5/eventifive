@@ -1,6 +1,6 @@
 import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
-import { event, eventImages, files, eventTypeValues } from "@/server/db/schema";
+import { event, eventImages, files, eventTypeValues, eventStatusValues } from "@/server/db/schema";
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
@@ -19,6 +19,10 @@ const eventSchema = z.object({
   priceCurrency: z.string(),
   chargilyProductId: z.string().nullable(),
   chargilyPriceId: z.string().nullable(),
+  status: z.enum(eventStatusValues),
+  publishedAt: z.date().nullable(),
+  cancelledAt: z.date().nullable(),
+  cancellationReason: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   imageUrl: z.string().nullable(),

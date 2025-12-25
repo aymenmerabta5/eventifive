@@ -72,10 +72,16 @@ WebSocket handlers are in `src/server/realtime/ws.ts` on port 8081.
 ### Events Router (`src/server/orpc/routers/events/`)
 ```typescript
 // Event CRUD operations
-events.create          // Create new event (draft)
-events.get             // Get event by ID
-events.list            // List events with filters
+events.create          // Create new event (draft status)
+events.get             // Get event by ID (returns 404 for draft/archived to public)
+events.list            // List events (only published visible to public)
 events.update          // Update event details
+
+// Lifecycle endpoints (organizer only)
+events.publish         // Publish draft event (BLOCKS if endDate < now)
+events.unpublish       // Revert to draft (BLOCKS if registrations exist)
+events.cancel          // Cancel event with optional reason
+events.archive         // Archive past/cancelled events
 
 // Invite system endpoints (all unlimited per event, one invite per user)
 events.inviteSpeaker   // Invite speaker (unlimited per event)
@@ -87,6 +93,9 @@ events.acceptReviewer  // Accept reviewer invite
 events.rejectReviewer  // Reject reviewer invite
 events.listMyInvites   // List user's received invites
 events.listInvites     // List event's sent invites (organizer only)
+
+// Registration (blocked for non-published events)
+events.register        // Register for event (requires status=published)
 ```
 
 ### Files Router (`src/server/orpc/routers/files/`)
@@ -99,7 +108,7 @@ files.delete           // Delete a file
 ### Payment Router (`src/server/orpc/routers/payment/`)
 ```typescript
 payment.createCheckout      // Create subscription payment
-payment.createEventCheckout // Create event registration payment
+payment.createEventCheckout // Create event registration payment (requires event status=published)
 payment.getStatus           // Check payment status
 payment.list                // List payment history
 ```

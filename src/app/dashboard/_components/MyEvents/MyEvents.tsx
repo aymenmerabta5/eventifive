@@ -9,6 +9,7 @@ import {
   EventStatsCards,
   EventsTable,
   DeleteEventDialog,
+  CancelEventDialog,
 } from "./components";
 
 export function MyEvents() {
@@ -16,9 +17,11 @@ export function MyEvents() {
     events,
     stats,
     eventToDelete,
+    eventToCancel,
     isPending,
     error,
     isRefetching,
+    isCancelling,
     handleRefresh,
     handleUpdate,
     handleDelete,
@@ -26,6 +29,12 @@ export function MyEvents() {
     handleCancelDelete,
     handleApprovals,
     handleShare,
+    handlePublish,
+    handleUnpublish,
+    handleCancel,
+    handleConfirmCancel,
+    handleCancelCancelDialog,
+    handleArchive,
   } = useMyEvents();
 
   if (isPending) {
@@ -57,6 +66,10 @@ export function MyEvents() {
           onDelete={handleDelete}
           onApprovals={handleApprovals}
           onShare={handleShare}
+          onPublish={handlePublish}
+          onUnpublish={handleUnpublish}
+          onCancel={handleCancel}
+          onArchive={handleArchive}
         />
       )}
 
@@ -64,6 +77,13 @@ export function MyEvents() {
         event={eventToDelete}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
+      />
+
+      <CancelEventDialog
+        event={eventToCancel}
+        onClose={handleCancelCancelDialog}
+        onConfirm={handleConfirmCancel}
+        isLoading={isCancelling}
       />
     </div>
   );

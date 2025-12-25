@@ -5,6 +5,7 @@ import {
   eventImages,
   files,
   eventTypeValues,
+  eventStatusValues,
   user,
 } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
@@ -30,6 +31,8 @@ const eventSchema = z.object({
   priceCurrency: z.string(),
   organizerId: z.string(),
   organizerName: z.string(),
+  status: z.enum(eventStatusValues),
+  cancellationReason: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   imageUrls: z.array(z.string()),
@@ -39,7 +42,7 @@ export const getEventRouter = publicProcedure
   .route({ method: "GET", path: "/events/{id}" })
   .input(inputSchema)
   .output(eventSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
     try {
       const [found] = await db
         .select({
@@ -56,6 +59,8 @@ export const getEventRouter = publicProcedure
           priceCurrency: event.priceCurrency,
           organizerId: event.organizerId,
           organizerName: user.name,
+          status: event.status,
+          cancellationReason: event.cancellationReason,
           createdAt: event.createdAt,
           updatedAt: event.updatedAt,
         })
@@ -65,6 +70,19 @@ export const getEventRouter = publicProcedure
         .limit(1);
 
       if (!found) {
+        throw new ORPCError("NOT_FOUND", { message: "Event not found" });
+      }
+
+      // Check if current user is the organizer
+      const isOrganizer = context.session?.user?.id === found.organizerId;
+
+      // Draft and archived events are not publicly viewable
+      // But organizers can always view their own events
+      // Cancelled events are viewable by everyone with cancellation notice
+      if (
+        (found.status === "draft" || found.status === "archived") &&
+        !isOrganizer
+      ) {
         throw new ORPCError("NOT_FOUND", { message: "Event not found" });
       }
 
