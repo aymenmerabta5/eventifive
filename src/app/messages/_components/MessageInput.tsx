@@ -7,10 +7,17 @@ import { cn } from "@/lib/utils";
 
 interface MessageInputProps {
   onSend: (content: string) => void;
+  onTyping?: () => void;
+  onStopTyping?: () => void;
   disabled?: boolean;
 }
 
-export function MessageInput({ onSend, disabled }: MessageInputProps) {
+export function MessageInput({
+  onSend,
+  onTyping,
+  onStopTyping,
+  disabled,
+}: MessageInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -26,8 +33,16 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
   const handleSubmit = () => {
     const trimmed = message.trim();
     if (trimmed && !disabled) {
+      onStopTyping?.();
       onSend(trimmed);
       setMessage("");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    if (e.target.value.trim()) {
+      onTyping?.();
     }
   };
 
@@ -55,7 +70,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
             <textarea
               ref={textareaRef}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleChange}
               onKeyDown={handleKeyDown}
               placeholder="Type a message..."
               disabled={disabled}

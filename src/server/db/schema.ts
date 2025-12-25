@@ -10,6 +10,7 @@ import {
   serial,
   index,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ---------------------------
@@ -697,6 +698,31 @@ export const messages = pgTable(
   ],
 );
 
+// Read receipts - tracks when users have read messages in conversations
+export const readReceipts = pgTable(
+  "read_receipts",
+  {
+    id: text("id").primaryKey(),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    lastReadMessageId: text("last_read_message_id").references(() => messages.id, {
+      onDelete: "set null",
+    }),
+    readAt: timestamp("read_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("read_receipts_conversation_user_idx").on(
+      table.conversationId,
+      table.userId,
+    ),
+    index("read_receipts_conversation_id_idx").on(table.conversationId),
+  ],
+);
+
 // ---------------------------
 // SESSION Q&A (Questions & Answers)
 // ---------------------------
@@ -851,6 +877,10 @@ export type NewConversation = InferInsertModel<typeof conversations>;
 // Message types
 export type Message = InferSelectModel<typeof messages>;
 export type NewMessage = InferInsertModel<typeof messages>;
+
+// Read receipt types
+export type ReadReceipt = InferSelectModel<typeof readReceipts>;
+export type NewReadReceipt = InferInsertModel<typeof readReceipts>;
 
 // Subscription plan types
 export type SubscriptionPlan = InferSelectModel<typeof subscriptionPlan>;

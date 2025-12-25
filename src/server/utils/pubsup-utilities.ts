@@ -13,3 +13,7 @@ export function getPresenceChannel(): string {
 export function getTypingChannel(conversationId: string): string {
   return `conversation:${conversationId}:typing`;
 }
+
+export function getReadReceiptsChannel(conversationId: string): string {
+  return `conversation:${conversationId}:read`;
+}

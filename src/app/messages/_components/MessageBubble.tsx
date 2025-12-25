@@ -10,6 +10,7 @@ interface MessageBubbleProps {
   isMe: boolean;
   isFirstInGroup: boolean;
   isLastInGroup: boolean;
+  isRead?: boolean;
 }
 
 export function MessageBubble({
@@ -17,6 +18,7 @@ export function MessageBubble({
   isMe,
   isFirstInGroup,
   isLastInGroup,
+  isRead = false,
 }: MessageBubbleProps) {
   return (
     <div
@@ -52,7 +54,7 @@ export function MessageBubble({
           {message.content}
         </p>
 
-        {/* Timestamp */}
+        {/* Timestamp and Read Status */}
         <div
           className={cn(
             "mt-1 flex items-center gap-1",
@@ -68,8 +70,18 @@ export function MessageBubble({
             {formatTime12h(message.createdAt)}
           </span>
           {isMe && (
-            <span className="text-primary-foreground/70">
-              <Check className="size-3.5" />
+            <span
+              className={cn(
+                isRead
+                  ? "test-secondary drop-shadow-[0_0_2px_rgba(125,211,252,0.5)]" // Bright cyan for read (visible on any background)
+                  : "text-primary-foreground/60", // Muted for sent/delivered
+              )}
+            >
+              {isRead ? (
+                <CheckCheck className="size-4" /> // Double check = read
+              ) : (
+                <Check className="size-4" /> // Single check = sent/delivered
+              )}
             </span>
           )}
         </div>

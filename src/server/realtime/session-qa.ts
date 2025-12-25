@@ -1,4 +1,4 @@
-import { publisher, createSubscriber } from "./redis";
+import { publisher, subscriptionManager } from "./redis";
 
 // Redis channel patterns for session Q&A
 function getSessionQAChannel(sessionId: string): string {
@@ -91,16 +91,13 @@ export async function* subscribeToSessionQA(
   sessionId: string,
   signal?: AbortSignal,
 ): AsyncGenerator<SessionQAEvent> {
-  const subscriber = createSubscriber();
   const channel = getSessionQAChannel(sessionId);
 
   const eventQueue: SessionQAEvent[] = [];
   let resolveWaiting: ((value: void) => void) | null = null;
   let isSubscribed = true;
 
-  subscriber.subscribe(channel);
-
-  subscriber.on("message", (_channel, message) => {
+  const handler = (_channel: string, message: string) => {
     const parsed = JSON.parse(message);
 
     // Deserialize dates
@@ -117,12 +114,13 @@ export async function* subscribeToSessionQA(
       resolveWaiting();
       resolveWaiting = null;
     }
-  });
+  };
+
+  const unsubscribe = await subscriptionManager.subscribe(channel, handler);
 
   const cleanup = () => {
     isSubscribed = false;
-    subscriber.unsubscribe(channel);
-    subscriber.quit();
+    unsubscribe();
   };
 
   signal?.addEventListener("abort", cleanup);

@@ -5,6 +5,16 @@ import { createConversationRouter } from "./createConversation";
 import { subscribeMessagesRouter } from "./subscribeMessages";
 import { subscribePresenceRouter } from "./subscribePresence";
 import { getPresenceRouter } from "./getPresence";
+import {
+  setTypingRouter,
+  clearTypingRouter,
+  subscribeTypingRouter,
+} from "./typing";
+import {
+  markAsReadRouter,
+  getReadReceiptsRouter,
+  subscribeReadReceiptsRouter,
+} from "./readReceipts";
 
 export const messagingSystem = {
   send: sendMessageRouter,
@@ -14,6 +24,14 @@ export const messagingSystem = {
   subscribe: subscribeMessagesRouter,
   subscribePresence: subscribePresenceRouter,
   getPresence: getPresenceRouter,
+  // Typing indicators
+  setTyping: setTypingRouter,
+  clearTyping: clearTypingRouter,
+  subscribeTyping: subscribeTypingRouter,
+  // Read receipts
+  markAsRead: markAsReadRouter,
+  getReadReceipts: getReadReceiptsRouter,
+  subscribeReadReceipts: subscribeReadReceiptsRouter,
 };
 
 // Re-export individual routers
@@ -25,4 +43,12 @@ export {
   subscribeMessagesRouter,
   subscribePresenceRouter,
   getPresenceRouter,
+  // Typing
+  setTypingRouter,
+  clearTypingRouter,
+  subscribeTypingRouter,
+  // Read receipts
+  markAsReadRouter,
+  getReadReceiptsRouter,
+  subscribeReadReceiptsRouter,
 };

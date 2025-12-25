@@ -14,7 +14,14 @@ import {
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
 import { OnlineIndicator } from "./OnlineIndicator";
-import { useMessages, useSendMessage, useUserPresence } from "../_lib/hooks";
+import { TypingIndicator } from "./TypingIndicator";
+import {
+  useMessages,
+  useSendMessage,
+  useUserPresence,
+  useTypingIndicator,
+  useReadReceipts,
+} from "../_lib/hooks";
 import type { Conversation, Message } from "../_lib/types";
 import Link from "next/link";
 import type { Route } from "next";
@@ -54,11 +61,35 @@ export function MessageView({
   // Track online status of the other user
   const { isOnline, lastSeenAt } = useUserPresence(conversation.otherUser.id);
 
+  // Typing indicator
+  const { isOtherUserTyping, notifyTyping, stopTyping } = useTypingIndicator({
+    conversationId: conversation.id,
+    currentUserId: currentUser.id,
+  });
+
+  // Read receipts
+  const { getOtherUserReadReceipt, markAsRead } = useReadReceipts({
+    conversationId: conversation.id,
+    currentUserId: currentUser.id,
+  });
+
   // Flatten pages into single array, reversed for chronological order
   const messages = useMemo(() => {
     if (!messagesData?.pages) return [];
     return messagesData.pages.flatMap((page) => page.messages).reverse(); // API returns newest first, we want oldest first
   }, [messagesData]);
+
+  // Get the other user's read receipt to determine read status
+  const otherUserReadReceipt = getOtherUserReadReceipt();
+
+  // Find the index of the last read message to determine which messages are read
+  const lastReadMessageIndex = useMemo(() => {
+    if (!otherUserReadReceipt?.lastReadMessageId) return -1;
+
+    return messages.findIndex(
+      (m) => m.id === otherUserReadReceipt.lastReadMessageId
+    );
+  }, [messages, otherUserReadReceipt?.lastReadMessageId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,6 +98,20 @@ export function MessageView({
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
+
+  // Mark messages as read when viewing the conversation
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Find the last message from the other user
+      const lastMessageFromOther = [...messages]
+        .reverse()
+        .find((m) => m.senderId !== currentUser.id);
+
+      if (lastMessageFromOther) {
+        markAsRead(lastMessageFromOther.id);
+      }
+    }
+  }, [messages, currentUser.id, markAsRead]);
 
   const handleSendMessage = async (content: string) => {
     await sendMessage.mutateAsync({
@@ -225,6 +270,18 @@ export function MessageView({
                     const isLastInGroup =
                       !nextMessage || nextMessage.senderId !== message.senderId;
 
+                    // Check if this message has been read by the other user
+                    // A message is read if:
+                    // 1. It was sent by the current user (isMe)
+                    // 2. Its index in the messages array is <= lastReadMessageIndex
+                    const messageIndex = messages.findIndex(
+                      (m) => m.id === message.id
+                    );
+                    const isRead =
+                      message.senderId === currentUser.id &&
+                      lastReadMessageIndex >= 0 &&
+                      messageIndex <= lastReadMessageIndex;
+
                     return (
                       <MessageBubble
                         key={message.id}
@@ -232,6 +289,7 @@ export function MessageView({
                         isMe={message.senderId === currentUser.id}
                         isFirstInGroup={isFirstInGroup}
                         isLastInGroup={isLastInGroup}
+                        isRead={isRead}
                       />
                     );
                   })}
@@ -243,9 +301,20 @@ export function MessageView({
         </div>
       </div>
 
+      {/* Typing Indicator */}
+      {isOtherUserTyping && (
+        <div className="border-border border-t px-4 py-2">
+          <div className="mx-auto max-w-3xl">
+            <TypingIndicator names={[conversation.otherUser.name]} />
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <MessageInput
         onSend={handleSendMessage}
+        onTyping={notifyTyping}
+        onStopTyping={stopTyping}
         disabled={sendMessage.isPending}
       />
     </div>

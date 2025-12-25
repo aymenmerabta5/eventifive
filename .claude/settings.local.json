@@ -22,7 +22,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(bun run build:*)",
-      "Bash(bunx:*)"
+      "Bash(bunx:*)",
+      "Bash(bun run:*)"
     ],
     "deny": [],
     "ask": []

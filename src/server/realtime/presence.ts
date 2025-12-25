@@ -1,4 +1,4 @@
-import { publisher, createSubscriber } from "./redis";
+import { publisher, subscriptionManager } from "./redis";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { eq, inArray } from "drizzle-orm";
@@ -109,7 +109,6 @@ export async function* subscribeToPresence(
   userIds: string[],
   signal?: AbortSignal,
 ): AsyncGenerator<PresenceEvent> {
-  const subscriber = createSubscriber();
   const eventQueue: PresenceEvent[] = [];
   let resolveWaiting: ((value: void) => void) | null = null;
   let isSubscribed = true;
@@ -117,9 +116,7 @@ export async function* subscribeToPresence(
   // Track which users we care about
   const userIdSet = new Set(userIds);
 
-  subscriber.subscribe(PRESENCE_CHANNEL);
-
-  subscriber.on("message", (_channel, message) => {
+  const handler = (_channel: string, message: string) => {
     const event = JSON.parse(message) as PresenceEvent & {
       lastSeenAt?: string;
     };
@@ -138,12 +135,13 @@ export async function* subscribeToPresence(
         resolveWaiting = null;
       }
     }
-  });
+  };
+
+  const unsubscribe = await subscriptionManager.subscribe(PRESENCE_CHANNEL, handler);
 
   const cleanup = () => {
     isSubscribed = false;
-    subscriber.unsubscribe(PRESENCE_CHANNEL);
-    subscriber.quit();
+    unsubscribe();
   };
 
   signal?.addEventListener("abort", cleanup);

@@ -6,8 +6,6 @@ This file provides guidance to Claude Code when working with this repository.
 
 **Eventifive** is a modern event management platform built with Next.js 16, supporting conference and event organization with features like submissions, reviews, payments, subscriptions, real-time messaging, program/session management, certificates, and session Q&A.
 
-This is a university project built with professional-grade architecture and cutting-edge technologies.
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -33,7 +31,8 @@ bun run build         # Production build
 bun run preview       # Build and start locally
 
 # Code Quality
-bun run check         # ESLint + TypeScript (preferred)
+# To see errors i want you to use LSP server of typescript dont do typecheck or check
+bun run check         # ESLint + TypeScript 
 bun run lint:fix      # Auto-fix ESLint
 bun run typecheck     # TypeScript only
 bun run format:write  # Prettier format
@@ -44,6 +43,7 @@ bun run db:generate   # Generate migrations
 bun run db:migrate    # Run migrations
 bun run db:studio     # Drizzle Studio GUI
 bun run db:seed       # Seed sample data
+bun run db:init       # Reset, Generate, Push, Seed the Database
 
 # WebSocket (standalone)
 bun run ws            # Start WebSocket server only
@@ -239,7 +239,6 @@ subscriptionStatusEnum: "pending" | "active" | "cancelled" | "expired"
 - Bun loads `.env` automatically (no dotenv needed)
 - WebSocket runs as separate Bun process on port 8081
 - MCP server runs directly with Bun (no build step)
-- University project - do not share externally
 
 ---
 

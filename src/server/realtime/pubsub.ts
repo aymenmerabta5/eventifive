@@ -1,4 +1,4 @@
-import { publisher, createSubscriber } from "./redis";
+import { publisher, subscriptionManager } from "./redis";
 import {
   getConversationChannel,
   getUserChannel,
@@ -38,32 +38,45 @@ export async function* subscribeToConversation(
   conversationId: string,
   signal?: AbortSignal,
 ): AsyncGenerator<PubSubMessage> {
-  const subscriber = createSubscriber();
   const channel = getConversationChannel(conversationId);
 
   const messageQueue: PubSubMessage[] = [];
   let resolveWaiting: ((value: void) => void) | null = null;
   let isSubscribed = true;
 
-  subscriber.subscribe(channel);
+  const handler = (_channel: string, message: string) => {
+    try {
+      const parsed = JSON.parse(message);
 
-  subscriber.on("message", (_channel, message) => {
-    const parsed = JSON.parse(message) as PubSubMessage & { createdAt: string };
-    messageQueue.push({
-      ...parsed,
-      createdAt: new Date(parsed.createdAt),
-    });
-    if (resolveWaiting) {
-      resolveWaiting();
-      resolveWaiting = null;
+      // Skip non-message events (like read receipts, typing events)
+      if (parsed.type === "read" || parsed.type === "typing") {
+        return;
+      }
+
+      // Only process message events (must have id, senderId, content)
+      if (!parsed.id || !parsed.senderId || !parsed.content) {
+        return;
+      }
+
+      messageQueue.push({
+        ...parsed,
+        createdAt: new Date(parsed.createdAt),
+      });
+      if (resolveWaiting) {
+        resolveWaiting();
+        resolveWaiting = null;
+      }
+    } catch {
+      // Ignore parsing errors
     }
-  });
+  };
+
+  const unsubscribe = await subscriptionManager.subscribe(channel, handler);
 
   // Handle abort signal
   const cleanup = () => {
     isSubscribed = false;
-    subscriber.unsubscribe(channel);
-    subscriber.quit();
+    unsubscribe();
   };
 
   signal?.addEventListener("abort", cleanup);
@@ -89,31 +102,44 @@ export async function* subscribeToUserMessages(
   userId: string,
   signal?: AbortSignal,
 ): AsyncGenerator<PubSubMessage> {
-  const subscriber = createSubscriber();
   const channel = getUserChannel(userId);
 
   const messageQueue: PubSubMessage[] = [];
   let resolveWaiting: ((value: void) => void) | null = null;
   let isSubscribed = true;
 
-  subscriber.subscribe(channel);
+  const handler = (_channel: string, message: string) => {
+    try {
+      const parsed = JSON.parse(message);
 
-  subscriber.on("message", (_channel, message) => {
-    const parsed = JSON.parse(message) as PubSubMessage & { createdAt: string };
-    messageQueue.push({
-      ...parsed,
-      createdAt: new Date(parsed.createdAt),
-    });
-    if (resolveWaiting) {
-      resolveWaiting();
-      resolveWaiting = null;
+      // Skip non-message events (like read receipts, typing events)
+      if (parsed.type === "read" || parsed.type === "typing") {
+        return;
+      }
+
+      // Only process message events (must have id, senderId, content)
+      if (!parsed.id || !parsed.senderId || !parsed.content) {
+        return;
+      }
+
+      messageQueue.push({
+        ...parsed,
+        createdAt: new Date(parsed.createdAt),
+      });
+      if (resolveWaiting) {
+        resolveWaiting();
+        resolveWaiting = null;
+      }
+    } catch {
+      // Ignore parsing errors
     }
-  });
+  };
+
+  const unsubscribe = await subscriptionManager.subscribe(channel, handler);
 
   const cleanup = () => {
     isSubscribed = false;
-    subscriber.unsubscribe(channel);
-    subscriber.quit();
+    unsubscribe();
   };
 
   signal?.addEventListener("abort", cleanup);
