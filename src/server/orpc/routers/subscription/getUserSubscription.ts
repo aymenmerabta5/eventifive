@@ -27,15 +27,22 @@ async function checkIsAdmin(userId: string): Promise<boolean> {
 }
 
 /**
- * Count non-ended events (upcoming + ongoing) for a user
- * These count against the user's event quota
+ * Count published, non-ended events (upcoming + ongoing) for a user
+ * Only published events count against the user's event quota
+ * Draft, cancelled, and archived events do NOT count
  */
 async function countActiveEvents(userId: string): Promise<number> {
   const now = new Date();
   const [result] = await db
     .select({ count: count() })
     .from(event)
-    .where(and(eq(event.organizerId, userId), gte(event.endDate, now)));
+    .where(
+      and(
+        eq(event.organizerId, userId),
+        eq(event.status, "published"),
+        gte(event.endDate, now)
+      )
+    );
 
   return result?.count ?? 0;
 }

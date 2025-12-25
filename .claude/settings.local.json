@@ -23,7 +23,9 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(bun run build:*)",
       "Bash(bunx:*)",
-      "Bash(bun run:*)"
+      "Bash(bun run:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__get-library-docs"
     ],
     "deny": [],
     "ask": []
