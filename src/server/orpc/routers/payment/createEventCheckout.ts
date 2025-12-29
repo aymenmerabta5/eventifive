@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { rateLimitedPaymentProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
@@ -37,7 +37,7 @@ const outputSchema = z.object({
   registrationId: z.number(),
 });
 
-export const createEventCheckoutRouter = protectedProcedure
+export const createEventCheckoutRouter = rateLimitedPaymentProcedure
   .route({ method: "POST", path: "/payment/event-checkout" })
   .input(inputSchema)
   .output(outputSchema)

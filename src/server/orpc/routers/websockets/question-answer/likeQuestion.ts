@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../../index";
+import { rateLimitedQAProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
 import {
@@ -19,7 +19,7 @@ const outputLikeQuestionSchema = z.object({
   hasLiked: z.boolean(),
 });
 
-export const likeQuestionRouter = protectedProcedure
+export const likeQuestionRouter = rateLimitedQAProcedure
   .route({ method: "POST", path: "/qa/questions/like" })
   .input(inputLikeQuestionSchema)
   .output(outputLikeQuestionSchema)

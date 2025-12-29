@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../../index";
+import { rateLimitedQAProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
@@ -34,7 +34,7 @@ const outputAskQuestionSchema = z.object({
   createdAt: z.date(),
 });
 
-export const askQuestionRouter = protectedProcedure
+export const askQuestionRouter = rateLimitedQAProcedure
   .route({ method: "POST", path: "/qa/questions" })
   .input(inputAskQuestionSchema)
   .output(outputAskQuestionSchema)

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { rateLimitedPaymentProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
@@ -32,7 +32,7 @@ function isUniqueConstraintError(error: unknown): boolean {
   return false;
 }
 
-export const createCheckoutRouter = protectedProcedure
+export const createCheckoutRouter = rateLimitedPaymentProcedure
   .route({ method: "POST", path: "/payment/checkout" })
   .input(createCheckoutInputSchema)
   .output(createCheckoutOutputSchema)

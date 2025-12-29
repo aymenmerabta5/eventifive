@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { rateLimitedUploadProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
@@ -21,7 +21,7 @@ const outputRequestUploadSchema = z.object({
   s3Key: z.string(),
 });
 
-export const requestUploadRouter = protectedProcedure
+export const requestUploadRouter = rateLimitedUploadProcedure
   .route({ method: "POST", path: "/files/request-upload" })
   .input(inputRequestUploadSchema)
   .output(outputRequestUploadSchema)

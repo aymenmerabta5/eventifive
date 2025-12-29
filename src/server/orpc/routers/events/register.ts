@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../index";
+import { rateLimitedRegistrationProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
 import { event, eventRegistration } from "@/server/db/schema";
@@ -16,7 +16,7 @@ const outputSchema = z.object({
   message: z.string(),
 });
 
-export const registerForEventRouter = protectedProcedure
+export const registerForEventRouter = rateLimitedRegistrationProcedure
   .route({ method: "POST", path: "/event/register" })
   .input(inputSchema)
   .output(outputSchema)

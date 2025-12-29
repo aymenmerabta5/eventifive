@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../../index";
+import { rateLimitedMessageProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
@@ -20,7 +20,7 @@ const outputSendMessageSchema = z.object({
   createdAt: z.date(),
 });
 
-export const sendMessageRouter = protectedProcedure
+export const sendMessageRouter = rateLimitedMessageProcedure
   .route({ method: "POST", path: "/messages/send" })
   .input(inputSendMessageSchema)
   .output(outputSendMessageSchema)
