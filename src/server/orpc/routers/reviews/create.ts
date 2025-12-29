@@ -1,6 +1,10 @@
 import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
-import { review, reviewRecommendationValues } from "@/server/db/schema";
+import {
+  review,
+  reviewAssignment,
+  reviewRecommendationValues,
+} from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
@@ -33,6 +37,24 @@ export const createReviewRouter = protectedProcedure
 
     if (!session?.user) {
       throw new ORPCError("UNAUTHORIZED");
+    }
+
+    // Verify the user is assigned to review this submission
+    const [assignment] = await db
+      .select()
+      .from(reviewAssignment)
+      .where(
+        and(
+          eq(reviewAssignment.submissionId, input.submissionId),
+          eq(reviewAssignment.reviewerId, session.user.id),
+        ),
+      )
+      .limit(1);
+
+    if (!assignment) {
+      throw new ORPCError("FORBIDDEN", {
+        message: "You are not assigned to review this submission",
+      });
     }
 
     try {

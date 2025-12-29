@@ -72,16 +72,18 @@ export function HeroSection({ user }: HeroSectionProps) {
                     {user.institution}
                   </Badge>
                 )}
-                <Badge
-                  variant="secondary"
-                  className="bg-background/60 text-muted-foreground gap-2 rounded-full px-3 py-1"
-                >
-                  <IconCalendar className="text-primary h-4 w-4" />
-                  Member since {formatDateLong(user.createdAt)}
-                </Badge>
+                {user.isOwnProfile && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-background/60 text-muted-foreground gap-2 rounded-full px-3 py-1"
+                  >
+                    <IconCalendar className="text-primary h-4 w-4" />
+                    Member since {formatDateLong(user.createdAt)}
+                  </Badge>
+                )}
               </div>
 
-              {user.email && (
+              {user.isOwnProfile && user.email && (
                 <div className="text-muted-foreground flex items-center gap-2 text-sm">
                   <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-lg">
                     <IconMail className="h-4 w-4" />

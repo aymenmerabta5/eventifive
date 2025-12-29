@@ -84,9 +84,17 @@ export async function POST(request: Request) {
 
     // 7. Handle event types
     switch (type) {
-      case "checkout.paid":
-        await handlePaymentSuccess(paymentRecord, data);
+      case "checkout.paid": {
+        const result = await handlePaymentSuccess(paymentRecord, data);
+        if (!result.success) {
+          // Return 400 to indicate validation failure - Chargily should not retry
+          return NextResponse.json(
+            { error: result.error, status: "validation_failed" },
+            { status: 400 },
+          );
+        }
         break;
+      }
       case "checkout.failed":
         await handlePaymentFailure(paymentRecord, data);
         break;
@@ -110,7 +118,47 @@ export async function POST(request: Request) {
 async function handlePaymentSuccess(
   paymentRecord: typeof payment.$inferSelect,
   data: ChargilyWebhookData,
-) {
+): Promise<{ success: boolean; error?: string }> {
+  // SECURITY: Validate that the webhook amount matches the stored payment amount
+  // This prevents price manipulation attacks where an attacker could pay less than expected
+  if (data.amount !== paymentRecord.amount) {
+    console.error(
+      `[SECURITY] Payment amount mismatch detected for payment ${paymentRecord.id}:`,
+      {
+        expectedAmount: paymentRecord.amount,
+        receivedAmount: data.amount,
+        expectedCurrency: paymentRecord.currency,
+        receivedCurrency: data.currency,
+        chargilyCheckoutId: data.id,
+        userId: paymentRecord.userId,
+        subscriptionId: paymentRecord.subscriptionId,
+        registrationId: paymentRecord.registrationId,
+      },
+    );
+    return {
+      success: false,
+      error: `Amount mismatch: expected ${paymentRecord.amount}, received ${data.amount}`,
+    };
+  }
+
+  // SECURITY: Validate currency matches as well
+  if (data.currency.toUpperCase() !== paymentRecord.currency.toUpperCase()) {
+    console.error(
+      `[SECURITY] Payment currency mismatch detected for payment ${paymentRecord.id}:`,
+      {
+        expectedCurrency: paymentRecord.currency,
+        receivedCurrency: data.currency,
+        amount: data.amount,
+        chargilyCheckoutId: data.id,
+        userId: paymentRecord.userId,
+      },
+    );
+    return {
+      success: false,
+      error: `Currency mismatch: expected ${paymentRecord.currency}, received ${data.currency}`,
+    };
+  }
+
   const now = new Date();
 
   // Update payment status
@@ -171,6 +219,7 @@ async function handlePaymentSuccess(
   }
 
   console.log(`Payment ${paymentRecord.id} marked as paid`);
+  return { success: true };
 }
 
 async function handlePaymentFailure(

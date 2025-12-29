@@ -3,9 +3,10 @@ import { protectedProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { eventIterator } from "@orpc/server";
 import { db } from "@/server/db";
-import { programSession } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { programSession, eventRegistration } from "@/server/db/schema";
+import { eq, and } from "drizzle-orm";
 import { subscribeToSessionQA } from "@/server/realtime/session-qa";
+import { getSessionManagerInfo } from "./utils";
 
 const inputSubscribeQuestionsSchema = z.object({
   sessionId: z.string().min(1),
@@ -59,19 +60,56 @@ export const subscribeQuestionsRouter = protectedProcedure
   .route({ method: "GET", path: "/qa/subscribe" })
   .input(inputSubscribeQuestionsSchema)
   .output(eventIterator(sessionQAEventSchema))
-  .handler(async function* ({ input, signal }) {
+  .handler(async function* ({ context, input, signal }) {
+    const { session: authSession } = context;
+    const userId = authSession.user.id;
     const { sessionId } = input;
 
-    // Verify session exists
+    // Verify session exists and get eventId
     const sessionData = await db
-      .select({ id: programSession.id, qaEnabled: programSession.qaEnabled })
+      .select({
+        id: programSession.id,
+        eventId: programSession.eventId,
+        qaEnabled: programSession.qaEnabled,
+      })
       .from(programSession)
       .where(eq(programSession.id, sessionId))
       .limit(1);
 
-    if (sessionData.length === 0) {
+    if (sessionData.length === 0 || !sessionData[0]) {
       throw new ORPCError("NOT_FOUND", {
         message: "Session not found",
+      });
+    }
+
+    const session = sessionData[0];
+
+    // Check if user is a session manager (organizer, chair, committee, speaker)
+    const managerInfo = await getSessionManagerInfo(sessionId, userId);
+    const isSessionManager = managerInfo?.isSessionManager ?? false;
+
+    // Check if user is registered for the event
+    let isRegistered = false;
+    if (!isSessionManager) {
+      const registration = await db
+        .select({ id: eventRegistration.id })
+        .from(eventRegistration)
+        .where(
+          and(
+            eq(eventRegistration.eventId, session.eventId),
+            eq(eventRegistration.userId, userId),
+          ),
+        )
+        .limit(1);
+
+      isRegistered = registration.length > 0;
+    }
+
+    // User must be either a session manager or registered for the event
+    if (!isSessionManager && !isRegistered) {
+      throw new ORPCError("FORBIDDEN", {
+        message:
+          "You must be registered for this event or be a session manager to subscribe to Q&A",
       });
     }
 

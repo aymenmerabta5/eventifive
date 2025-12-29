@@ -1,8 +1,22 @@
+import { createHmac } from "crypto";
+import { env } from "@/env";
 import { publisher, subscriptionManager } from "./redis";
+
+/**
+ * Hash a channel identifier using HMAC-SHA256 for defense-in-depth.
+ * This prevents attackers with Redis access from targeting specific sessions
+ * by making channel names unpredictable without the application secret.
+ */
+function hashChannel(type: string, id: string): string {
+  const secret = env.BETTER_AUTH_SECRET ?? "dev-secret-do-not-use-in-production";
+  const hmac = createHmac("sha256", secret);
+  hmac.update(`${type}:${id}`);
+  return hmac.digest("hex").substring(0, 16);
+}
 
 // Redis channel patterns for session Q&A
 function getSessionQAChannel(sessionId: string): string {
-  return `session:${sessionId}:qa`;
+  return `session:${hashChannel("session-qa", sessionId)}:qa`;
 }
 
 // Event types for Q&A

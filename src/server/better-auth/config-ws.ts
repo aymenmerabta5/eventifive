@@ -14,9 +14,6 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: 3600,
   },
   user: {
-    changeEmail: {
-      enabled: true,
-    },
     additionalFields: {
       biography: {
         type: "string",

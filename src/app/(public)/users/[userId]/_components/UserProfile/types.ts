@@ -22,7 +22,21 @@ export interface RecentEvent {
   status?: EventStatus;
 }
 
-export interface UserData {
+// Public profile fields (visible to everyone)
+export interface PublicUserData {
+  id: string;
+  name: string;
+  image: string | null;
+  imageUrl: string | null;
+  institution: string | null;
+  researchDomain: string | null;
+  biography?: unknown;
+  isOwnProfile: false;
+  recentEvents?: RecentEvent[];
+}
+
+// Full profile fields (visible only to the profile owner)
+export interface FullUserData {
   id: string;
   name: string;
   email: string;
@@ -34,8 +48,12 @@ export interface UserData {
   biography?: unknown;
   createdAt: Date;
   updatedAt: Date;
+  isOwnProfile: true;
   recentEvents?: RecentEvent[];
 }
+
+// Union type for profile data
+export type UserData = PublicUserData | FullUserData;
 
 export interface UserProfileProps {
   user: UserData;

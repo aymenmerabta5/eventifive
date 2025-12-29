@@ -36,10 +36,6 @@ export const auth = betterAuth({
     },
   },
   user: {
-    changeEmail: {
-      enabled: true,
-      updateEmailWithoutVerification: true,
-    },
     additionalFields: {
       biography: {
         type: "string", // Using string instead of json because better-auth maps additionalFields to basic types

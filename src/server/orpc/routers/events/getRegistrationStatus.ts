@@ -1,12 +1,11 @@
 import { z } from "zod";
-import { publicProcedure } from "../../index";
+import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
 import { eventRegistration } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
 const inputSchema = z.object({
   eventId: z.string().min(1),
-  userId: z.string().min(1).optional(),
 });
 
 const outputSchema = z.object({
@@ -17,30 +16,22 @@ const outputSchema = z.object({
   registeredAt: z.date().nullable(),
 });
 
-export const getRegistrationStatusRouter = publicProcedure
+export const getRegistrationStatusRouter = protectedProcedure
   .route({ method: "GET", path: "/event/registration-status" })
   .input(inputSchema)
   .output(outputSchema)
-  .handler(async ({ input }) => {
-    // If no userId provided, return not registered
-    if (!input.userId) {
-      return {
-        isRegistered: false,
-        registrationId: null,
-        paymentStatus: null,
-        roleAtEvent: null,
-        registeredAt: null,
-      };
-    }
+  .handler(async ({ input, context }) => {
+    // Use authenticated user's ID - no IDOR vulnerability
+    const userId = context.session.user.id;
 
-    // Check registration
+    // Check registration for the authenticated user only
     const [registration] = await db
       .select()
       .from(eventRegistration)
       .where(
         and(
           eq(eventRegistration.eventId, input.eventId),
-          eq(eventRegistration.userId, input.userId),
+          eq(eventRegistration.userId, userId),
         ),
       );
 

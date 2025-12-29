@@ -43,7 +43,6 @@ export default async function EventDetailPage({
     ? await client.events
         .getRegistrationStatus({
           eventId,
-          userId: session.user.id,
         })
         .catch(() => null)
     : null;

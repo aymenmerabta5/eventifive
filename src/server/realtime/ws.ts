@@ -15,6 +15,82 @@ interface WSData {
   userId?: string;
 }
 
+// =============================================================================
+// Rate Limiting Configuration
+// =============================================================================
+
+const MAX_CONNECTIONS_PER_USER = 5;
+const MIN_HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
+
+// Track connections per user for rate limiting (in-memory)
+const userConnections = new Map<string, Set<ServerWebSocket<WSData>>>();
+
+// Track last heartbeat time per user to prevent heartbeat spam
+const lastHeartbeatTime = new Map<string, number>();
+
+/**
+ * Get current connection count for a user
+ */
+function getUserConnectionCount(userId: string): number {
+  return userConnections.get(userId)?.size ?? 0;
+}
+
+/**
+ * Add a connection for a user. Returns false if limit exceeded.
+ */
+function addUserConnection(
+  userId: string,
+  ws: ServerWebSocket<WSData>
+): boolean {
+  const currentCount = getUserConnectionCount(userId);
+  if (currentCount >= MAX_CONNECTIONS_PER_USER) {
+    return false; // Limit exceeded
+  }
+
+  let connections = userConnections.get(userId);
+  if (!connections) {
+    connections = new Set();
+    userConnections.set(userId, connections);
+  }
+  connections.add(ws);
+  return true;
+}
+
+/**
+ * Remove a connection for a user and clean up if no connections remain.
+ */
+function removeUserConnection(
+  userId: string,
+  ws: ServerWebSocket<WSData>
+): void {
+  const connections = userConnections.get(userId);
+  if (connections) {
+    connections.delete(ws);
+    // Clean up empty Sets to prevent memory leaks
+    if (connections.size === 0) {
+      userConnections.delete(userId);
+      lastHeartbeatTime.delete(userId);
+    }
+  }
+}
+
+/**
+ * Check if heartbeat should be rate limited. Updates last heartbeat time if not limited.
+ */
+function shouldRateLimitHeartbeat(userId: string): boolean {
+  const now = Date.now();
+  const lastTime = lastHeartbeatTime.get(userId);
+
+  if (lastTime && now - lastTime < MIN_HEARTBEAT_INTERVAL_MS) {
+    return true; // Too soon, rate limit
+  }
+
+  lastHeartbeatTime.set(userId, now);
+  return false;
+}
+
+// =============================================================================
+
 const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
     onError((error) => {
@@ -90,18 +166,34 @@ Bun.serve<WSData>({
   },
   websocket: {
     async open(ws) {
-      const adapter = new BunWSAdapter(ws);
-      wsAdapters.set(ws, adapter);
-
       const session = await auth.api.getSession({
         headers: ws.data.headers,
       });
 
-      // Track user presence if authenticated
-      if (session?.user?.id) {
-        ws.data.userId = session.user.id;
-        await setUserOnline(session.user.id);
+      // Reject unauthenticated connections immediately
+      if (!session?.user?.id) {
+        console.log("[WS] Rejected unauthenticated connection");
+        ws.close(4001, "Authentication required");
+        return;
       }
+
+      const userId = session.user.id;
+
+      // Rate limit: Check connection count per user
+      if (!addUserConnection(userId, ws)) {
+        console.log(
+          `[WS] Rejected connection for user ${userId}: too many connections (limit: ${MAX_CONNECTIONS_PER_USER})`
+        );
+        ws.close(1008, "Too many connections");
+        return;
+      }
+
+      const adapter = new BunWSAdapter(ws);
+      wsAdapters.set(ws, adapter);
+
+      // Track user presence
+      ws.data.userId = userId;
+      await setUserOnline(userId);
 
       await rpcHandler.upgrade(adapter as unknown as WebSocket, {
         context: {
@@ -123,6 +215,11 @@ Bun.serve<WSData>({
       try {
         const parsed = JSON.parse(messageStr);
         if (parsed.type === "heartbeat" && ws.data.userId) {
+          // Rate limit heartbeats to prevent spam
+          if (shouldRateLimitHeartbeat(ws.data.userId)) {
+            // Silently ignore too-frequent heartbeats
+            return;
+          }
           await refreshPresence(ws.data.userId);
           ws.send(JSON.stringify({ type: "heartbeat_ack" }));
           return;
@@ -140,8 +237,9 @@ Bun.serve<WSData>({
         wsAdapters.delete(ws);
       }
 
-      // Update presence when user disconnects
+      // Update presence and remove connection from rate limit tracking
       if (ws.data.userId) {
+        removeUserConnection(ws.data.userId, ws);
         await setUserOffline(ws.data.userId);
       }
     },

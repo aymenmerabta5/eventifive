@@ -11,13 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { ProfileInfo } from "./ProfileInfo";
-import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
 import { SessionManagement } from "./SessionManagement";
 import { SubscriptionSettings } from "./SubscriptionSettings";
 import {
   User,
-  Mail,
   Lock,
   Settings,
   ChevronRight,
@@ -39,12 +37,6 @@ const tabs = [
     label: "Subscription",
     icon: Crown,
     description: "Plan & billing",
-  },
-  {
-    id: "email",
-    label: "Email",
-    icon: Mail,
-    description: "Email & notifications",
   },
   {
     id: "security",
@@ -295,49 +287,6 @@ export default function Main() {
                 </CardHeader>
                 <CardContent className="px-8 pb-8">
                   <ProfileInfo user={user} onSessionRefresh={refetch} />
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Email Tab */}
-          <div
-            className={cn(
-              "transition-all duration-300",
-              activeTab === "email"
-                ? "animate-in fade-in slide-in-from-right-4"
-                : "hidden",
-            )}
-          >
-            {activeTab === "email" && (
-              <Card className="bg-card/80 overflow-hidden rounded-3xl border-0 shadow-2xl shadow-black/10 backdrop-blur-xl">
-                <div
-                  className={cn(
-                    "h-1 w-full bg-linear-to-r from-violet-500 to-purple-600",
-                  )}
-                />
-
-                <CardHeader className="px-8 py-6">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-purple-600 shadow-lg",
-                      )}
-                    >
-                      <Mail className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-semibold">
-                        Email Address
-                      </CardTitle>
-                      <CardDescription>
-                        Manage your email and notification preferences
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-8 pb-8">
-                  <ChangeEmail user={user} onSessionRefresh={refetch} />
                 </CardContent>
               </Card>
             )}

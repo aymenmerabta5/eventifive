@@ -10,8 +10,11 @@ import {
 import type { UserProfileProps } from "./types";
 
 export function UserProfile({ user }: UserProfileProps) {
-  const { isOwnProfile, isContacting, handleContact, handleShareProfile } =
+  const { isContacting, handleContact, handleShareProfile } =
     useUserProfile(user.id);
+
+  // Use isOwnProfile from the API response (based on authorization)
+  const isOwnProfile = user.isOwnProfile;
 
   return (
     <div className="min-h-screen bg-linear-to-b">
@@ -23,13 +26,13 @@ export function UserProfile({ user }: UserProfileProps) {
           <div className="space-y-6 lg:col-span-2">
             <BiographyCard
               biography={user.biography}
-              emailVerified={user.emailVerified}
+              emailVerified={isOwnProfile ? user.emailVerified : false}
             />
           </div>
 
           <div className="space-y-6">
             <ContactCard
-              email={user.email}
+              email={isOwnProfile ? user.email : null}
               institution={user.institution}
               isOwnProfile={isOwnProfile}
               isContacting={isContacting}

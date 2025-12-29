@@ -10,7 +10,20 @@ const inputGetProfileSchema = z.object({
   userId: z.string(),
 });
 
-const outputGetProfileSchema = z.object({
+// Public profile fields (visible to everyone)
+const publicProfileSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  institution: z.string().nullable(),
+  researchDomain: z.string().nullable(),
+  biography: z.any().nullable(),
+  isOwnProfile: z.literal(false),
+});
+
+// Full profile fields (visible only to the profile owner)
+const fullProfileSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
@@ -22,13 +35,17 @@ const outputGetProfileSchema = z.object({
   biography: z.any().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  isOwnProfile: z.literal(true),
 });
+
+// Union of both schemas for the output
+const outputGetProfileSchema = z.union([publicProfileSchema, fullProfileSchema]);
 
 export const getProfileRouter = publicProcedure
   .route({ method: "POST", path: "/profile/get" })
   .input(inputGetProfileSchema)
   .output(outputGetProfileSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ context, input }) => {
     try {
       // Fetch user profile
       const [userProfile] = await db
@@ -66,18 +83,37 @@ export const getProfileRouter = publicProcedure
         }
       }
 
+      // Check if the requester is viewing their own profile
+      const isOwnProfile = context.session?.user?.id === input.userId;
+
+      if (isOwnProfile) {
+        // Return full profile data for the profile owner
+        return {
+          id: userProfile.id,
+          name: userProfile.name,
+          email: userProfile.email,
+          emailVerified: userProfile.emailVerified,
+          image: userProfile.image,
+          imageUrl,
+          institution: userProfile.institution,
+          researchDomain: userProfile.researchDomain,
+          biography: userProfile.biography,
+          createdAt: userProfile.createdAt,
+          updatedAt: userProfile.updatedAt,
+          isOwnProfile: true as const,
+        };
+      }
+
+      // Return only public profile data for other users
       return {
         id: userProfile.id,
         name: userProfile.name,
-        email: userProfile.email,
-        emailVerified: userProfile.emailVerified,
         image: userProfile.image,
         imageUrl,
         institution: userProfile.institution,
         researchDomain: userProfile.researchDomain,
         biography: userProfile.biography,
-        createdAt: userProfile.createdAt,
-        updatedAt: userProfile.updatedAt,
+        isOwnProfile: false as const,
       };
     } catch (error) {
       if (error instanceof ORPCError) {

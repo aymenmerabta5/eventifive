@@ -9,7 +9,7 @@ import {
   userSubscription,
   payment,
 } from "@/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, inArray } from "drizzle-orm";
 import {
   getChargilyClient,
   generateCallbackUrls,
@@ -18,6 +18,19 @@ import {
   createCheckoutInputSchema,
   createCheckoutOutputSchema,
 } from "@/lib/schemas/payment";
+
+// Helper to check if error is a unique constraint violation
+function isUniqueConstraintError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes("unique") ||
+      message.includes("duplicate") ||
+      message.includes("23505") // PostgreSQL unique violation code
+    );
+  }
+  return false;
+}
 
 export const createCheckoutRouter = protectedProcedure
   .route({ method: "POST", path: "/payment/checkout" })
@@ -61,22 +74,68 @@ export const createCheckoutRouter = protectedProcedure
       });
     }
 
-    // 3. Check if user already has an active subscription
+    // 3. Check if user already has an active or pending subscription
     const [existingSubscription] = await db
-      .select()
+      .select({
+        subscription: userSubscription,
+        payment: payment,
+      })
       .from(userSubscription)
+      .leftJoin(payment, eq(payment.subscriptionId, userSubscription.id))
       .where(
         and(
           eq(userSubscription.userId, userId),
-          eq(userSubscription.status, "active"),
+          or(
+            eq(userSubscription.status, "active"),
+            eq(userSubscription.status, "pending"),
+          ),
         ),
-      );
+      )
+      .orderBy(userSubscription.createdAt);
 
     if (existingSubscription) {
-      throw new ORPCError("BAD_REQUEST", {
-        message:
-          "You already have an active subscription. Please cancel it first before subscribing to a new plan.",
-      });
+      const { subscription, payment: existingPayment } = existingSubscription;
+
+      // If active subscription exists, reject
+      if (subscription.status === "active") {
+        throw new ORPCError("BAD_REQUEST", {
+          message:
+            "You already have an active subscription. Please cancel it first before subscribing to a new plan.",
+        });
+      }
+
+      // If pending subscription exists with a valid checkout, return it
+      if (
+        subscription.status === "pending" &&
+        existingPayment?.chargilyCheckoutId
+      ) {
+        // Check if the pending payment is still valid (created within last hour)
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        if (existingPayment.createdAt > oneHourAgo) {
+          // Return the existing checkout URL
+          const client = getChargilyClient();
+          try {
+            const checkout = await client.getCheckout(
+              existingPayment.chargilyCheckoutId,
+            );
+            if (checkout && checkout.status === "pending") {
+              return {
+                paymentId: existingPayment.id,
+                checkoutUrl: checkout.checkout_url,
+                chargilyCheckoutId: existingPayment.chargilyCheckoutId,
+              };
+            }
+          } catch {
+            // Checkout expired or invalid, clean up and create new one
+          }
+        }
+
+        // Clean up stale pending subscription
+        await db.delete(payment).where(eq(payment.id, existingPayment.id));
+        await db
+          .delete(userSubscription)
+          .where(eq(userSubscription.id, subscription.id));
+      }
     }
 
     // 4. Calculate subscription period dates
@@ -89,18 +148,52 @@ export const createCheckoutRouter = protectedProcedure
     }
 
     // 5. Create subscription record with pending status
+    // Use try-catch to handle race condition where another request created a subscription
     const subscriptionId = uuidv4();
-    await db.insert(userSubscription).values({
-      id: subscriptionId,
-      userId,
-      planId: plan.id,
-      priceId: price.id,
-      status: "pending",
-      currentPeriodStart: now,
-      currentPeriodEnd: periodEnd,
-      createdAt: now,
-      updatedAt: now,
-    });
+    try {
+      await db.insert(userSubscription).values({
+        id: subscriptionId,
+        userId,
+        planId: plan.id,
+        priceId: price.id,
+        status: "pending",
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        createdAt: now,
+        updatedAt: now,
+      });
+    } catch (insertError) {
+      // Check if this was a race condition (another subscription was created concurrently)
+      // Re-check for existing subscriptions
+      const [raceConditionSub] = await db
+        .select()
+        .from(userSubscription)
+        .where(
+          and(
+            eq(userSubscription.userId, userId),
+            or(
+              eq(userSubscription.status, "active"),
+              eq(userSubscription.status, "pending"),
+            ),
+          ),
+        );
+
+      if (raceConditionSub) {
+        if (raceConditionSub.status === "active") {
+          throw new ORPCError("BAD_REQUEST", {
+            message:
+              "You already have an active subscription. Please cancel it first before subscribing to a new plan.",
+          });
+        }
+        throw new ORPCError("CONFLICT", {
+          message:
+            "A subscription checkout is already in progress. Please complete or cancel it first.",
+        });
+      }
+
+      // Re-throw if it was a different error
+      throw insertError;
+    }
 
     // 6. Create payment record
     const paymentId = uuidv4();
