@@ -49,9 +49,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
     }
 
-    // 3. Parse event
-    const event: ChargilyWebhookEvent = JSON.parse(rawBody);
-    const { type, data } = event;
+    // 3. Parse webhook event
+    const webhookEvent: ChargilyWebhookEvent = JSON.parse(rawBody);
+    const { type, data } = webhookEvent;
 
     console.log(`Received Chargily webhook: ${type}`, { checkoutId: data.id });
 
@@ -65,47 +65,56 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Get payment record
-    const [paymentRecord] = await db
-      .select()
-      .from(payment)
-      .where(eq(payment.id, paymentId));
+    // 5-7. Process webhook in a transaction with row locking to prevent race conditions
+    // This ensures only one webhook request can process a payment at a time
+    const result = await db.transaction(async (tx) => {
+      // Lock the payment row for update (prevents concurrent processing)
+      const [paymentRecord] = await tx
+        .select()
+        .from(payment)
+        .where(eq(payment.id, paymentId))
+        .for("update");
 
-    if (!paymentRecord) {
-      console.error(`Payment not found: ${paymentId}`);
-      return NextResponse.json({ error: "Payment not found" }, { status: 404 });
-    }
-
-    // 6. Check if already processed (idempotency)
-    if (paymentRecord.status === "paid" && type === "checkout.paid") {
-      console.log(`Payment ${paymentId} already processed, skipping`);
-      return NextResponse.json({ status: "already_processed" });
-    }
-
-    // 7. Handle event types
-    switch (type) {
-      case "checkout.paid": {
-        const result = await handlePaymentSuccess(paymentRecord, data);
-        if (!result.success) {
-          // Return 400 to indicate validation failure - Chargily should not retry
-          return NextResponse.json(
-            { error: result.error, status: "validation_failed" },
-            { status: 400 },
-          );
-        }
-        break;
+      if (!paymentRecord) {
+        return { status: 404, body: { error: "Payment not found" } };
       }
-      case "checkout.failed":
-        await handlePaymentFailure(paymentRecord, data);
-        break;
-      case "checkout.expired":
-        await handlePaymentExpired(paymentRecord);
-        break;
-      default:
-        console.log(`Unhandled webhook event type: ${type}`);
-    }
 
-    return NextResponse.json({ status: "ok" });
+      // Check if already processed (idempotency) - now safe from race conditions
+      if (paymentRecord.status === "paid" && type === "checkout.paid") {
+        console.log(`Payment ${paymentId} already processed, skipping`);
+        return { status: 200, body: { status: "already_processed" } };
+      }
+
+      // Handle event types within the transaction
+      switch (type) {
+        case "checkout.paid": {
+          const success = await handlePaymentSuccessInTx(
+            tx,
+            paymentRecord,
+            data,
+          );
+          if (!success.success) {
+            return {
+              status: 400,
+              body: { error: success.error, status: "validation_failed" },
+            };
+          }
+          break;
+        }
+        case "checkout.failed":
+          await handlePaymentFailureInTx(tx, paymentRecord, data);
+          break;
+        case "checkout.expired":
+          await handlePaymentExpiredInTx(tx, paymentRecord);
+          break;
+        default:
+          console.log(`Unhandled webhook event type: ${type}`);
+      }
+
+      return { status: 200, body: { status: "ok" } };
+    });
+
+    return NextResponse.json(result.body, { status: result.status });
   } catch (error) {
     console.error("Webhook processing error:", error);
     return NextResponse.json(
@@ -115,7 +124,11 @@ export async function POST(request: Request) {
   }
 }
 
-async function handlePaymentSuccess(
+// Transaction type from Drizzle
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function handlePaymentSuccessInTx(
+  tx: Transaction,
   paymentRecord: typeof payment.$inferSelect,
   data: ChargilyWebhookData,
 ): Promise<{ success: boolean; error?: string }> {
@@ -161,8 +174,8 @@ async function handlePaymentSuccess(
 
   const now = new Date();
 
-  // Update payment status
-  await db
+  // Update payment status within the transaction
+  await tx
     .update(payment)
     .set({
       status: "paid",
@@ -174,7 +187,7 @@ async function handlePaymentSuccess(
 
   // Update subscription if applicable
   if (paymentRecord.subscriptionId) {
-    await db
+    await tx
       .update(userSubscription)
       .set({
         status: "active",
@@ -189,7 +202,7 @@ async function handlePaymentSuccess(
 
   // Update event registration if applicable
   if (paymentRecord.registrationId) {
-    await db
+    await tx
       .update(eventRegistration)
       .set({
         paymentStatus: "paid",
@@ -197,18 +210,19 @@ async function handlePaymentSuccess(
       .where(eq(eventRegistration.id, paymentRecord.registrationId));
 
     // Get the event to find the organizer and invalidate their dashboard cache
-    const [registration] = await db
+    const [registration] = await tx
       .select({ eventId: eventRegistration.eventId })
       .from(eventRegistration)
       .where(eq(eventRegistration.id, paymentRecord.registrationId));
 
     if (registration) {
-      const [eventData] = await db
+      const [eventData] = await tx
         .select({ organizerId: event.organizerId })
         .from(event)
         .where(eq(event.id, registration.eventId));
 
       if (eventData) {
+        // Cache invalidation is safe to do outside transaction since it's not critical
         await invalidateDashboardCache(eventData.organizerId);
       }
     }
@@ -222,12 +236,13 @@ async function handlePaymentSuccess(
   return { success: true };
 }
 
-async function handlePaymentFailure(
+async function handlePaymentFailureInTx(
+  tx: Transaction,
   paymentRecord: typeof payment.$inferSelect,
   data: ChargilyWebhookData,
 ) {
   // Update payment with failure info
-  await db
+  await tx
     .update(payment)
     .set({
       status: "unpaid",
@@ -240,11 +255,12 @@ async function handlePaymentFailure(
   console.log(`Payment ${paymentRecord.id} marked as failed`);
 }
 
-async function handlePaymentExpired(
+async function handlePaymentExpiredInTx(
+  tx: Transaction,
   paymentRecord: typeof payment.$inferSelect,
 ) {
   // Update payment status
-  await db
+  await tx
     .update(payment)
     .set({
       status: "unpaid",
@@ -254,7 +270,7 @@ async function handlePaymentExpired(
 
   // Delete pending subscription if exists
   if (paymentRecord.subscriptionId) {
-    await db
+    await tx
       .delete(userSubscription)
       .where(eq(userSubscription.id, paymentRecord.subscriptionId));
 
