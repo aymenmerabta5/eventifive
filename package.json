@@ -38,6 +38,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@icons-pack/react-simple-icons": "^13.8.0",
     "@orpc/client": "^1.10.4",
+    "@orpc/experimental-ratelimit": "^1.13.2",
     "@orpc/openapi": "^1.10.4",
     "@orpc/server": "^1.10.4",
     "@orpc/tanstack-query": "^1.10.4",

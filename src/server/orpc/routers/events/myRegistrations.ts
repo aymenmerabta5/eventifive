@@ -9,7 +9,7 @@ import {
   paymentStatusValues,
 } from "@/server/db/schema";
 import { z } from "zod";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 const registrationSchema = z.object({
@@ -64,42 +64,64 @@ export const myRegistrationsRouter = protectedProcedure
       .where(eq(eventRegistration.userId, userId))
       .orderBy(desc(event.startDate));
 
-    // Generate presigned URLs for each event's image
-    const registrationsWithImages = await Promise.all(
-      registrations.map(async (reg) => {
-        let imageUrl: string | null = null;
+    // Initialize registrations with null imageUrl
+    let registrationsWithImages = registrations.map((reg) => ({
+      ...reg,
+      event: {
+        ...reg.event,
+        imageUrl: null as string | null,
+      },
+    }));
 
-        // Get default image from eventImages table
-        const [defaultImage] = await db
-          .select({ s3Key: files.s3Key })
-          .from(eventImages)
-          .innerJoin(files, eq(eventImages.fileId, files.id))
-          .where(eq(eventImages.eventId, reg.eventId))
-          .limit(1);
+    if (registrations.length > 0) {
+      const eventIds = registrations.map((reg) => reg.eventId);
 
-        if (defaultImage?.s3Key) {
-          try {
-            const { downloadUrl } = await generatePresignedDownloadUrl(
-              defaultImage.s3Key,
-            );
-            imageUrl = downloadUrl;
-          } catch (error) {
-            console.error(
-              `Failed to generate image URL for event ${reg.eventId}:`,
-              error,
-            );
-          }
+      // BATCHED: Fetch all images for all events in one query
+      const allImages = await db
+        .select({
+          eventId: eventImages.eventId,
+          s3Key: files.s3Key,
+        })
+        .from(eventImages)
+        .innerJoin(files, eq(eventImages.fileId, files.id))
+        .where(inArray(eventImages.eventId, eventIds));
+
+      // Create a map of eventId -> s3Key (first image per event)
+      const imageMap = new Map<string, string>();
+      for (const img of allImages) {
+        if (!imageMap.has(img.eventId)) {
+          imageMap.set(img.eventId, img.s3Key);
         }
+      }
 
-        return {
-          ...reg,
-          event: {
-            ...reg.event,
-            imageUrl,
-          },
-        };
-      }),
-    );
+      // Generate presigned URLs for all images in parallel
+      const urlPromises: Promise<{ eventId: string; url: string | null }>[] = [];
+      for (const [eventId, s3Key] of imageMap) {
+        urlPromises.push(
+          generatePresignedDownloadUrl(s3Key)
+            .then(({ downloadUrl }) => ({ eventId, url: downloadUrl }))
+            .catch((error) => {
+              console.error(
+                `Failed to generate image URL for event ${eventId}:`,
+                error,
+              );
+              return { eventId, url: null };
+            }),
+        );
+      }
+
+      const urlResults = await Promise.all(urlPromises);
+      const urlMap = new Map(urlResults.map((r) => [r.eventId, r.url]));
+
+      // Apply URLs to all registrations
+      registrationsWithImages = registrationsWithImages.map((reg) => ({
+        ...reg,
+        event: {
+          ...reg.event,
+          imageUrl: urlMap.get(reg.eventId) ?? null,
+        },
+      }));
+    }
 
     return {
       registrations: registrationsWithImages,

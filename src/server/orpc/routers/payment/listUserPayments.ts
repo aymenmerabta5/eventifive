@@ -8,7 +8,7 @@ import {
   eventRegistration,
   event,
 } from "@/server/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import { listPaymentsOutputSchema } from "@/lib/schemas/payment";
 
 const inputSchema = z.object({
@@ -33,58 +33,89 @@ export const listUserPaymentsRouter = protectedProcedure
       .limit(input.limit)
       .offset(input.offset);
 
-    // Fetch related data for each payment
-    const result = await Promise.all(
-      payments.map(async (p) => {
-        let type: "subscription" | "event_registration" = "subscription";
-        let description = "";
+    // Collect all subscription and registration IDs for batch fetching
+    // Note: subscriptionId is text (string), registrationId is integer (number)
+    const subscriptionIds = payments
+      .map((p) => p.subscriptionId)
+      .filter((id): id is string => id !== null);
+    const registrationIds = payments
+      .map((p) => p.registrationId)
+      .filter((id): id is number => id !== null);
 
-        if (p.subscriptionId) {
-          const [sub] = await db
-            .select({
-              subscription: userSubscription,
-              plan: subscriptionPlan,
-            })
-            .from(userSubscription)
-            .innerJoin(
-              subscriptionPlan,
-              eq(userSubscription.planId, subscriptionPlan.id),
-            )
-            .where(eq(userSubscription.id, p.subscriptionId));
+    // BATCHED: Fetch all subscriptions with their plans in one query
+    const subscriptionsMap = new Map<
+      string,
+      { subscription: typeof userSubscription.$inferSelect; plan: typeof subscriptionPlan.$inferSelect }
+    >();
+    if (subscriptionIds.length > 0) {
+      const subscriptions = await db
+        .select({
+          subscription: userSubscription,
+          plan: subscriptionPlan,
+        })
+        .from(userSubscription)
+        .innerJoin(
+          subscriptionPlan,
+          eq(userSubscription.planId, subscriptionPlan.id),
+        )
+        .where(inArray(userSubscription.id, subscriptionIds));
 
-          if (sub) {
-            type = "subscription";
-            description = `${sub.plan.displayName} Subscription`;
-          }
-        } else if (p.registrationId) {
-          const [reg] = await db
-            .select({
-              registration: eventRegistration,
-              event: event,
-            })
-            .from(eventRegistration)
-            .innerJoin(event, eq(eventRegistration.eventId, event.id))
-            .where(eq(eventRegistration.id, p.registrationId));
+      for (const sub of subscriptions) {
+        subscriptionsMap.set(sub.subscription.id, sub);
+      }
+    }
 
-          if (reg) {
-            type = "event_registration";
-            description = `Event: ${reg.event.title}`;
-          }
+    // BATCHED: Fetch all registrations with their events in one query
+    const registrationsMap = new Map<
+      number,
+      { registration: typeof eventRegistration.$inferSelect; event: typeof event.$inferSelect }
+    >();
+    if (registrationIds.length > 0) {
+      const registrations = await db
+        .select({
+          registration: eventRegistration,
+          event: event,
+        })
+        .from(eventRegistration)
+        .innerJoin(event, eq(eventRegistration.eventId, event.id))
+        .where(inArray(eventRegistration.id, registrationIds));
+
+      for (const reg of registrations) {
+        registrationsMap.set(reg.registration.id, reg);
+      }
+    }
+
+    // Map payments to result format using the pre-fetched data
+    const result = payments.map((p) => {
+      let type: "subscription" | "event_registration" = "subscription";
+      let description = "";
+
+      if (p.subscriptionId) {
+        const sub = subscriptionsMap.get(p.subscriptionId);
+        if (sub) {
+          type = "subscription";
+          description = `${sub.plan.displayName} Subscription`;
         }
+      } else if (p.registrationId) {
+        const reg = registrationsMap.get(p.registrationId);
+        if (reg) {
+          type = "event_registration";
+          description = `Event: ${reg.event.title}`;
+        }
+      }
 
-        return {
-          id: p.id,
-          status: p.status,
-          amount: p.amount,
-          currency: p.currency,
-          paymentMethod: p.paymentMethod,
-          paidAt: p.paidAt,
-          createdAt: p.createdAt,
-          type,
-          description,
-        };
-      }),
-    );
+      return {
+        id: p.id,
+        status: p.status,
+        amount: p.amount,
+        currency: p.currency,
+        paymentMethod: p.paymentMethod,
+        paidAt: p.paidAt,
+        createdAt: p.createdAt,
+        type,
+        description,
+      };
+    });
 
     return result;
   });

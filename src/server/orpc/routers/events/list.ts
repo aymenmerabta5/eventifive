@@ -9,7 +9,7 @@ import {
 } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { eq, desc, gt, and } from "drizzle-orm";
+import { eq, desc, gt, and, inArray } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 // TEACHING: eventSchema now includes imageUrl for the presigned S3 URL
@@ -62,7 +62,7 @@ export const listEventsRouter = publicProcedure
         symposium: [],
       };
 
-      // Fetch 3 upcoming events for each type and generate image URLs
+      // Fetch 3 upcoming events for each type
       const now = new Date();
       await Promise.all(
         eventTypes.map(async (type) => {
@@ -79,43 +79,62 @@ export const listEventsRouter = publicProcedure
             .orderBy(desc(event.startDate))
             .limit(3);
 
-          // TEACHING: Generate presigned URLs for each event's image from eventImages table
-          const eventsWithUrls = await Promise.all(
-            events.map(async (evt) => {
-              let imageUrl: string | null = null;
-
-              // Get default image from eventImages table
-              const [defaultImage] = await db
-                .select({ s3Key: files.s3Key })
-                .from(eventImages)
-                .innerJoin(files, eq(eventImages.fileId, files.id))
-                .where(eq(eventImages.eventId, evt.id))
-                .limit(1);
-
-              if (defaultImage?.s3Key) {
-                try {
-                  const { downloadUrl } = await generatePresignedDownloadUrl(
-                    defaultImage.s3Key,
-                  );
-                  imageUrl = downloadUrl;
-                } catch (error) {
-                  console.error(
-                    `Failed to generate image URL for event ${evt.id}:`,
-                    error,
-                  );
-                }
-              }
-
-              return {
-                ...evt,
-                imageUrl,
-              };
-            }),
-          );
-
-          grouped[type] = eventsWithUrls;
+          grouped[type] = events.map((evt) => ({ ...evt, imageUrl: null }));
         }),
       );
+
+      // BATCHED: Collect all event IDs and fetch images in one query
+      const allEventIds = Object.values(grouped)
+        .flat()
+        .map((evt) => evt.id);
+
+      if (allEventIds.length > 0) {
+        // Batch fetch all images for all events in one query
+        const allImages = await db
+          .select({
+            eventId: eventImages.eventId,
+            s3Key: files.s3Key,
+          })
+          .from(eventImages)
+          .innerJoin(files, eq(eventImages.fileId, files.id))
+          .where(inArray(eventImages.eventId, allEventIds));
+
+        // Create a map of eventId -> s3Key (first image per event)
+        const imageMap = new Map<string, string>();
+        for (const img of allImages) {
+          if (!imageMap.has(img.eventId)) {
+            imageMap.set(img.eventId, img.s3Key);
+          }
+        }
+
+        // Generate presigned URLs for all images in parallel
+        const urlPromises: Promise<{ eventId: string; url: string | null }>[] =
+          [];
+        for (const [eventId, s3Key] of imageMap) {
+          urlPromises.push(
+            generatePresignedDownloadUrl(s3Key)
+              .then(({ downloadUrl }) => ({ eventId, url: downloadUrl }))
+              .catch((error) => {
+                console.error(
+                  `Failed to generate image URL for event ${eventId}:`,
+                  error,
+                );
+                return { eventId, url: null };
+              }),
+          );
+        }
+
+        const urlResults = await Promise.all(urlPromises);
+        const urlMap = new Map(urlResults.map((r) => [r.eventId, r.url]));
+
+        // Apply URLs to all events
+        for (const type of eventTypes) {
+          grouped[type] = grouped[type].map((evt) => ({
+            ...evt,
+            imageUrl: urlMap.get(evt.id) ?? null,
+          }));
+        }
+      }
 
       return grouped;
     } catch (error) {
