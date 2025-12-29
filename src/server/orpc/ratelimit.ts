@@ -61,6 +61,18 @@ export const messagingLimiter = createRedisLimiter("messaging", 30);
 export const qaLimiter = createRedisLimiter("qa", 20);
 
 /**
+ * Poll voting rate limiter: 10 requests per minute
+ * Moderate limit to prevent vote spam
+ */
+export const pollVotingLimiter = createRedisLimiter("poll-voting", 10);
+
+/**
+ * Poll creation rate limiter: 5 requests per minute
+ * Strict limit since only session managers create polls
+ */
+export const pollCreationLimiter = createRedisLimiter("poll-creation", 5);
+
+/**
  * Registration rate limiter: 10 requests per minute
  * Moderate limit for event registrations
  */
@@ -119,6 +131,25 @@ export const qaRateLimitMiddleware = createRatelimitMiddleware<Context>({
   limiter: () => qaLimiter,
   key: ({ context }) => getUserKey(context),
 });
+
+/**
+ * Poll voting rate limit middleware
+ * Applied to: vote
+ */
+export const pollVotingRateLimitMiddleware = createRatelimitMiddleware<Context>({
+  limiter: () => pollVotingLimiter,
+  key: ({ context }) => getUserKey(context),
+});
+
+/**
+ * Poll creation rate limit middleware
+ * Applied to: createPoll, updatePoll, closePoll
+ */
+export const pollCreationRateLimitMiddleware =
+  createRatelimitMiddleware<Context>({
+    limiter: () => pollCreationLimiter,
+    key: ({ context }) => getUserKey(context),
+  });
 
 /**
  * Registration rate limit middleware

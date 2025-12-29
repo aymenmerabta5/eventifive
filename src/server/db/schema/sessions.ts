@@ -14,6 +14,7 @@ import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 import { user } from "./users";
 import { event } from "./events";
 import { submission } from "./submissions";
+import { pollTypeEnum } from "./enums";
 
 // ---------------------------
 // ROOMS
@@ -197,6 +198,72 @@ export const sessionQuestionAnswers = pgTable(
 );
 
 // ---------------------------
+// SESSION POLLS
+// ---------------------------
+export const sessionPoll = pgTable(
+  "session_poll",
+  {
+    id: text("id").primaryKey(),
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => programSession.id, { onDelete: "cascade" }),
+    question: text("question").notNull(),
+    pollType: pollTypeEnum("poll_type").notNull().default("single"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    closedAt: timestamp("closed_at"),
+  },
+  (table) => [
+    index("session_poll_session_id_idx").on(table.sessionId),
+    index("session_poll_created_at_idx").on(table.createdAt),
+    index("session_poll_is_active_idx").on(table.isActive),
+  ],
+);
+
+export const sessionPollOption = pgTable(
+  "session_poll_option",
+  {
+    id: serial("id").primaryKey(),
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => sessionPoll.id, { onDelete: "cascade" }),
+    text: varchar("text", { length: 500 }).notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+  },
+  (table) => [index("session_poll_option_poll_id_idx").on(table.pollId)],
+);
+
+export const sessionPollVote = pgTable(
+  "session_poll_vote",
+  {
+    id: serial("id").primaryKey(),
+    pollId: text("poll_id")
+      .notNull()
+      .references(() => sessionPoll.id, { onDelete: "cascade" }),
+    optionId: integer("option_id")
+      .notNull()
+      .references(() => sessionPollOption.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    votedAt: timestamp("voted_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("session_poll_vote_poll_user_option_unique").on(
+      table.pollId,
+      table.userId,
+      table.optionId,
+    ),
+    index("session_poll_vote_poll_id_idx").on(table.pollId),
+    index("session_poll_vote_user_id_idx").on(table.userId),
+    index("session_poll_vote_option_id_idx").on(table.optionId),
+  ],
+);
+
+// ---------------------------
 // INFERRED TYPES
 // ---------------------------
 export type Room = InferSelectModel<typeof room>;
@@ -216,3 +283,12 @@ export type NewSessionQuestionLike = InferInsertModel<typeof sessionQuestionLike
 
 export type SessionQuestionAnswer = InferSelectModel<typeof sessionQuestionAnswers>;
 export type NewSessionQuestionAnswer = InferInsertModel<typeof sessionQuestionAnswers>;
+
+export type SessionPoll = InferSelectModel<typeof sessionPoll>;
+export type NewSessionPoll = InferInsertModel<typeof sessionPoll>;
+
+export type SessionPollOption = InferSelectModel<typeof sessionPollOption>;
+export type NewSessionPollOption = InferInsertModel<typeof sessionPollOption>;
+
+export type SessionPollVote = InferSelectModel<typeof sessionPollVote>;
+export type NewSessionPollVote = InferInsertModel<typeof sessionPollVote>;

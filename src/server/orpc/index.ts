@@ -9,6 +9,8 @@ import {
   messagingRateLimitMiddleware,
   qaRateLimitMiddleware,
   registrationRateLimitMiddleware,
+  pollVotingRateLimitMiddleware,
+  pollCreationRateLimitMiddleware,
 } from "./ratelimit";
 
 
@@ -97,4 +99,20 @@ export const rateLimitedQAProcedure = protectedProcedure.use(
  */
 export const rateLimitedRegistrationProcedure = protectedProcedure.use(
   registrationRateLimitMiddleware
+);
+
+/**
+ * Poll voting rate-limited procedure: 10 requests/minute
+ * Use for: vote
+ */
+export const rateLimitedPollVoteProcedure = protectedProcedure.use(
+  pollVotingRateLimitMiddleware
+);
+
+/**
+ * Poll creation rate-limited procedure: 5 requests/minute
+ * Use for: createPoll, updatePoll, closePoll
+ */
+export const rateLimitedPollCreationProcedure = protectedProcedure.use(
+  pollCreationRateLimitMiddleware
 );
