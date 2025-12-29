@@ -9,26 +9,26 @@ import EmailLayout from "./EmailLayout";
 export default function ResetPasswordEmail({ link }: { link: string }) {
   return (
     <EmailLayout>
-      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center shadow-lg">
+      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center">
         <Section className="text-center">
           <Heading
             as="h1"
-            className="font-display text-primary mb-2 text-2xl font-bold tracking-tight"
+            className="text-primary mb-2 text-2xl font-bold"
           >
             Eventifive
           </Heading>
           <Heading
             as="h2"
-            className="text-foreground mb-4 text-4xl font-bold tracking-tight"
+            className="text-foreground mb-4 text-3xl font-bold"
           >
             Reset your password
           </Heading>
-          <Text className="text-mutedForeground mb-6 text-base leading-relaxed">
+          <Text className="text-mutedForeground mb-6 text-base">
             Hey there! We received a request to reset your password. If you
             didn&apos;t make this request, you can safely ignore this email.
           </Text>
           <Button
-            className="bg-primary hover:bg-primary/90 rounded-lg px-6 py-3 font-semibold text-white shadow-md transition-colors"
+            className="bg-primary rounded-lg px-6 py-3 font-semibold text-white"
             href={link}
           >
             Reset Password

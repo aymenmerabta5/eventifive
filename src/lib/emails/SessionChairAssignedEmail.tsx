@@ -31,21 +31,21 @@ export function SessionChairAssignedEmail({
 }: SessionChairAssignedEmailProps) {
   return (
     <EmailLayout>
-      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center shadow-lg">
+      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center">
         <Section className="text-center">
           <Heading
             as="h1"
-            className="font-display text-primary mb-2 text-2xl font-bold tracking-tight"
+            className="text-primary mb-2 text-2xl font-bold"
           >
             Eventifive
           </Heading>
           <Heading
             as="h2"
-            className="text-foreground mb-4 text-3xl font-bold tracking-tight"
+            className="text-foreground mb-4 text-3xl font-bold"
           >
             You&apos;re the Session Chair!
           </Heading>
-          <Text className="text-mutedForeground mb-6 text-base leading-relaxed">
+          <Text className="text-mutedForeground mb-6 text-base">
             Hello {recipientName}, you have been assigned as the chair for the
             following session.
           </Text>
@@ -83,7 +83,7 @@ export function SessionChairAssignedEmail({
             your session. You can print it or display it on screen.
           </Text>
 
-          <Section className="mb-4 inline-block rounded-lg bg-white p-4">
+          <Section className="mb-4 rounded-lg bg-white p-4">
             <Img
               src={qrCodeDataUrl}
               width={200}
@@ -94,7 +94,7 @@ export function SessionChairAssignedEmail({
           </Section>
 
           <Button
-            className="bg-primary hover:bg-primary/90 rounded-lg px-8 py-3 font-semibold text-white shadow-md transition-colors"
+            className="bg-primary rounded-lg px-8 py-3 font-semibold text-white"
             href={qaUrl}
           >
             Open Q&A Dashboard
@@ -106,7 +106,7 @@ export function SessionChairAssignedEmail({
             <Text className="text-mutedForeground mb-2 text-sm">
               <strong>Direct Q&A Link:</strong>
             </Text>
-            <Text className="text-primary text-sm break-all">
+            <Text className="text-primary text-sm">
               <a href={qaUrl}>{qaUrl}</a>
             </Text>
           </Section>

@@ -36,21 +36,21 @@ export function CertificateIssuedEmail({
 }: CertificateIssuedEmailProps) {
   return (
     <EmailLayout>
-      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center shadow-lg">
+      <Section className="bg-card my-6 rounded-lg px-6 py-12 text-center">
         <Section className="text-center">
           <Heading
             as="h1"
-            className="font-display text-primary mb-2 text-2xl font-bold tracking-tight"
+            className="text-primary mb-2 text-2xl font-bold"
           >
             Eventifive
           </Heading>
           <Heading
             as="h2"
-            className="text-foreground mb-4 text-3xl font-bold tracking-tight"
+            className="text-foreground mb-4 text-3xl font-bold"
           >
             Your Certificate is Ready!
           </Heading>
-          <Text className="text-mutedForeground mb-6 text-base leading-relaxed">
+          <Text className="text-mutedForeground mb-6 text-base">
             Congratulations, {recipientName}! Your certificate of appreciation
             as a <strong>{getRoleDescription(role)}</strong> for the event has
             been issued.
@@ -63,7 +63,7 @@ export function CertificateIssuedEmail({
           </Section>
 
           <Button
-            className="bg-primary hover:bg-primary/90 rounded-lg px-8 py-3 font-semibold text-white shadow-md transition-colors"
+            className="bg-primary rounded-lg px-8 py-3 font-semibold text-white"
             href={downloadUrl}
           >
             Download Certificate
@@ -75,7 +75,7 @@ export function CertificateIssuedEmail({
             <Text className="text-mutedForeground mb-2 text-sm">
               <strong>Verification Code:</strong>
             </Text>
-            <Text className="text-primary mb-4 font-mono text-lg font-bold">
+            <Text className="text-primary mb-4 text-lg font-bold">
               {verificationCode}
             </Text>
             <Text className="text-mutedForeground text-sm">
