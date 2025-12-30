@@ -12,6 +12,7 @@ import {
 import { ORPCError } from "@orpc/server";
 import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
+import { issueBadgeForRole } from "@/lib/badges/issueBadge";
 
 // Constants
 const REQUIRED_REVIEWERS = 3;
@@ -331,6 +332,14 @@ export const inviteCommitteeRouter = protectedProcedure
       userId: foundUser.id,
     });
 
+    // Issue committee badge (fire and forget)
+    issueBadgeForRole(input.eventId, foundUser.id, "committee").catch((error) => {
+      console.error(
+        `Failed to issue committee badge for user ${foundUser.id}:`,
+        error,
+      );
+    });
+
     return { ok: true as const };
   });
 
@@ -369,6 +378,11 @@ export const acceptSpeakerRouter = protectedProcedure
       .update(eventSpeakers)
       .set({ status: "accepted", respondedAt: new Date() })
       .where(eq(eventSpeakers.id, found.id));
+
+    // Issue speaker badge (fire and forget)
+    issueBadgeForRole(input.eventId, userId, "speaker").catch((error) => {
+      console.error(`Failed to issue speaker badge for user ${userId}:`, error);
+    });
 
     return { ok: true as const };
   });
@@ -471,6 +485,11 @@ export const acceptReviewerRouter = protectedProcedure
             ],
           });
       }
+    });
+
+    // Issue reviewer badge (fire and forget, after transaction)
+    issueBadgeForRole(input.eventId, userId, "reviewer").catch((error) => {
+      console.error(`Failed to issue reviewer badge for user ${userId}:`, error);
     });
 
     return { ok: true as const };

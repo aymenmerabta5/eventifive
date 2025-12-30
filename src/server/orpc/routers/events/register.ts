@@ -5,6 +5,7 @@ import { db } from "@/server/db";
 import { event, eventRegistration } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { invalidateDashboardCache } from "@/server/cache";
+import { issueBadgeForRegistration } from "@/lib/badges/issueBadge";
 
 const inputSchema = z.object({
   eventId: z.string().min(1),
@@ -92,6 +93,14 @@ export const registerForEventRouter = rateLimitedRegistrationProcedure
 
     // Invalidate organizer's dashboard cache
     await invalidateDashboardCache(eventData.organizerId);
+
+    // Issue participant badge (fire and forget)
+    issueBadgeForRegistration(newReg.id).catch((error) => {
+      console.error(
+        `Failed to issue badge for registration ${newReg.id}:`,
+        error,
+      );
+    });
 
     return {
       success: true,

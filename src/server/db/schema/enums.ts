@@ -79,6 +79,13 @@ export const eventStatusEnum = pgEnum("event_status", [
 
 export const pollTypeEnum = pgEnum("poll_type", ["single", "multiple"]);
 
+export const badgeRoleEnum = pgEnum("badge_role", [
+  "participant",
+  "speaker",
+  "reviewer",
+  "committee",
+]);
+
 // ---------------------------
 // ENUM VALUE ARRAYS (for use in zod schemas and UI)
 // ---------------------------
@@ -96,6 +103,7 @@ export const subscriptionStatusValues = subscriptionStatusEnum.enumValues;
 export const certificateRoleValues = certificateRoleEnum.enumValues;
 export const eventStatusValues = eventStatusEnum.enumValues;
 export const pollTypeValues = pollTypeEnum.enumValues;
+export const badgeRoleValues = badgeRoleEnum.enumValues;
 
 // ---------------------------
 // ENUM TYPES (union types derived from the arrays)
@@ -114,3 +122,4 @@ export type SubscriptionStatus = (typeof subscriptionStatusValues)[number];
 export type CertificateRole = (typeof certificateRoleValues)[number];
 export type EventStatus = (typeof eventStatusValues)[number];
 export type PollType = (typeof pollTypeValues)[number];
+export type BadgeRole = (typeof badgeRoleValues)[number];

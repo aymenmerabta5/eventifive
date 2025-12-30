@@ -24,6 +24,8 @@ import {
   IconHourglass,
   IconX,
   IconRefresh,
+  IconDownload,
+  IconId,
 } from "@tabler/icons-react";
 import { authClient } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
@@ -32,6 +34,11 @@ import type { Route } from "next";
 import { formatDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
+import { pdf } from "@react-pdf/renderer";
+import { toast } from "sonner";
+import { BadgeTemplate } from "@/lib/badges/BadgeTemplate";
+import { generateBadgeQRCodeDataUrl } from "@/lib/badges/generateQRCode";
+import type { MyBadge } from "@/lib/schemas/badges";
 
 // ============================================================================
 // Types & Helpers
@@ -93,6 +100,7 @@ interface Registration {
     smallDescription: string | null;
     imageUrl: string | null;
   };
+  badge?: MyBadge | null;
 }
 
 // ============================================================================
@@ -104,6 +112,60 @@ function RegistrationCard({ registration }: { registration: Registration }) {
   const payment = paymentConfig[registration.paymentStatus] ?? paymentConfig.pending!;
   const PaymentIcon = payment.icon;
   const isLive = status === "live";
+  const [isDownloadingBadge, setIsDownloadingBadge] = useState(false);
+
+  const handleDownloadBadge = async () => {
+    if (!registration.badge) return;
+
+    setIsDownloadingBadge(true);
+    try {
+      const baseUrl = window.location.origin;
+
+      // Get full badge data including user info from the download endpoint
+      const badgeData = await orpc.badges.download.call({
+        badgeId: registration.badge.id,
+      });
+
+      const qrCodeDataUrl = await generateBadgeQRCodeDataUrl(
+        badgeData.verificationCode,
+        baseUrl
+      );
+
+      const doc = (
+        <BadgeTemplate
+          recipientName={badgeData.recipientName}
+          recipientEmail={badgeData.recipientEmail}
+          eventTitle={badgeData.eventTitle}
+          eventType={badgeData.eventType}
+          eventStartDate={new Date(badgeData.eventStartDate)}
+          eventEndDate={new Date(badgeData.eventEndDate)}
+          eventLocation={badgeData.eventLocation}
+          role={badgeData.role}
+          affiliation={badgeData.affiliation}
+          verificationCode={badgeData.verificationCode}
+          issuedAt={new Date(badgeData.issuedAt)}
+          qrCodeDataUrl={qrCodeDataUrl}
+        />
+      );
+
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `badge-${registration.badge.verificationCode}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success("Badge downloaded successfully!");
+    } catch (error) {
+      console.error("Failed to download badge:", error);
+      toast.error("Failed to download badge. Please try again.");
+    } finally {
+      setIsDownloadingBadge(false);
+    }
+  };
 
   return (
     <div
@@ -211,13 +273,31 @@ function RegistrationCard({ registration }: { registration: Registration }) {
           </div>
         </div>
 
-        {/* Action Button */}
-        <Button size="sm" className="w-full gap-2" asChild>
-          <Link href={`/events/${registration.eventId}` as Route}>
-            <IconExternalLink className="size-4" />
-            View Event
-          </Link>
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button size="sm" className="flex-1 gap-2" asChild>
+            <Link href={`/events/${registration.eventId}` as Route}>
+              <IconExternalLink className="size-4" />
+              View Event
+            </Link>
+          </Button>
+          {registration.badge && registration.paymentStatus === "paid" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={handleDownloadBadge}
+              disabled={isDownloadingBadge}
+            >
+              {isDownloadingBadge ? (
+                <IconLoader2 className="size-4 animate-spin" />
+              ) : (
+                <IconId className="size-4" />
+              )}
+              Badge
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -297,6 +377,25 @@ export default function RegistrationsPage() {
     enabled: !!session,
   });
 
+  const { data: badgesData } = useQuery({
+    ...orpc.badges.listMyBadges.queryOptions({}),
+    enabled: !!session,
+  });
+
+  // Create a map of badges by eventId for quick lookup
+  const badgesByEventId = useMemo(() => {
+    const map = new Map<string, MyBadge>();
+    if (badgesData) {
+      for (const badge of badgesData) {
+        // Only use participant badges for registration cards
+        if (badge.role === "participant") {
+          map.set(badge.eventId, badge);
+        }
+      }
+    }
+    return map;
+  }, [badgesData]);
+
   // Group registrations by event status
   const { liveRegistrations, upcomingRegistrations, pastRegistrations } = useMemo(() => {
     if (!data?.registrations) {
@@ -308,7 +407,7 @@ export default function RegistrationsPage() {
     const past: Registration[] = [];
 
     for (const reg of data.registrations) {
-      const regWithDates = {
+      const regWithDates: Registration = {
         ...reg,
         registeredAt: new Date(reg.registeredAt),
         event: {
@@ -316,6 +415,7 @@ export default function RegistrationsPage() {
           startDate: new Date(reg.event.startDate),
           endDate: new Date(reg.event.endDate),
         },
+        badge: badgesByEventId.get(reg.eventId) ?? null,
       };
 
       const status = getEventStatus(regWithDates.event.startDate, regWithDates.event.endDate);
@@ -335,7 +435,7 @@ export default function RegistrationsPage() {
     past.sort((a, b) => b.event.startDate.getTime() - a.event.startDate.getTime());
 
     return { liveRegistrations: live, upcomingRegistrations: upcoming, pastRegistrations: past };
-  }, [data?.registrations]);
+  }, [data?.registrations, badgesByEventId]);
 
   // Loading state
   if (isSessionPending || isLoading) {

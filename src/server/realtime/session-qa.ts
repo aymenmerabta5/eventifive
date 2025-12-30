@@ -8,7 +8,7 @@ import { publisher, subscriptionManager } from "./redis";
  * by making channel names unpredictable without the application secret.
  */
 function hashChannel(type: string, id: string): string {
-  const secret = env.BETTER_AUTH_SECRET ?? "dev-secret-do-not-use-in-production";
+  const secret = env.BETTER_AUTH_SECRET! as string;
   const hmac = createHmac("sha256", secret);
   hmac.update(`${type}:${id}`);
   return hmac.digest("hex").substring(0, 16);

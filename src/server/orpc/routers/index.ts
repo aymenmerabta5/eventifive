@@ -11,6 +11,7 @@ import { sessionsRouter } from "./sessions";
 import { adminRouter } from "./admin";
 import { organizerRouter } from "./organizer";
 import { certificatesRouter } from "./certificates";
+import { badgesRouter } from "./badges";
 
 /**
  * Main application router
@@ -30,6 +31,7 @@ import { certificatesRouter } from "./certificates";
  * - reviews: Review operations (create)
  * - sessions: Program session and room management (createRoom, updateRoom, deleteRoom, listRooms, createSession, updateSession, deleteSession, listSessions, getSession)
  * - certificates: Certificate management (getEligibleRecipients, generate, listByEvent, listMyCertificates, download, verify, revoke)
+ * - badges: Badge management (listMyBadges, download, verify, listByEvent, revoke)
  */
 export const appRouter = {
   admin: adminRouter,
@@ -44,6 +46,7 @@ export const appRouter = {
   reviews: reviewsRouter,
   sessions: sessionsRouter,
   certificates: certificatesRouter,
+  badges: badgesRouter,
 };
 
 export type AppRouter = typeof appRouter;

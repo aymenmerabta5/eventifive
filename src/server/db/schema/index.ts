@@ -30,3 +30,6 @@ export * from "./messaging";
 
 // Certificates (depends on enums, users, events)
 export * from "./certificates";
+
+// Badges (depends on enums, users, events)
+export * from "./badges";

@@ -10,6 +10,7 @@ import {
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { invalidateDashboardCache } from "@/server/cache";
+import { issueBadgeForRegistration } from "@/lib/badges/issueBadge";
 
 interface ChargilyWebhookData {
   id: string;
@@ -230,6 +231,14 @@ async function handlePaymentSuccessInTx(
     console.log(
       `Event registration ${paymentRecord.registrationId} marked as paid for payment ${paymentRecord.id}`,
     );
+
+    // Issue participant badge (fire and forget, outside transaction)
+    issueBadgeForRegistration(paymentRecord.registrationId).catch((error) => {
+      console.error(
+        `Failed to issue badge for registration ${paymentRecord.registrationId}:`,
+        error,
+      );
+    });
   }
 
   console.log(`Payment ${paymentRecord.id} marked as paid`);
