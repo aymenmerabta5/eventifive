@@ -88,10 +88,10 @@ export function FormNavigation({
               Working...
             </>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               Continue
               <ArrowRight className="size-4" />
-            </>
+            </div>
           )}
         </StatefulButton>
       ) : (
