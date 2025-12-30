@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import EventTypePageClient from "./_components/EventTypePage";
+import { EventTypePage as EventTypePageClient } from "./_components/EventTypePage";
 
 // Map URL eventType to database eventType, tolerating hyphens/underscores and casing
 function mapEventType(
@@ -48,7 +48,5 @@ export default async function EventTypePage({
     notFound();
   }
 
-  return (
-    <EventTypePageClient eventType={eventType} eventTypeParam={eventType} />
-  );
+  return <EventTypePageClient eventType={eventType} />;
 }

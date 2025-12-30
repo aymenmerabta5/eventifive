@@ -1,6 +1,11 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  IconCrown,
+  IconCalendar,
+  IconCheck,
+  IconClock,
+} from "@tabler/icons-react";
 import { formatPrice } from "@/lib/string";
 import { STATUS_STYLES, MAX_FEATURES_DISPLAYED } from "../constants";
 import type { SubscriptionData, SubscriptionStatusType } from "../types";
@@ -14,83 +19,133 @@ export function ActiveSubscriptionCard({
   subscription,
   daysRemaining,
 }: ActiveSubscriptionCardProps) {
+  const isPending = subscription.status === "pending";
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Subscription</CardTitle>
-        <Crown className="text-primary h-4 w-4" />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
+    <div
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-border/50",
+        "bg-gradient-to-br from-card via-card to-card/80",
+        "transition-all duration-300 hover:shadow-md hover:shadow-primary/5"
+      )}
+    >
+      {/* Premium gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-chart-2/5 opacity-60" />
+
+      {/* Decorative glow */}
+      <div
+        className={cn(
+          "pointer-events-none absolute -right-8 -top-8 size-32 rounded-full blur-3xl",
+          "bg-primary/15 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        )}
+      />
+
+      {/* Header */}
+      <div className="relative flex items-center justify-between p-6 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div
+            className={cn(
+              "flex size-8 items-center justify-center rounded-lg",
+              "bg-primary/10 text-primary"
+            )}
+          >
+            <IconCrown className="size-4" />
+          </div>
+          <span className="text-sm font-medium text-foreground">
+            Subscription
+          </span>
+        </div>
+
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-xs font-medium",
+            STATUS_STYLES[subscription.status as SubscriptionStatusType]
+          )}
+        >
+          {subscription.status.charAt(0).toUpperCase() +
+            subscription.status.slice(1)}
+        </Badge>
+      </div>
+
+      {/* Content */}
+      <div className="relative space-y-4 p-6 pt-0">
+        {/* Plan and price */}
+        <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-2xl font-bold">
+            <h3 className="font-display text-2xl font-bold text-foreground">
               {subscription.plan.displayName}
-            </p>
-            <Badge
-              variant="outline"
-              className={
-                STATUS_STYLES[subscription.status as SubscriptionStatusType]
-              }
-            >
-              {subscription.status.charAt(0).toUpperCase() +
-                subscription.status.slice(1)}
-            </Badge>
+            </h3>
           </div>
           <div className="text-right">
-            <p className="text-lg font-semibold">
+            <p className="font-display text-lg font-semibold text-foreground">
               {formatPrice(
                 subscription.price.amount,
-                subscription.price.currency,
+                subscription.price.currency
               )}
             </p>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-xs text-muted-foreground">
               /{subscription.price.billingPeriod}
             </p>
           </div>
         </div>
 
+        {/* Status messages */}
         {subscription.status === "active" && (
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4" />
-            <span>
-              {daysRemaining > 0
-                ? `Renews in ${daysRemaining} days`
-                : "Renewal pending"}
+          <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-2.5">
+            <IconCalendar className="size-4 text-primary" />
+            <span className="text-sm text-foreground">
+              {daysRemaining > 0 ? (
+                <>
+                  Renews in{" "}
+                  <span className="font-medium">{daysRemaining} days</span>
+                </>
+              ) : (
+                "Renewal pending"
+              )}
             </span>
           </div>
         )}
 
-        {subscription.status === "pending" && (
-          <div className="rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20">
-            <p className="text-sm text-yellow-700 dark:text-yellow-300">
-              Your payment is being processed. This may take a few minutes.
-            </p>
+        {isPending && (
+          <div className="flex items-center gap-2 rounded-lg bg-chart-4/10 p-2.5">
+            <IconClock className="size-4 animate-pulse text-chart-4" />
+            <span className="text-sm text-chart-4">
+              Payment is being processed...
+            </span>
           </div>
         )}
 
-        {subscription.plan.features &&
-          subscription.plan.features.length > 0 && (
-            <div className="border-t pt-2">
-              <p className="text-muted-foreground mb-2 text-xs font-medium">
-                Your plan includes:
-              </p>
-              <ul className="text-muted-foreground space-y-1 text-xs">
-                {subscription.plan.features
-                  .slice(0, MAX_FEATURES_DISPLAYED)
-                  .map((feature, i) => (
-                    <li key={i}>• {feature}</li>
-                  ))}
-                {subscription.plan.features.length > MAX_FEATURES_DISPLAYED && (
-                  <li className="text-primary">
-                    +
-                    {subscription.plan.features.length - MAX_FEATURES_DISPLAYED}{" "}
-                    more features
+        {/* Features */}
+        {subscription.plan.features && subscription.plan.features.length > 0 && (
+          <div className="border-t border-border/30 pt-3">
+            <p className="mb-2 text-xs font-medium text-muted-foreground">
+              Your plan includes:
+            </p>
+            <ul className="space-y-1.5">
+              {subscription.plan.features
+                .slice(0, MAX_FEATURES_DISPLAYED)
+                .map((feature, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 text-xs text-muted-foreground"
+                  >
+                    <div className="flex size-4 items-center justify-center rounded-full bg-primary/10">
+                      <IconCheck className="size-2.5 text-primary" />
+                    </div>
+                    {feature}
                   </li>
-                )}
-              </ul>
-            </div>
-          )}
-      </CardContent>
-    </Card>
+                ))}
+              {subscription.plan.features.length > MAX_FEATURES_DISPLAYED && (
+                <li className="text-xs font-medium text-primary">
+                  +{subscription.plan.features.length - MAX_FEATURES_DISPLAYED}{" "}
+                  more features
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

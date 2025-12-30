@@ -1,5 +1,11 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { FileText, CheckCircle2, Clock } from "lucide-react";
+"use client";
+
+import { cn } from "@/lib/utils";
+import {
+  IconFileText,
+  IconCircleCheck,
+  IconClock,
+} from "@tabler/icons-react";
 
 interface CommitteeStatsCardsProps {
   total: number;
@@ -12,46 +18,86 @@ export function CommitteeStatsCards({
   reviewed,
   pending,
 }: CommitteeStatsCardsProps) {
+  const stats = [
+    {
+      label: "Total Submissions",
+      value: total,
+      description: "Papers submitted for review",
+      icon: IconFileText,
+      colorClass: "text-chart-2",
+      bgClass: "from-chart-2/10 to-chart-2/5",
+      iconBgClass: "bg-chart-2/10",
+    },
+    {
+      label: "Reviewed",
+      value: reviewed,
+      description: "Completed reviews",
+      icon: IconCircleCheck,
+      colorClass: "text-primary",
+      bgClass: "from-primary/10 to-primary/5",
+      iconBgClass: "bg-primary/10",
+    },
+    {
+      label: "Pending Review",
+      value: pending,
+      description: "Awaiting committee decision",
+      icon: IconClock,
+      colorClass: "text-chart-4",
+      bgClass: "from-chart-4/10 to-chart-4/5",
+      iconBgClass: "bg-chart-4/10",
+    },
+  ];
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Total Submissions
-          </CardTitle>
-          <FileText className="text-muted-foreground size-4" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{total}</div>
-          <p className="text-muted-foreground text-xs">
-            Papers submitted for review
-          </p>
-        </CardContent>
-      </Card>
+      {stats.map((stat) => (
+        <div
+          key={stat.label}
+          className={cn(
+            "relative overflow-hidden rounded-2xl border border-border/50",
+            "bg-gradient-to-br from-card via-card to-card/80"
+          )}
+        >
+          {/* Pattern overlay */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+              backgroundSize: "20px 20px",
+            }}
+          />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Reviewed</CardTitle>
-          <CheckCircle2 className="size-4 text-green-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">{reviewed}</div>
-          <p className="text-muted-foreground text-xs">Completed reviews</p>
-        </CardContent>
-      </Card>
+          {/* Gradient accent */}
+          <div
+            className={cn(
+              "pointer-events-none absolute -right-8 -top-8 size-24 rounded-full blur-2xl",
+              stat.bgClass.replace("from-", "bg-").split(" ")[0]
+            )}
+          />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
-          <Clock className="size-4 text-amber-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-amber-600">{pending}</div>
-          <p className="text-muted-foreground text-xs">
-            Awaiting committee decision
-          </p>
-        </CardContent>
-      </Card>
+          <div className="relative p-5">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  {stat.label}
+                </p>
+                <p className={cn("font-display text-3xl font-bold", stat.colorClass)}>
+                  {stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </div>
+              <div
+                className={cn(
+                  "flex size-12 items-center justify-center rounded-xl",
+                  stat.iconBgClass
+                )}
+              >
+                <stat.icon className={cn("size-6", stat.colorClass)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

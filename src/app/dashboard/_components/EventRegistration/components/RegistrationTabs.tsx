@@ -2,7 +2,13 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, Presentation, Award } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  IconUsers,
+  IconFileText,
+  IconPresentation,
+  IconAward,
+} from "@tabler/icons-react";
 import { ParticipantsTab } from "./ParticipantsTab";
 import { CommitteeTab } from "./CommitteeTab";
 import { WorkshopTab } from "./WorkshopTab";
@@ -38,51 +44,105 @@ export function RegistrationTabs({
 }: RegistrationTabsProps) {
   return (
     <Tabs defaultValue="participants" className="w-full space-y-6">
-      <TabsList className="h-12 w-full justify-start">
-        <TabsTrigger value="participants" className="gap-2">
-          <Users className="size-4" />
-          <span className="text-md hidden sm:inline">Participants</span>
-          <Badge variant="secondary" className="ml-1 text-xs">
-            {participants.length}
-          </Badge>
-        </TabsTrigger>
-        <TabsTrigger value="committee-members" className="gap-2">
-          <FileText className="size-4" />
-          <span className="text-md hidden sm:inline">Committee Members</span>
-          <Badge variant="secondary" className="ml-1 text-xs">
-            {committeeSubmissions.length}
-          </Badge>
-        </TabsTrigger>
-        <TabsTrigger value="workshop-facilitators" className="gap-2">
-          <Presentation className="size-4" />
-          <span className="text-md hidden sm:inline">
-            Workshop Facilitators
-          </span>
-          <Badge variant="secondary" className="ml-1 text-xs">
-            {workshopSubmissions.length}
-          </Badge>
-        </TabsTrigger>
-        <TabsTrigger value="certificates" className="gap-2">
-          <Award className="size-4" />
-          <span className="text-md hidden sm:inline">Certificates</span>
-        </TabsTrigger>
-      </TabsList>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-2xl border border-border/50",
+          "bg-gradient-to-br from-card via-card to-card/80"
+        )}
+      >
+        {/* Pattern overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.01] dark:opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: "20px 20px",
+          }}
+        />
 
-      <TabsContent value="participants">
+        <TabsList className="relative h-14 w-full justify-start gap-1 bg-transparent p-2">
+          <TabsTrigger
+            value="participants"
+            className={cn(
+              "gap-2 rounded-xl px-4 py-2.5",
+              "data-[state=active]:bg-primary/10 data-[state=active]:text-primary",
+              "data-[state=active]:shadow-sm"
+            )}
+          >
+            <IconUsers className="size-4" />
+            <span className="hidden sm:inline">Participants</span>
+            <Badge
+              variant="secondary"
+              className="ml-1 border-border/50 bg-muted/50 text-xs"
+            >
+              {participants.length}
+            </Badge>
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="committee-members"
+            className={cn(
+              "gap-2 rounded-xl px-4 py-2.5",
+              "data-[state=active]:bg-chart-2/10 data-[state=active]:text-chart-2",
+              "data-[state=active]:shadow-sm"
+            )}
+          >
+            <IconFileText className="size-4" />
+            <span className="hidden sm:inline">Committee</span>
+            <Badge
+              variant="secondary"
+              className="ml-1 border-border/50 bg-muted/50 text-xs"
+            >
+              {committeeSubmissions.length}
+            </Badge>
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="workshop-facilitators"
+            className={cn(
+              "gap-2 rounded-xl px-4 py-2.5",
+              "data-[state=active]:bg-chart-3/10 data-[state=active]:text-chart-3",
+              "data-[state=active]:shadow-sm"
+            )}
+          >
+            <IconPresentation className="size-4" />
+            <span className="hidden sm:inline">Workshops</span>
+            <Badge
+              variant="secondary"
+              className="ml-1 border-border/50 bg-muted/50 text-xs"
+            >
+              {workshopSubmissions.length}
+            </Badge>
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="certificates"
+            className={cn(
+              "gap-2 rounded-xl px-4 py-2.5",
+              "data-[state=active]:bg-chart-4/10 data-[state=active]:text-chart-4",
+              "data-[state=active]:shadow-sm"
+            )}
+          >
+            <IconAward className="size-4" />
+            <span className="hidden sm:inline">Certificates</span>
+          </TabsTrigger>
+        </TabsList>
+      </div>
+
+      <TabsContent value="participants" className="mt-0">
         <ParticipantsTab
           participants={participants}
           isLoading={isParticipantsLoading}
         />
       </TabsContent>
 
-      <TabsContent value="committee-members">
+      <TabsContent value="committee-members" className="mt-0">
         <CommitteeTab
           submissions={committeeSubmissions}
           isLoading={isSubmissionsLoading}
         />
       </TabsContent>
 
-      <TabsContent value="workshop-facilitators">
+      <TabsContent value="workshop-facilitators" className="mt-0">
         <WorkshopTab
           submissions={workshopSubmissions}
           isLoading={isSubmissionsLoading}
@@ -92,7 +152,7 @@ export function RegistrationTabs({
         />
       </TabsContent>
 
-      <TabsContent value="certificates">
+      <TabsContent value="certificates" className="mt-0">
         <CertificatesTab eventId={eventId} />
       </TabsContent>
     </Tabs>

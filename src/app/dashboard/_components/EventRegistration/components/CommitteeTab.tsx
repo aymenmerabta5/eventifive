@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { IconFileText, IconLoader2 } from "@tabler/icons-react";
 import { CommitteeStatsCards } from "./CommitteeStatsCards";
 import { CommitteeSubmissionCard } from "./CommitteeSubmissionCard";
 import { computeFinalDecision } from "../utils";
@@ -25,7 +19,7 @@ export function CommitteeTab({ submissions, isLoading }: CommitteeTabProps) {
       const decision = computeFinalDecision(
         s.reviewers.map((r) => ({
           reviewStatus: r.reviewStatus as ReviewStatus,
-        })),
+        }))
       );
       return decision.finalStatus !== "pending";
     }).length,
@@ -33,7 +27,7 @@ export function CommitteeTab({ submissions, isLoading }: CommitteeTabProps) {
       const decision = computeFinalDecision(
         s.reviewers.map((r) => ({
           reviewStatus: r.reviewStatus as ReviewStatus,
-        })),
+        }))
       );
       return decision.finalStatus === "pending";
     }).length,
@@ -47,27 +41,62 @@ export function CommitteeTab({ submissions, isLoading }: CommitteeTabProps) {
         pending={stats.pending}
       />
 
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-lg font-semibold">
-            Paper Submissions
-          </CardTitle>
-          <CardDescription>
-            Research papers submitted for committee review.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-2xl border border-border/50",
+          "bg-gradient-to-br from-card via-card to-card/80"
+        )}
+      >
+        {/* Pattern overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: "20px 20px",
+          }}
+        />
+
+        {/* Accent strip */}
+        <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-chart-2 via-chart-2/80 to-primary" />
+
+        <div className="relative p-6">
+          <div className="mb-6 space-y-1">
+            <h3 className="font-display text-lg font-semibold text-foreground">
+              Paper Submissions
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Research papers submitted for committee review.
+            </p>
+          </div>
+
           {isLoading && (
-            <div className="text-muted-foreground text-sm">Loading...</div>
+            <div className="flex items-center justify-center py-12">
+              <IconLoader2 className="size-6 animate-spin text-chart-2" />
+              <span className="ml-2 text-sm text-muted-foreground">
+                Loading submissions...
+              </span>
+            </div>
           )}
 
           {!isLoading && submissions.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-              <FileText className="text-muted-foreground/50 h-12 w-12" />
-              <h3 className="mt-4 text-lg font-semibold">
+            <div
+              className={cn(
+                "flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50 p-12",
+                "bg-gradient-to-br from-muted/30 to-muted/10"
+              )}
+            >
+              <div
+                className={cn(
+                  "mb-4 flex size-16 items-center justify-center rounded-2xl",
+                  "bg-gradient-to-br from-chart-2/10 to-primary/10"
+                )}
+              >
+                <IconFileText className="size-8 text-chart-2/60" />
+              </div>
+              <h3 className="font-display text-lg font-semibold text-foreground">
                 No committee submissions
               </h3>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 max-w-sm text-center text-sm text-muted-foreground">
                 Committee submissions will appear here once researchers submit
                 their papers.
               </p>
@@ -85,8 +114,8 @@ export function CommitteeTab({ submissions, isLoading }: CommitteeTabProps) {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

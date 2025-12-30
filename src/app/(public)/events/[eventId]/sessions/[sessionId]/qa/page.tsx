@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Lock } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { redirect, useParams } from "next/navigation";
 import { SessionHeader } from "./_components/SessionHeader";
@@ -39,6 +39,17 @@ export default function SessionQAPage() {
     enabled: !!eventId,
   });
 
+  // Check registration status
+  const {
+    data: registrationStatus,
+    isLoading: isRegistrationLoading,
+  } = useQuery({
+    ...orpc.events.getRegistrationStatus.queryOptions({
+      input: { eventId },
+    }),
+    enabled: !!eventId && !!authSession,
+  });
+
   // Fetch questions
   const {
     data: questionsData,
@@ -50,18 +61,18 @@ export default function SessionQAPage() {
         sessionId,
         includeUnapproved: true, // Will be filtered by backend based on permissions
       }),
-    enabled: !!sessionId && !!authSession,
+    enabled: !!sessionId && !!authSession && !!registrationStatus?.isRegistered,
   });
 
   // Subscribe to real-time Q&A updates
   useQASubscription({
     sessionId,
     currentUserId: authSession?.user?.id ?? "",
-    enabled: !!sessionId && !!authSession,
+    enabled: !!sessionId && !!authSession && !!registrationStatus?.isRegistered,
   });
 
   // Loading states
-  if (isAuthPending || isSessionLoading) {
+  if (isAuthPending || isSessionLoading || isRegistrationLoading) {
     return (
       <div className="container mx-auto flex min-h-[60vh] items-center justify-center">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
@@ -92,6 +103,22 @@ export default function SessionQAPage() {
 
   const session = sessionData.session;
   const eventTitle = eventData?.title ?? "Event";
+
+  // Registration required
+  if (!registrationStatus?.isRegistered) {
+    return (
+      <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <Lock className="text-muted-foreground h-12 w-12" />
+        <h1 className="text-xl font-semibold">Registration Required</h1>
+        <p className="text-muted-foreground text-center max-w-md">
+          You need to register for this event to access the Q&A session.
+        </p>
+        <Button asChild>
+          <Link href={`/events/${eventId}`}>Go to Event Page</Link>
+        </Button>
+      </div>
+    );
+  }
 
   // Q&A not enabled
   if (!session.qaEnabled) {

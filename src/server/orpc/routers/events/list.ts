@@ -38,8 +38,6 @@ const outputListEventsSchema = z.object({
   symposium: z.array(eventSchema).max(3),
 });
 
-// TEACHING: We define a type for events with imageUrl
-// This is the shape returned to clients, not the raw DB shape
 type EventWithImageUrl = z.infer<typeof eventSchema>;
 
 type GroupedEvents = {

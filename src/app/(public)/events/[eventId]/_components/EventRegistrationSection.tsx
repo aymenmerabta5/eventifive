@@ -1,19 +1,24 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { orpc } from "@/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   IconCurrencyDollar,
   IconCheck,
   IconClock,
   IconLogin,
+  IconLoader2,
+  IconSparkles,
+  IconTicket,
+  IconShieldCheck,
+  IconArrowRight,
 } from "@tabler/icons-react";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface RegistrationStatus {
   isRegistered: boolean;
@@ -91,131 +96,328 @@ export function EventRegistrationSection({
   // Already registered and paid
   if (isRegistered && isPaid) {
     return (
-      <Card className="mt-6 border-green-500/50 bg-green-500/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-green-600">
-            <IconCheck className="size-5" />
-            You&apos;re Registered!
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground text-sm">
-            You have successfully registered for{" "}
-            <span className="font-medium text-foreground">{eventTitle}</span>.
-            We look forward to seeing you there!
-          </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IconCurrencyDollar className="text-green-600 size-5" />
-              <span className="text-sm font-medium">Registration Fee</span>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-3xl",
+          "border-2 border-primary/30",
+          "bg-gradient-to-br from-primary/5 via-chart-2/5 to-primary/5"
+        )}
+      >
+        {/* Pattern overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        {/* Success glow */}
+        <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/20 blur-3xl" />
+
+        <div className="relative p-8">
+          <div className="flex flex-col items-center text-center">
+            {/* Success icon */}
+            <div
+              className={cn(
+                "mb-4 flex size-16 items-center justify-center rounded-2xl",
+                "bg-gradient-to-br from-primary/20 to-chart-2/20",
+                "ring-4 ring-primary/10"
+              )}
+            >
+              <IconCheck className="size-8 text-primary" />
             </div>
-            <Badge variant="secondary" className="bg-green-500/10 text-green-600">
-              {priceDisplay} - Paid
-            </Badge>
+
+            <h3 className="font-display text-2xl font-bold text-foreground">
+              You&apos;re Registered!
+            </h3>
+            <p className="mt-2 max-w-md text-muted-foreground">
+              You have successfully registered for{" "}
+              <span className="font-medium text-foreground">{eventTitle}</span>.
+              We look forward to seeing you there!
+            </p>
+
+            {/* Registration details */}
+            <div
+              className={cn(
+                "mt-6 flex items-center gap-6 rounded-xl",
+                "bg-card/50 border border-border/50 px-6 py-3"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <IconTicket className="size-5 text-primary" />
+                <span className="text-sm font-medium">Registration Fee</span>
+              </div>
+              <Badge
+                className={cn(
+                  "border-primary/30 bg-primary/10 text-primary",
+                  "text-sm font-medium"
+                )}
+              >
+                {priceDisplay} &mdash; Paid
+              </Badge>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   // Registered but payment pending
   if (isRegistered && isPending) {
     return (
-      <Card className="mt-6 border-yellow-500/50 bg-yellow-500/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg font-semibold text-yellow-600">
-            <IconClock className="size-5" />
-            Payment Pending
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground text-sm">
-            Your registration is pending payment. Please complete the payment to
-            confirm your spot.
-          </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IconCurrencyDollar className="text-yellow-600 size-5" />
-              <span className="text-sm font-medium">Registration Fee</span>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-3xl",
+          "border-2 border-chart-4/30",
+          "bg-gradient-to-br from-chart-4/5 via-card to-chart-4/5"
+        )}
+      >
+        {/* Pattern overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        <div className="relative p-8">
+          <div className="flex flex-col items-center text-center">
+            {/* Pending icon */}
+            <div
+              className={cn(
+                "mb-4 flex size-16 items-center justify-center rounded-2xl",
+                "bg-chart-4/10 ring-4 ring-chart-4/10"
+              )}
+            >
+              <IconClock className="size-8 text-chart-4" />
             </div>
-            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600">
-              {priceDisplay} - Pending
-            </Badge>
+
+            <h3 className="font-display text-2xl font-bold text-chart-4">
+              Payment Pending
+            </h3>
+            <p className="mt-2 max-w-md text-muted-foreground">
+              Your registration is pending payment. Please complete the payment
+              to confirm your spot.
+            </p>
+
+            {/* Price display */}
+            <div
+              className={cn(
+                "mt-6 flex items-center gap-6 rounded-xl",
+                "bg-card/50 border border-border/50 px-6 py-3"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <IconCurrencyDollar className="size-5 text-chart-4" />
+                <span className="text-sm font-medium">Amount Due</span>
+              </div>
+              <Badge
+                className={cn(
+                  "border-chart-4/30 bg-chart-4/10 text-chart-4",
+                  "text-sm font-medium"
+                )}
+              >
+                {priceDisplay}
+              </Badge>
+            </div>
+
+            <Button
+              onClick={handleRegister}
+              disabled={isLoading}
+              size="lg"
+              className={cn(
+                "mt-6 gap-2",
+                "bg-gradient-to-r from-chart-4 to-chart-4/80",
+                "hover:from-chart-4/90 hover:to-chart-4/70"
+              )}
+            >
+              {isLoading ? (
+                <IconLoader2 className="size-5 animate-spin" />
+              ) : (
+                <IconArrowRight className="size-5" />
+              )}
+              {isLoading ? "Processing..." : `Complete Payment (${priceDisplay})`}
+            </Button>
           </div>
-          <Button
-            onClick={handleRegister}
-            disabled={isLoading}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? "Processing..." : `Complete Payment (${priceDisplay})`}
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   // Not authenticated
   if (!isAuthenticated) {
     return (
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Registration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IconCurrencyDollar className="text-primary size-5" />
-              <span className="text-sm font-medium">Registration Fee</span>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-3xl border border-border/50",
+          "bg-gradient-to-br from-card via-card to-card/80"
+        )}
+      >
+        {/* Pattern overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: "24px 24px",
+          }}
+        />
+
+        {/* Decorative gradient */}
+        <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
+
+        <div className="relative p-8">
+          {/* Header */}
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10">
+                <IconTicket className="size-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-bold text-foreground">
+                  Registration
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Secure your spot at this event
+                </p>
+              </div>
             </div>
             <Badge
-              variant={isFreeEvent ? "secondary" : "default"}
-              className="text-sm"
+              className={cn(
+                isFreeEvent
+                  ? "border-primary/30 bg-primary/10 text-primary"
+                  : "border-chart-2/30 bg-chart-2/10 text-chart-2",
+                "text-base font-semibold px-4 py-1"
+              )}
             >
               {priceDisplay}
             </Badge>
           </div>
 
-          <div className="rounded-lg border border-dashed p-4 text-center">
-            <IconLogin className="mx-auto size-8 text-muted-foreground mb-2" />
-            <p className="text-muted-foreground text-sm mb-3">
-              Please sign in to register for this event.
+          {/* Sign in prompt */}
+          <div
+            className={cn(
+              "rounded-2xl border-2 border-dashed border-border/50",
+              "bg-muted/30 p-6 text-center"
+            )}
+          >
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary/10">
+              <IconLogin className="size-7 text-primary" />
+            </div>
+            <h4 className="font-display font-semibold text-foreground">
+              Sign in to register
+            </h4>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Please sign in to your account to register for this event.
             </p>
-            <Button asChild className="w-full" size="lg">
-              <Link href="/login">Sign In to Register</Link>
+            <Button
+              asChild
+              size="lg"
+              className={cn(
+                "mt-4 w-full gap-2",
+                "bg-gradient-to-r from-primary to-chart-2",
+                "hover:from-primary/90 hover:to-chart-2/90"
+              )}
+            >
+              <Link href="/login">
+                <IconLogin className="size-5" />
+                Sign In to Register
+              </Link>
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   // Authenticated but not registered
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Registration</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IconCurrencyDollar className="text-primary size-5" />
-            <span className="text-sm font-medium">Registration Fee</span>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-3xl border border-border/50",
+        "bg-gradient-to-br from-card via-card to-card/80"
+      )}
+    >
+      {/* Pattern overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      {/* Decorative gradient */}
+      <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
+
+      <div className="relative p-8">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10">
+              <IconTicket className="size-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-display text-xl font-bold text-foreground">
+                Registration
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Secure your spot at this event
+              </p>
+            </div>
           </div>
           <Badge
-            variant={isFreeEvent ? "secondary" : "default"}
-            className="text-sm"
+            className={cn(
+              isFreeEvent
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-chart-2/30 bg-chart-2/10 text-chart-2",
+              "text-base font-semibold px-4 py-1"
+            )}
           >
             {priceDisplay}
           </Badge>
         </div>
 
+        {/* Features */}
+        <div className="mb-6 grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <IconCheck className="size-4 text-primary" />
+            <span>Access to all sessions</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <IconCheck className="size-4 text-primary" />
+            <span>Q&A participation</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <IconCheck className="size-4 text-primary" />
+            <span>Live polls access</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <IconCheck className="size-4 text-primary" />
+            <span>Certificate of attendance</span>
+          </div>
+        </div>
+
+        {/* CTA */}
         <Button
           onClick={handleRegister}
           disabled={isLoading}
-          className="w-full"
           size="lg"
+          className={cn(
+            "w-full gap-2 text-base",
+            "bg-gradient-to-r from-primary to-chart-2",
+            "hover:from-primary/90 hover:to-chart-2/90",
+            "transition-all duration-300"
+          )}
         >
+          {isLoading ? (
+            <IconLoader2 className="size-5 animate-spin" />
+          ) : isFreeEvent ? (
+            <IconSparkles className="size-5" />
+          ) : (
+            <IconArrowRight className="size-5" />
+          )}
           {isLoading
             ? "Processing..."
             : isFreeEvent
@@ -223,12 +425,14 @@ export function EventRegistrationSection({
               : `Pay & Register (${priceDisplay})`}
         </Button>
 
+        {/* Security note */}
         {!isFreeEvent && (
-          <p className="text-muted-foreground text-center text-xs">
-            You will be redirected to complete payment securely.
+          <p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <IconShieldCheck className="size-4" />
+            Secure payment powered by Chargily
           </p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

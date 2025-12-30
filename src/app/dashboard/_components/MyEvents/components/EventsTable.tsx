@@ -1,14 +1,7 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableHead,
   TableHeader,
   TableRow,
@@ -32,24 +25,51 @@ export function EventsTable({
   onArchive,
 }: EventsTableProps) {
   return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-lg font-semibold">
-          Administrator events
-        </CardTitle>
-        <CardDescription>
-          These are all events that you have created.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-border/50",
+        "bg-gradient-to-br from-card via-card to-card/80"
+      )}
+    >
+      {/* Background pattern */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      {/* Header */}
+      <div className="relative border-b border-border/50 px-6 py-4">
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Your Events
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Manage and track all your created events
+        </p>
+      </div>
+
+      {/* Table */}
+      <div className="relative overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Event</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Schedule</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
+            <TableRow className="border-border/50 hover:bg-transparent">
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Event
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Type
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Schedule
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Location
+              </TableHead>
+              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Status
+              </TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -69,11 +89,17 @@ export function EventsTable({
               />
             ))}
           </TableBody>
-          <TableCaption>
-            You have created {events.length} event(s).
-          </TableCaption>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Footer */}
+      <div className="relative border-t border-border/50 px-6 py-3">
+        <p className="text-xs text-muted-foreground">
+          Showing{" "}
+          <span className="font-medium text-foreground">{events.length}</span>{" "}
+          event{events.length !== 1 ? "s" : ""}
+        </p>
+      </div>
+    </div>
   );
 }

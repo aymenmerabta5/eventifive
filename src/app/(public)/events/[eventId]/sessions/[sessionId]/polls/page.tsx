@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Lock } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { redirect, useParams } from "next/navigation";
 import { PollsHeader } from "./_components/PollsHeader";
@@ -37,8 +37,19 @@ export default function SessionPollsPage() {
     enabled: !!eventId,
   });
 
+  // Check registration status
+  const {
+    data: registrationStatus,
+    isLoading: isRegistrationLoading,
+  } = useQuery({
+    ...orpc.events.getRegistrationStatus.queryOptions({
+      input: { eventId },
+    }),
+    enabled: !!eventId && !!authSession,
+  });
+
   // Loading states
-  if (isAuthPending || isSessionLoading) {
+  if (isAuthPending || isSessionLoading || isRegistrationLoading) {
     return (
       <div className="container mx-auto flex min-h-[60vh] items-center justify-center">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
@@ -69,6 +80,22 @@ export default function SessionPollsPage() {
 
   const session = sessionData.session;
   const eventTitle = eventData?.title ?? "Event";
+
+  // Registration required
+  if (!registrationStatus?.isRegistered) {
+    return (
+      <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <Lock className="text-muted-foreground h-12 w-12" />
+        <h1 className="text-xl font-semibold">Registration Required</h1>
+        <p className="text-muted-foreground text-center max-w-md">
+          You need to register for this event to access the polls.
+        </p>
+        <Button asChild>
+          <Link href={`/events/${eventId}`}>Go to Event Page</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-2xl py-8">

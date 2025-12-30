@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useEvents } from "./hooks";
 import {
   LoadingState,
@@ -19,6 +20,38 @@ export function Events() {
     isRefetching,
     handleRefresh,
   } = useEvents();
+
+  // Calculate stats for the header
+  const stats = useMemo(() => {
+    const allEvents = [
+      ...events.congress,
+      ...events.seminar,
+      ...events.workshop,
+      ...events.scientific_meeting,
+      ...events.conference,
+      ...events.symposium,
+    ];
+
+    const now = new Date();
+    let liveCount = 0;
+    let upcomingCount = 0;
+
+    for (const event of allEvents) {
+      const startDate = new Date(event.startDate);
+      const endDate = new Date(event.endDate);
+      if (now >= startDate && now <= endDate) {
+        liveCount++;
+      } else if (now < startDate) {
+        upcomingCount++;
+      }
+    }
+
+    return {
+      totalEvents: allEvents.length,
+      liveCount,
+      upcomingCount,
+    };
+  }, [events]);
 
   // Loading state - ALWAYS handle first
   if (isPending) {
@@ -44,9 +77,16 @@ export function Events() {
   // Main content
   return (
     <div className="min-h-screen">
+      {/* Hero Header */}
+      <EventsHeader
+        totalEvents={stats.totalEvents}
+        liveCount={stats.liveCount}
+        upcomingCount={stats.upcomingCount}
+      />
+
+      {/* Event Sections */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-        <EventsHeader />
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-16">
           {activeRows.map((row) => (
             <EventRow
               key={row.key}
@@ -54,6 +94,7 @@ export function Events() {
               title={row.title}
               description={row.description}
               route={row.route}
+              eventType={row.key}
             />
           ))}
         </div>

@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { IconCircleX, IconLoader2, IconAlertCircle } from "@tabler/icons-react";
 import type { AdminEvent } from "../types";
 
 interface CancelEventDialogProps {
@@ -41,19 +43,45 @@ export function CancelEventDialog({
 
   return (
     <Dialog open={!!event} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Cancel Event</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to cancel <strong>{event?.title}</strong>?
-            This will prevent new registrations. Existing registrants should be
-            notified.
+      <DialogContent className="sm:max-w-md">
+        {/* Warning icon */}
+        <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-chart-4/10">
+          <IconAlertCircle className="size-7 text-chart-4" />
+        </div>
+
+        <DialogHeader className="text-center">
+          <DialogTitle className="font-display text-xl">
+            Cancel Event
+          </DialogTitle>
+          <DialogDescription className="text-center">
+            Are you sure you want to cancel{" "}
+            <span className="font-medium text-foreground">{event?.title}</span>?
           </DialogDescription>
         </DialogHeader>
 
+        {/* Info box */}
+        <div
+          className={cn(
+            "rounded-xl border border-chart-4/20",
+            "bg-chart-4/5 p-4"
+          )}
+        >
+          <p className="text-center text-sm text-muted-foreground">
+            This will prevent new registrations. Existing registrants should be
+            notified separately.
+          </p>
+        </div>
+
+        {/* Reason input */}
         <div className="space-y-2">
-          <Label htmlFor="cancel-reason">
-            Cancellation reason (optional, visible to public)
+          <Label
+            htmlFor="cancel-reason"
+            className="text-sm font-medium text-foreground"
+          >
+            Cancellation reason{" "}
+            <span className="font-normal text-muted-foreground">
+              (optional, visible to public)
+            </span>
           </Label>
           <Textarea
             id="cancel-reason"
@@ -61,18 +89,33 @@ export function CancelEventDialog({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
+            className={cn(
+              "resize-none border-border/50",
+              "focus:border-primary/50 focus:ring-primary/20"
+            )}
           />
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isLoading}
+            className="w-full border-border/50 sm:w-auto"
+          >
             Keep Event
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={isLoading}
+            className="w-full gap-2 sm:w-auto"
           >
+            {isLoading ? (
+              <IconLoader2 className="size-4 animate-spin" />
+            ) : (
+              <IconCircleX className="size-4" />
+            )}
             {isLoading ? "Cancelling..." : "Cancel Event"}
           </Button>
         </DialogFooter>

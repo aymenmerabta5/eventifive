@@ -1,5 +1,11 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Users, CheckCircle2, Clock } from "lucide-react";
+"use client";
+
+import { cn } from "@/lib/utils";
+import {
+  IconUsers,
+  IconCircleCheck,
+  IconClock,
+} from "@tabler/icons-react";
 
 interface ParticipantStatsCardsProps {
   total: number;
@@ -12,42 +18,86 @@ export function ParticipantStatsCards({
   paid,
   pending,
 }: ParticipantStatsCardsProps) {
+  const stats = [
+    {
+      label: "Total Participants",
+      value: total,
+      description: "All registered participants",
+      icon: IconUsers,
+      colorClass: "text-primary",
+      bgClass: "from-primary/10 to-chart-2/10",
+      iconBgClass: "bg-primary/10",
+    },
+    {
+      label: "Paid",
+      value: paid,
+      description: "Payment confirmed",
+      icon: IconCircleCheck,
+      colorClass: "text-primary",
+      bgClass: "from-primary/10 to-primary/5",
+      iconBgClass: "bg-primary/10",
+    },
+    {
+      label: "Pending",
+      value: pending,
+      description: "Awaiting payment",
+      icon: IconClock,
+      colorClass: "text-chart-4",
+      bgClass: "from-chart-4/10 to-chart-4/5",
+      iconBgClass: "bg-chart-4/10",
+    },
+  ];
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total</CardTitle>
-          <Users className="text-muted-foreground size-4" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{total}</div>
-          <p className="text-muted-foreground text-xs">
-            All registered participants
-          </p>
-        </CardContent>
-      </Card>
+      {stats.map((stat) => (
+        <div
+          key={stat.label}
+          className={cn(
+            "relative overflow-hidden rounded-2xl border border-border/50",
+            "bg-gradient-to-br from-card via-card to-card/80"
+          )}
+        >
+          {/* Pattern overlay */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+              backgroundSize: "20px 20px",
+            }}
+          />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Paid</CardTitle>
-          <CheckCircle2 className="size-4 text-green-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">{paid}</div>
-          <p className="text-muted-foreground text-xs">Payment confirmed</p>
-        </CardContent>
-      </Card>
+          {/* Gradient accent */}
+          <div
+            className={cn(
+              "pointer-events-none absolute -right-8 -top-8 size-24 rounded-full blur-2xl",
+              stat.bgClass.replace("from-", "bg-").split(" ")[0]
+            )}
+          />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Pending</CardTitle>
-          <Clock className="size-4 text-amber-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-amber-600">{pending}</div>
-          <p className="text-muted-foreground text-xs">Awaiting payment</p>
-        </CardContent>
-      </Card>
+          <div className="relative p-5">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  {stat.label}
+                </p>
+                <p className={cn("font-display text-3xl font-bold", stat.colorClass)}>
+                  {stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </div>
+              <div
+                className={cn(
+                  "flex size-12 items-center justify-center rounded-xl",
+                  stat.iconBgClass
+                )}
+              >
+                <stat.icon className={cn("size-6", stat.colorClass)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

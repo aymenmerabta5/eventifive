@@ -1,23 +1,58 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+"use client";
+
+import { cn } from "@/lib/utils";
+import { IconLoader2 } from "@tabler/icons-react";
 
 export function LoadingState() {
   return (
-    <Card className="border-dashed">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Loader2 className="text-primary size-4 animate-spin" />
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-3xl border border-border/50",
+        "bg-gradient-to-br from-card via-card to-card/80"
+      )}
+    >
+      {/* Pattern overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      {/* Shimmer effect */}
+      <div
+        className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
+        }}
+      />
+
+      <div className="relative flex flex-col items-center justify-center py-16">
+        <div
+          className={cn(
+            "mb-4 flex size-16 items-center justify-center rounded-2xl",
+            "bg-gradient-to-br from-primary/10 to-chart-2/10"
+          )}
+        >
+          <IconLoader2 className="size-8 animate-spin text-primary" />
+        </div>
+        <h3 className="font-display text-lg font-semibold text-foreground">
           Loading registrations
-        </CardTitle>
-        <CardDescription>
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Fetching participants and submissions for this event...
-        </CardDescription>
-      </CardHeader>
-    </Card>
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
+    </div>
   );
 }

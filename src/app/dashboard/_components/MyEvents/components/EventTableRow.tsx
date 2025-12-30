@@ -9,18 +9,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
-  MapPin,
-  MoreHorizontal,
-  Pencil,
-  Users,
-  Share2,
-  Trash2,
-  Send,
-  RotateCcw,
-  XCircle,
-  Archive,
-} from "lucide-react";
+  IconMapPin,
+  IconDotsVertical,
+  IconPencil,
+  IconUsers,
+  IconShare,
+  IconTrash,
+  IconSend,
+  IconRotate,
+  IconCircleX,
+  IconArchive,
+} from "@tabler/icons-react";
 import { EVENT_TYPE_LABELS } from "../constants";
 import {
   formatSchedule,
@@ -38,6 +39,22 @@ interface EventTableRowProps extends EventActionHandlers {
   event: AdminEvent;
 }
 
+// Map badge variants to our color palette
+function getStatusStyles(variant: string): string {
+  switch (variant) {
+    case "default":
+      return "bg-primary/10 text-primary border-primary/30";
+    case "secondary":
+      return "bg-secondary text-secondary-foreground border-secondary";
+    case "destructive":
+      return "bg-destructive/10 text-destructive border-destructive/30";
+    case "outline":
+      return "bg-muted text-muted-foreground border-border";
+    default:
+      return "bg-secondary text-secondary-foreground border-secondary";
+  }
+}
+
 export function EventTableRow({
   event,
   onUpdate,
@@ -51,77 +68,130 @@ export function EventTableRow({
 }: EventTableRowProps) {
   const displayStatus = getEventDisplayStatus(event);
   const badgeVariant = getStatusBadgeVariant(displayStatus);
+  const statusStyles = getStatusStyles(badgeVariant);
 
   return (
-    <TableRow>
+    <TableRow
+      className={cn(
+        "group border-border/50",
+        "transition-colors duration-200",
+        "hover:bg-secondary/30"
+      )}
+    >
       <TableCell>
-        <div className="font-medium">{event.title}</div>
-      </TableCell>
-      <TableCell>
-        <Badge variant="secondary">{EVENT_TYPE_LABELS[event.type]}</Badge>
-      </TableCell>
-      <TableCell>
-        <div className="text-sm font-medium">
-          {formatSchedule(event.startDate, event.endDate)}
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "flex size-9 shrink-0 items-center justify-center rounded-lg",
+              "bg-gradient-to-br from-primary/10 to-chart-2/10",
+              "text-xs font-bold text-primary"
+            )}
+          >
+            {event.title.charAt(0).toUpperCase()}
+          </div>
+          <div className="font-medium text-foreground">{event.title}</div>
         </div>
-        <p className="text-muted-foreground text-xs">
-          Created {formatDate(event.createdAt)}
-        </p>
       </TableCell>
+
       <TableCell>
-        <div className="flex items-center gap-1 text-sm">
-          <MapPin className="text-muted-foreground size-3.5" />
-          {event.location || "TBA"}
+        <Badge
+          variant="secondary"
+          className="bg-secondary/80 text-secondary-foreground"
+        >
+          {EVENT_TYPE_LABELS[event.type]}
+        </Badge>
+      </TableCell>
+
+      <TableCell>
+        <div className="space-y-0.5">
+          <div className="text-sm font-medium text-foreground">
+            {formatSchedule(event.startDate, event.endDate)}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Created {formatDate(event.createdAt)}
+          </p>
         </div>
       </TableCell>
+
       <TableCell>
-        <Badge variant={badgeVariant}>{displayStatus}</Badge>
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <IconMapPin className="size-3.5" />
+          <span>{event.location || "TBA"}</span>
+        </div>
       </TableCell>
+
+      <TableCell>
+        <Badge variant="outline" className={cn("font-medium", statusStyles)}>
+          {displayStatus}
+        </Badge>
+      </TableCell>
+
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "size-8 opacity-0 transition-opacity group-hover:opacity-100",
+                "hover:bg-secondary"
+              )}
+            >
+              <IconDotsVertical className="size-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Actions
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
             {/* Status actions */}
             {canPublish(event) && onPublish && (
-              <DropdownMenuItem onClick={() => onPublish(event)}>
-                <Send className="mr-2 h-4 w-4" />
-                Publish
+              <DropdownMenuItem
+                onClick={() => onPublish(event)}
+                className="gap-2"
+              >
+                <IconSend className="size-4 text-primary" />
+                <span>Publish</span>
               </DropdownMenuItem>
             )}
             {canUnpublish(event) && onUnpublish && (
-              <DropdownMenuItem onClick={() => onUnpublish(event)}>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Unpublish
+              <DropdownMenuItem
+                onClick={() => onUnpublish(event)}
+                className="gap-2"
+              >
+                <IconRotate className="size-4" />
+                <span>Unpublish</span>
               </DropdownMenuItem>
             )}
             {canArchive(event) && onArchive && (
-              <DropdownMenuItem onClick={() => onArchive(event)}>
-                <Archive className="mr-2 h-4 w-4" />
-                Archive
+              <DropdownMenuItem
+                onClick={() => onArchive(event)}
+                className="gap-2"
+              >
+                <IconArchive className="size-4" />
+                <span>Archive</span>
               </DropdownMenuItem>
             )}
 
             <DropdownMenuSeparator />
 
             {/* Standard actions */}
-            <DropdownMenuItem onClick={() => onUpdate(event)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Update
+            <DropdownMenuItem onClick={() => onUpdate(event)} className="gap-2">
+              <IconPencil className="size-4" />
+              <span>Update</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onApprovals(event)}>
-              <Users className="mr-2 h-4 w-4" />
-              Event registrations
+            <DropdownMenuItem
+              onClick={() => onApprovals(event)}
+              className="gap-2"
+            >
+              <IconUsers className="size-4" />
+              <span>Registrations</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onShare(event)}>
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
+            <DropdownMenuItem onClick={() => onShare(event)} className="gap-2">
+              <IconShare className="size-4" />
+              <span>Share</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -130,18 +200,18 @@ export function EventTableRow({
             {canCancel(event) && onCancel && (
               <DropdownMenuItem
                 onClick={() => onCancel(event)}
-                className="text-destructive focus:text-destructive"
+                className="gap-2 text-destructive focus:text-destructive"
               >
-                <XCircle className="mr-2 h-4 w-4" />
-                Cancel Event
+                <IconCircleX className="size-4" />
+                <span>Cancel Event</span>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
               onClick={() => onDelete(event)}
-              className="text-destructive focus:text-destructive"
+              className="gap-2 text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              <IconTrash className="size-4" />
+              <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

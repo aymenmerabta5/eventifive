@@ -12,14 +12,14 @@ import { cn } from "@/lib/utils";
 import { client } from "@/utils/orpc";
 import { toast } from "sonner";
 import {
-  FileText,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  Download,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+  IconFileText,
+  IconCircleCheck,
+  IconCircleX,
+  IconLoader2,
+  IconDownload,
+  IconChevronDown,
+  IconChevronUp,
+} from "@tabler/icons-react";
 import { SUBMISSION_STATUS_STYLES } from "../constants";
 import type { WorkshopSubmission, SubmissionFile } from "../types";
 
@@ -40,7 +40,7 @@ export function WorkshopSubmissionCard({
   const [files, setFiles] = useState<SubmissionFile[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(
-    null,
+    null
   );
   const [hasLoadedFiles, setHasLoadedFiles] = useState(false);
 
@@ -86,179 +86,226 @@ export function WorkshopSubmissionCard({
   };
 
   return (
-    <div className="space-y-4 rounded-lg border p-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1">
-          <div className="text-base font-semibold">{submission.title}</div>
-          <div className="text-muted-foreground text-sm">
-            {submission.submitterName ?? "Unknown submitter"}
-            {submission.submitterEmail ? ` • ${submission.submitterEmail}` : ""}
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-xl border border-border/50",
+        "bg-gradient-to-br from-card via-card to-card/80",
+        "transition-all duration-300",
+        "hover:border-chart-3/30 hover:shadow-lg hover:shadow-chart-3/5"
+      )}
+    >
+      {/* Pattern overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.01] dark:opacity-[0.02]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+          backgroundSize: "16px 16px",
+        }}
+      />
+
+      <div className="relative space-y-4 p-5">
+        {/* Header */}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1.5">
+            <div className="font-display text-base font-semibold text-foreground">
+              {submission.title}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {submission.submitterName ?? "Unknown submitter"}
+              {submission.submitterEmail ? ` • ${submission.submitterEmail}` : ""}
+            </div>
+            <div className="text-xs text-muted-foreground/80">
+              {submission.submittedAt
+                ? `Submitted ${new Date(submission.submittedAt).toLocaleDateString()}`
+                : "Submission date not available"}
+            </div>
           </div>
-          <div className="text-muted-foreground text-xs">
-            {submission.submittedAt
-              ? `Submitted ${new Date(submission.submittedAt).toLocaleDateString()}`
-              : "Submission date not available"}
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-xs capitalize font-medium",
+                SUBMISSION_STATUS_STYLES[status]
+              )}
+            >
+              {status === "draft" ? "pending" : status}
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-muted/50 text-xs font-medium"
+            >
+              {submission.fileCount} file{submission.fileCount === 1 ? "" : "s"}
+            </Badge>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
+
+        {/* Abstract */}
+        {submission.abstract && (
+          <div
             className={cn(
-              "text-xs capitalize",
-              SUBMISSION_STATUS_STYLES[status],
+              "rounded-lg border border-border/30 p-4",
+              "bg-gradient-to-br from-muted/20 to-muted/5"
             )}
           >
-            {status === "draft" ? "pending" : status}
-          </Badge>
-          <Badge variant="secondary" className="text-xs">
-            {submission.fileCount} file{submission.fileCount === 1 ? "" : "s"}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Abstract */}
-      {submission.abstract && (
-        <div className="bg-muted/40 text-muted-foreground rounded-md p-4 text-sm">
-          <div className="text-muted-foreground/70 mb-1 text-xs font-medium tracking-wide uppercase">
-            Abstract
+            <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+              Abstract
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {submission.abstract}
+            </p>
           </div>
-          {submission.abstract}
-        </div>
-      )}
-
-      {/* Files Section */}
-      {submission.fileCount > 0 && (
-        <Collapsible open={isFilesOpen} onOpenChange={handleToggleFiles}>
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                View Attached Files ({submission.fileCount})
-              </span>
-              {isFilesOpen ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2">
-            {isLoadingFiles ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
-                <span className="text-muted-foreground ml-2 text-sm">
-                  Loading files...
-                </span>
-              </div>
-            ) : files.length > 0 ? (
-              <div className="space-y-2">
-                {files.map((file) => (
-                  <div
-                    key={file.id}
-                    className="bg-muted/30 flex items-center gap-3 rounded-md border p-3"
-                  >
-                    <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
-                      <FileText className="text-primary h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {file.fileName}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {(file.fileSize / 1024 / 1024).toFixed(2)} MB ·{" "}
-                        {file.contentType}
-                      </p>
-                      {file.purpose && (
-                        <Badge variant="outline" className="mt-1 text-xs">
-                          {file.purpose}
-                        </Badge>
-                      )}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload(file.id, file.fileName)}
-                      disabled={downloadingFileId === file.id}
-                    >
-                      {downloadingFileId === file.id ? (
-                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Download className="mr-1 h-4 w-4" />
-                      )}
-                      Download
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground py-2 text-center text-sm">
-                No files found for this submission.
-              </p>
-            )}
-          </CollapsibleContent>
-        </Collapsible>
-      )}
-
-      {/* Actions */}
-      <div className="flex flex-wrap items-center gap-2 border-t pt-4">
-        {hasDecision ? (
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            {status === "accepted" ? (
-              <>
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <span>
-                  This workshop has been{" "}
-                  <strong className="text-green-600">accepted</strong>
-                </span>
-              </>
-            ) : (
-              <>
-                <XCircle className="text-destructive h-4 w-4" />
-                <span>
-                  This workshop has been{" "}
-                  <strong className="text-destructive">rejected</strong>
-                </span>
-              </>
-            )}
-          </div>
-        ) : (
-          <>
-            <Button
-              size="sm"
-              variant="default"
-              disabled={isUpdating}
-              onClick={onAccept}
-            >
-              {isUpdating ? (
-                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="mr-1 h-4 w-4" />
-              )}
-              Accept Workshop
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={isUpdating}
-              onClick={onReject}
-            >
-              {isUpdating ? (
-                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-              ) : (
-                <XCircle className="mr-1 h-4 w-4" />
-              )}
-              Reject Workshop
-            </Button>
-            <span className="text-muted-foreground ml-2 text-xs">
-              (This decision is final)
-            </span>
-          </>
         )}
+
+        {/* Files Section */}
+        {submission.fileCount > 0 && (
+          <Collapsible open={isFilesOpen} onOpenChange={handleToggleFiles}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "w-full justify-between",
+                  "hover:bg-chart-3/5 hover:text-chart-3"
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <IconFileText className="size-4" />
+                  View Attached Files ({submission.fileCount})
+                </span>
+                {isFilesOpen ? (
+                  <IconChevronUp className="size-4" />
+                ) : (
+                  <IconChevronDown className="size-4" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-2">
+              {isLoadingFiles ? (
+                <div className="flex items-center justify-center py-4">
+                  <IconLoader2 className="size-5 animate-spin text-chart-3" />
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    Loading files...
+                  </span>
+                </div>
+              ) : files.length > 0 ? (
+                <div className="space-y-2">
+                  {files.map((file) => (
+                    <div
+                      key={file.id}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg border border-border/30 p-3",
+                        "bg-gradient-to-br from-muted/20 to-muted/5"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex size-10 items-center justify-center rounded-lg",
+                          "bg-gradient-to-br from-chart-3/10 to-primary/10"
+                        )}
+                      >
+                        <IconFileText className="size-5 text-chart-3" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {file.fileName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {(file.fileSize / 1024 / 1024).toFixed(2)} MB ·{" "}
+                          {file.contentType}
+                        </p>
+                        {file.purpose && (
+                          <Badge
+                            variant="outline"
+                            className="mt-1 text-xs border-border/50"
+                          >
+                            {file.purpose}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownload(file.id, file.fileName)}
+                        disabled={downloadingFileId === file.id}
+                        className="gap-1.5 border-border/50 hover:border-chart-3/50 hover:bg-chart-3/5"
+                      >
+                        {downloadingFileId === file.id ? (
+                          <IconLoader2 className="size-4 animate-spin" />
+                        ) : (
+                          <IconDownload className="size-4" />
+                        )}
+                        Download
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="py-2 text-center text-sm text-muted-foreground">
+                  No files found for this submission.
+                </p>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-wrap items-center gap-2 border-t border-border/30 pt-4">
+          {hasDecision ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {status === "accepted" ? (
+                <>
+                  <IconCircleCheck className="size-4 text-primary" />
+                  <span>
+                    This workshop has been{" "}
+                    <strong className="text-primary">accepted</strong>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <IconCircleX className="size-4 text-destructive" />
+                  <span>
+                    This workshop has been{" "}
+                    <strong className="text-destructive">rejected</strong>
+                  </span>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="default"
+                disabled={isUpdating}
+                onClick={onAccept}
+                className="gap-1.5"
+              >
+                {isUpdating ? (
+                  <IconLoader2 className="size-4 animate-spin" />
+                ) : (
+                  <IconCircleCheck className="size-4" />
+                )}
+                Accept Workshop
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={isUpdating}
+                onClick={onReject}
+                className="gap-1.5 border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+              >
+                {isUpdating ? (
+                  <IconLoader2 className="size-4 animate-spin" />
+                ) : (
+                  <IconCircleX className="size-4" />
+                )}
+                Reject Workshop
+              </Button>
+              <span className="ml-2 text-xs text-muted-foreground">
+                (This decision is final)
+              </span>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
