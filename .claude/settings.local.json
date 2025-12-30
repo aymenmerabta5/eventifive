@@ -31,7 +31,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(tree:*)",
       "WebFetch(domain:orpc.dev)",
-      "Skill(frontend-design:frontend-design)"
+      "Skill(frontend-design:frontend-design)",
+      "Skill(component-architecture)"
     ],
     "deny": [],
     "ask": []

@@ -9,18 +9,23 @@ import {
   Plus,
   Trash2,
   MapPin,
-  Pencil,
   ChevronDown,
   ChevronUp,
   Calendar as CalendarIcon,
   Users,
+  DoorOpen,
+  Hash,
+  Building,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { CalendarView } from "@/components/calendar";
+import { FormSection } from "./FormSection";
 import type {
   CreateSessionData,
   UpdateSessionData,
@@ -51,6 +56,55 @@ interface SessionsStepProps {
   onDeleteSession: (sessionId: string) => Promise<unknown>;
   // Chair options (accepted speakers + committee)
   chairOptions: ChairOption[];
+}
+
+interface RoomCardProps {
+  room: Room;
+  onDelete: () => void;
+  isDeleting: boolean;
+}
+
+function RoomCard({ room, onDelete, isDeleting }: RoomCardProps) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3 transition-all hover:border-border hover:shadow-sm"
+    >
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <DoorOpen className="size-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-medium text-foreground">{room.name}</div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {room.location && (
+            <span className="flex items-center gap-1">
+              <MapPin className="size-3" />
+              {room.location}
+            </span>
+          )}
+          {room.location && room.capacity && <span>•</span>}
+          {room.capacity && (
+            <span className="flex items-center gap-1">
+              <Users className="size-3" />
+              {room.capacity}
+            </span>
+          )}
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onDelete}
+        disabled={isDeleting}
+        className="size-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+      >
+        <Trash2 className="size-4 text-destructive" />
+      </Button>
+    </motion.div>
+  );
 }
 
 export function SessionsStep({
@@ -129,137 +183,152 @@ export function SessionsStep({
   return (
     <div className="space-y-6">
       {/* Rooms Section - Collapsible */}
-      <Collapsible open={roomsOpen} onOpenChange={setRoomsOpen}>
-        <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-shadow hover:shadow-md">
+        <Collapsible open={roomsOpen} onOpenChange={setRoomsOpen}>
           <CollapsibleTrigger asChild>
-            <button className="hover:bg-muted/50 flex w-full items-center justify-between p-4 text-left transition-colors">
-              <div className="flex items-center gap-2">
-                <MapPin className="size-4" />
-                <span className="text-sm font-medium">
-                  Rooms ({rooms.length})
-                </span>
+            <button className="flex w-full items-center justify-between p-5 text-left transition-colors hover:bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                  <Building className="size-5" />
+                </div>
+                <div>
+                  <span className="font-display text-lg font-semibold text-foreground">
+                    Rooms
+                  </span>
+                  <span className="ml-2 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    {rooms.length}
+                  </span>
+                  <p className="text-sm text-muted-foreground">
+                    Create rooms to assign sessions to specific locations
+                  </p>
+                </div>
               </div>
-              {roomsOpen ? (
-                <ChevronUp className="size-4" />
-              ) : (
-                <ChevronDown className="size-4" />
-              )}
+              <div className="flex size-8 items-center justify-center rounded-lg bg-muted/50 transition-colors group-hover:bg-muted">
+                {roomsOpen ? (
+                  <ChevronUp className="size-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="size-4 text-muted-foreground" />
+                )}
+              </div>
             </button>
           </CollapsibleTrigger>
 
           <CollapsibleContent>
-            <div className="space-y-4 border-t p-4">
-              <p className="text-muted-foreground text-xs">
-                Create rooms to assign sessions to specific locations.
-              </p>
-
+            <div className="space-y-4 border-t border-border/40 p-5">
               {/* Room List */}
               {isLoadingRooms ? (
-                <div className="text-muted-foreground text-sm">
-                  Loading rooms...
+                <div className="flex items-center justify-center py-6">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <span>Loading rooms...</span>
+                  </div>
                 </div>
               ) : rooms.length > 0 ? (
-                <div className="space-y-2">
-                  {rooms.map((room) => (
-                    <div
-                      key={room.id}
-                      className="flex items-center justify-between rounded-md border p-3"
-                    >
-                      <div>
-                        <div className="text-sm font-medium">{room.name}</div>
-                        <div className="text-muted-foreground text-xs">
-                          {room.location && <span>{room.location}</span>}
-                          {room.location && room.capacity && <span> • </span>}
-                          {room.capacity && (
-                            <span>Capacity: {room.capacity}</span>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteRoom(room.id)}
-                        disabled={isDeletingRoom}
-                      >
-                        <Trash2 className="text-destructive size-4" />
-                      </Button>
-                    </div>
-                  ))}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <AnimatePresence mode="popLayout">
+                    {rooms.map((room) => (
+                      <RoomCard
+                        key={room.id}
+                        room={room}
+                        onDelete={() => handleDeleteRoom(room.id)}
+                        isDeleting={isDeletingRoom}
+                      />
+                    ))}
+                  </AnimatePresence>
                 </div>
               ) : (
-                <div className="text-muted-foreground py-2 text-sm">
-                  No rooms created yet.
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 py-8 text-center">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                    <DoorOpen className="size-6 text-muted-foreground" />
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-foreground">
+                    No rooms created yet
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Add rooms to organize your sessions
+                  </p>
                 </div>
               )}
 
               {/* Add Room Form */}
-              <div className="space-y-3 border-t pt-2">
+              <div className="space-y-3 rounded-xl bg-muted/30 p-4 ring-1 ring-border/50">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Plus className="size-4 text-primary" />
+                  Add New Room
+                </div>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Room Name *</Label>
+                  <div className="relative">
+                    <DoorOpen className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Main Hall"
+                      placeholder="Room Name *"
                       value={newRoomName}
                       onChange={(e) => setNewRoomName(e.target.value)}
                       disabled={isCreatingRoom}
+                      className="h-10 pl-10"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Capacity</Label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       type="number"
-                      placeholder="100"
+                      placeholder="Capacity"
                       value={newRoomCapacity}
                       onChange={(e) => setNewRoomCapacity(e.target.value)}
                       disabled={isCreatingRoom}
+                      className="h-10 pl-10"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Location</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Building A, Floor 2"
+                      placeholder="Location"
                       value={newRoomLocation}
                       onChange={(e) => setNewRoomLocation(e.target.value)}
                       disabled={isCreatingRoom}
+                      className="h-10 pl-10"
                     />
                   </div>
                 </div>
                 <Button
-                  size="sm"
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom || !newRoomName.trim()}
+                  className="w-full sm:w-auto"
                 >
                   <Plus className="mr-2 size-4" />
-                  Add Room
+                  {isCreatingRoom ? "Creating..." : "Add Room"}
                 </Button>
               </div>
             </div>
           </CollapsibleContent>
-        </div>
-      </Collapsible>
+        </Collapsible>
+      </div>
 
       {/* Chair Options Info */}
       {chairOptions.length === 0 && (
-        <div className="rounded-lg border border-dashed p-4">
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            <Users className="size-4" />
-            <span>
-              No speakers or committee members available to assign as session
-              chair. Invite and have them accept first on the previous step.
-            </span>
+        <div className="flex items-center gap-3 rounded-xl border border-dashed border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <Users className="size-5" />
+          </div>
+          <div className="text-sm">
+            <p className="font-medium text-amber-700 dark:text-amber-400">
+              No chairs available
+            </p>
+            <p className="text-amber-600/80 dark:text-amber-400/70">
+              Invite speakers or committee members in the previous step, and have
+              them accept first.
+            </p>
           </div>
         </div>
       )}
 
       {/* Calendar Section */}
-      <div className="rounded-lg border">
-        <div className="flex items-center gap-2 border-b p-4">
-          <CalendarIcon className="size-4" />
-          <span className="text-sm font-medium">
-            Session Schedule ({sessions.length} sessions)
-          </span>
-        </div>
-        <div className="h-[500px]">
+      <FormSection
+        icon={<CalendarIcon className="size-5" />}
+        title="Session Schedule"
+        description={`${sessions.length} session${sessions.length !== 1 ? "s" : ""} scheduled`}
+        variant="highlight"
+      >
+        <div className="h-[500px] overflow-hidden rounded-xl border border-border/40 bg-background">
           <CalendarView
             eventId={eventId}
             sessions={sessions}
@@ -274,7 +343,7 @@ export function SessionsStep({
             isLoading={isLoadingSessions}
           />
         </div>
-      </div>
+      </FormSection>
     </div>
   );
 }

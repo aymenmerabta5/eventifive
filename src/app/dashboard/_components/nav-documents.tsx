@@ -45,7 +45,8 @@ export function NavDocuments({
     if (url === "#") return false;
     const [path, query] = url.split("?");
     if (pathname !== path) return false;
-    if (!query) return true;
+    // If nav item has no query params, only active when current URL has no "view" param
+    if (!query) return !searchParams.has("view");
     const params = new URLSearchParams(query);
     for (const [key, value] of params.entries()) {
       if (searchParams.get(key) !== value) return false;

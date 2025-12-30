@@ -97,7 +97,7 @@ function CertificateCard({
   onDownload: (id: string) => void;
   isDownloading: boolean;
 }) {
-  const role = roleConfig[cert.role] || roleConfig.facilitator;
+  const role = roleConfig[cert.role] ?? roleConfig.facilitator!;
   const RoleIcon = role.icon;
 
   return (

@@ -6,7 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Trash2, UserPlus, Users } from "lucide-react";
+import {
+  Trash2,
+  UserPlus,
+  Users,
+  Mail,
+  Building2,
+  Send,
+  UserCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "motion/react";
+import { FormSection, FormGroup } from "./FormSection";
 import { REQUIRED_REVIEWERS } from "../constants";
 import { getStatusBadgeVariant } from "../utils";
 import type { InvitesData } from "../types";
@@ -39,9 +50,198 @@ interface InvitesStepProps {
   >;
 }
 
+function getStatusStyles(status: string) {
+  switch (status) {
+    case "accepted":
+      return {
+        badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400",
+        ring: "ring-emerald-500/20",
+      };
+    case "rejected":
+      return {
+        badge: "bg-destructive/10 text-destructive border-destructive/20",
+        ring: "ring-destructive/20",
+      };
+    case "pending":
+    default:
+      return {
+        badge: "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400",
+        ring: "ring-amber-500/20",
+      };
+  }
+}
+
+interface InviteCardProps {
+  name: string;
+  email: string;
+  affiliation?: string | null;
+  status: string;
+  onRemove?: () => void;
+  isRemoving?: boolean;
+}
+
+function InviteCard({
+  name,
+  email,
+  affiliation,
+  status,
+  onRemove,
+  isRemoving,
+}: InviteCardProps) {
+  const styles = getStatusStyles(status);
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className={cn(
+        "group relative overflow-hidden rounded-xl border bg-card p-4 transition-all hover:shadow-md",
+        styles.ring,
+      )}
+    >
+      {/* Status indicator line */}
+      <div
+        className={cn(
+          "absolute left-0 top-0 h-full w-1 transition-all",
+          status === "accepted" && "bg-emerald-500",
+          status === "rejected" && "bg-destructive",
+          status === "pending" && "bg-amber-500",
+        )}
+      />
+
+      <div className="flex items-start gap-3 pl-2">
+        {/* Avatar placeholder */}
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <UserCircle className="size-6" />
+        </div>
+
+        {/* Info */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="truncate font-medium text-foreground">
+              {name || email.split("@")[0]}
+            </span>
+            <Badge
+              variant="outline"
+              className={cn(
+                "shrink-0 border text-xs capitalize",
+                styles.badge,
+              )}
+            >
+              {status}
+            </Badge>
+          </div>
+          <div className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+            <Mail className="size-3" />
+            <span className="truncate">{email}</span>
+          </div>
+          {affiliation && (
+            <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground/80">
+              <Building2 className="size-3" />
+              <span className="truncate">{affiliation}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Remove button */}
+        {status !== "accepted" && onRemove && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onRemove}
+            disabled={isRemoving}
+            className="size-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+          >
+            <Trash2 className="size-4 text-destructive" />
+          </Button>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+interface InviteFormProps {
+  placeholder: string;
+  showAffiliation?: boolean;
+  onSubmit: (email: string, affiliation?: string) => void;
+  isSubmitting?: boolean;
+}
+
+function InviteForm({
+  placeholder,
+  showAffiliation = false,
+  onSubmit,
+  isSubmitting,
+}: InviteFormProps) {
+  const [email, setEmail] = useState("");
+  const [affiliation, setAffiliation] = useState("");
+
+  const handleSubmit = () => {
+    if (!email.trim()) return;
+    onSubmit(email.trim(), affiliation.trim() || undefined);
+    setEmail("");
+    setAffiliation("");
+  };
+
+  return (
+    <div className="space-y-3 rounded-xl bg-muted/30 p-4 ring-1 ring-border/50">
+      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <Send className="size-4 text-primary" />
+        Send Invitation
+      </div>
+      <div className="space-y-2">
+        <div className="relative">
+          <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={placeholder}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isSubmitting}
+            className="h-10 pl-10"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !showAffiliation) {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
+          />
+        </div>
+        {showAffiliation && (
+          <div className="relative">
+            <Building2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Organization / University (optional)"
+              value={affiliation}
+              onChange={(e) => setAffiliation(e.target.value)}
+              disabled={isSubmitting}
+              className="h-10 pl-10"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+            />
+          </div>
+        )}
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting || !email.trim()}
+          className="w-full"
+        >
+          <UserPlus className="mr-2 size-4" />
+          {isSubmitting ? "Sending..." : "Send Invite"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function InvitesStep({
   eventId,
-  eventType,
   invitesData,
   isLoading,
   inviteSpeakerMutation,
@@ -49,203 +249,176 @@ export function InvitesStep({
   removeSpeakerMutation,
   removeReviewerMutation,
 }: InvitesStepProps) {
-  const [speakerEmail, setSpeakerEmail] = useState("");
-  const [speakerAffiliation, setSpeakerAffiliation] = useState("");
-  const [reviewerEmail, setReviewerEmail] = useState("");
-
-  const handleInviteSpeaker = () => {
-    if (!speakerEmail.trim()) {
-      toast.error("Speaker email is required");
-      return;
-    }
+  const handleInviteSpeaker = (email: string, affiliation?: string) => {
     inviteSpeakerMutation.mutate({
       eventId,
-      email: speakerEmail.trim(),
-      affiliation: speakerAffiliation.trim() || undefined,
+      email,
+      affiliation,
     });
-    setSpeakerEmail("");
-    setSpeakerAffiliation("");
   };
 
-  const handleInviteReviewer = () => {
-    if (!reviewerEmail.trim()) {
-      toast.error("Reviewer email is required");
-      return;
-    }
+  const handleInviteReviewer = (email: string) => {
     inviteReviewerMutation.mutate({
       eventId,
-      email: reviewerEmail.trim(),
+      email,
     });
-    setReviewerEmail("");
   };
 
   const speakerCount = invitesData?.speakers.length ?? 0;
   const reviewerCount = invitesData?.reviewers.length ?? 0;
+  const acceptedSpeakers =
+    invitesData?.speakers.filter((s) => s.status === "accepted").length ?? 0;
+  const acceptedReviewers =
+    invitesData?.reviewers.filter((r) => r.status === "accepted").length ?? 0;
   const canAddReviewer = reviewerCount < REQUIRED_REVIEWERS;
 
   return (
     <div className="space-y-6">
       {/* Loading State */}
       {isLoading && (
-        <div className="text-muted-foreground text-sm">Loading invites...</div>
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span>Loading invites...</span>
+          </div>
+        </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Speakers Section */}
-        <div className="rounded-lg border p-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <UserPlus className="size-4" />
-            Speakers ({speakerCount})
-          </div>
-          <div className="text-muted-foreground mt-1 text-xs">
-            Invite speakers for your event. At least one must accept the
-            invitation.
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {invitesData?.speakers.map((speaker) => (
-              <div key={speaker.id} className="rounded-md border p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div className="text-sm font-medium">
-                      {speaker.userName || speaker.userEmail}
-                    </div>
-                    {speaker.userName && (
-                      <div className="text-muted-foreground text-xs">
-                        {speaker.userEmail}
-                      </div>
-                    )}
-                    {speaker.affiliation && (
-                      <div className="text-muted-foreground text-xs">
-                        {speaker.affiliation}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getStatusBadgeVariant(speaker.status)}>
-                      {speaker.status}
-                    </Badge>
-                    {speaker.status !== "accepted" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                          removeSpeakerMutation.mutate({
-                            eventId,
-                            inviteId: speaker.id,
-                          })
-                        }
-                        disabled={removeSpeakerMutation.isPending}
-                      >
-                        <Trash2 className="text-destructive size-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Add Speaker Form - always visible */}
-            <div className="space-y-2 pt-2">
-              <Label>Add Speaker</Label>
-              <div className="space-y-2">
-                <Input
-                  placeholder="speaker@email.com"
-                  type="email"
-                  value={speakerEmail}
-                  onChange={(e) => setSpeakerEmail(e.target.value)}
-                  disabled={inviteSpeakerMutation.isPending}
-                />
-                <Input
-                  placeholder="Affiliation (optional)"
-                  value={speakerAffiliation}
-                  onChange={(e) => setSpeakerAffiliation(e.target.value)}
-                  disabled={inviteSpeakerMutation.isPending}
-                />
-                <Button
-                  className="w-full"
-                  onClick={handleInviteSpeaker}
-                  disabled={inviteSpeakerMutation.isPending}
-                >
-                  Invite Speaker
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Reviewers Section */}
-        <div className="rounded-lg border p-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <Users className="size-4" />
-            Reviewers ({reviewerCount}/{REQUIRED_REVIEWERS})
-          </div>
-          <div className="text-muted-foreground mt-1 text-xs">
-            Invite {REQUIRED_REVIEWERS} reviewers. All must accept for the event
-            to start.
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {invitesData?.reviewers.map((reviewer) => (
-              <div key={reviewer.id} className="rounded-md border p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div className="text-sm font-medium">
-                      {reviewer.userName || reviewer.userEmail}
-                    </div>
-                    {reviewer.userName && (
-                      <div className="text-muted-foreground text-xs">
-                        {reviewer.userEmail}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getStatusBadgeVariant(reviewer.status)}>
-                      {reviewer.status}
-                    </Badge>
-                    {reviewer.status !== "accepted" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                          removeReviewerMutation.mutate({
-                            eventId,
-                            inviteId: reviewer.id,
-                          })
-                        }
-                        disabled={removeReviewerMutation.isPending}
-                      >
-                        <Trash2 className="text-destructive size-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {canAddReviewer && (
-              <div className="space-y-2 pt-2">
-                <Label>Add Reviewer</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="reviewer@email.com"
-                    type="email"
-                    value={reviewerEmail}
-                    onChange={(e) => setReviewerEmail(e.target.value)}
-                    disabled={inviteReviewerMutation.isPending}
+      {!isLoading && (
+        <FormGroup columns={2}>
+          {/* Speakers Section */}
+          <FormSection
+            icon={<UserPlus className="size-5" />}
+            title="Speakers"
+            description={`${acceptedSpeakers}/${speakerCount} accepted · At least 1 required`}
+          >
+            <div className="space-y-4">
+              {/* Speaker list */}
+              <AnimatePresence mode="popLayout">
+                {invitesData?.speakers.map((speaker) => (
+                  <InviteCard
+                    key={speaker.id}
+                    name={speaker.userName || ""}
+                    email={speaker.userEmail}
+                    affiliation={speaker.affiliation}
+                    status={speaker.status}
+                    onRemove={() =>
+                      removeSpeakerMutation.mutate({
+                        eventId,
+                        inviteId: speaker.id,
+                      })
+                    }
+                    isRemoving={removeSpeakerMutation.isPending}
                   />
-                  <Button
-                    onClick={handleInviteReviewer}
-                    disabled={inviteReviewerMutation.isPending}
-                  >
-                    Invite
-                  </Button>
+                ))}
+              </AnimatePresence>
+
+              {speakerCount === 0 && (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 py-8 text-center">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                    <UserPlus className="size-6 text-muted-foreground" />
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-foreground">
+                    No speakers invited yet
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Invite speakers to present at your event
+                  </p>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+              )}
+
+              {/* Invite form */}
+              <InviteForm
+                placeholder="speaker@email.com"
+                showAffiliation
+                onSubmit={handleInviteSpeaker}
+                isSubmitting={inviteSpeakerMutation.isPending}
+              />
+            </div>
+          </FormSection>
+
+          {/* Reviewers Section */}
+          <FormSection
+            icon={<Users className="size-5" />}
+            title="Reviewers"
+            description={`${acceptedReviewers}/${reviewerCount} accepted · ${REQUIRED_REVIEWERS} required`}
+          >
+            <div className="space-y-4">
+              {/* Reviewer list */}
+              <AnimatePresence mode="popLayout">
+                {invitesData?.reviewers.map((reviewer) => (
+                  <InviteCard
+                    key={reviewer.id}
+                    name={reviewer.userName || ""}
+                    email={reviewer.userEmail}
+                    status={reviewer.status}
+                    onRemove={() =>
+                      removeReviewerMutation.mutate({
+                        eventId,
+                        inviteId: reviewer.id,
+                      })
+                    }
+                    isRemoving={removeReviewerMutation.isPending}
+                  />
+                ))}
+              </AnimatePresence>
+
+              {reviewerCount === 0 && (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 py-8 text-center">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                    <Users className="size-6 text-muted-foreground" />
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-foreground">
+                    No reviewers invited yet
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Invite {REQUIRED_REVIEWERS} reviewers for submissions
+                  </p>
+                </div>
+              )}
+
+              {/* Progress indicator */}
+              {reviewerCount > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Reviewer slots
+                    </span>
+                    <span className="font-medium">
+                      {reviewerCount}/{REQUIRED_REVIEWERS}
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <motion.div
+                      className="h-full bg-primary"
+                      initial={{ width: 0 }}
+                      animate={{
+                        width: `${(reviewerCount / REQUIRED_REVIEWERS) * 100}%`,
+                      }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Invite form */}
+              {canAddReviewer && (
+                <InviteForm
+                  placeholder="reviewer@email.com"
+                  onSubmit={handleInviteReviewer}
+                  isSubmitting={inviteReviewerMutation.isPending}
+                />
+              )}
+
+              {!canAddReviewer && (
+                <div className="rounded-xl bg-primary/5 p-4 text-center text-sm text-primary">
+                  All reviewer slots filled. Remove a reviewer to add a new one.
+                </div>
+              )}
+            </div>
+          </FormSection>
+        </FormGroup>
+      )}
     </div>
   );
 }

@@ -101,7 +101,7 @@ interface Registration {
 
 function RegistrationCard({ registration }: { registration: Registration }) {
   const status = getEventStatus(registration.event.startDate, registration.event.endDate);
-  const payment = paymentConfig[registration.paymentStatus] || paymentConfig.pending;
+  const payment = paymentConfig[registration.paymentStatus] ?? paymentConfig.pending!;
   const PaymentIcon = payment.icon;
   const isLive = status === "live";
 

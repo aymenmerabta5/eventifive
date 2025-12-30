@@ -1,8 +1,8 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
 import { Uploader, type ExistingImage } from "@/components/uploader";
 import { Image as ImageIcon, Loader2 } from "lucide-react";
+import { FormSection } from "./FormSection";
 
 interface EventImagesSectionProps {
   disabled?: boolean;
@@ -23,17 +23,16 @@ export function EventImagesSection({
   const hasExistingImages = existingImages && existingImages.length > 0;
 
   return (
-    <div className="space-y-2">
-      <Label className="flex items-center gap-2 text-sm font-medium">
-        <ImageIcon className="size-4" />
-        Event Images (cover + gallery)
-      </Label>
-
+    <FormSection
+      icon={<ImageIcon className="size-5" />}
+      title="Event Images"
+      description="Upload a cover image and gallery photos for your event"
+    >
       {isLoadingImages ? (
-        <div className="border-border flex items-center justify-center rounded-3xl border-2 border-dashed p-8">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span>Loading existing images...</span>
+        <div className="flex items-center justify-center rounded-2xl border-2 border-dashed border-border/60 bg-muted/20 p-12">
+          <div className="flex flex-col items-center gap-3 text-muted-foreground">
+            <Loader2 className="size-8 animate-spin text-primary" />
+            <span className="text-sm">Loading existing images...</span>
           </div>
         </div>
       ) : (
@@ -49,10 +48,10 @@ export function EventImagesSection({
       )}
 
       {disabled && !hasExistingImages && (
-        <p className="text-muted-foreground text-xs">
+        <p className="mt-3 text-xs text-muted-foreground">
           Images have already been uploaded for this event.
         </p>
       )}
-    </div>
+    </FormSection>
   );
 }

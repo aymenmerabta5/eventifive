@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, Activity } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -8,8 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { StepProgress } from "@/components/step-progress";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarDays, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "motion/react";
 
 import {
   useEventForm,
@@ -28,6 +29,7 @@ import {
   SessionsStep,
   ReviewStep,
   FormNavigation,
+  WizardProgress,
 } from "./components";
 import type { ChairOption } from "@/components/calendar";
 
@@ -254,234 +256,288 @@ export function EventFormCard({
   }, [form.state.values.endDate]);
 
   return (
-    <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold md:text-3xl">
-          {isCreateMode ? "Create New Event" : "Update Event"}
-        </CardTitle>
-        <CardDescription>
-          {isCreateMode
-            ? "Create a draft first, upload images, then invite people."
-            : "Update the details below to modify the event."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <Activity mode={showWizard ? "visible" : "hidden"}>
-            <StepProgress
-              steps={
-                WIZARD_STEPS as unknown as Array<{
-                  key: string;
-                  label: string;
-                  description: string;
-                }>
-              }
+    <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-lg">
+      {/* Decorative background elements */}
+      <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-20 size-64 rounded-full bg-gradient-to-tr from-primary/5 to-transparent blur-3xl" />
+
+      {/* Header */}
+      <div className="relative border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent px-6 py-6 sm:px-8">
+        <div className="flex items-start gap-4">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+            {isCreateMode ? (
+              <Sparkles className="size-6" />
+            ) : (
+              <CalendarDays className="size-6" />
+            )}
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {isCreateMode ? "Create New Event" : "Update Event"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isCreateMode
+                ? "Follow the steps to create and configure your event."
+                : "Modify event details, manage invites, and configure sessions."}
+            </p>
+          </div>
+        </div>
+
+        {/* Wizard Progress - only show for create mode */}
+        {showWizard && (
+          <div className="mt-8">
+            <WizardProgress
+              steps={WIZARD_STEPS.map((s) => ({
+                key: s.key,
+                label: s.label,
+                description: s.description,
+              }))}
               currentKey={step}
             />
-          </Activity>
+          </div>
+        )}
+      </div>
 
+      {/* Content */}
+      <div className="relative p-6 sm:p-8">
+        <div className="space-y-8">
           {/* Loading state for update mode */}
-          <Activity
-            mode={isUpdateMode && prefill.isPending ? "visible" : "hidden"}
-          >
-            <div className="border-border/60 bg-muted/60 text-muted-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-              <Loader2 className="size-4 animate-spin" />
-              Loading event details...
-            </div>
-          </Activity>
-
-          {/* Error state for update mode */}
-          <Activity
-            mode={isUpdateMode && prefill.notFound ? "visible" : "hidden"}
-          >
-            <div className="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm">
-              Unable to load this event. Please return to your events and try
-              again.
-            </div>
-          </Activity>
-
-          <Activity
-            mode={isUpdateMode && prefill.missingEventId ? "visible" : "hidden"}
-          >
-            <div className="border-border text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-sm">
-              Select an event from My Events to update it here.
-            </div>
-          </Activity>
-
-          {/* Step 1: Details (for create mode wizard or update mode) */}
-          {(step === "details" || isUpdateMode) && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (isUpdateMode) {
-                  void handleSubmit();
-                }
-              }}
-              className="space-y-6"
+          {isUpdateMode && prefill.isPending && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-3"
             >
-              <EventDetailsForm
-                form={form}
-                nowMinDateTime={nowMinDateTime}
-                disabled={
-                  isCreating ||
-                  isUpdating ||
-                  (isUpdateMode && prefill.isPending)
-                }
-              />
-
-              {/* Images section for create mode */}
-              <Activity
-                mode={isCreateMode && step === "details" ? "visible" : "hidden"}
-              >
-                <EventImagesSection
-                  disabled={!!createdEventId}
-                  onFilesChange={setEventImages}
-                />
-              </Activity>
-
-              {/* Images section for update mode */}
-              <Activity
-                mode={
-                  isUpdateMode && !prefill.isPending && !prefill.notFound
-                    ? "visible"
-                    : "hidden"
-                }
-              >
-                <EventImagesSection
-                  disabled={isUpdating}
-                  onFilesChange={setEventImages}
-                  existingImages={existingImagesForUploader}
-                  isLoadingImages={existingImagesQuery.isPending}
-                  onRemoveExistingImage={handleRemoveExistingImage}
-                />
-              </Activity>
-            </form>
+              <Loader2 className="size-5 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">
+                Loading event details...
+              </span>
+            </motion.div>
           )}
 
+          {/* Error state for update mode */}
+          {isUpdateMode && prefill.notFound && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            >
+              Unable to load this event. Please return to your events and try
+              again.
+            </motion.div>
+          )}
+
+          {isUpdateMode && prefill.missingEventId && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground"
+            >
+              Select an event from My Events to update it here.
+            </motion.div>
+          )}
+
+          {/* Step Content with Animation */}
+          <AnimatePresence mode="wait">
+            {/* Step 1: Details (for create mode wizard or update mode) */}
+            {(step === "details" || isUpdateMode) && (
+              <motion.div
+                key="details"
+                initial={{ opacity: 0, x: isCreateMode ? 20 : 0 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isUpdateMode) {
+                      void handleSubmit();
+                    }
+                  }}
+                  className="space-y-6"
+                >
+                  <EventDetailsForm
+                    form={form}
+                    nowMinDateTime={nowMinDateTime}
+                    disabled={
+                      isCreating ||
+                      isUpdating ||
+                      (isUpdateMode && prefill.isPending)
+                    }
+                  />
+
+                  {/* Images section for create mode */}
+                  {isCreateMode && step === "details" && (
+                    <EventImagesSection
+                      disabled={!!createdEventId}
+                      onFilesChange={setEventImages}
+                    />
+                  )}
+
+                  {/* Images section for update mode */}
+                  {isUpdateMode && !prefill.isPending && !prefill.notFound && (
+                    <EventImagesSection
+                      disabled={isUpdating}
+                      onFilesChange={setEventImages}
+                      existingImages={existingImagesForUploader}
+                      isLoadingImages={existingImagesQuery.isPending}
+                      onRemoveExistingImage={handleRemoveExistingImage}
+                    />
+                  )}
+                </form>
+              </motion.div>
+            )}
+
+            {/* Step 2: Invites (create mode only) */}
+            {isCreateMode && step === "invites" && createdEventId && (
+              <motion.div
+                key="invites"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <InvitesStep
+                  eventId={createdEventId}
+                  eventType={form.state.values.type}
+                  invitesData={invitesData}
+                  isLoading={invitesQuery.isPending}
+                  inviteSpeakerMutation={inviteSpeakerMutation}
+                  inviteReviewerMutation={inviteReviewerMutation}
+                  removeSpeakerMutation={removeSpeakerMutation}
+                  removeReviewerMutation={removeReviewerMutation}
+                />
+              </motion.div>
+            )}
+
+            {/* Step 3: Sessions (create mode only) */}
+            {isCreateMode && step === "sessions" && createdEventId && (
+              <motion.div
+                key="sessions"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SessionsStep
+                  eventId={createdEventId}
+                  eventStartDate={eventStartDate}
+                  eventEndDate={eventEndDate}
+                  rooms={rooms}
+                  isLoadingRooms={isLoadingRooms}
+                  onCreateRoom={createRoom}
+                  onDeleteRoom={deleteRoom}
+                  isCreatingRoom={isCreatingRoom}
+                  isDeletingRoom={isDeletingRoom}
+                  sessions={sessions}
+                  isLoadingSessions={isLoadingSessions}
+                  onCreateSession={createSession}
+                  onUpdateSession={updateSession}
+                  onDeleteSession={deleteSession}
+                  chairOptions={chairOptions}
+                />
+              </motion.div>
+            )}
+
+            {/* Step 4: Review (create mode only) */}
+            {isCreateMode && step === "review" && (
+              <motion.div
+                key="review"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ReviewStep
+                  invitesData={invitesData}
+                  isLoading={invitesQuery.isPending}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Update mode: Show invites section below form */}
-          <Activity
-            mode={
-              isUpdateMode &&
-              activeEventId &&
-              !prefill.isPending &&
-              !prefill.notFound
-                ? "visible"
-                : "hidden"
-            }
-          >
-            <div className="space-y-6 border-t pt-6">
-              <h3 className="text-lg font-semibold">Manage Invites</h3>
-              <InvitesStep
-                eventId={activeEventId ?? ""}
-                eventType={form.state.values.type}
-                invitesData={invitesData}
-                isLoading={invitesQuery.isPending}
-                inviteSpeakerMutation={inviteSpeakerMutation}
-                inviteReviewerMutation={inviteReviewerMutation}
-                removeSpeakerMutation={removeSpeakerMutation}
-                removeReviewerMutation={removeReviewerMutation}
-              />
+          {isUpdateMode &&
+            activeEventId &&
+            !prefill.isPending &&
+            !prefill.notFound && (
+              <div className="space-y-8 border-t border-border/40 pt-8">
+                <div>
+                  <h2 className="font-display text-xl font-semibold text-foreground">
+                    Manage Invites
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Invite speakers and reviewers to your event
+                  </p>
+                </div>
+                <InvitesStep
+                  eventId={activeEventId}
+                  eventType={form.state.values.type}
+                  invitesData={invitesData}
+                  isLoading={invitesQuery.isPending}
+                  inviteSpeakerMutation={inviteSpeakerMutation}
+                  inviteReviewerMutation={inviteReviewerMutation}
+                  removeSpeakerMutation={removeSpeakerMutation}
+                  removeReviewerMutation={removeReviewerMutation}
+                />
 
-              <h3 className="text-lg font-semibold">Program Schedule</h3>
-              <SessionsStep
-                eventId={activeEventId ?? ""}
-                eventStartDate={eventStartDate}
-                eventEndDate={eventEndDate}
-                rooms={rooms}
-                isLoadingRooms={isLoadingRooms}
-                onCreateRoom={createRoom}
-                onDeleteRoom={deleteRoom}
-                isCreatingRoom={isCreatingRoom}
-                isDeletingRoom={isDeletingRoom}
-                sessions={sessions}
-                isLoadingSessions={isLoadingSessions}
-                onCreateSession={createSession}
-                onUpdateSession={updateSession}
-                onDeleteSession={deleteSession}
-                chairOptions={chairOptions}
-              />
+                <div className="border-t border-border/40 pt-8">
+                  <h2 className="font-display text-xl font-semibold text-foreground">
+                    Program Schedule
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Manage rooms and session schedule
+                  </p>
+                </div>
+                <SessionsStep
+                  eventId={activeEventId}
+                  eventStartDate={eventStartDate}
+                  eventEndDate={eventEndDate}
+                  rooms={rooms}
+                  isLoadingRooms={isLoadingRooms}
+                  onCreateRoom={createRoom}
+                  onDeleteRoom={deleteRoom}
+                  isCreatingRoom={isCreatingRoom}
+                  isDeletingRoom={isDeletingRoom}
+                  sessions={sessions}
+                  isLoadingSessions={isLoadingSessions}
+                  onCreateSession={createSession}
+                  onUpdateSession={updateSession}
+                  onDeleteSession={deleteSession}
+                  chairOptions={chairOptions}
+                />
 
-              <h3 className="text-lg font-semibold">Event Readiness</h3>
-              <ReviewStep
-                invitesData={invitesData}
-                isLoading={invitesQuery.isPending}
-              />
-            </div>
-          </Activity>
-
-          {/* Step 2: Invites (create mode only) */}
-          <Activity
-            mode={
-              isCreateMode &&
-              step === "invites" &&
-              createdEventId &&
-              createdEventId !== null
-                ? "visible"
-                : "hidden"
-            }
-          >
-            <InvitesStep
-              eventId={createdEventId ?? ""}
-              eventType={form.state.values.type}
-              invitesData={invitesData}
-              isLoading={invitesQuery.isPending}
-              inviteSpeakerMutation={inviteSpeakerMutation}
-              inviteReviewerMutation={inviteReviewerMutation}
-              removeSpeakerMutation={removeSpeakerMutation}
-              removeReviewerMutation={removeReviewerMutation}
-            />
-          </Activity>
-
-          {/* Step 3: Sessions (create mode only) */}
-          <Activity
-            mode={
-              isCreateMode && step === "sessions" && createdEventId
-                ? "visible"
-                : "hidden"
-            }
-          >
-            <SessionsStep
-              eventId={createdEventId ?? ""}
-              eventStartDate={eventStartDate}
-              eventEndDate={eventEndDate}
-              rooms={rooms}
-              isLoadingRooms={isLoadingRooms}
-              onCreateRoom={createRoom}
-              onDeleteRoom={deleteRoom}
-              isCreatingRoom={isCreatingRoom}
-              isDeletingRoom={isDeletingRoom}
-              sessions={sessions}
-              isLoadingSessions={isLoadingSessions}
-              onCreateSession={createSession}
-              onUpdateSession={updateSession}
-              onDeleteSession={deleteSession}
-              chairOptions={chairOptions}
-            />
-          </Activity>
-
-          {/* Step 4: Review (create mode only) */}
-          <Activity
-            mode={isCreateMode && step === "review" ? "visible" : "hidden"}
-          >
-            <ReviewStep
-              invitesData={invitesData}
-              isLoading={invitesQuery.isPending}
-            />
-          </Activity>
+                <div className="border-t border-border/40 pt-8">
+                  <h2 className="font-display text-xl font-semibold text-foreground">
+                    Event Readiness
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Check if your event is ready to publish
+                  </p>
+                </div>
+                <ReviewStep
+                  invitesData={invitesData}
+                  isLoading={invitesQuery.isPending}
+                />
+              </div>
+            )}
 
           {/* Navigation */}
-          <FormNavigation
-            mode={mode}
-            step={step}
-            isLoading={isCreating || isUpdating}
-            canGoBack={step !== "details"}
-            onBack={handleBack}
-            onNext={handleNext}
-            onSubmit={handleSubmit}
-          />
+          <div className="border-t border-border/40 pt-6">
+            <FormNavigation
+              mode={mode}
+              step={step}
+              isLoading={isCreating || isUpdating}
+              canGoBack={step !== "details"}
+              onBack={handleBack}
+              onNext={handleNext}
+              onSubmit={handleSubmit}
+            />
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
