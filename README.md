@@ -9,11 +9,12 @@ A modern event management platform built with Next.js 16 and Bun, supporting con
 | Runtime | Bun (package manager + runtime via `--bun` flag) |
 | Framework | Next.js 16 (App Router, React 19, Turbopack, React Compiler) |
 | Language | TypeScript (strict mode, `@/*` path aliases) |
-| API | oRPC (type-safe, 80+ endpoints across 12 routers) |
+| API | oRPC (type-safe, 85+ endpoints across 13 routers) |
 | Auth | Better Auth (email/password, Google OAuth, RBAC) |
-| Database | Drizzle ORM + Bun SQL (PostgreSQL, 34+ tables) |
+| Database | Drizzle ORM + Bun SQL (PostgreSQL, 35+ tables) |
 | Realtime | Bun native WebSocket (port 8081) + Redis/ioredis (Upstash) |
-| UI | Tailwind CSS 4 + shadcn/ui (36+ components) |
+| UI | Tailwind CSS 4 + shadcn/ui (40+ components) |
+| Animations | motion/react (wizard progress, form transitions) |
 | Storage | Cloudflare R2 via Bun S3Client (native) |
 | Payments | Chargily (Algerian market) |
 | Caching | Redis via ioredis (dashboard stats, presence, rate limiting) |
@@ -102,10 +103,11 @@ src/
 │   │   ├── certificates/         # Certificate viewing and verification
 │   │   ├── messages/             # Real-time messaging
 │   │   ├── sessions/             # User's sessions (chair/facilitator)
-│   │   ├── registrations/        # User's event registrations
+│   │   ├── registrations/        # User's event registrations + badge download
 │   │   ├── invites/              # Speaker/reviewer/committee invites
 │   │   ├── pricing/              # Subscription plans
-│   │   └── verify/[code]/        # Certificate verification
+│   │   ├── verify/[code]/        # Certificate verification
+│   │   └── verify-badge/[code]/  # Badge verification (public)
 │   ├── dashboard/                # Protected organizer/admin dashboard
 │   └── api/                      # API routes
 │       ├── auth/                 # Better Auth handler
@@ -113,16 +115,17 @@ src/
 │       ├── webhooks/chargily/    # Payment webhooks
 │       └── arcjet/               # Bot detection
 ├── components/
-│   ├── ui/                       # shadcn/ui components (36+)
+│   ├── ui/                       # shadcn/ui components (40+)
+│   ├── uploader/                 # Modular file uploader (5 hooks, 7 components)
 │   └── rich-text-editor/         # TipTap WYSIWYG editor
 ├── server/
 │   ├── orpc/                     # API layer
-│   │   ├── routers/              # 12 domain routers (80+ endpoints)
+│   │   ├── routers/              # 13 domain routers (85+ endpoints)
 │   │   ├── index.ts              # Procedure types & middleware
 │   │   ├── context.ts            # Session context
 │   │   └── ratelimit.ts          # Rate limiting config
 │   ├── db/                       # Drizzle schema & Bun SQL
-│   │   └── schema/               # 8 domain schemas (34+ tables)
+│   │   └── schema/               # 9 domain schemas (35+ tables)
 │   ├── better-auth/              # Auth configuration
 │   ├── gateway/                  # Chargily integration
 │   ├── bucket/                   # R2 file storage (Bun S3Client)
@@ -137,8 +140,21 @@ src/
 ├── lib/
 │   ├── schemas/                  # Zod validation schemas
 │   ├── certificates/             # Certificate generation (PDF, QR)
-│   └── emails/                   # React Email templates
-└── mcp/                          # Test data MCP server
+│   ├── emails/                   # React Email templates
+│   └── badges/                   # Badge generation (issueBadge, verification)
+└── mcp/                          # MCP server for test data generation
+    └── src/tools/
+        ├── invites/              # Modular invite management (refactored)
+        │   ├── speakers.ts       # Speaker invitation tools (4 tools)
+        │   ├── reviewers.ts      # Reviewer invitation tools (4 tools)
+        │   ├── committee.ts      # Committee management (3 tools)
+        │   ├── user-view.ts      # User invitation listing (1 tool)
+        │   └── helpers.ts        # Shared utilities
+        ├── events.ts             # Event CRUD tools
+        ├── users.ts              # User management tools
+        ├── submissions.ts        # Submission tools
+        ├── reviews.ts            # Review tools
+        └── seed.ts               # Database seeding
 ```
 
 ## Key Features
@@ -150,13 +166,26 @@ src/
 - **Rich Text Descriptions**: TipTap editor for event details
 - **Invitations**: Invite speakers, reviewers, and committee members
 - **Registration**: Free event registration with payment support for paid events
+- **Multi-Step Wizard**: Animated 4-step wizard for event creation (Details → Invites → Sessions → Review)
+
+### Badges System (New)
+- Generate digital badges for participants, speakers, reviewers, and committee members
+- QR code verification with unique verification codes (`BDG-YYYY-XXXXXXXX`)
+- Automatic badge issuance on:
+  - Event registration (free events)
+  - Payment confirmation (paid events)
+  - Speaker/reviewer/committee invite acceptance
+- Email notifications with verification links
+- Public verification page at `/verify-badge/[code]`
+- Revocation support with reason tracking
 
 ### Certificates System
-- Generate certificates for speakers, reviewers, committee members, and facilitators
-- PDF generation with @react-pdf/renderer
-- QR code verification with unique verification codes
+- Generate formal certificates for speakers, reviewers, committee members, and facilitators
+- PDF generation with @react-pdf/renderer and embedded QR codes
+- Unique verification codes (`EVT-YYYY-XXXXXXXX`)
 - Email notifications on certificate issuance
-- Public verification page with revocation support
+- Public verification page at `/verify/[code]` with revocation support
+- Data snapshots prevent inconsistencies if event details change
 
 ### Session Q&A (Real-time)
 - Ask questions during sessions with anonymous option
@@ -216,7 +245,7 @@ adminProcedure      // Requires super_admin role
 | Registration | 10/min | Event registration |
 | General | 100/min | Other protected endpoints |
 
-### API Routers (12 domains, 80+ endpoints)
+### API Routers (13 domains, 85+ endpoints)
 
 | Router | Endpoints | Description |
 |--------|-----------|-------------|
@@ -233,8 +262,9 @@ adminProcedure      // Requires super_admin role
 | reviews | 2 | Submission reviews |
 | sessions | 10 | Program sessions, rooms |
 | certificates | 7 | Generate, download, verify, revoke |
+| badges | 5 | Badge generation, download, verify, revoke |
 
-## Database Schema (34+ tables)
+## Database Schema (35+ tables)
 
 ### Domain Organization
 
@@ -247,7 +277,8 @@ adminProcedure      // Requires super_admin role
 | Sessions | 8 | room, programSession, sessionAssignment, workshop, workshopRegistration, sessionQuestions, sessionQuestionLikes, sessionQuestionAnswers |
 | Payments | 4 | subscriptionPlan, subscriptionPrice, userSubscription, payment |
 | Messaging | 3 | conversations, messages, readReceipts |
-| Certificates | 1 | certificate (with verification codes) |
+| Certificates | 1 | certificate (with verification codes, data snapshots) |
+| Badges | 1 | badge (with verification codes, auto-issuance tracking) |
 
 ### Key Enums
 
@@ -258,6 +289,7 @@ eventStatusEnum: "draft" | "published" | "cancelled" | "archived"
 paymentStatusEnum: "unpaid" | "pending" | "paid" | "refunded"
 subscriptionStatusEnum: "pending" | "active" | "cancelled" | "expired"
 certificateRoleEnum: "speaker" | "committee" | "reviewer" | "facilitator"
+badgeRoleEnum: "participant" | "speaker" | "reviewer" | "committee"
 ```
 
 ## Real-time Architecture
@@ -329,20 +361,41 @@ Single Redis connection for all pub/sub subscriptions (prevents Upstash connecti
 
 Built with React Email for cross-client compatibility:
 - **CertificateIssuedEmail** - Certificate notification with download link
+- **BadgeIssuedEmail** - Badge notification with verification link
 - **ResetPasswordEmail** - Password reset with secure link
 - **SessionChairAssignedEmail** - Chair notification with QR code
 - **EmailLayout** - Base template with Tailwind styles
 
-## UI Components (36+)
+## UI Components (40+)
 
 ### shadcn/ui Components
 Layout, Forms, Dialogs, Data Display, Navigation, Charts, and more.
 
 ### Custom Components
-- Rich Text Editor (TipTap)
-- Calendar View (week/day scheduling)
-- Certificate Viewer
-- Conversation List & Message View
+- **Rich Text Editor** (TipTap) - WYSIWYG editor for event descriptions
+- **Calendar View** - Week/day scheduling for program sessions
+- **Certificate Viewer** - PDF display with download
+- **Conversation List & Message View** - Real-time messaging UI
+- **Event Form Wizard** - Animated 4-step wizard with progress indicator (Details → Invites → Sessions → Review)
+
+### Modular Uploader Component (Refactored)
+File upload component split into reusable hooks and presentational components:
+
+**Hooks (5 custom hooks):**
+- `useUploader` - Main orchestrator coordinating all upload state
+- `useFileDragDrop` - Drag-over state and file drop handling
+- `useImageReorder` - Drag-to-reorder functionality for images
+- `usePreviewUrls` - Blob URL management with memory cleanup
+- `useUploadQuota` - Upload quota fetching for documents
+
+**Components (7 presentational):**
+- `DropZone` - Drag-drop file input area
+- `ImageGrid` / `ImageCard` - Image preview grid with cover badge
+- `FileList` / `FileItem` - Document file list display
+- `AddMoreSlot` - Add more files button
+- `UploaderActions` - Upload/clear action buttons
+
+**Supports:** Event images (JPEG/PNG/WebP/GIF) and registration documents (PDF/DOC/DOCX)
 
 ## Deployment
 
