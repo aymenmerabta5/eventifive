@@ -52,10 +52,10 @@ export function FormNavigation({
               Updating...
             </>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               <Check className="size-4" />
               Update Event
-            </>
+            </div>
           )}
         </StatefulButton>
       </div>
