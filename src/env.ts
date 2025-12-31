@@ -28,8 +28,9 @@ export const env = createEnv({
     // CORS
     CORS_ORIGIN: z.string().url().default("http://localhost:3000"),
 
-    // Optional
+    // Optional - AI
     OPEN_AI_API_KEY: z.string().min(1).optional(),
+    OPENROUTER_API_KEY: z.string().min(1).optional(),
     DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -76,6 +77,7 @@ export const env = createEnv({
     CLOUDFLARE_TURNSTYLE_SK: process.env.CLOUDFLARE_TURNSTYLE_SK,
     CORS_ORIGIN: process.env.CORS_ORIGIN,
     OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

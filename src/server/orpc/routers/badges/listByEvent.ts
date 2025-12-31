@@ -65,12 +65,15 @@ export const listBadgesByEventRouter = protectedProcedure
 
     // Generate presigned URLs for user images
     const badgesWithUrls = await Promise.all(
-      badges.map(async (b) => ({
-        ...b,
-        userImage: b.userImage
+      badges.map(async (b) => {
+        const presignedUrl = b.userImage
           ? await generatePresignedDownloadUrl(b.userImage)
-          : null,
-      }))
+          : null;
+        return {
+          ...b,
+          userImage: presignedUrl?.downloadUrl ?? null,
+        };
+      })
     );
 
     return badgesWithUrls;

@@ -10,6 +10,7 @@ interface FormSectionProps {
   children: ReactNode;
   className?: string;
   variant?: "default" | "highlight" | "subtle";
+  action?: ReactNode;
 }
 
 export function FormSection({
@@ -19,6 +20,7 @@ export function FormSection({
   children,
   className,
   variant = "default",
+  action,
 }: FormSectionProps) {
   return (
     <div
@@ -54,6 +56,7 @@ export function FormSection({
               </p>
             )}
           </div>
+          {action && <div className="shrink-0">{action}</div>}
         </div>
 
         {/* Content */}

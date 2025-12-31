@@ -18,7 +18,12 @@ import {
   FileText,
   Coins,
   Info,
+  Loader2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useAIGeneration } from "../hooks/useAIGeneration";
+import type { EventType } from "@/server/db/schema/enums";
 import { FormSection, FormGroup, FormFieldWrapper } from "./FormSection";
 import { eventTypeOptions } from "../constants";
 import { addDaysToDateTimeLocalInputValue } from "../utils";
@@ -38,6 +43,33 @@ export function EventDetailsForm({
   disabled = false,
   showBigDescription = true,
 }: EventDetailsFormProps) {
+  const { generateAsync, isGenerating } = useAIGeneration();
+
+  const handleGenerateWithAI = async () => {
+    const title = form.state.values.title;
+    const eventType = form.state.values.type;
+
+    if (!title) {
+      toast.error("Please enter a title first");
+      return;
+    }
+
+    try {
+      const result = await generateAsync({
+        title,
+        eventType: eventType as EventType,
+      });
+
+      // Update form fields with generated content
+      form.setFieldValue("description", result.smallDescription);
+      if (showBigDescription) {
+        form.setFieldValue("bigDescription", result.bigDescription);
+      }
+    } catch {
+      // Error is handled by the hook
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Basic Information Section */}
@@ -125,6 +157,32 @@ export function EventDetailsForm({
         icon={<FileText className="size-5" />}
         title="Event Description"
         description="Help attendees understand what your event is about"
+        action={
+          <form.Subscribe selector={(state) => state.values.title}>
+            {(title) => (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={disabled || isGenerating || !title}
+                onClick={handleGenerateWithAI}
+                className="gap-1.5 text-xs"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="size-3 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="size-3" />
+                    Generate with AI
+                  </>
+                )}
+              </Button>
+            )}
+          </form.Subscribe>
+        }
       >
         <div className="space-y-5">
           {/* Small Description */}

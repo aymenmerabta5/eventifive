@@ -73,6 +73,12 @@ export const pollVotingLimiter = createRedisLimiter("poll-voting", 10);
 export const pollCreationLimiter = createRedisLimiter("poll-creation", 5);
 
 /**
+ * AI rate limiter: 10 requests per minute
+ * Moderate limit to protect API costs while allowing reasonable usage
+ */
+export const aiLimiter = createRedisLimiter("ai", 10);
+
+/**
  * Registration rate limiter: 10 requests per minute
  * Moderate limit for event registrations
  */
@@ -150,6 +156,15 @@ export const pollCreationRateLimitMiddleware =
     limiter: () => pollCreationLimiter,
     key: ({ context }) => getUserKey(context),
   });
+
+/**
+ * AI rate limit middleware
+ * Applied to: generateEventDescription, and other AI endpoints
+ */
+export const aiRateLimitMiddleware = createRatelimitMiddleware<Context>({
+  limiter: () => aiLimiter,
+  key: ({ context }) => getUserKey(context),
+});
 
 /**
  * Registration rate limit middleware

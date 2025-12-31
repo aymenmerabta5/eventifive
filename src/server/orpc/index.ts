@@ -11,6 +11,7 @@ import {
   registrationRateLimitMiddleware,
   pollVotingRateLimitMiddleware,
   pollCreationRateLimitMiddleware,
+  aiRateLimitMiddleware,
 } from "./ratelimit";
 
 
@@ -115,4 +116,12 @@ export const rateLimitedPollVoteProcedure = protectedProcedure.use(
  */
 export const rateLimitedPollCreationProcedure = protectedProcedure.use(
   pollCreationRateLimitMiddleware
+);
+
+/**
+ * AI rate-limited procedure: 10 requests/minute
+ * Use for: generateEventDescription, and other AI-powered endpoints
+ */
+export const rateLimitedAIProcedure = protectedProcedure.use(
+  aiRateLimitMiddleware
 );

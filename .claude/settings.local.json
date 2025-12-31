@@ -32,7 +32,8 @@
       "Bash(tree:*)",
       "WebFetch(domain:orpc.dev)",
       "Skill(frontend-design:frontend-design)",
-      "Skill(component-architecture)"
+      "Skill(component-architecture)",
+      "WebFetch(domain:ai-sdk.dev)"
     ],
     "deny": [],
     "ask": []

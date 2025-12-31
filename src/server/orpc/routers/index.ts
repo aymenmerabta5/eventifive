@@ -12,6 +12,7 @@ import { adminRouter } from "./admin";
 import { organizerRouter } from "./organizer";
 import { certificatesRouter } from "./certificates";
 import { badgesRouter } from "./badges";
+import { aiRouter } from "./ai";
 
 /**
  * Main application router
@@ -47,6 +48,7 @@ export const appRouter = {
   sessions: sessionsRouter,
   certificates: certificatesRouter,
   badges: badgesRouter,
+  ai: aiRouter,
 };
 
 export type AppRouter = typeof appRouter;
