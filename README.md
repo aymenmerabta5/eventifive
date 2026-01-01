@@ -9,7 +9,7 @@ A modern event management platform built with Next.js 16 and Bun, supporting con
 | Runtime | Bun (package manager + runtime via `--bun` flag) |
 | Framework | Next.js 16 (App Router, React 19, Turbopack, React Compiler) |
 | Language | TypeScript (strict mode, `@/*` path aliases) |
-| API | oRPC (type-safe, 100+ endpoints across 15 routers) |
+| API | oRPC (type-safe, 100+ endpoints across 16 routers) |
 | Auth | Better Auth (email/password, Google OAuth, RBAC) |
 | Database | Drizzle ORM + Bun SQL (PostgreSQL, 35+ tables) |
 | Realtime | Bun native WebSocket (port 8081) + Redis/ioredis (Upstash) |
@@ -17,6 +17,7 @@ A modern event management platform built with Next.js 16 and Bun, supporting con
 | Animations | motion/react (wizard progress, form transitions) |
 | Storage | Cloudflare R2 via Bun S3Client (native) |
 | Payments | Chargily (Algerian market) |
+| AI | OpenRouter + Vercel AI SDK (Nvidia Nemotron model) |
 | Caching | Redis via ioredis (dashboard stats, presence, rate limiting) |
 
 ## Prerequisites
@@ -119,24 +120,28 @@ src/
 │   ├── uploader/                 # Modular file uploader (5 hooks, 7 components)
 │   └── rich-text-editor/         # TipTap WYSIWYG editor
 ├── server/
+│   ├── ai/                       # AI integration (OpenRouter + Vercel AI SDK)
+│   ├── better-auth/              # Auth configuration
+│   ├── bucket/                   # R2 file storage (Bun S3Client)
+│   ├── cache/                    # Redis caching layer
+│   ├── db/                       # Drizzle schema & Bun SQL
+│   │   └── schema/               # 13 domain schemas (40+ tables)
+│   ├── gateway/                  # Chargily integration
 │   ├── orpc/                     # API layer
-│   │   ├── routers/              # 15 domain routers (100+ endpoints)
+│   │   ├── routers/              # 16 domain routers (100+ endpoints)
 │   │   ├── index.ts              # Procedure types & middleware
 │   │   ├── context.ts            # Session context
 │   │   └── ratelimit.ts          # Rate limiting config
-│   ├── db/                       # Drizzle schema & Bun SQL
-│   │   └── schema/               # 10 domain schemas (40+ tables)
-│   ├── better-auth/              # Auth configuration
-│   ├── gateway/                  # Chargily integration
-│   ├── bucket/                   # R2 file storage (Bun S3Client)
-│   ├── cache/                    # Redis caching layer
-│   └── realtime/                 # WebSocket + Redis pub/sub
-│       ├── ws.ts                 # Bun native WebSocket server
-│       ├── presence.ts           # Online status tracking
-│       ├── pubsub.ts             # Message broadcasting
-│       ├── typing.ts             # Typing indicators
-│       ├── read-receipts.ts      # Message read tracking
-│       └── session-qa.ts         # Session Q&A system
+│   ├── realtime/                 # WebSocket + Redis pub/sub
+│   │   ├── ws.ts                 # Bun native WebSocket server
+│   │   ├── presence.ts           # Online status tracking
+│   │   ├── pubsub.ts             # Message broadcasting
+│   │   ├── typing.ts             # Typing indicators
+│   │   ├── read-receipts.ts      # Message read tracking
+│   │   └── session-qa.ts         # Session Q&A system
+│   ├── styles/                   # Server-side style utilities
+│   ├── tests/                    # Server test utilities
+│   └── utils/                    # Server utility functions
 ├── lib/
 │   ├── schemas/                  # Zod validation schemas
 │   ├── certificates/             # Certificate generation (PDF, QR)
@@ -238,7 +243,15 @@ src/
 - Organizer dashboard with event stats and charts
 - Admin dashboard for platform-wide statistics
 - Redis-based caching with cache invalidation
-- AI-generated event descriptions (short and long versions)
+
+### AI-Powered Features
+- **Provider**: OpenRouter with Vercel AI SDK
+- **Model**: Nvidia Nemotron 3 Nano 30B (`nvidia/nemotron-3-nano-30b-a3b:free`)
+- **Event Description Generation**: AI-generated short and long descriptions for events
+  - Short description: 1-2 sentence summary for cards and listings
+  - Long description: 2-3 paragraph TipTap-compatible rich text
+- **Authorization**: Requires active subscription OR super_admin role
+- **Rate Limited**: Dedicated AI rate limiting to prevent abuse
 
 ## API Structure (oRPC)
 
@@ -259,9 +272,10 @@ adminProcedure      // Requires super_admin role
 | Messaging | 30/min | Real-time messages |
 | Q&A | 20/min | Session questions |
 | Registration | 10/min | Event registration |
+| AI | 10/min | AI description generation |
 | General | 100/min | Other protected endpoints |
 
-### API Routers (15 domains, 100+ endpoints)
+### API Routers (16 domains, 100+ endpoints)
 
 | Router | Endpoints | Description |
 |--------|-----------|-------------|
@@ -272,15 +286,16 @@ adminProcedure      // Requires super_admin role
 | files | 5 | Upload/download with presigned URLs |
 | payment | 4 | Chargily checkout integration |
 | subscription | 4 | Plan management |
-| messages | 12 | Real-time messaging + presence |
-| qa | 7 | Session Q&A operations |
+| websockets | - | Real-time features container |
+| ↳ messages | 12 | Real-time messaging + presence |
+| ↳ qa | 7 | Session Q&A operations |
 | submissions | 4 | Event submissions |
 | reviews | 2 | Submission reviews |
 | sessions | 10 | Program sessions, rooms |
 | certificates | 7 | Generate, download, verify, revoke |
 | badges | 5 | Badge generation, download, verify, revoke |
+| ai | 1 | AI-powered event description generation |
 | workshops | 6 | Propose, accept/reject, list proposals |
-| communicators | 3 | Add, list, remove event communicators |
 
 ## Database Schema (40+ tables)
 
@@ -374,6 +389,7 @@ Single Redis connection for all pub/sub subscriptions (prevents Upstash connecti
 - `CLOUDFLARE_TURNSTYLE_SK` - CAPTCHA
 - `ARCJET_API` - Bot detection
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - OAuth
+- `OPENROUTER_API_KEY` - AI features (optional, enables AI description generation)
 
 ### Required Client Variables
 - `NEXT_PUBLIC_WEBSOCKET_URL` - WebSocket endpoint
