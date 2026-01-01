@@ -64,7 +64,7 @@ export function ReviewerInviteCard({
           >
             <Link
               href={
-                `/events/${invite.eventType.replaceAll("_", "-")}/${invite.eventId}/communicator-reviews` as Route
+                `/events/${invite.eventId}/communicator-reviews` as Route
               }
             >
               View communicator registrations

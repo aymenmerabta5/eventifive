@@ -12,7 +12,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  MessageSquare,
+  Star,
+  AlertTriangle,
+  Lock,
+  Send,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { DEFAULT_RATING, MIN_RATING, MAX_RATING } from "../constants";
 import type { ReviewRecommendation } from "../types";
 
@@ -45,45 +55,109 @@ export function ReviewFormCard({
   const canSubmit =
     !isReadOnly && rating !== null && recommendationToShow !== undefined;
 
+  // Rating labels for visual feedback
+  const ratingLabels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
+  const currentLabel = ratingLabels[displayRating - 1] || "Select rating";
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>General Comments</CardTitle>
-        <CardDescription>
-          Provide overall feedback about the submission (optional)
-        </CardDescription>
+    <Card className="border-border/60 bg-card/80 relative overflow-hidden backdrop-blur-sm">
+      {/* Left accent bar */}
+      <div
+        className={cn(
+          "absolute left-0 top-0 h-full w-1 transition-colors duration-300",
+          isReadOnly
+            ? "from-primary/60 to-primary/30 bg-gradient-to-b"
+            : "from-secondary via-primary to-primary/80 bg-gradient-to-b",
+        )}
+      />
+
+      <CardHeader className="pl-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <CardTitle className="font-display flex items-center gap-2 text-xl tracking-tight">
+              <MessageSquare className="text-primary h-5 w-5" />
+              Your Review
+            </CardTitle>
+            <CardDescription>
+              {isReadOnly
+                ? "This review has been submitted and is read-only"
+                : "Rate the submission and provide your feedback"}
+            </CardDescription>
+          </div>
+          {isReadOnly && (
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary border-primary/20 gap-1.5 border"
+            >
+              <Lock className="h-3 w-3" />
+              Locked
+            </Badge>
+          )}
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+
+      <CardContent className="space-y-6 pl-5">
+        {/* Read-only notice */}
         {isReadOnly && (
-          <div className="border-border bg-muted/40 rounded-lg border p-3">
-            <p className="text-sm font-medium">Review submitted</p>
-            <p className="text-muted-foreground text-xs">
-              You can view this review but cannot edit it.
-              {submittedAt ? ` Submitted on ${submittedAt}.` : ""}
-            </p>
+          <div className="bg-primary/5 border-primary/20 flex items-start gap-3 rounded-lg border p-4">
+            <CheckCircle2 className="text-primary mt-0.5 h-5 w-5 flex-shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-foreground text-sm font-medium">
+                Review submitted successfully
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {submittedAt
+                  ? `Submitted on ${submittedAt}`
+                  : "This review is view-only and cannot be modified."}
+              </p>
+            </div>
           </div>
         )}
 
+        {/* Review error notice */}
         {reviewErrorMessage && !isReadOnly && (
-          <div className="border-destructive/30 bg-destructive/10 rounded-lg border p-3">
-            <p className="text-destructive text-sm font-medium">
-              Could not load your existing review
-            </p>
-            <p className="text-destructive/80 text-xs">{reviewErrorMessage}</p>
+          <div className="border-destructive/30 bg-destructive/5 flex items-start gap-3 rounded-lg border p-4">
+            <AlertTriangle className="text-destructive mt-0.5 h-5 w-5 flex-shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-destructive text-sm font-medium">
+                Could not load existing review
+              </p>
+              <p className="text-destructive/80 text-xs">{reviewErrorMessage}</p>
+            </div>
           </div>
         )}
 
-        {/* Rating Section */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">
-            Communicator Registration Rating *
-          </Label>
+        {/* Rating section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <Star className="text-primary h-4 w-4" />
+              Rating
+              <span className="text-destructive">*</span>
+            </Label>
+            <Badge
+              variant="outline"
+              className={cn(
+                "transition-colors",
+                displayRating >= 4
+                  ? "border-primary/30 text-primary"
+                  : displayRating >= 3
+                    ? "border-secondary text-secondary-foreground"
+                    : "border-destructive/30 text-destructive",
+              )}
+            >
+              {displayRating} / 5 — {currentLabel}
+            </Badge>
+          </div>
+
           <p className="text-muted-foreground text-sm">
             {isReadOnly
-              ? "This rating was submitted and is read-only."
-              : "Use the slider from 1 (lowest) to 5 (highest). Ratings above 2.5 automatically map to an Accept recommendation; 2.5 or below map to Reject."}
+              ? "This rating was submitted and cannot be changed."
+              : "Rate from 1 (reject) to 5 (accept). Ratings above 2.5 auto-recommend acceptance."}
           </p>
-          <div className="border-border/60 bg-muted/30 space-y-2 rounded-lg border px-4 py-3">
+
+          {/* Custom rating slider with visual enhancement */}
+          <div className="bg-muted/30 border-border/50 space-y-4 rounded-xl border p-4">
             <Slider
               min={MIN_RATING}
               max={MAX_RATING}
@@ -95,98 +169,130 @@ export function ReviewFormCard({
               disabled={isReadOnly}
               className="w-full"
             />
-            <div className="text-muted-foreground flex items-center justify-between text-xs">
-              <span>1 (Reject)</span>
-              <span>3 (Neutral)</span>
-              <span>5 (Accept)</span>
+
+            {/* Rating scale labels */}
+            <div className="text-muted-foreground flex items-center justify-between text-xs font-medium">
+              <span className="flex flex-col items-center gap-1">
+                <XCircle className="text-destructive/60 h-4 w-4" />
+                <span>Reject</span>
+              </span>
+              <span className="flex flex-col items-center gap-1 opacity-60">
+                <span className="bg-border h-2 w-px" />
+                <span>Neutral</span>
+              </span>
+              <span className="flex flex-col items-center gap-1">
+                <CheckCircle2 className="text-primary/60 h-4 w-4" />
+                <span>Accept</span>
+              </span>
             </div>
           </div>
-          <p className="text-muted-foreground text-xs">
-            Selected rating: {displayRating} / 5
-          </p>
         </div>
 
-        {/* Recommendation Display */}
-        <div className="bg-muted/50 rounded-lg p-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">
-                {isReadOnly
-                  ? "Submitted recommendation"
-                  : "Auto recommendation"}
-              </p>
-              <p className="text-muted-foreground text-xs">
-                {isReadOnly
-                  ? "This review has been submitted and is locked from editing."
-                  : "Ratings above 2.5 map to Accept; 2.5 or below map to Reject."}
-              </p>
-            </div>
-            {recommendationToShow ? (
-              <div className="flex items-center gap-2">
-                {recommendationToShow === "accept" ? (
-                  <CheckCircle2 className="text-primary h-4 w-4" />
-                ) : (
-                  <XCircle className="text-destructive h-4 w-4" />
-                )}
-                <Badge
-                  variant={
-                    recommendationToShow === "accept"
-                      ? "default"
-                      : "destructive"
-                  }
-                >
-                  {recommendationToShow === "accept" ? "Accept" : "Reject"}
-                </Badge>
-              </div>
-            ) : (
-              <Badge variant="secondary">
-                {isReadOnly ? "No recommendation found" : "Set a rating"}
-              </Badge>
-            )}
+        {/* Auto recommendation display */}
+        <div
+          className={cn(
+            "flex items-center justify-between gap-4 rounded-xl border p-4 transition-colors",
+            recommendationToShow === "accept"
+              ? "border-primary/30 bg-primary/5"
+              : recommendationToShow === "reject"
+                ? "border-destructive/30 bg-destructive/5"
+                : "border-border/50 bg-muted/30",
+          )}
+        >
+          <div className="space-y-0.5">
+            <p className="text-foreground text-sm font-medium">
+              {isReadOnly ? "Final Recommendation" : "Auto Recommendation"}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {isReadOnly
+                ? "This was the submitted recommendation."
+                : "Based on your rating, calculated automatically."}
+            </p>
           </div>
+
+          {recommendationToShow ? (
+            <Badge
+              variant={
+                recommendationToShow === "accept" ? "default" : "destructive"
+              }
+              className="gap-1.5 px-3 py-1.5"
+            >
+              {recommendationToShow === "accept" ? (
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              ) : (
+                <XCircle className="h-3.5 w-3.5" />
+              )}
+              {recommendationToShow === "accept" ? "Accept" : "Reject"}
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="text-muted-foreground">
+              {isReadOnly ? "No recommendation" : "Set a rating first"}
+            </Badge>
+          )}
         </div>
 
         <Separator />
 
-        {/* Comments Section */}
-        <div className="space-y-2">
-          <Label htmlFor="comments" className="text-sm font-medium">
-            Overall Comments
+        {/* Comments section */}
+        <div className="space-y-3">
+          <Label
+            htmlFor="comments"
+            className="text-foreground flex items-center gap-2 text-sm font-medium"
+          >
+            <MessageSquare className="text-muted-foreground h-4 w-4" />
+            Comments
+            <span className="text-muted-foreground text-xs font-normal">
+              (optional)
+            </span>
           </Label>
           <Textarea
             id="comments"
             placeholder="Share your overall thoughts, suggestions, or concerns about this submission..."
             value={comments}
             onChange={(e) => onCommentsChange(e.target.value)}
-            rows={6}
-            className="resize-none"
+            rows={5}
+            className={cn(
+              "bg-background/50 resize-none transition-colors",
+              "focus:border-primary/50 focus:ring-primary/20",
+              isReadOnly && "cursor-not-allowed opacity-60",
+            )}
             disabled={isReadOnly}
           />
           <p className="text-muted-foreground text-xs">
-            This section is for general feedback about the submission.
+            Provide any additional feedback that may help with the review
+            decision.
           </p>
         </div>
       </CardContent>
-      <CardFooter className="flex-col gap-4 sm:flex-row sm:justify-between">
+
+      <CardFooter className="flex-col gap-4 border-t pl-5 pt-6 sm:flex-row sm:justify-between">
         <p className="text-muted-foreground text-xs">
           {isReadOnly
-            ? "This review has been submitted and is view-only."
-            : "Please review all files above before submitting. Your review will be saved."}
+            ? "This review is complete and cannot be modified."
+            : "Review all files above before submitting. This action cannot be undone."}
         </p>
         <Button
           type="button"
           onClick={onSubmit}
           disabled={isSubmitting || !canSubmit}
-          className="w-full sm:w-auto sm:min-w-[200px]"
+          className={cn(
+            "w-full gap-2 font-medium transition-all sm:w-auto sm:min-w-[180px]",
+            canSubmit && !isSubmitting && "shadow-lg shadow-primary/20",
+          )}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
               Submitting...
+            </>
+          ) : isReadOnly ? (
+            <>
+              <Lock className="h-4 w-4" />
+              Review Locked
             </>
           ) : (
             <>
-              <CheckCircle2 className="mr-2 h-4 w-4" />
+              <Send className="h-4 w-4" />
               Submit Review
             </>
           )}

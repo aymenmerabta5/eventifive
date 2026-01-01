@@ -8,12 +8,10 @@ import type { AssignedSubmission } from "../types";
 
 interface UseCommunicatorReviewsProps {
   eventId: string;
-  eventType: string;
 }
 
 export function useCommunicatorReviews({
   eventId,
-  eventType,
 }: UseCommunicatorReviewsProps) {
   const { data: session } = authClient.useSession();
   const isAuthenticated = !!session?.user;
@@ -34,9 +32,6 @@ export function useCommunicatorReviews({
 
   const isEmpty = submissions.length === 0;
 
-  // Type slug for routing
-  const typeSlug = useMemo(() => eventType.replaceAll("_", "-"), [eventType]);
-
   // Handlers
   const handleRefresh = useCallback(() => {
     void refetch();
@@ -49,7 +44,6 @@ export function useCommunicatorReviews({
     // Data
     submissions,
     isEmpty,
-    typeSlug,
     eventId,
 
     // Loading states

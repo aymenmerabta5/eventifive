@@ -39,7 +39,7 @@ export function useSignInForm() {
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            router.push("/");
             toast.success("Sign in successful");
           },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,7 +79,7 @@ export function useSignInForm() {
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            router.push("/");
           },
           onError: (error) => {
             toast.error(error.error.message || error.error.statusText);

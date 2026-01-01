@@ -74,30 +74,46 @@ export function Review({ eventId, submissionId }: ReviewProps) {
 
   // Main content
   return (
-    <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
-      <div className="w-full max-w-4xl space-y-8">
-        <ReviewHeader />
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="bg-primary/5 absolute -top-40 -right-40 h-80 w-80 rounded-full blur-3xl" />
+        <div className="bg-secondary/20 absolute -bottom-40 -left-40 h-96 w-96 rounded-full blur-3xl" />
+        <div className="bg-accent/10 absolute top-1/3 left-1/4 h-64 w-64 rounded-full blur-3xl" />
+      </div>
 
-        <SubmissionDetailsCard
-          title={submission.title}
-          abstract={submission.abstract}
-          files={submission.files ?? []}
-          downloadingFileId={downloadingFileId}
-          onDownload={handleDownload}
-        />
+      {/* Content container */}
+      <div className="relative z-10 px-4 py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-4xl">
+          <ReviewHeader
+            eventId={eventId}
+            isReadOnly={isReadOnly}
+            submitterName={user?.name}
+          />
 
-        <ReviewFormCard
-          rating={rating}
-          comments={comments}
-          isReadOnly={isReadOnly}
-          isSubmitting={isSubmitting}
-          recommendationToShow={recommendationToShow}
-          submittedAt={submittedAtText}
-          reviewErrorMessage={reviewErrorMessage}
-          onRatingChange={handleRatingChange}
-          onCommentsChange={handleCommentsChange}
-          onSubmit={handleSubmitReview}
-        />
+          <div className="mt-10 space-y-6 sm:mt-12 sm:space-y-8">
+            <SubmissionDetailsCard
+              title={submission.title}
+              abstract={submission.abstract}
+              files={submission.files ?? []}
+              downloadingFileId={downloadingFileId}
+              onDownload={handleDownload}
+            />
+
+            <ReviewFormCard
+              rating={rating}
+              comments={comments}
+              isReadOnly={isReadOnly}
+              isSubmitting={isSubmitting}
+              recommendationToShow={recommendationToShow}
+              submittedAt={submittedAtText}
+              reviewErrorMessage={reviewErrorMessage}
+              onRatingChange={handleRatingChange}
+              onCommentsChange={handleCommentsChange}
+              onSubmit={handleSubmitReview}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

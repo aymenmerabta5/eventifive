@@ -317,12 +317,10 @@ function ReviewerInviteCard({
           </div>
         )}
 
-        {isAccepted && invite.eventType && (
+        {isAccepted && (
           <Button size="sm" className="w-full gap-2" variant="outline" asChild>
             <Link
-              href={
-                `/events/${invite.eventType.replaceAll("_", "-")}/${invite.eventId}/communicator-reviews` as Route
-              }
+              href={`/events/${invite.eventId}/communicator-reviews` as Route}
             >
               <IconExternalLink className="size-4" />
               View Submissions

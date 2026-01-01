@@ -11,20 +11,16 @@ import {
 } from "./components";
 import type { CommunicatorReviewsProps } from "./types";
 
-export function CommunicatorReviews({
-  eventId,
-  eventType,
-}: CommunicatorReviewsProps) {
+export function CommunicatorReviews({ eventId }: CommunicatorReviewsProps) {
   const {
     isAuthenticated,
     submissions,
     isEmpty,
-    typeSlug,
     isPending,
     error,
     isRefetching,
     handleRefresh,
-  } = useCommunicatorReviews({ eventId, eventType });
+  } = useCommunicatorReviews({ eventId });
 
   // Auth required state
   if (!isAuthenticated) {
@@ -49,24 +45,36 @@ export function CommunicatorReviews({
 
   // Main content
   return (
-    <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
-      <div className="w-full max-w-4xl space-y-6">
-        <ReviewsHeader />
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="bg-primary/5 absolute -top-40 -right-40 h-80 w-80 rounded-full blur-3xl" />
+        <div className="bg-secondary/20 absolute -bottom-40 -left-40 h-96 w-96 rounded-full blur-3xl" />
+        <div className="bg-accent/10 absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" />
+      </div>
 
-        {isEmpty ? (
-          <EmptyState />
-        ) : (
-          <div className="space-y-4">
-            {submissions.map((submission) => (
-              <SubmissionCard
-                key={submission.id}
-                submission={submission}
-                typeSlug={typeSlug}
-                eventId={eventId}
-              />
-            ))}
+      {/* Content container */}
+      <div className="relative z-10 px-4 py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-5xl">
+          <ReviewsHeader submissionCount={submissions.length} />
+
+          <div className="mt-10 sm:mt-12">
+            {isEmpty ? (
+              <EmptyState />
+            ) : (
+              <div className="grid gap-4 sm:gap-5">
+                {submissions.map((submission, index) => (
+                  <SubmissionCard
+                    key={submission.id}
+                    submission={submission}
+                    eventId={eventId}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

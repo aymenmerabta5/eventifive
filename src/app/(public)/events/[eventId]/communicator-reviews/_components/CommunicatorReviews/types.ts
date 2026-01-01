@@ -11,7 +11,6 @@ export interface AssignedSubmission {
 // Component props
 export interface CommunicatorReviewsProps {
   eventId: string;
-  eventType: string;
 }
 
 // Backwards compatibility alias

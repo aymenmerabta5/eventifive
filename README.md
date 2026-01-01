@@ -9,7 +9,7 @@ A modern event management platform built with Next.js 16 and Bun, supporting con
 | Runtime | Bun (package manager + runtime via `--bun` flag) |
 | Framework | Next.js 16 (App Router, React 19, Turbopack, React Compiler) |
 | Language | TypeScript (strict mode, `@/*` path aliases) |
-| API | oRPC (type-safe, 85+ endpoints across 13 routers) |
+| API | oRPC (type-safe, 100+ endpoints across 15 routers) |
 | Auth | Better Auth (email/password, Google OAuth, RBAC) |
 | Database | Drizzle ORM + Bun SQL (PostgreSQL, 35+ tables) |
 | Realtime | Bun native WebSocket (port 8081) + Redis/ioredis (Upstash) |
@@ -99,12 +99,12 @@ src/
 ├── app/                          # Next.js App Router
 │   ├── (auth)/                   # Auth pages (login, signup, reset-password)
 │   ├── (public)/                 # Public pages (events, certificates, settings)
-│   │   ├── events/               # Event listing, details, registration
+│   │   ├── events/               # Event listing, details, registration, reviews, workshops
 │   │   ├── certificates/         # Certificate viewing and verification
 │   │   ├── messages/             # Real-time messaging
 │   │   ├── sessions/             # User's sessions (chair/facilitator)
 │   │   ├── registrations/        # User's event registrations + badge download
-│   │   ├── invites/              # Speaker/reviewer/committee invites
+│   │   ├── invites/              # Speaker/reviewer/communicator invites
 │   │   ├── pricing/              # Subscription plans
 │   │   ├── verify/[code]/        # Certificate verification
 │   │   └── verify-badge/[code]/  # Badge verification (public)
@@ -120,12 +120,12 @@ src/
 │   └── rich-text-editor/         # TipTap WYSIWYG editor
 ├── server/
 │   ├── orpc/                     # API layer
-│   │   ├── routers/              # 13 domain routers (85+ endpoints)
+│   │   ├── routers/              # 15 domain routers (100+ endpoints)
 │   │   ├── index.ts              # Procedure types & middleware
 │   │   ├── context.ts            # Session context
 │   │   └── ratelimit.ts          # Rate limiting config
 │   ├── db/                       # Drizzle schema & Bun SQL
-│   │   └── schema/               # 9 domain schemas (35+ tables)
+│   │   └── schema/               # 10 domain schemas (40+ tables)
 │   ├── better-auth/              # Auth configuration
 │   ├── gateway/                  # Chargily integration
 │   ├── bucket/                   # R2 file storage (Bun S3Client)
@@ -164,23 +164,24 @@ src/
 - **Lifecycle**: Draft → Published → Cancelled/Archived with explicit status transitions
 - **Multi-image Gallery**: Event cover images with Cloudflare R2 storage
 - **Rich Text Descriptions**: TipTap editor for event details
-- **Invitations**: Invite speakers, reviewers, and committee members
+- **Invitations**: Invite speakers, reviewers, and communicator members
 - **Registration**: Free event registration with payment support for paid events
 - **Multi-Step Wizard**: Animated 4-step wizard for event creation (Details → Invites → Sessions → Review)
 
-### Badges System (New)
-- Generate digital badges for participants, speakers, reviewers, and committee members
+### Badges System
+- Generate digital badges for participants, speakers, reviewers, and communicator members
 - QR code verification with unique verification codes (`BDG-YYYY-XXXXXXXX`)
 - Automatic badge issuance on:
   - Event registration (free events)
   - Payment confirmation (paid events)
-  - Speaker/reviewer/committee invite acceptance
+  - Speaker/reviewer/communicator invite acceptance
+  - Workshop proposal acceptance
 - Email notifications with verification links
 - Public verification page at `/verify-badge/[code]`
 - Revocation support with reason tracking
 
 ### Certificates System
-- Generate formal certificates for speakers, reviewers, committee members, and facilitators
+- Generate formal certificates for speakers, reviewers, communicator members, and facilitators
 - PDF generation with @react-pdf/renderer and embedded QR codes
 - Unique verification codes (`EVT-YYYY-XXXXXXXX`)
 - Email notifications on certificate issuance
@@ -211,6 +212,20 @@ src/
 - Abstract and paper submissions (oral, poster, displayed paper)
 - Reviewer assignments with automatic assignment on acceptance
 - Review workflow with accept/reject recommendations
+- Communicator reviews page for assigned reviewers
+
+### Workshops System (New)
+- Workshop proposal submission with file attachments
+- Multi-step proposal form (personal info, workshop details, files)
+- Proposal management for organizers (accept/reject with reasons)
+- Automatic badge issuance on proposal acceptance
+- Capacity tracking for workshop slots
+
+### Poll System (Real-time, New)
+- Create polls during sessions with multiple options
+- Real-time voting via WebSocket + Redis pub/sub
+- Vote tracking and result aggregation
+- Poll lifecycle management (open, close, archive)
 
 ### Payments & Subscriptions
 - Chargily payment gateway integration
@@ -223,6 +238,7 @@ src/
 - Organizer dashboard with event stats and charts
 - Admin dashboard for platform-wide statistics
 - Redis-based caching with cache invalidation
+- AI-generated event descriptions (short and long versions)
 
 ## API Structure (oRPC)
 
@@ -245,7 +261,7 @@ adminProcedure      // Requires super_admin role
 | Registration | 10/min | Event registration |
 | General | 100/min | Other protected endpoints |
 
-### API Routers (13 domains, 85+ endpoints)
+### API Routers (15 domains, 100+ endpoints)
 
 | Router | Endpoints | Description |
 |--------|-----------|-------------|
@@ -263,18 +279,22 @@ adminProcedure      // Requires super_admin role
 | sessions | 10 | Program sessions, rooms |
 | certificates | 7 | Generate, download, verify, revoke |
 | badges | 5 | Badge generation, download, verify, revoke |
+| workshops | 6 | Propose, accept/reject, list proposals |
+| communicators | 3 | Add, list, remove event communicators |
 
-## Database Schema (35+ tables)
+## Database Schema (40+ tables)
 
 ### Domain Organization
 
 | Domain | Tables | Key Features |
 |--------|--------|--------------|
 | Users | 6 | user, roles, userRoles, session, account, verification |
-| Events | 6 | event, eventImages, eventCommittee, eventSpeakers, eventReviewers, eventRegistration |
+| Events | 6 | event, eventImages, eventCommunicators, eventSpeakers, eventReviewers, eventRegistration |
 | Files | 1 | files (S3 metadata) |
-| Submissions | 4 | submission, submissionFile, review, reviewAssignment |
-| Sessions | 8 | room, programSession, sessionAssignment, workshop, workshopRegistration, sessionQuestions, sessionQuestionLikes, sessionQuestionAnswers |
+| Communicators | 4 | submission, submissionFile, review, reviewAssignment |
+| Sessions | 6 | room, programSession, sessionAssignment, sessionQuestions, sessionQuestionLikes, sessionQuestionAnswers |
+| Workshops | 3 | workshop, workshopProposal, workshopProposalFiles |
+| Polls | 3 | poll, pollOption, pollVote |
 | Payments | 4 | subscriptionPlan, subscriptionPrice, userSubscription, payment |
 | Messaging | 3 | conversations, messages, readReceipts |
 | Certificates | 1 | certificate (with verification codes, data snapshots) |
@@ -288,8 +308,10 @@ eventTypeEnum: "congress" | "seminar" | "workshop" | "scientific_meeting" | "con
 eventStatusEnum: "draft" | "published" | "cancelled" | "archived"
 paymentStatusEnum: "unpaid" | "pending" | "paid" | "refunded"
 subscriptionStatusEnum: "pending" | "active" | "cancelled" | "expired"
-certificateRoleEnum: "speaker" | "committee" | "reviewer" | "facilitator"
-badgeRoleEnum: "participant" | "speaker" | "reviewer" | "committee"
+certificateRoleEnum: "speaker" | "communicator" | "reviewer" | "facilitator"
+badgeRoleEnum: "participant" | "speaker" | "reviewer" | "communicator"
+workshopProposalStatusEnum: "pending" | "accepted" | "rejected"
+pollStatusEnum: "draft" | "open" | "closed"
 ```
 
 ## Real-time Architecture
@@ -312,6 +334,7 @@ Presence TTL: 60 seconds
 - `typing:{hash}` - Typing indicators
 - `read:{hash}` - Read receipts
 - `session:{hash}:qa` - Session Q&A events
+- `session:{hash}:polls` - Session poll events (votes, status changes)
 
 ### Subscription Manager
 
