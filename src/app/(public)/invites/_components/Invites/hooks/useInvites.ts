@@ -63,7 +63,7 @@ export function useInvites() {
   // Derived data
   const invites: InvitesData = useMemo(
     () => ({
-      committeeAssignments: data?.committeeAssignments ?? [],
+      communicatorAssignments: data?.communicatorAssignments ?? [],
       speakerInvites: data?.speakerInvites ?? [],
       reviewerInvites: data?.reviewerInvites ?? [],
     }),
@@ -72,7 +72,7 @@ export function useInvites() {
 
   const isEmpty = useMemo(
     () =>
-      invites.committeeAssignments.length === 0 &&
+      invites.communicatorAssignments.length === 0 &&
       invites.speakerInvites.length === 0 &&
       invites.reviewerInvites.length === 0,
     [invites],

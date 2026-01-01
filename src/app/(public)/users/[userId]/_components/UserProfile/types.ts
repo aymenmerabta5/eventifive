@@ -1,7 +1,7 @@
 export type EventRole =
   | "speaker"
   | "reviewer"
-  | "committee"
+  | "communicator"
   | "attendee"
   | "organizer"
   | "admin"

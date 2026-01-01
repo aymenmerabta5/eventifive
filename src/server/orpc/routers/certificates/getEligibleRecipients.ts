@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import {
   event,
   eventSpeakers,
-  eventCommittee,
+  eventCommunicator,
   eventReviewers,
   workshop,
   certificate,
@@ -105,25 +105,25 @@ export const getEligibleRecipientsRouter = protectedProcedure
       });
     }
 
-    // 2. Get committee members
-    const committee = await db
+    // 2. Get communicator members
+    const communicators = await db
       .select({
-        userId: eventCommittee.userId,
+        userId: eventCommunicator.userId,
         userName: user.name,
         userEmail: user.email,
       })
-      .from(eventCommittee)
-      .innerJoin(user, eq(eventCommittee.userId, user.id))
-      .where(eq(eventCommittee.eventId, input.eventId));
+      .from(eventCommunicator)
+      .innerJoin(user, eq(eventCommunicator.userId, user.id))
+      .where(eq(eventCommunicator.eventId, input.eventId));
 
-    for (const member of committee) {
+    for (const member of communicators) {
       recipients.push({
         userId: member.userId,
         userName: member.userName,
         userEmail: member.userEmail,
-        role: "committee",
+        role: "communicator",
         sessionTitle: null,
-        alreadyIssued: existingSet.has(`${member.userId}-committee`),
+        alreadyIssued: existingSet.has(`${member.userId}-communicator`),
       });
     }
 

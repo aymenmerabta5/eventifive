@@ -69,7 +69,7 @@ export const askQuestionRouter = rateLimitedQAProcedure
       });
     }
 
-    // Check if user is a session manager (organizer, chair, committee, speaker)
+    // Check if user is a session manager (organizer, chair, communicator, speaker)
     // Session managers can only answer questions, not ask them
     const managerInfo = await getSessionManagerInfo(sessionId, userId);
     if (managerInfo?.isSessionManager) {

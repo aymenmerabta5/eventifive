@@ -23,10 +23,12 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
   const user = session?.user;
 
   // Form state
+  const [workshopTitle, setWorkshopTitle] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [researchDomain, setResearchDomain] = useState("");
-  const [aboutIdea, setAboutIdea] = useState("");
+  const [description, setDescription] = useState("");
+  const [capacity, setCapacity] = useState("");
   const [files, setFiles] = useState<File[]>([]);
 
   // Upload state
@@ -34,7 +36,7 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
   const [isLoadingQuota, setIsLoadingQuota] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [workshopId, setWorkshopId] = useState<string | null>(null);
 
   // Derived state
   const remainingSlots = Math.max(0, MAX_FILES - uploadedCount - files.length);
@@ -49,7 +51,9 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     setResearchDomain(
       (user as { researchDomain?: string | null }).researchDomain ?? "",
     );
-    setAboutIdea("");
+    setDescription("");
+    setWorkshopTitle("");
+    setCapacity("");
   }, [user]);
 
   // Fetch upload quota
@@ -59,7 +63,7 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     let cancelled = false;
     setIsLoadingQuota(true);
 
-    fetch(`/api/submit-documents?eventId=${encodeURIComponent(eventId)}`)
+    fetch(`/api/submit-workshop?eventId=${encodeURIComponent(eventId)}`)
       .then(async (response) => {
         const json = (await response.json()) as UploadQuotaResponse;
 
@@ -163,14 +167,27 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     setResearchDomain(value);
   }, []);
 
-  const handleAboutIdeaChange = useCallback((value: string) => {
-    setAboutIdea(value);
+  const handleDescriptionChange = useCallback((value: string) => {
+    setDescription(value);
+  }, []);
+
+  const handleWorkshopTitleChange = useCallback((value: string) => {
+    setWorkshopTitle(value);
+  }, []);
+
+  const handleCapacityChange = useCallback((value: string) => {
+    setCapacity(value);
   }, []);
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       event.stopPropagation();
+
+      if (workshopTitle.trim().length === 0) {
+        toast.error("Please enter a workshop title.");
+        return;
+      }
 
       if (name.trim().length === 0) {
         toast.error("Please enter your full name.");
@@ -188,60 +205,59 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
       }
 
       if (!user) {
-        toast.error("You must be logged in to submit a registration.");
+        toast.error("You must be logged in to submit a proposal.");
         return;
       }
 
       setIsSubmitting(true);
 
       try {
-        const trimmedAboutIdea = aboutIdea.trim();
-
-        for (const [index, file] of files.entries()) {
-          const formData = new FormData();
-          formData.set("file", file);
-          formData.set("eventId", eventId);
-          if (index === 0) {
-            formData.set("name", name);
-            formData.set("researchDomain", researchDomain);
-            if (trimmedAboutIdea.length > 0) {
-              formData.set("aboutIdea", trimmedAboutIdea);
-            }
-          }
-
-          const uploadResponse = await fetch("/api/submit-documents", {
-            method: "POST",
-            body: formData,
-          });
-
-          const uploadJson = (await uploadResponse.json()) as UploadResponse;
-
-          if (!uploadResponse.ok) {
-            throw new Error(uploadJson.message || "Failed to upload file.");
-          }
-
-          if (index === 0 && uploadJson.submissionId) {
-            setSubmissionId(uploadJson.submissionId);
-          }
+        // Only submit the first file with the workshop proposal
+        const file = files[0];
+        if (!file) {
+          throw new Error("No file selected");
         }
 
-        toast.success(
-          "Your workshop application has been uploaded successfully.",
-        );
+        const formData = new FormData();
+        formData.set("file", file);
+        formData.set("eventId", eventId);
+        formData.set("title", workshopTitle.trim());
+        formData.set("description", description.trim());
+        formData.set("researchDomain", researchDomain.trim());
+        if (capacity.trim()) {
+          formData.set("capacity", capacity.trim());
+        }
+
+        const uploadResponse = await fetch("/api/submit-workshop", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadJson = (await uploadResponse.json()) as UploadResponse;
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadJson.message || "Failed to submit proposal.");
+        }
+
+        if (uploadJson.workshopId) {
+          setWorkshopId(uploadJson.workshopId);
+        }
+
+        toast.success("Workshop proposal submitted successfully!");
         setFiles([]);
-        setUploadedCount((prev) => Math.min(MAX_FILES, prev + files.length));
+        setUploadedCount((prev) => Math.min(MAX_FILES, prev + 1));
       } catch (error) {
-        console.error("Error during workshop registration upload:", error);
+        console.error("Error during workshop proposal submission:", error);
         toast.error(
           error instanceof Error
             ? error.message
-            : "An unexpected error occurred while uploading your file.",
+            : "An unexpected error occurred while submitting your proposal.",
         );
       } finally {
         setIsSubmitting(false);
       }
     },
-    [name, files, uploadedCount, user, aboutIdea, eventId, researchDomain],
+    [workshopTitle, name, files, uploadedCount, user, description, eventId, researchDomain, capacity],
   );
 
   return {
@@ -251,10 +267,12 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     isPending: isSessionPending,
 
     // Form state
+    workshopTitle,
     name,
     email,
     researchDomain,
-    aboutIdea,
+    description,
+    capacity,
     files,
 
     // Upload state
@@ -262,7 +280,7 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     isLoadingQuota,
     isSubmitting,
     isDragOver,
-    submissionId,
+    workshopId,
 
     // Derived state
     remainingSlots,
@@ -270,9 +288,11 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     maxFiles: MAX_FILES,
 
     // Handlers
+    handleWorkshopTitleChange,
     handleNameChange,
     handleResearchDomainChange,
-    handleAboutIdeaChange,
+    handleDescriptionChange,
+    handleCapacityChange,
     handleFileChange,
     handleDrop,
     handleDragOver,

@@ -186,10 +186,10 @@ export default function ParticipationOptions() {
 
           <ParticipationCard
             icon={<IconUsers className="size-7" strokeWidth={1.5} />}
-            title="Committee Member"
-            description="We invite dedicated professionals and leaders who can contribute to organizing committees, scientific committees, or program committees to help shape the event's content, review submissions, and ensure its success."
-            href={`/events/${eventId}/committee`}
-            buttonLabel="Join Committee"
+            title="Communicator"
+            description="We invite dedicated professionals and leaders who can help with event communication, coordinate between speakers and organizers, and ensure smooth operations throughout the event."
+            href={`/events/${eventId}/communicator`}
+            buttonLabel="Become Communicator"
             delay={0.3}
             color="chart-2"
           />

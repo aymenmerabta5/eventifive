@@ -1,35 +1,103 @@
 import { Label } from "@/components/ui/label";
-import { FlaskConical } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { FileText, Sparkles, BookOpen } from "lucide-react";
 
-interface AboutIdeaFieldProps {
-  aboutIdea: string;
-  onAboutIdeaChange: (value: string) => void;
+interface WorkshopDescriptionFieldProps {
+  description: string;
+  onDescriptionChange: (value: string) => void;
 }
 
-export function AboutIdeaField({
-  aboutIdea,
-  onAboutIdeaChange,
-}: AboutIdeaFieldProps) {
+export function WorkshopDescriptionField({
+  description,
+  onDescriptionChange,
+}: WorkshopDescriptionFieldProps) {
+  const charCount = description.length;
+  const minChars = 100;
+  const isGoodLength = charCount >= minChars;
+
   return (
-    <div className="space-y-2">
-      <Label
-        htmlFor="aboutIdea"
-        className="flex items-center gap-2 text-sm font-medium"
-      >
-        <FlaskConical className="text-muted-foreground h-4 w-4" />
-        About your idea
-      </Label>
-      <textarea
-        id="aboutIdea"
-        name="aboutIdea"
-        value={aboutIdea}
-        onChange={(event) => onAboutIdeaChange(event.target.value)}
-        placeholder="Tell us about your workshop idea or research project..."
-        className="border-input bg-background placeholder:text-muted-foreground focus:ring-ring min-h-24 w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
-      />
-      <p className="text-muted-foreground text-xs">
-        Share your vision, goals, and what participants will learn
-      </p>
+    <div className="space-y-4">
+      {/* Section header */}
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-chart-3/20 to-chart-3/5 ring-1 ring-chart-3/10">
+          <FileText className="h-5 w-5 text-chart-3" />
+        </div>
+        <div className="flex-1">
+          <Label
+            htmlFor="description"
+            className="flex items-center gap-2 text-base font-semibold"
+          >
+            Workshop Description
+            {isGoodLength && (
+              <Sparkles className="h-3.5 w-3.5 text-green-500 animate-in zoom-in duration-200" />
+            )}
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            Help reviewers understand your workshop&apos;s value
+          </p>
+        </div>
+      </div>
+
+      {/* Textarea with enhanced styling */}
+      <div className="relative">
+        <Textarea
+          id="description"
+          name="description"
+          value={description}
+          onChange={(event) => onDescriptionChange(event.target.value)}
+          placeholder="Describe your workshop objectives, target audience, and what participants will learn. Include any prerequisites, materials needed, and expected outcomes..."
+          className="min-h-[180px] resize-y text-sm leading-relaxed transition-all duration-200 focus:shadow-lg focus:shadow-primary/5"
+        />
+
+        {/* Character counter */}
+        <div className="absolute bottom-3 right-3 flex items-center gap-2 text-xs">
+          <span
+            className={`transition-colors ${
+              isGoodLength ? "text-green-500" : "text-muted-foreground"
+            }`}
+          >
+            {charCount} chars
+          </span>
+          {!isGoodLength && charCount > 0 && (
+            <span className="text-muted-foreground/60">
+              ({minChars - charCount} more recommended)
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Writing tips */}
+      <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <BookOpen className="h-4 w-4 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Tips for a great description</p>
+            <ul className="grid gap-1.5 text-xs text-muted-foreground sm:grid-cols-2">
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-primary" />
+                Clear learning objectives
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-primary" />
+                Target audience level
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-primary" />
+                Hands-on activities planned
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-primary" />
+                Expected takeaways
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+
+// Keep backwards compatibility
+export { WorkshopDescriptionField as AboutIdeaField };

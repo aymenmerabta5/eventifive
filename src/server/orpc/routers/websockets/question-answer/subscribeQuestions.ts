@@ -45,7 +45,7 @@ const answerEventSchema = z.object({
     userName: z.string(),
     userImage: z.string().nullable(),
     content: z.string(),
-    role: z.enum(["organizer", "chair", "committee", "speaker"]),
+    role: z.enum(["organizer", "chair", "communicator", "speaker"]),
     createdAt: z.date(),
   }),
 });
@@ -84,7 +84,7 @@ export const subscribeQuestionsRouter = protectedProcedure
 
     const session = sessionData[0];
 
-    // Check if user is a session manager (organizer, chair, committee, speaker)
+    // Check if user is a session manager (organizer, chair, communicator, speaker)
     const managerInfo = await getSessionManagerInfo(sessionId, userId);
     const isSessionManager = managerInfo?.isSessionManager ?? false;
 

@@ -3,12 +3,15 @@ import type { Route } from "next";
 // Invite status type
 export type InviteStatus = "pending" | "accepted" | "rejected";
 
-// Committee assignment from API
-export interface CommitteeAssignment {
+// Communicator assignment from API
+export interface CommunicatorAssignment {
   id: number;
   eventTitle: string;
   assignedAt: Date;
 }
+
+// Backwards compatibility alias
+export type CommitteeAssignment = CommunicatorAssignment;
 
 // Speaker invite from API
 export interface SpeakerInvite {
@@ -30,7 +33,7 @@ export interface ReviewerInvite {
 
 // All invites data
 export interface InvitesData {
-  committeeAssignments: CommitteeAssignment[];
+  communicatorAssignments: CommunicatorAssignment[];
   speakerInvites: SpeakerInvite[];
   reviewerInvites: ReviewerInvite[];
 }

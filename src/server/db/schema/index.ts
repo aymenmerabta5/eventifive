@@ -16,11 +16,14 @@ export * from "./files";
 // Events (depends on enums, users, files)
 export * from "./events";
 
-// Submissions (depends on enums, users, events, files)
-export * from "./submissions";
+// Communicators (depends on enums, users, events, files) - renamed from submissions
+export * from "./communicators";
 
-// Sessions (depends on users, events, submissions)
+// Sessions (depends on users, events, communicators)
 export * from "./sessions";
+
+// Workshops (depends on enums, users, events, files)
+export * from "./workshops";
 
 // Payments (depends on enums, users, events)
 export * from "./payments";

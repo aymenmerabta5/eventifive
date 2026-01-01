@@ -76,7 +76,7 @@ export function ReviewFormCard({
         {/* Rating Section */}
         <div className="space-y-3">
           <Label className="text-sm font-medium">
-            Committee Registration Rating *
+            Communicator Registration Rating *
           </Label>
           <p className="text-muted-foreground text-sm">
             {isReadOnly

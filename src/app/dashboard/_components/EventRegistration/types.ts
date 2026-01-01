@@ -6,6 +6,7 @@ export type PaymentStatus =
   | "failed"
   | "refunded";
 export type SubmissionStatus = "draft" | "accepted" | "rejected";
+export type WorkshopProposalStatus = "pending" | "accepted" | "rejected";
 
 export type ReviewerLike = {
   reviewStatus: ReviewStatus;
@@ -31,7 +32,33 @@ export type WorkshopSubmission = {
   keywords: string | null;
 };
 
-export type CommitteeSubmission = {
+// Workshop Proposal types (from workshops API)
+export type WorkshopProposal = {
+  id: string;
+  title: string;
+  description: string | null;
+  researchDomain: string | null;
+  capacity: number | null;
+  proposalStatus: WorkshopProposalStatus;
+  proposedAt: Date;
+  respondedAt: Date | null;
+  rejectionReason: string | null;
+  facilitator: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
+export type WorkshopProposalFile = {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  purpose: string | null;
+};
+
+export type CommunicatorSubmission = {
   id: string;
   title: string;
   submitterName: string | null;
@@ -51,6 +78,9 @@ export type CommitteeSubmission = {
   }>;
 };
 
+// Backwards compatibility alias
+export type CommitteeSubmission = CommunicatorSubmission;
+
 export type Participant = {
   id: number;
   userId: string;
@@ -68,7 +98,13 @@ export interface RegistrationStats {
     unpaid: number;
     pending: number;
   };
-  committee: {
+  communicator: {
+    total: number;
+    reviewed: number;
+    pending: number;
+  };
+  // Backwards compatibility alias
+  committee?: {
     total: number;
     reviewed: number;
     pending: number;

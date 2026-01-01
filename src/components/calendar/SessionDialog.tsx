@@ -313,7 +313,7 @@ export function SessionDialog({
               </Select>
               {chairOptions.length === 0 && (
                 <p className="text-muted-foreground text-xs">
-                  Invite speakers or committee members first to assign them as
+                  Invite speakers or communicators first to assign them as
                   chair.
                 </p>
               )}

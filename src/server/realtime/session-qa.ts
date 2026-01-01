@@ -63,7 +63,7 @@ export interface AnswerEvent {
     userName: string;
     userImage: string | null;
     content: string;
-    role: "organizer" | "chair" | "committee" | "speaker";
+    role: "organizer" | "chair" | "communicator" | "speaker";
     createdAt: Date;
   };
 }

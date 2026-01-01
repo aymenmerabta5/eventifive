@@ -1,4 +1,4 @@
-export type AnswerRole = "organizer" | "chair" | "committee" | "speaker";
+export type AnswerRole = "organizer" | "chair" | "communicator" | "speaker";
 
 export interface Answer {
   id: string;

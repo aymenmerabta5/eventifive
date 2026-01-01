@@ -15,7 +15,7 @@ export function EmptyState() {
           <Inbox className="text-muted-foreground mb-4 size-12" />
           <CardTitle className="text-lg">No invites yet</CardTitle>
           <CardDescription className="text-center">
-            You don&apos;t have any committee memberships or invites at the
+            You don&apos;t have any communicator assignments or invites at the
             moment.
             <br />
             When you receive invites, they will appear here.

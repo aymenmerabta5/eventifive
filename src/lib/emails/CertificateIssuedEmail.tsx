@@ -15,8 +15,8 @@ const getRoleDescription = (role: CertificateRole): string => {
   switch (role) {
     case "speaker":
       return "Speaker";
-    case "committee":
-      return "Committee Member";
+    case "communicator":
+      return "Communicator";
     case "reviewer":
       return "Reviewer";
     case "facilitator":

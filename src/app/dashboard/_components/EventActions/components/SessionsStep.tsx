@@ -54,7 +54,7 @@ interface SessionsStepProps {
   onCreateSession: (data: CreateSessionData) => Promise<unknown>;
   onUpdateSession: (data: UpdateSessionData) => Promise<unknown>;
   onDeleteSession: (sessionId: string) => Promise<unknown>;
-  // Chair options (accepted speakers + committee)
+  // Chair options (accepted speakers + communicators)
   chairOptions: ChairOption[];
 }
 
@@ -314,7 +314,7 @@ export function SessionsStep({
               No chairs available
             </p>
             <p className="text-amber-600/80 dark:text-amber-400/70">
-              Invite speakers or committee members in the previous step, and have
+              Invite speakers or communicators in the previous step, and have
               them accept first.
             </p>
           </div>

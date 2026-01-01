@@ -17,8 +17,8 @@ const getRoleDescription = (role: BadgeRole): string => {
       return "Participant";
     case "speaker":
       return "Speaker";
-    case "committee":
-      return "Committee Member";
+    case "communicator":
+      return "Communicator";
     case "reviewer":
       return "Reviewer";
     default:
@@ -32,7 +32,7 @@ const getRoleColor = (role: BadgeRole): string => {
       return "#3B82F6"; // blue
     case "speaker":
       return "#F59E0B"; // amber
-    case "committee":
+    case "communicator":
       return "#8B5CF6"; // violet
     case "reviewer":
       return "#10B981"; // emerald

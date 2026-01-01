@@ -11,7 +11,7 @@ import { unpublishEventRouter } from "./unpublish";
 import {
   listInvitesRouter,
   inviteSpeakerRouter,
-  inviteCommitteeRouter,
+  inviteCommunicatorRouter,
   inviteReviewerRouter,
   acceptSpeakerRouter,
   rejectSpeakerRouter,
@@ -20,7 +20,7 @@ import {
   rejectReviewerRouter,
   removeSpeakerRouter,
   removeReviewerRouter,
-  removeCommitteeRouter,
+  removeCommunicatorRouter,
 } from "./invites";
 import { registerForEventRouter } from "./register";
 import { listParticipantsRouter } from "./listParticipants";
@@ -40,7 +40,7 @@ export const eventsRouter = {
   unpublish: unpublishEventRouter,
   listInvites: listInvitesRouter,
   inviteSpeaker: inviteSpeakerRouter,
-  inviteCommittee: inviteCommitteeRouter,
+  inviteCommunicator: inviteCommunicatorRouter,
   inviteReviewer: inviteReviewerRouter,
   acceptSpeaker: acceptSpeakerRouter,
   rejectSpeaker: rejectSpeakerRouter,
@@ -48,7 +48,7 @@ export const eventsRouter = {
   rejectReviewer: rejectReviewerRouter,
   removeSpeaker: removeSpeakerRouter,
   removeReviewer: removeReviewerRouter,
-  removeCommittee: removeCommitteeRouter,
+  removeCommunicator: removeCommunicatorRouter,
   listMyInvites: listMyInvitesRouter,
   register: registerForEventRouter,
   listParticipants: listParticipantsRouter,

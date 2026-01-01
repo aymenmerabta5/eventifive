@@ -33,7 +33,9 @@
       "WebFetch(domain:orpc.dev)",
       "Skill(frontend-design:frontend-design)",
       "Skill(component-architecture)",
-      "WebFetch(domain:ai-sdk.dev)"
+      "WebFetch(domain:ai-sdk.dev)",
+      "Bash(git -C \"D:\\\\MyWork\\\\Web Dev\\\\eventifive\" ls-files)",
+      "Bash(git -C D:MyWorkWeb Deveventifive ls-files)"
     ],
     "deny": [],
     "ask": []

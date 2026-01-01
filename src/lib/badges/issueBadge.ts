@@ -118,11 +118,11 @@ export async function issueBadgeForRegistration(
 }
 
 /**
- * Issue a badge for a specific role (speaker, reviewer, committee)
+ * Issue a badge for a specific role (speaker, reviewer, communicator)
  * Called when:
  * - Speaker accepts invitation
  * - Reviewer accepts invitation
- * - Committee member is assigned
+ * - Communicator is assigned
  */
 export async function issueBadgeForRole(
   eventId: string,

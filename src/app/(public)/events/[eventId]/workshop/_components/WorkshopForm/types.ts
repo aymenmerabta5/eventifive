@@ -6,25 +6,29 @@ export interface WorkshopFormProps {
 
 // Form submission data
 export interface WorkshopSubmissionData {
+  workshopTitle: string;
   name: string;
   email: string;
   researchDomain: string;
-  aboutIdea: string;
+  description: string;
+  capacity?: number;
   files: File[];
 }
 
 // Form state
 export interface WorkshopFormState {
+  workshopTitle: string;
   name: string;
   email: string;
   researchDomain: string;
-  aboutIdea: string;
+  description: string;
+  capacity: string;
   files: File[];
   uploadedCount: number;
   isLoadingQuota: boolean;
   isSubmitting: boolean;
   isDragOver: boolean;
-  submissionId: string | null;
+  workshopId: string | null;
 }
 
 // Upload quota response
@@ -39,5 +43,5 @@ export interface UploadResponse {
   message?: string;
   fileId?: string;
   documentKey?: string;
-  submissionId?: string;
+  workshopId?: string;
 }

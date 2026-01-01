@@ -80,24 +80,6 @@ export const eventImages = pgTable(
   (table) => [index("event_images_event_id_idx").on(table.eventId)],
 );
 
-export const eventCommittee = pgTable(
-  "event_committee",
-  {
-    id: serial("id").primaryKey(),
-    eventId: text("event_id")
-      .notNull()
-      .references(() => event.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    assignedAt: timestamp("assigned_at").notNull().defaultNow(),
-  },
-  (table) => [
-    unique("event_committee_event_user_unique").on(table.eventId, table.userId),
-    index("event_committee_event_id_idx").on(table.eventId),
-  ],
-);
-
 export const eventSpeakers = pgTable(
   "event_speakers",
   {
@@ -181,9 +163,6 @@ export type NewEventSpeaker = InferInsertModel<typeof eventSpeakers>;
 
 export type EventReviewer = InferSelectModel<typeof eventReviewers>;
 export type NewEventReviewer = InferInsertModel<typeof eventReviewers>;
-
-export type EventCommittee = InferSelectModel<typeof eventCommittee>;
-export type NewEventCommittee = InferInsertModel<typeof eventCommittee>;
 
 export type EventRegistration = InferSelectModel<typeof eventRegistration>;
 export type NewEventRegistration = InferInsertModel<typeof eventRegistration>;

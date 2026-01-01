@@ -213,10 +213,10 @@ const getRoleText = (
         title: "CERTIFICATE OF APPRECIATION",
         description: "for their valuable contribution as a Speaker",
       };
-    case "committee":
+    case "communicator":
       return {
         title: "CERTIFICATE OF APPRECIATION",
-        description: "for their dedication as a Committee Member",
+        description: "for their dedication as a Communicator",
       };
     case "reviewer":
       return {

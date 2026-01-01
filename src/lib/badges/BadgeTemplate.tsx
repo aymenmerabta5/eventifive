@@ -30,7 +30,7 @@ const roleColors = {
     light: "#D1FAE5", // emerald-100
     text: "#064E3B", // emerald-900
   },
-  committee: {
+  communicator: {
     primary: "#8B5CF6", // violet-500
     secondary: "#6D28D9", // violet-700
     light: "#EDE9FE", // violet-100
@@ -42,7 +42,7 @@ const roleLabels: Record<BadgeRole, string> = {
   participant: "PARTICIPANT",
   speaker: "SPEAKER",
   reviewer: "REVIEWER",
-  committee: "COMMITTEE",
+  communicator: "COMMUNICATOR",
 };
 
 const styles = StyleSheet.create({

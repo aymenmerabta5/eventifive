@@ -47,8 +47,8 @@ const roleConfig: Record<string, { label: string; icon: typeof IconUserStar; cla
     icon: IconMicrophone2,
     className: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
   },
-  committee: {
-    label: "Committee",
+  communicator: {
+    label: "Communicator",
     icon: IconUsers,
     className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },

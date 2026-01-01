@@ -5,13 +5,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
-import { isWorkshopSubmission, computeFinalDecision } from "../utils";
+import { computeFinalDecision } from "../utils";
 import type {
-  WorkshopSubmission,
-  CommitteeSubmission,
+  CommunicatorSubmission,
   Participant,
   ReviewStatus,
   RegistrationStats,
+  WorkshopProposal,
 } from "../types";
 
 interface UseEventRegistrationProps {
@@ -33,13 +33,23 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
     }),
   });
 
+  // Fetch workshop proposals from the workshops API
+  const workshopProposalsQuery = useQuery({
+    ...orpc.workshops.listProposals.queryOptions({
+      input: { eventId },
+    }),
+  });
+
   // Combine errors
-  const error = registrationsQuery.error || participantsQuery.error;
+  const error =
+    registrationsQuery.error ||
+    participantsQuery.error ||
+    workshopProposalsQuery.error;
 
   const updateStatusMutation = useMutation(
     orpc.submissions.updateStatus.mutationOptions({
       onSuccess: () => {
-        toast.success("Updated workshop status");
+        toast.success("Updated submission status");
         registrationsQuery.refetch();
       },
       onError: (error) => {
@@ -51,24 +61,50 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
     }),
   );
 
+  // Workshop proposal mutations
+  const acceptProposalMutation = useMutation(
+    orpc.workshops.accept.mutationOptions({
+      onSuccess: () => {
+        toast.success("Workshop proposal accepted");
+        workshopProposalsQuery.refetch();
+      },
+      onError: (error) => {
+        console.error("Failed to accept proposal:", error);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to accept proposal",
+        );
+      },
+    }),
+  );
+
+  const rejectProposalMutation = useMutation(
+    orpc.workshops.reject.mutationOptions({
+      onSuccess: () => {
+        toast.success("Workshop proposal rejected");
+        workshopProposalsQuery.refetch();
+      },
+      onError: (error) => {
+        console.error("Failed to reject proposal:", error);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to reject proposal",
+        );
+      },
+    }),
+  );
+
   const submissions = registrationsQuery.data?.submissions ?? [];
   const participants: Participant[] =
     participantsQuery.data?.participants ?? [];
 
-  const workshopSubmissions: WorkshopSubmission[] = useMemo(
-    () =>
-      submissions.filter((submission) =>
-        isWorkshopSubmission(submission.keywords, submission.title),
-      ),
-    [submissions],
+  // Workshop proposals from dedicated workshops API
+  const workshopProposals: WorkshopProposal[] = useMemo(
+    () => workshopProposalsQuery.data?.proposals ?? [],
+    [workshopProposalsQuery.data?.proposals],
   );
 
-  const committeeSubmissions: CommitteeSubmission[] = useMemo(
-    () =>
-      submissions.filter(
-        (submission) =>
-          !isWorkshopSubmission(submission.keywords, submission.title),
-      ),
+  // Communicator submissions (all submissions are communicator submissions now)
+  const communicatorSubmissions: CommunicatorSubmission[] = useMemo(
+    () => submissions,
     [submissions],
   );
 
@@ -80,9 +116,9 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
       pending: participants.filter((p) => p.paymentStatus === "pending").length,
     };
 
-    const committeeStats = {
-      total: committeeSubmissions.length,
-      reviewed: committeeSubmissions.filter((s) => {
+    const communicatorStats = {
+      total: communicatorSubmissions.length,
+      reviewed: communicatorSubmissions.filter((s) => {
         const decision = computeFinalDecision(
           s.reviewers.map((r) => ({
             reviewStatus: r.reviewStatus as ReviewStatus,
@@ -90,7 +126,7 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
         );
         return decision.finalStatus !== "pending";
       }).length,
-      pending: committeeSubmissions.filter((s) => {
+      pending: communicatorSubmissions.filter((s) => {
         const decision = computeFinalDecision(
           s.reviewers.map((r) => ({
             reviewStatus: r.reviewStatus as ReviewStatus,
@@ -101,60 +137,72 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
     };
 
     const workshopStats = {
-      total: workshopSubmissions.length,
-      accepted: workshopSubmissions.filter((s) => s.status === "accepted")
+      total: workshopProposals.length,
+      accepted: workshopProposals.filter((p) => p.proposalStatus === "accepted")
         .length,
-      rejected: workshopSubmissions.filter((s) => s.status === "rejected")
+      rejected: workshopProposals.filter((p) => p.proposalStatus === "rejected")
         .length,
-      pending: workshopSubmissions.filter((s) => s.status === "draft").length,
+      pending: workshopProposals.filter((p) => p.proposalStatus === "pending")
+        .length,
     };
 
     return {
       participants: participantStats,
-      committee: committeeStats,
+      communicator: communicatorStats,
       workshop: workshopStats,
     };
-  }, [participants, committeeSubmissions, workshopSubmissions]);
+  }, [participants, communicatorSubmissions, workshopProposals]);
 
   const isRefetching =
-    registrationsQuery.isRefetching || participantsQuery.isRefetching;
-  const isPending = registrationsQuery.isPending || participantsQuery.isPending;
-  const isEmpty = participants.length === 0 && submissions.length === 0;
+    registrationsQuery.isRefetching ||
+    participantsQuery.isRefetching ||
+    workshopProposalsQuery.isRefetching;
+  const isPending =
+    registrationsQuery.isPending ||
+    participantsQuery.isPending ||
+    workshopProposalsQuery.isPending;
+  const isEmpty =
+    participants.length === 0 &&
+    submissions.length === 0 &&
+    workshopProposals.length === 0;
 
   const handleRefresh = useCallback(() => {
     void registrationsQuery.refetch();
     void participantsQuery.refetch();
-  }, [registrationsQuery, participantsQuery]);
+    void workshopProposalsQuery.refetch();
+  }, [registrationsQuery, participantsQuery, workshopProposalsQuery]);
 
   const handleBack = useCallback(() => {
     router.push("/dashboard?view=my-events");
   }, [router]);
 
-  const handleAcceptWorkshop = useCallback(
-    (submissionId: string) => {
-      updateStatusMutation.mutate({
-        submissionId,
-        status: "accepted",
+  // Workshop proposal handlers
+  const handleAcceptProposal = useCallback(
+    (workshopId: string, startAt?: string, endAt?: string) => {
+      acceptProposalMutation.mutate({
+        workshopId,
+        startAt,
+        endAt,
       });
     },
-    [updateStatusMutation],
+    [acceptProposalMutation],
   );
 
-  const handleRejectWorkshop = useCallback(
-    (submissionId: string) => {
-      updateStatusMutation.mutate({
-        submissionId,
-        status: "rejected",
+  const handleRejectProposal = useCallback(
+    (workshopId: string, reason: string) => {
+      rejectProposalMutation.mutate({
+        workshopId,
+        reason,
       });
     },
-    [updateStatusMutation],
+    [rejectProposalMutation],
   );
 
   return {
     // Data
     participants,
-    workshopSubmissions,
-    committeeSubmissions,
+    workshopProposals,
+    communicatorSubmissions,
     stats,
     isEmpty,
 
@@ -163,7 +211,9 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
     isRefetching,
     isParticipantsLoading: participantsQuery.isPending,
     isSubmissionsLoading: registrationsQuery.isPending,
-    isUpdating: updateStatusMutation.isPending,
+    isWorkshopProposalsLoading: workshopProposalsQuery.isPending,
+    isAcceptingProposal: acceptProposalMutation.isPending,
+    isRejectingProposal: rejectProposalMutation.isPending,
 
     // Error
     error,
@@ -171,7 +221,7 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
     // Handlers
     handleRefresh,
     handleBack,
-    handleAcceptWorkshop,
-    handleRejectWorkshop,
+    handleAcceptProposal,
+    handleRejectProposal,
   };
 }

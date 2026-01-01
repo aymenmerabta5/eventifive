@@ -1,37 +1,121 @@
 import { Button } from "@/components/ui/button";
-import { CardFooter } from "@/components/ui/card";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import {
+  Rocket,
+  Loader2,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FormFooterProps {
   isSubmitting: boolean;
   hasFiles: boolean;
+  progress?: number;
 }
 
-export function FormFooter({ isSubmitting, hasFiles }: FormFooterProps) {
+export function FormFooter({
+  isSubmitting,
+  hasFiles,
+  progress = 0,
+}: FormFooterProps) {
+  const isComplete = progress === 100;
+  const canSubmit = hasFiles && !isSubmitting;
+
   return (
-    <CardFooter className="flex-col gap-4 px-0 pt-4 sm:flex-row sm:justify-between">
-      <p className="text-muted-foreground text-xs">
-        By submitting, you agree to our terms and conditions.
-      </p>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="space-y-6 pt-4">
+      {/* Progress summary */}
+      <div className="rounded-xl border border-border/40 bg-gradient-to-r from-muted/30 to-muted/10 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
+                isComplete
+                  ? "bg-green-500/10 text-green-500"
+                  : "bg-primary/10 text-primary"
+              )}
+            >
+              {isComplete ? (
+                <ShieldCheck className="h-5 w-5" />
+              ) : (
+                <Rocket className="h-5 w-5" />
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium">
+                {isComplete
+                  ? "Ready to submit!"
+                  : `${Math.round(progress)}% complete`}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {isComplete
+                  ? "Your proposal is ready for review"
+                  : "Fill in all required fields to continue"}
+              </p>
+            </div>
+          </div>
+
+          {/* Mini progress bar for mobile */}
+          <div className="hidden sm:block w-24">
+            <Progress value={progress} className="h-1.5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Submit section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Terms notice */}
+        <p className="text-xs text-muted-foreground max-w-md">
+          By submitting, you agree to our{" "}
+          <button type="button" className="text-primary hover:underline">
+            Terms of Service
+          </button>{" "}
+          and{" "}
+          <button type="button" className="text-primary hover:underline">
+            Privacy Policy
+          </button>
+        </p>
+
+        {/* Submit button */}
         <Button
           type="submit"
-          className="w-full sm:w-auto sm:min-w-[200px]"
-          disabled={isSubmitting || !hasFiles}
+          size="lg"
+          disabled={!canSubmit}
+          className={cn(
+            "group relative w-full overflow-hidden sm:w-auto sm:min-w-[200px]",
+            "transition-all duration-300",
+            isComplete &&
+              "bg-gradient-to-r from-primary via-primary to-chart-2 hover:shadow-lg hover:shadow-primary/20"
+          )}
         >
+          {/* Shimmer effect */}
+          {isComplete && !isSubmitting && (
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+          )}
+
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
+              Submitting proposal...
             </>
           ) : (
             <>
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Apply to Workshop
+              <Rocket className="mr-2 h-4 w-4" />
+              Submit Proposal
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </>
           )}
         </Button>
       </div>
-    </CardFooter>
+
+      {/* Warning if no files */}
+      {!hasFiles && (
+        <p className="flex items-center justify-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+          Please upload at least one supporting document to continue
+        </p>
+      )}
+    </div>
   );
 }

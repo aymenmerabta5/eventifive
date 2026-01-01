@@ -63,9 +63,15 @@ export const eventSpeakerStatusEnum = pgEnum("event_speaker_status", [
   "rejected",
 ]);
 
+export const workshopProposalStatusEnum = pgEnum("workshop_proposal_status", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+
 export const certificateRoleEnum = pgEnum("certificate_role", [
   "speaker",
-  "committee",
+  "communicator",
   "reviewer",
   "facilitator",
 ]);
@@ -83,7 +89,7 @@ export const badgeRoleEnum = pgEnum("badge_role", [
   "participant",
   "speaker",
   "reviewer",
-  "committee",
+  "communicator",
 ]);
 
 // ---------------------------
@@ -94,6 +100,7 @@ export const submissionTypeValues = submissionTypeEnum.enumValues;
 export const submissionStatusValues = submissionStatusEnum.enumValues;
 export const reviewRecommendationValues = reviewRecommendationEnum.enumValues;
 export const eventSpeakerStatusValues = eventSpeakerStatusEnum.enumValues;
+export const workshopProposalStatusValues = workshopProposalStatusEnum.enumValues;
 export const fileTypeValues = fileTypeEnum.enumValues;
 export const fileStatusValues = fileStatusEnum.enumValues;
 export const paymentStatusValues = paymentStatusEnum.enumValues;
@@ -113,6 +120,7 @@ export type SubmissionType = (typeof submissionTypeValues)[number];
 export type SubmissionStatus = (typeof submissionStatusValues)[number];
 export type ReviewRecommendation = (typeof reviewRecommendationValues)[number];
 export type EventSpeakerStatus = (typeof eventSpeakerStatusValues)[number];
+export type WorkshopProposalStatus = (typeof workshopProposalStatusValues)[number];
 export type FileType = (typeof fileTypeValues)[number];
 export type FileStatus = (typeof fileStatusValues)[number];
 export type PaymentStatus = (typeof paymentStatusValues)[number];

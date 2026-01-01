@@ -2,13 +2,15 @@ import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
 import {
   event,
-  eventCommittee,
+  eventCommunicator,
   eventReviewers,
   eventSpeakers,
   reviewAssignment,
   submission,
   user,
 } from "@/server/db/schema";
+
+// Note: eventCommunicator (previously named eventCommittee)
 import { ORPCError } from "@orpc/server";
 import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -63,7 +65,7 @@ const inviteReviewerInput = z.object({
   email: z.string().email(),
 });
 
-const inviteCommitteeInput = z.object({
+const inviteCommunicatorInput = z.object({
   eventId: z.string().min(1),
   email: z.string().email(),
 });
@@ -103,7 +105,7 @@ const reviewerInviteSchema = z.object({
   eventType: z.string().optional(),
 });
 
-const committeeSchema = z.object({
+const communicatorSchema = z.object({
   id: z.number(),
   eventId: z.string(),
   userId: z.string(),
@@ -115,7 +117,7 @@ const committeeSchema = z.object({
 const listInvitesOutput = z.object({
   speakers: z.array(speakerInviteSchema),
   reviewers: z.array(reviewerInviteSchema),
-  committee: z.array(committeeSchema),
+  communicators: z.array(communicatorSchema),
 });
 
 // List invites for an event (organizer only)
@@ -183,21 +185,21 @@ export const listInvitesRouter = protectedProcedure
       respondedAt: r.respondedAt ?? null,
     }));
 
-    // Get committee
-    const committeeRows = await db
+    // Get communicators
+    const communicatorRows = await db
       .select({
-        id: eventCommittee.id,
-        eventId: eventCommittee.eventId,
-        userId: eventCommittee.userId,
+        id: eventCommunicator.id,
+        eventId: eventCommunicator.eventId,
+        userId: eventCommunicator.userId,
         userName: user.name,
         userEmail: user.email,
-        assignedAt: eventCommittee.assignedAt,
+        assignedAt: eventCommunicator.assignedAt,
       })
-      .from(eventCommittee)
-      .innerJoin(user, eq(user.id, eventCommittee.userId))
-      .where(eq(eventCommittee.eventId, input.eventId));
+      .from(eventCommunicator)
+      .innerJoin(user, eq(user.id, eventCommunicator.userId))
+      .where(eq(eventCommunicator.eventId, input.eventId));
 
-    const committee = committeeRows.map((c) => ({
+    const communicators = communicatorRows.map((c) => ({
       id: c.id,
       eventId: c.eventId,
       userId: c.userId,
@@ -206,7 +208,7 @@ export const listInvitesRouter = protectedProcedure
       assignedAt: c.assignedAt,
     }));
 
-    return { speakers, reviewers, committee };
+    return { speakers, reviewers, communicators };
   });
 
 // Invite speaker (unlimited per event)
@@ -298,10 +300,10 @@ export const inviteReviewerRouter = protectedProcedure
     return { ok: true as const };
   });
 
-// Add committee member
-export const inviteCommitteeRouter = protectedProcedure
-  .route({ method: "POST", path: "/events/invites/committee" })
-  .input(inviteCommitteeInput)
+// Add communicator
+export const inviteCommunicatorRouter = protectedProcedure
+  .route({ method: "POST", path: "/events/invites/communicator" })
+  .input(inviteCommunicatorInput)
   .output(z.object({ ok: z.literal(true) }))
   .handler(async ({ context, input }) => {
     const organizerId = context.session.user.id;
@@ -309,33 +311,33 @@ export const inviteCommitteeRouter = protectedProcedure
 
     const foundUser = await findUserByEmail(input.email);
 
-    // Check if user is already in committee
+    // Check if user is already a communicator for this event
     const [existing] = await db
-      .select({ id: eventCommittee.id })
-      .from(eventCommittee)
+      .select({ id: eventCommunicator.id })
+      .from(eventCommunicator)
       .where(
         and(
-          eq(eventCommittee.eventId, input.eventId),
-          eq(eventCommittee.userId, foundUser.id),
+          eq(eventCommunicator.eventId, input.eventId),
+          eq(eventCommunicator.userId, foundUser.id),
         ),
       )
       .limit(1);
 
     if (existing) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "User is already in the committee for this event",
+        message: "User is already a communicator for this event",
       });
     }
 
-    await db.insert(eventCommittee).values({
+    await db.insert(eventCommunicator).values({
       eventId: input.eventId,
       userId: foundUser.id,
     });
 
-    // Issue committee badge (fire and forget)
-    issueBadgeForRole(input.eventId, foundUser.id, "committee").catch((error) => {
+    // Issue communicator badge (fire and forget)
+    issueBadgeForRole(input.eventId, foundUser.id, "communicator").catch((error) => {
       console.error(
-        `Failed to issue committee badge for user ${foundUser.id}:`,
+        `Failed to issue communicator badge for user ${foundUser.id}:`,
         error,
       );
     });
@@ -592,9 +594,9 @@ export const removeReviewerRouter = protectedProcedure
     return { ok: true as const };
   });
 
-// Remove committee member (organizer only)
-export const removeCommitteeRouter = protectedProcedure
-  .route({ method: "DELETE", path: "/events/invites/committee" })
+// Remove communicator (organizer only)
+export const removeCommunicatorRouter = protectedProcedure
+  .route({ method: "DELETE", path: "/events/invites/communicator" })
   .input(removeInviteInput)
   .output(z.object({ ok: z.literal(true) }))
   .handler(async ({ context, input }) => {
@@ -602,23 +604,23 @@ export const removeCommitteeRouter = protectedProcedure
     await assertOrganizer(input.eventId, organizerId);
 
     const [found] = await db
-      .select({ id: eventCommittee.id })
-      .from(eventCommittee)
+      .select({ id: eventCommunicator.id })
+      .from(eventCommunicator)
       .where(
         and(
-          eq(eventCommittee.eventId, input.eventId),
-          eq(eventCommittee.id, input.inviteId),
+          eq(eventCommunicator.eventId, input.eventId),
+          eq(eventCommunicator.id, input.inviteId),
         ),
       )
       .limit(1);
 
     if (!found) {
       throw new ORPCError("NOT_FOUND", {
-        message: "Committee member not found",
+        message: "Communicator not found",
       });
     }
 
-    await db.delete(eventCommittee).where(eq(eventCommittee.id, found.id));
+    await db.delete(eventCommunicator).where(eq(eventCommunicator.id, found.id));
 
     return { ok: true as const };
   });
@@ -634,8 +636,8 @@ const listMyInvitesOutput = z.object({
       eventType: z.string(),
     }),
   ),
-  committeeAssignments: z.array(
-    committeeSchema.extend({ eventTitle: z.string() }),
+  communicatorAssignments: z.array(
+    communicatorSchema.extend({ eventTitle: z.string() }),
   ),
 });
 
@@ -709,23 +711,23 @@ export const listMyInvitesRouter = protectedProcedure
       eventType: r.eventType,
     }));
 
-    // Get committee assignments
-    const committeeRows = await db
+    // Get communicator assignments
+    const communicatorRows = await db
       .select({
-        id: eventCommittee.id,
-        eventId: eventCommittee.eventId,
-        userId: eventCommittee.userId,
+        id: eventCommunicator.id,
+        eventId: eventCommunicator.eventId,
+        userId: eventCommunicator.userId,
         userName: user.name,
         userEmail: user.email,
-        assignedAt: eventCommittee.assignedAt,
+        assignedAt: eventCommunicator.assignedAt,
         eventTitle: event.title,
       })
-      .from(eventCommittee)
-      .innerJoin(user, eq(user.id, eventCommittee.userId))
-      .innerJoin(event, eq(event.id, eventCommittee.eventId))
-      .where(eq(eventCommittee.userId, userId));
+      .from(eventCommunicator)
+      .innerJoin(user, eq(user.id, eventCommunicator.userId))
+      .innerJoin(event, eq(event.id, eventCommunicator.eventId))
+      .where(eq(eventCommunicator.userId, userId));
 
-    const committeeAssignments = committeeRows.map((c) => ({
+    const communicatorAssignments = communicatorRows.map((c) => ({
       id: c.id,
       eventId: c.eventId,
       userId: c.userId,
@@ -735,5 +737,5 @@ export const listMyInvitesRouter = protectedProcedure
       eventTitle: c.eventTitle,
     }));
 
-    return { speakerInvites, reviewerInvites, committeeAssignments };
+    return { speakerInvites, reviewerInvites, communicatorAssignments };
   });

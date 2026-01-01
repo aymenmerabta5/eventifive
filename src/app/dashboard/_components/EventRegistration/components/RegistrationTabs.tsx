@@ -10,37 +10,45 @@ import {
   IconAward,
 } from "@tabler/icons-react";
 import { ParticipantsTab } from "./ParticipantsTab";
-import { CommitteeTab } from "./CommitteeTab";
+import { CommunicatorTab } from "./CommunicatorTab";
 import { WorkshopTab } from "./WorkshopTab";
 import { CertificatesTab } from "./CertificatesTab";
 import type {
   Participant,
-  CommitteeSubmission,
-  WorkshopSubmission,
+  CommunicatorSubmission,
+  WorkshopProposal,
 } from "../types";
 
 interface RegistrationTabsProps {
   eventId: string;
   participants: Participant[];
-  committeeSubmissions: CommitteeSubmission[];
-  workshopSubmissions: WorkshopSubmission[];
+  communicatorSubmissions: CommunicatorSubmission[];
+  workshopProposals: WorkshopProposal[];
   isParticipantsLoading: boolean;
   isSubmissionsLoading: boolean;
-  onAcceptWorkshop: (submissionId: string) => void;
-  onRejectWorkshop: (submissionId: string) => void;
-  isUpdating: boolean;
+  isWorkshopProposalsLoading: boolean;
+  onAcceptProposal: (
+    workshopId: string,
+    startAt?: string,
+    endAt?: string,
+  ) => void;
+  onRejectProposal: (workshopId: string, reason: string) => void;
+  isAcceptingProposal: boolean;
+  isRejectingProposal: boolean;
 }
 
 export function RegistrationTabs({
   eventId,
   participants,
-  committeeSubmissions,
-  workshopSubmissions,
+  communicatorSubmissions,
+  workshopProposals,
   isParticipantsLoading,
   isSubmissionsLoading,
-  onAcceptWorkshop,
-  onRejectWorkshop,
-  isUpdating,
+  isWorkshopProposalsLoading,
+  onAcceptProposal,
+  onRejectProposal,
+  isAcceptingProposal,
+  isRejectingProposal,
 }: RegistrationTabsProps) {
   return (
     <Tabs defaultValue="participants" className="w-full space-y-6">
@@ -79,7 +87,7 @@ export function RegistrationTabs({
           </TabsTrigger>
 
           <TabsTrigger
-            value="committee-members"
+            value="communicators"
             className={cn(
               "gap-2 rounded-xl px-4 py-2.5",
               "data-[state=active]:bg-chart-2/10 data-[state=active]:text-chart-2",
@@ -87,12 +95,12 @@ export function RegistrationTabs({
             )}
           >
             <IconFileText className="size-4" />
-            <span className="hidden sm:inline">Committee</span>
+            <span className="hidden sm:inline">Communicators</span>
             <Badge
               variant="secondary"
               className="ml-1 border-border/50 bg-muted/50 text-xs"
             >
-              {committeeSubmissions.length}
+              {communicatorSubmissions.length}
             </Badge>
           </TabsTrigger>
 
@@ -110,7 +118,7 @@ export function RegistrationTabs({
               variant="secondary"
               className="ml-1 border-border/50 bg-muted/50 text-xs"
             >
-              {workshopSubmissions.length}
+              {workshopProposals.length}
             </Badge>
           </TabsTrigger>
 
@@ -135,20 +143,21 @@ export function RegistrationTabs({
         />
       </TabsContent>
 
-      <TabsContent value="committee-members" className="mt-0">
-        <CommitteeTab
-          submissions={committeeSubmissions}
+      <TabsContent value="communicators" className="mt-0">
+        <CommunicatorTab
+          submissions={communicatorSubmissions}
           isLoading={isSubmissionsLoading}
         />
       </TabsContent>
 
       <TabsContent value="workshop-facilitators" className="mt-0">
         <WorkshopTab
-          submissions={workshopSubmissions}
-          isLoading={isSubmissionsLoading}
-          onAccept={onAcceptWorkshop}
-          onReject={onRejectWorkshop}
-          isUpdating={isUpdating}
+          proposals={workshopProposals}
+          isLoading={isWorkshopProposalsLoading}
+          onAccept={onAcceptProposal}
+          onReject={onRejectProposal}
+          isAccepting={isAcceptingProposal}
+          isRejecting={isRejectingProposal}
         />
       </TabsContent>
 

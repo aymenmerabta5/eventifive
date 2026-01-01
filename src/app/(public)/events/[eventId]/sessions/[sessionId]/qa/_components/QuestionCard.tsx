@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { QA_QUERY_KEY } from "../_lib";
 
-type AnswerRole = "organizer" | "chair" | "committee" | "speaker";
+type AnswerRole = "organizer" | "chair" | "communicator" | "speaker";
 
 interface Answer {
   id: string;
@@ -41,8 +41,8 @@ const roleBadgeConfig: Record<AnswerRole, { label: string; className: string }> 
     label: "Chair",
     className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
   },
-  committee: {
-    label: "Committee",
+  communicator: {
+    label: "Communicator",
     className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
   },
   speaker: {

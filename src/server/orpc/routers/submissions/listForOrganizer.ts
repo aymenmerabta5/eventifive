@@ -222,7 +222,7 @@ export const listForOrganizerRouter = protectedProcedure
 
       console.error("Failed to list organizer submissions:", error);
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to load committee registrations",
+        message: "Failed to load communicator registrations",
       });
     }
   });
