@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -6,6 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { UserTableRow } from "./UserTableRow";
 import type { UserWithRole, UserActionHandlers } from "../types";
 
@@ -32,6 +42,16 @@ export function UsersTable({
   onDelete,
   onChangeRole,
 }: UsersTableProps) {
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+
+  // Filter users based on selected role
+  const filteredUsers = useMemo(() => {
+    if (roleFilter === "all") {
+      return users;
+    }
+    return users.filter((user) => user.role === roleFilter);
+  }, [users, roleFilter]);
+
   return (
     <div
       className={cn(
@@ -50,12 +70,32 @@ export function UsersTable({
 
       {/* Header */}
       <div className="relative border-b border-border/50 px-6 py-4">
-        <h2 className="font-display text-lg font-semibold text-foreground">
-          Registered Users
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          All users registered on the platform
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-foreground">
+              Registered Users
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              All users registered on the platform
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="role-filter" className="text-sm text-muted-foreground">
+              Filter by role:
+            </label>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger id="role-filter" className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="super_admin">Super Admin</SelectItem>
+                <SelectItem value="organizer">Organizer</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       {/* Table */}
@@ -84,7 +124,7 @@ export function UsersTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <UserTableRow
                 key={user.id}
                 user={user}
@@ -101,8 +141,19 @@ export function UsersTable({
       <div className="relative border-t border-border/50 px-6 py-3">
         <p className="text-xs text-muted-foreground">
           Showing{" "}
-          <span className="font-medium text-foreground">{users.length}</span>{" "}
-          user{users.length !== 1 ? "s" : ""}
+          <span className="font-medium text-foreground">{filteredUsers.length}</span>{" "}
+          {roleFilter !== "all" && (
+            <>
+              of{" "}
+              <span className="font-medium text-foreground">{users.length}</span>{" "}
+            </>
+          )}
+          user{filteredUsers.length !== 1 ? "s" : ""}
+          {roleFilter !== "all" && (
+            <span className="ml-1">
+              ({roleFilter === "super_admin" ? "Super Admin" : roleFilter === "organizer" ? "Organizer" : "User"})
+            </span>
+          )}
         </p>
       </div>
     </div>
