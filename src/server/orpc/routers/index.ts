@@ -14,7 +14,6 @@ import { certificatesRouter } from "./certificates";
 import { badgesRouter } from "./badges";
 import { aiRouter } from "./ai";
 import { workshopsRouter } from "./workshops";
-import { communicatorsRouter } from "./communicators";
 
 /**
  * Main application router
@@ -54,7 +53,6 @@ export const appRouter = {
   badges: badgesRouter,
   ai: aiRouter,
   workshops: workshopsRouter,
-  communicators: communicatorsRouter,
 };
 
 export type AppRouter = typeof appRouter;
