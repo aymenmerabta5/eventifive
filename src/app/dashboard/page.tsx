@@ -8,6 +8,7 @@ import { SiteHeader } from "./_components/site-header";
 import { EventFormCard } from "./_components/EventActions";
 import { MyEvents } from "./_components/MyEvents";
 import { EventRegistration } from "./_components/EventRegistration";
+import { Users } from "./_components/Users";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSearchParams } from "next/navigation";
 import ShareEvent from "./_components/EventActions/components/ShareEvent";
@@ -26,6 +27,7 @@ function Dashboard() {
   const showUpdateEvent = view === "update-event";
   const showMyEvents = view === "my-events";
   const showEventApprovals = view === "event-approvals";
+  const showUsers = view === "users";
 
   const isAdmin = session?.user?.isAdmin ?? false;
 
@@ -69,6 +71,16 @@ function Dashboard() {
               ) : showShareEvent ? (
                 <div className="px-4 lg:px-6">
                   <ShareEvent eventId={eventId ?? ""} />
+                </div>
+              ) : showUsers ? (
+                <div className="px-4 lg:px-6">
+                  {isAdmin ? (
+                    <Users />
+                  ) : (
+                    <div className="text-destructive text-sm">
+                      Access denied. Admin privileges required.
+                    </div>
+                  )}
                 </div>
               ) : (
                 <>

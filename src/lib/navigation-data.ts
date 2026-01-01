@@ -38,8 +38,8 @@ export const navigationData = {
       icon: IconFolder,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Users",
+      url: "/dashboard?view=users",
       icon: IconUsers,
     },
   ],
