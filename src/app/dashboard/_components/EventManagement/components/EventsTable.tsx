@@ -6,28 +6,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+// Make sure the file exists as EventTableRow.tsx in the same folder, or update the import path/extension accordingly.
 import { EventTableRow } from "./EventTableRow";
-import type { AdminEvent, EventActionHandlers } from "../types";
+import type { AdminEvent, EventActionHandlers } from "../../MyEvents/types";
 
-interface EventsTableProps extends EventActionHandlers {
+interface EventsTableProps extends Omit<EventActionHandlers, "onUpdate"> {
   events: AdminEvent[];
+  showOrganizer?: boolean;
+  deleteOnly?: boolean;
+  onCancel?: (event: AdminEvent) => void; // <-- Add this
 }
 
 export function EventsTable({
   events,
-  onUpdate,
+  showOrganizer = false,
+  deleteOnly = false,
   onDelete,
-  onApprovals,
-  onShare,
-  onPublish,
-  onUnpublish,
-  onCancel,
-  onArchive,
 }: EventsTableProps) {
   return (
     <div
       className={cn(
-       "relative overflow-hidden rounded-2xl border border-border/50",
+        "relative overflow-hidden rounded-2xl border border-border/50",
         " from-card via-card to-card/80"
       )}
     >
@@ -43,10 +42,10 @@ export function EventsTable({
       {/* Header */}
       <div className="relative border-b border-border/50 px-6 py-4">
         <h2 className="font-display text-lg font-semibold text-foreground">
-          Your Events
+          All the Events
         </h2>
         <p className="text-sm text-muted-foreground">
-          Manage and track all your created events
+          Manage and track all events
         </p>
       </div>
 
@@ -58,6 +57,11 @@ export function EventsTable({
               <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Event
               </TableHead>
+              {showOrganizer && (
+                <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Organizer
+                </TableHead>
+              )}
               <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Type
               </TableHead>
@@ -78,14 +82,9 @@ export function EventsTable({
               <EventTableRow
                 key={event.id}
                 event={event}
-                onUpdate={onUpdate}
+                showOrganizer={showOrganizer}
+                deleteOnly={deleteOnly}
                 onDelete={onDelete}
-                onApprovals={onApprovals}
-                onShare={onShare}
-                onPublish={onPublish}
-                onUnpublish={onUnpublish}
-                onCancel={onCancel}
-                onArchive={onArchive}
               />
             ))}
           </TableBody>
@@ -96,8 +95,8 @@ export function EventsTable({
       <div className="relative border-t border-border/50 px-6 py-3">
         <p className="text-xs text-muted-foreground">
           Showing{" "}
-          <span className="font-medium text-foreground">{events.length}</span>{" "}
-          event{events.length !== 1 ? "s" : ""}
+          <span className="font-medium text-foreground">{events.length}</span> event
+          {events.length !== 1 ? "s" : ""}
         </p>
       </div>
     </div>

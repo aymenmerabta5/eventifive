@@ -1,6 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getStatusStyles } from "../../EventManagement/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,21 +40,6 @@ interface EventTableRowProps extends EventActionHandlers {
   event: AdminEvent;
 }
 
-// Map badge variants to our color palette
-function getStatusStyles(variant: string): string {
-  switch (variant) {
-    case "default":
-      return "bg-primary/10 text-primary border-primary/30";
-    case "secondary":
-      return "bg-secondary text-secondary-foreground border-secondary";
-    case "destructive":
-      return "bg-destructive/10 text-destructive border-destructive/30";
-    case "outline":
-      return "bg-muted text-muted-foreground border-border";
-    default:
-      return "bg-secondary text-secondary-foreground border-secondary";
-  }
-}
 
 export function EventTableRow({
   event,

@@ -26,6 +26,8 @@ import { registerForEventRouter } from "./register";
 import { listParticipantsRouter } from "./listParticipants";
 import { getRegistrationStatusRouter } from "./getRegistrationStatus";
 import { myRegistrationsRouter } from "./myRegistrations";
+import { adminListEventsRouter } from "./adminList";
+import { adminDeleteEventRouter } from "./adminDelete";
 
 export const eventsRouter = {
   createDraft: createDraftEventRouter,
@@ -54,6 +56,8 @@ export const eventsRouter = {
   listParticipants: listParticipantsRouter,
   getRegistrationStatus: getRegistrationStatusRouter,
   myRegistrations: myRegistrationsRouter,
+  adminList: adminListEventsRouter,
+  adminDelete: adminDeleteEventRouter,
 };
 
 export {
@@ -71,4 +75,6 @@ export {
   listParticipantsRouter,
   getRegistrationStatusRouter,
   myRegistrationsRouter,
+  adminListEventsRouter,
+  adminDeleteEventRouter,
 };
