@@ -13,7 +13,7 @@ import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 import { user } from "./users";
 import { event } from "./events";
-import { submission } from "./submissions";
+import { submission } from "./communicators";
 import { pollTypeEnum } from "./enums";
 
 // ---------------------------
@@ -81,51 +81,6 @@ export const sessionAssignment = pgTable(
       table.submissionId,
     ),
     index("session_assignment_session_id_idx").on(table.sessionId),
-  ],
-);
-
-// ---------------------------
-// WORKSHOPS
-// ---------------------------
-export const workshop = pgTable(
-  "workshop",
-  {
-    id: text("id").primaryKey(),
-    eventId: text("event_id")
-      .notNull()
-      .references(() => event.id, { onDelete: "cascade" }),
-    title: varchar("title", { length: 255 }).notNull(),
-    description: text("description"),
-    capacity: integer("capacity"),
-    facilitatorId: text("facilitator_id").references(() => user.id, {
-      onDelete: "set null",
-    }),
-    startAt: timestamp("start_at"),
-    endAt: timestamp("end_at"),
-  },
-  (table) => [index("workshop_event_id_idx").on(table.eventId)],
-);
-
-export const workshopRegistration = pgTable(
-  "workshop_registration",
-  {
-    id: serial("id").primaryKey(),
-    workshopId: text("workshop_id")
-      .notNull()
-      .references(() => workshop.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    registeredAt: timestamp("registered_at").notNull().defaultNow(),
-    status: varchar("status", { length: 50 }).notNull().default("registered"),
-  },
-  (table) => [
-    unique("workshop_registration_workshop_user_unique").on(
-      table.workshopId,
-      table.userId,
-    ),
-    index("workshop_registration_workshop_id_idx").on(table.workshopId),
-    index("workshop_registration_user_id_idx").on(table.userId),
   ],
 );
 

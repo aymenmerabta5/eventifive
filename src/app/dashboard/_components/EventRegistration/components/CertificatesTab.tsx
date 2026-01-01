@@ -57,7 +57,7 @@ const getRoleBadgeStyles = (role: string) => {
   switch (role) {
     case "speaker":
       return "border-primary/50 text-primary bg-primary/10";
-    case "committee":
+    case "communicator":
       return "border-chart-2/50 text-chart-2 bg-chart-2/10";
     case "reviewer":
       return "border-chart-3/50 text-chart-3 bg-chart-3/10";
@@ -72,8 +72,8 @@ const getRoleLabel = (role: string): string => {
   switch (role) {
     case "speaker":
       return "Speaker";
-    case "committee":
-      return "Committee";
+    case "communicator":
+      return "Communicator";
     case "reviewer":
       return "Reviewer";
     case "facilitator":

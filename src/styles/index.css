@@ -183,6 +183,25 @@ body {
   --shadow-2xl: var(--shadow-2xl);
 }
 
+/* Custom animations for workshop page */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Fill mode for staggered animations */
+.fill-mode-backwards {
+  animation-fill-mode: backwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -3,8 +3,10 @@ export { LoadingState } from "./LoadingState";
 
 // Feature components
 export { FormHeader } from "./FormHeader";
+export { WorkshopTitleField } from "./WorkshopTitleField";
 export { PersonalInfoFields } from "./PersonalInfoFields";
 export { ResearchDomainField } from "./ResearchDomainField";
-export { AboutIdeaField } from "./AboutIdeaField";
+export { WorkshopDescriptionField, AboutIdeaField } from "./AboutIdeaField";
+export { CapacityField } from "./CapacityField";
 export { FileUploadArea } from "./FileUploadArea";
 export { FormFooter } from "./FormFooter";

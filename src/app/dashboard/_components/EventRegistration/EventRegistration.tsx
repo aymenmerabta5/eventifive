@@ -15,18 +15,20 @@ interface EventRegistrationProps {
 export function EventRegistration({ eventId }: EventRegistrationProps) {
   const {
     participants,
-    workshopSubmissions,
-    committeeSubmissions,
+    workshopProposals,
+    communicatorSubmissions,
     isPending,
     isRefetching,
     isParticipantsLoading,
     isSubmissionsLoading,
-    isUpdating,
+    isWorkshopProposalsLoading,
+    isAcceptingProposal,
+    isRejectingProposal,
     error,
     handleRefresh,
     handleBack,
-    handleAcceptWorkshop,
-    handleRejectWorkshop,
+    handleAcceptProposal,
+    handleRejectProposal,
   } = useEventRegistration({ eventId });
 
   // Loading state - ALWAYS handle first
@@ -74,13 +76,15 @@ export function EventRegistration({ eventId }: EventRegistrationProps) {
       <RegistrationTabs
         eventId={eventId}
         participants={participants}
-        committeeSubmissions={committeeSubmissions}
-        workshopSubmissions={workshopSubmissions}
+        communicatorSubmissions={communicatorSubmissions}
+        workshopProposals={workshopProposals}
         isParticipantsLoading={isParticipantsLoading}
         isSubmissionsLoading={isSubmissionsLoading}
-        onAcceptWorkshop={handleAcceptWorkshop}
-        onRejectWorkshop={handleRejectWorkshop}
-        isUpdating={isUpdating}
+        isWorkshopProposalsLoading={isWorkshopProposalsLoading}
+        onAcceptProposal={handleAcceptProposal}
+        onRejectProposal={handleRejectProposal}
+        isAcceptingProposal={isAcceptingProposal}
+        isRejectingProposal={isRejectingProposal}
       />
     </div>
   );

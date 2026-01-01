@@ -43,7 +43,7 @@ export interface ReviewerInvite {
   respondedAt: Date | null;
 }
 
-export interface CommitteeMember {
+export interface Communicator {
   id: number;
   eventId: string;
   userId: string;
@@ -68,5 +68,5 @@ export interface EventReadiness {
 export interface InvitesData {
   speakers: SpeakerInvite[];
   reviewers: ReviewerInvite[];
-  committee: CommitteeMember[];
+  communicators: Communicator[];
 }

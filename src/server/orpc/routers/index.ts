@@ -13,6 +13,7 @@ import { organizerRouter } from "./organizer";
 import { certificatesRouter } from "./certificates";
 import { badgesRouter } from "./badges";
 import { aiRouter } from "./ai";
+import { workshopsRouter } from "./workshops";
 
 /**
  * Main application router
@@ -33,6 +34,8 @@ import { aiRouter } from "./ai";
  * - sessions: Program session and room management (createRoom, updateRoom, deleteRoom, listRooms, createSession, updateSession, deleteSession, listSessions, getSession)
  * - certificates: Certificate management (getEligibleRecipients, generate, listByEvent, listMyCertificates, download, verify, revoke)
  * - badges: Badge management (listMyBadges, download, verify, listByEvent, revoke)
+ * - workshops: Workshop proposal management (propose, listProposals, get, accept, reject, listMine)
+ * - communicators: Communicator management (add, remove, list)
  */
 export const appRouter = {
   admin: adminRouter,
@@ -49,6 +52,7 @@ export const appRouter = {
   certificates: certificatesRouter,
   badges: badgesRouter,
   ai: aiRouter,
+  workshops: workshopsRouter,
 };
 
 export type AppRouter = typeof appRouter;

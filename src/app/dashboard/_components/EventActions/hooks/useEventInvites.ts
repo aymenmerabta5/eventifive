@@ -32,14 +32,14 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
     }),
   );
 
-  const inviteCommitteeMutation = useMutation(
-    orpc.events.inviteCommittee.mutationOptions({
+  const inviteCommunicatorMutation = useMutation(
+    orpc.events.inviteCommunicator.mutationOptions({
       onSuccess: async () => {
-        toast.success("Committee member added");
+        toast.success("Communicator added");
         await invitesQuery.refetch();
       },
       onError: (error: Error) =>
-        toast.error(error.message || "Failed to add committee member"),
+        toast.error(error.message || "Failed to add communicator"),
     }),
   );
 
@@ -65,14 +65,14 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
     }),
   );
 
-  const removeCommitteeMutation = useMutation(
-    orpc.events.removeCommittee.mutationOptions({
+  const removeCommunicatorMutation = useMutation(
+    orpc.events.removeCommunicator.mutationOptions({
       onSuccess: async () => {
-        toast.success("Committee member removed");
+        toast.success("Communicator removed");
         await invitesQuery.refetch();
       },
       onError: (error: Error) =>
-        toast.error(error.message || "Failed to remove committee member"),
+        toast.error(error.message || "Failed to remove communicator"),
     }),
   );
 
@@ -80,9 +80,9 @@ export function useEventInvites(eventId: string | null, enabled: boolean) {
     invitesQuery,
     inviteSpeakerMutation,
     inviteReviewerMutation,
-    inviteCommitteeMutation,
+    inviteCommunicatorMutation,
     removeSpeakerMutation,
     removeReviewerMutation,
-    removeCommitteeMutation,
+    removeCommunicatorMutation,
   };
 }

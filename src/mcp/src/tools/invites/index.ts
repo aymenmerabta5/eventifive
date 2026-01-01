@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerSpeakerTools } from "./speakers.js";
 import { registerReviewerTools } from "./reviewers.js";
-import { registerCommitteeTools } from "./committee.js";
+import { registerCommunicatorTools } from "./communicator.js";
 import { registerUserViewTools } from "./user-view.js";
 
 /**
@@ -10,12 +10,12 @@ import { registerUserViewTools } from "./user-view.js";
  * Tools registered:
  * - Speaker tools: invite, respond, list, bulk invite
  * - Reviewer tools: invite, respond, list, bulk invite
- * - Committee tools: add, remove, list
+ * - Communicator tools: add, remove, list
  * - User view tools: list user invitations
  */
 export function registerInviteTools(server: McpServer) {
   registerSpeakerTools(server);
   registerReviewerTools(server);
-  registerCommitteeTools(server);
+  registerCommunicatorTools(server);
   registerUserViewTools(server);
 }

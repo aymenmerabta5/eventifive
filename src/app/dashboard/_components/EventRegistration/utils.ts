@@ -31,23 +31,6 @@ export const computeFinalDecision = (
   } as FinalDecision;
 };
 
-/**
- * Determines if a submission is a workshop application.
- * Checks both keywords and title for workshop-related content.
- */
-export const isWorkshopSubmission = (
-  keywords?: string | null,
-  title?: string | null,
-): boolean => {
-  if (!keywords && !title) return false;
-  const normalizedKeywords = keywords?.toLowerCase() ?? "";
-  const normalizedTitle = title?.toLowerCase() ?? "";
-  return (
-    normalizedKeywords.includes("workshop") ||
-    normalizedTitle.startsWith("workshop application")
-  );
-};
-
 // Re-export getInitials from centralized location for backwards compatibility
 export { getInitials } from "@/lib/string";
 

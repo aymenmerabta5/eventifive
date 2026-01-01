@@ -24,8 +24,8 @@ export const ROLE_TOKENS: Record<string, TokenStyle> = {
     label: "Reviewer",
     classes: "bg-amber-100/20 text-amber-500 border-amber-500/30",
   },
-  committee: {
-    label: "Committee",
+  communicator: {
+    label: "Communicator",
     classes: "bg-indigo-100/20 text-indigo-500 border-indigo-500/30",
   },
   organizer: {

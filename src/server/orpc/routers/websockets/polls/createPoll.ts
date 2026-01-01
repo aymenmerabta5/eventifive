@@ -63,7 +63,7 @@ export const createPollRouter = rateLimitedPollCreationProcedure
     if (!managerInfo?.isSessionManager) {
       throw new ORPCError("FORBIDDEN", {
         message:
-          "Only session managers (organizer, chair, committee, speaker) can create polls",
+          "Only session managers (organizer, chair, communicator, speaker) can create polls",
       });
     }
 

@@ -4,7 +4,7 @@ export default function HomePageSkeleton() {
   return (
     <div className="flex flex-col">
       {/* Hero Section Skeleton */}
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 pt-24 pb-40">
+      <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4 pt-24 pb-40">
         <div className="flex flex-col items-center justify-center">
           {/* Badge */}
           <Skeleton className="mb-8 h-10 w-64 rounded-full" />
@@ -34,10 +34,10 @@ export default function HomePageSkeleton() {
       </div>
 
       {/* Gradient Transition Skeleton */}
-      <div className="h-12 w-full bg-gradient-to-b from-background to-muted/30" />
+      <div className="from-background to-muted/30 h-12 w-full bg-gradient-to-b" />
 
       {/* About Section Skeleton */}
-      <div className="bg-gradient-to-b from-muted/30 via-muted/50 to-muted/30 px-4 pt-32 pb-24 sm:px-6 md:px-8">
+      <div className="from-muted/30 via-muted/50 to-muted/30 bg-gradient-to-b px-4 pt-32 pb-24 sm:px-6 md:px-8">
         <div className="mx-auto w-full max-w-6xl">
           {/* Badge */}
           <div className="mb-4 flex justify-center">
@@ -57,7 +57,7 @@ export default function HomePageSkeleton() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="flex flex-col items-center rounded-2xl border border-border/40 bg-card/50 p-6 text-center sm:p-8"
+                className="border-border/40 bg-card/50 flex flex-col items-center rounded-2xl border p-6 text-center sm:p-8"
               >
                 {/* Icon */}
                 <Skeleton className="mb-5 size-16 rounded-2xl sm:mb-6" />
@@ -76,10 +76,10 @@ export default function HomePageSkeleton() {
           </div>
         </div>
       </div>
-      <div className="h-16 w-full bg-gradient-to-b from-muted/30 to-background" />
+      <div className="from-muted/30 to-background h-16 w-full bg-gradient-to-b" />
 
       {/* WhoWeAre Section Skeleton */}
-      <div className="bg-gradient-to-b from-background via-background to-secondary/20 py-20 dark:to-background md:py-32">
+      <div className="from-background via-background to-secondary/20 dark:to-background bg-gradient-to-b py-20 md:py-32">
         {/* Header */}
         <div className="mx-auto mb-12 max-w-3xl px-4 text-center md:mb-16">
           <div className="mb-4 flex justify-center">
@@ -115,7 +115,7 @@ export default function HomePageSkeleton() {
       </div>
 
       {/* Platform Section Skeleton */}
-      <div className="bg-gradient-to-b from-secondary/20 via-secondary/40 to-primary/10 px-4 py-24 dark:from-background dark:via-card dark:to-secondary/20 sm:px-6 md:px-8 md:py-32">
+      <div className="from-secondary/20 via-secondary/40 to-primary/10 dark:from-background dark:via-card dark:to-secondary/20 bg-gradient-to-b px-4 py-24 sm:px-6 md:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
           {/* Badge */}
           <Skeleton className="mb-6 h-10 w-72 rounded-full" />
@@ -134,7 +134,7 @@ export default function HomePageSkeleton() {
             <Skeleton className="h-14 w-40 rounded-full" />
           </div>
           {/* Footer */}
-          <div className="border-t border-border/40 pt-10">
+          <div className="border-border/40 border-t pt-10">
             <div className="mb-8 flex justify-center">
               <Skeleton className="h-4 w-80" />
             </div>
@@ -152,7 +152,7 @@ export default function HomePageSkeleton() {
 
 function GridItemSkeleton() {
   return (
-    <div className="h-full rounded-2xl border border-border/60 bg-card/50 p-2 md:rounded-3xl md:p-3">
+    <div className="border-border/60 bg-card/50 h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
       <div className="flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 md:p-6">
         <div className="flex flex-1 flex-col justify-between gap-3">
           {/* Icon */}

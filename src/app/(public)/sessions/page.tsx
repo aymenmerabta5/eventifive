@@ -81,8 +81,8 @@ const roleConfig: Record<MySessionRole, { label: string; icon: typeof IconUserSt
     icon: IconMicrophone2,
     className: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
   },
-  committee: {
-    label: "Committee",
+  communicator: {
+    label: "Communicator",
     icon: IconUsers,
     className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },
@@ -426,7 +426,7 @@ export default function MySessionsPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">My Sessions</h1>
             <p className="text-muted-foreground text-sm">
-              Sessions where you&apos;re a chair, speaker, or committee member
+              Sessions where you&apos;re a chair, speaker, or communicator
             </p>
           </div>
         </div>
@@ -440,7 +440,7 @@ export default function MySessionsPage() {
           </div>
           <h3 className="text-xl font-semibold mb-2">No Sessions Yet</h3>
           <p className="text-muted-foreground max-w-md">
-            You haven&apos;t been assigned to any sessions as a chair, speaker, or committee member yet.
+            You haven&apos;t been assigned to any sessions as a chair, speaker, or communicator yet.
           </p>
         </div>
       ) : (

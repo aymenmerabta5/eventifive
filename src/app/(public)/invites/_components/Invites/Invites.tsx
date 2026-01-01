@@ -31,7 +31,7 @@ import { useState, useMemo } from "react";
 import { formatDate } from "@/lib/date";
 import Link from "next/link";
 import type { Route } from "next";
-import type { CommitteeAssignment, SpeakerInvite, ReviewerInvite, InviteStatus } from "./types";
+import type { CommunicatorAssignment, SpeakerInvite, ReviewerInvite, InviteStatus } from "./types";
 
 // ============================================================================
 // Types & Helpers
@@ -68,8 +68,8 @@ const roleConfig = {
     className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     accentColor: "from-blue-500 to-cyan-500",
   },
-  committee: {
-    label: "Committee",
+  communicator: {
+    label: "Communicator",
     icon: IconUsers,
     className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
     accentColor: "from-emerald-500 to-green-500",
@@ -84,11 +84,11 @@ const formatEventType = (type: string): string => {
 };
 
 // ============================================================================
-// Committee Card Component
+// Communicator Card Component
 // ============================================================================
 
-function CommitteeCard({ assignment }: { assignment: CommitteeAssignment }) {
-  const role = roleConfig.committee;
+function CommunicatorCard({ assignment }: { assignment: CommunicatorAssignment }) {
+  const role = roleConfig.communicator;
   const RoleIcon = role.icon;
 
   return (
@@ -317,12 +317,10 @@ function ReviewerInviteCard({
           </div>
         )}
 
-        {isAccepted && invite.eventType && (
+        {isAccepted && (
           <Button size="sm" className="w-full gap-2" variant="outline" asChild>
             <Link
-              href={
-                `/events/${invite.eventType.replaceAll("_", "-")}/${invite.eventId}/committee-reviews` as Route
-              }
+              href={`/events/${invite.eventId}/communicator-reviews` as Route}
             >
               <IconExternalLink className="size-4" />
               View Submissions
@@ -501,7 +499,7 @@ export function Invites() {
           </div>
           <h3 className="text-xl font-semibold mb-2">No Invites Yet</h3>
           <p className="text-muted-foreground max-w-md">
-            You don&apos;t have any committee memberships or invites at the moment. When you receive
+            You don&apos;t have any communicator memberships or invites at the moment. When you receive
             invites, they will appear here.
           </p>
         </div>
@@ -585,17 +583,17 @@ export function Invites() {
           </InviteSection>
         )}
 
-        {/* Committee Memberships */}
-        {invites && invites.committeeAssignments.length > 0 && (
+        {/* Communicator Memberships */}
+        {invites && invites.communicatorAssignments.length > 0 && (
           <InviteSection
-            title="Committee Memberships"
-            count={invites.committeeAssignments.length}
+            title="Communicator Memberships"
+            count={invites.communicatorAssignments.length}
             icon={IconUsers}
             accentColor="bg-gradient-to-br from-emerald-500 to-green-500"
             defaultOpen={true}
           >
-            {invites.committeeAssignments.map((assignment) => (
-              <CommitteeCard key={`committee-${assignment.id}`} assignment={assignment} />
+            {invites.communicatorAssignments.map((assignment) => (
+              <CommunicatorCard key={`communicator-${assignment.id}`} assignment={assignment} />
             ))}
           </InviteSection>
         )}

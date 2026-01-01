@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db } from "../../db.js";
-import { event, eventSpeakers, eventReviewers, eventCommittee } from "../../schema.js";
+import { event, eventSpeakers, eventReviewers, eventCommunicator } from "../../schema.js";
 import { eq } from "drizzle-orm";
 import { findUser, successResponse, errorResponse } from "./helpers.js";
 
@@ -13,7 +13,7 @@ export function registerUserViewTools(server: McpServer) {
     "eventifive_list_user_invitations",
     {
       description:
-        "List all speaker invitations, reviewer invitations, and committee assignments for a specific user",
+        "List all speaker invitations, reviewer invitations, and communicator assignments for a specific user",
       inputSchema: z.object({
         userId: z.string().optional().describe("User ID to get invitations for"),
         email: z
@@ -64,17 +64,17 @@ export function registerUserViewTools(server: McpServer) {
           .innerJoin(event, eq(eventReviewers.eventId, event.id))
           .where(eq(eventReviewers.userId, targetUser.id));
 
-        // Get committee assignments
-        const committeeAssignments = await db
+        // Get communicator assignments
+        const communicatorAssignments = await db
           .select({
-            id: eventCommittee.id,
-            eventId: eventCommittee.eventId,
+            id: eventCommunicator.id,
+            eventId: eventCommunicator.eventId,
             eventTitle: event.title,
-            assignedAt: eventCommittee.assignedAt,
+            assignedAt: eventCommunicator.assignedAt,
           })
-          .from(eventCommittee)
-          .innerJoin(event, eq(eventCommittee.eventId, event.id))
-          .where(eq(eventCommittee.userId, targetUser.id));
+          .from(eventCommunicator)
+          .innerJoin(event, eq(eventCommunicator.eventId, event.id))
+          .where(eq(eventCommunicator.userId, targetUser.id));
 
         return successResponse({
           success: true,
@@ -97,9 +97,9 @@ export function registerUserViewTools(server: McpServer) {
             rejected: reviewerInvites.filter((i) => i.status === "rejected").length,
             items: reviewerInvites,
           },
-          committeeAssignments: {
-            count: committeeAssignments.length,
-            items: committeeAssignments,
+          communicatorAssignments: {
+            count: communicatorAssignments.length,
+            items: communicatorAssignments,
           },
         });
       } catch (error) {

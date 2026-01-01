@@ -77,7 +77,7 @@ export const eventSpeakerStatusEnum = pgEnum("event_speaker_status", [
 
 export const certificateRoleEnum = pgEnum("certificate_role", [
   "speaker",
-  "committee",
+  "communicator",
   "reviewer",
   "facilitator",
 ]);
@@ -222,8 +222,8 @@ export const eventImages = pgTable(
   (table) => [index("event_images_event_id_idx").on(table.eventId)],
 );
 
-export const eventCommittee = pgTable(
-  "event_committee",
+export const eventCommunicator = pgTable(
+  "event_communicator",
   {
     id: serial("id").primaryKey(),
     eventId: text("event_id")
@@ -235,8 +235,8 @@ export const eventCommittee = pgTable(
     assignedAt: timestamp("assigned_at").notNull().defaultNow(),
   },
   (table) => [
-    unique("event_committee_event_user_unique").on(table.eventId, table.userId),
-    index("event_committee_event_id_idx").on(table.eventId),
+    unique("event_communicator_event_user_unique").on(table.eventId, table.userId),
+    index("event_communicator_event_id_idx").on(table.eventId),
   ],
 );
 
@@ -880,9 +880,9 @@ export type NewEventSpeaker = InferInsertModel<typeof eventSpeakers>;
 export type EventReviewer = InferSelectModel<typeof eventReviewers>;
 export type NewEventReviewer = InferInsertModel<typeof eventReviewers>;
 
-// Event committee types
-export type EventCommittee = InferSelectModel<typeof eventCommittee>;
-export type NewEventCommittee = InferInsertModel<typeof eventCommittee>;
+// Event communicator types
+export type EventCommunicator = InferSelectModel<typeof eventCommunicator>;
+export type NewEventCommunicator = InferInsertModel<typeof eventCommunicator>;
 
 // Room types
 export type Room = InferSelectModel<typeof room>;

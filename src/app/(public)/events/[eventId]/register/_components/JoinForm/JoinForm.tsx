@@ -54,14 +54,14 @@ export function JoinForm({ eventId, eventType }: JoinFormProps) {
         <div className="space-y-4 text-center">
           <Badge variant="secondary" className="px-4 py-1.5">
             <FileUp className="mr-2 h-3.5 w-3.5" />
-            Committee Registration
+            Communicator Registration
           </Badge>
           <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
             Submit your application
           </h1>
           <p className="text-muted-foreground mx-auto max-w-xl text-balance">
             Share your details and upload your supporting file so we can review
-            your application for the committee.
+            your application as a communicator.
           </p>
         </div>
 

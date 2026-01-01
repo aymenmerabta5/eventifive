@@ -4,11 +4,11 @@ export { ErrorState } from "./ErrorState";
 export { EmptyState } from "./EmptyState";
 
 // Section components
-export { CommitteeSection } from "./CommitteeSection";
+export { CommunicatorSection, CommitteeSection } from "./CommunicatorSection";
 export { SpeakerSection } from "./SpeakerSection";
 export { ReviewerSection } from "./ReviewerSection";
 
 // Card components
-export { CommitteeMembershipCard } from "./CommitteeMembershipCard";
+export { CommunicatorMembershipCard, CommitteeMembershipCard } from "./CommunicatorMembershipCard";
 export { SpeakerInviteCard } from "./SpeakerInviteCard";
 export { ReviewerInviteCard } from "./ReviewerInviteCard";

@@ -60,8 +60,8 @@ export function RegistrationHeader({
                 Event Registrations
               </h1>
               <p className="mt-1 text-muted-foreground">
-                Manage participants, committee submissions, and workshop
-                applications.
+                Manage participants, communicator applications, and workshop
+                proposals.
               </p>
             </div>
           </div>

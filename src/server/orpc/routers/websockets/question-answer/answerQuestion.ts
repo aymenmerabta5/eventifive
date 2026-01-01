@@ -13,7 +13,7 @@ const inputAnswerQuestionSchema = z.object({
   content: z.string().min(1).max(2000),
 });
 
-const answerRoleSchema = z.enum(["organizer", "chair", "committee", "speaker"]);
+const answerRoleSchema = z.enum(["organizer", "chair", "communicator", "speaker"]);
 
 const outputAnswerQuestionSchema = z.object({
   id: z.string(),
@@ -70,7 +70,7 @@ export const answerQuestionRouter = protectedProcedure
     if (!managerInfo.isSessionManager) {
       throw new ORPCError("FORBIDDEN", {
         message:
-          "Only session managers (organizer, chair, committee, or speaker) can answer questions",
+          "Only session managers (organizer, chair, communicator, or speaker) can answer questions",
       });
     }
 
@@ -103,13 +103,13 @@ export const answerQuestionRouter = protectedProcedure
       })
       .where(eq(sessionQuestions.id, questionId));
 
-    // Determine the role to display (priority: organizer > chair > committee > speaker)
+    // Determine the role to display (priority: organizer > chair > communicator > speaker)
     const role = managerInfo.isOrganizer
       ? "organizer"
       : managerInfo.isChair
         ? "chair"
-        : managerInfo.isCommitteeMember
-          ? "committee"
+        : managerInfo.isCommunicator
+          ? "communicator"
           : "speaker";
 
     const answer = {
@@ -119,7 +119,7 @@ export const answerQuestionRouter = protectedProcedure
       userName: userData[0]?.name ?? "Unknown",
       userImage: userData[0]?.image ?? null,
       content,
-      role: role as "organizer" | "chair" | "committee" | "speaker",
+      role: role as "organizer" | "chair" | "communicator" | "speaker",
       createdAt: now,
     };
 

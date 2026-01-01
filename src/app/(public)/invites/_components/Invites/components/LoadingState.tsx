@@ -17,7 +17,7 @@ export function LoadingState() {
             Loading your invites
           </CardTitle>
           <CardDescription>
-            Fetching your committee memberships and invites...
+            Fetching your communicator assignments and invites...
           </CardDescription>
         </CardHeader>
       </Card>

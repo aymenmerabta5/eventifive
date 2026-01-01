@@ -32,7 +32,7 @@ const getRoleColor = (role: BadgeRole): string => {
       return "bg-amber-500";
     case "reviewer":
       return "bg-emerald-500";
-    case "committee":
+    case "communicator":
       return "bg-violet-500";
     default:
       return "bg-blue-500";
@@ -47,7 +47,7 @@ const getRoleBadgeVariant = (role: BadgeRole) => {
       return "secondary";
     case "reviewer":
       return "outline";
-    case "committee":
+    case "communicator":
       return "default";
     default:
       return "default";
@@ -62,8 +62,8 @@ const getRoleLabel = (role: BadgeRole): string => {
       return "Speaker";
     case "reviewer":
       return "Reviewer";
-    case "committee":
-      return "Committee Member";
+    case "communicator":
+      return "Communicator";
     default:
       return "Attendee";
   }

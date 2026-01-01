@@ -2,7 +2,7 @@ import { db } from "@/server/db";
 import {
   programSession,
   event,
-  eventCommittee,
+  eventCommunicator,
   eventSpeakers,
 } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -10,7 +10,7 @@ import { eq, and } from "drizzle-orm";
 export type SessionManagerInfo = {
   isOrganizer: boolean;
   isChair: boolean;
-  isCommitteeMember: boolean;
+  isCommunicator: boolean;
   isSpeaker: boolean;
   isSessionManager: boolean;
   eventId: string;
@@ -21,7 +21,7 @@ export type SessionManagerInfo = {
  * Session managers include:
  * - Event organizer
  * - Session chair
- * - Event committee members
+ * - Event communicators
  * - Event speakers (with accepted status)
  */
 export async function getSessionManagerInfo(
@@ -55,19 +55,19 @@ export async function getSessionManagerInfo(
   const isOrganizer = eventData[0]?.organizerId === userId;
   const isChair = session.chairId === userId;
 
-  // Check if user is a committee member
-  const committeeMember = await db
-    .select({ id: eventCommittee.id })
-    .from(eventCommittee)
+  // Check if user is a communicator
+  const communicatorRecord = await db
+    .select({ id: eventCommunicator.id })
+    .from(eventCommunicator)
     .where(
       and(
-        eq(eventCommittee.eventId, session.eventId),
-        eq(eventCommittee.userId, userId),
+        eq(eventCommunicator.eventId, session.eventId),
+        eq(eventCommunicator.userId, userId),
       ),
     )
     .limit(1);
 
-  const isCommitteeMember = committeeMember.length > 0;
+  const isCommunicator = communicatorRecord.length > 0;
 
   // Check if user is an accepted speaker
   const speaker = await db
@@ -85,12 +85,12 @@ export async function getSessionManagerInfo(
   const isSpeaker = speaker.length > 0;
 
   const isSessionManager =
-    isOrganizer || isChair || isCommitteeMember || isSpeaker;
+    isOrganizer || isChair || isCommunicator || isSpeaker;
 
   return {
     isOrganizer,
     isChair,
-    isCommitteeMember,
+    isCommunicator,
     isSpeaker,
     isSessionManager,
     eventId: session.eventId,

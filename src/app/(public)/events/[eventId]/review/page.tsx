@@ -5,7 +5,7 @@ export default async function ReviewPageRoute({
   params,
   searchParams,
 }: {
-  params: Promise<{ eventType: string; eventId: string }>;
+  params: Promise<{ eventId: string }>;
   searchParams: Promise<{ submissionId?: string }>;
 }) {
   const { eventId } = await params;

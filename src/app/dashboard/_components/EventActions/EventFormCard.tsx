@@ -86,10 +86,10 @@ export function EventFormCard({
     invitesQuery,
     inviteSpeakerMutation,
     inviteReviewerMutation,
-    inviteCommitteeMutation,
+    inviteCommunicatorMutation,
     removeSpeakerMutation,
     removeReviewerMutation,
-    removeCommitteeMutation,
+    removeCommunicatorMutation,
   } = useEventInvites(
     activeEventId ?? null,
     !!activeEventId && (mode === "update" || step !== "details"),
@@ -209,11 +209,11 @@ export function EventFormCard({
     ? {
         speakers: invitesQuery.data.speakers,
         reviewers: invitesQuery.data.reviewers,
-        committee: invitesQuery.data.committee,
+        communicators: invitesQuery.data.communicators,
       }
     : undefined;
 
-  // Build chair options from accepted speakers and committee members
+  // Build chair options from accepted speakers and communicators
   const chairOptions = useMemo((): ChairOption[] => {
     const options: ChairOption[] = [];
 
@@ -229,8 +229,8 @@ export function EventFormCard({
         });
       });
 
-    // Add committee members
-    invitesData?.committee.forEach((member) => {
+    // Add communicators
+    invitesData?.communicators.forEach((member) => {
       options.push({
         id: member.userId,
         name: member.userName || member.userEmail,

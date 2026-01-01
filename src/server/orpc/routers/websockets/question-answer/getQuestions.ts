@@ -37,7 +37,7 @@ const questionSchema = z.object({
       userName: z.string(),
       userImage: z.string().nullable(),
       content: z.string(),
-      role: z.enum(["organizer", "chair", "committee", "speaker"]),
+      role: z.enum(["organizer", "chair", "communicator", "speaker"]),
       createdAt: z.date(),
     }),
   ),
@@ -158,7 +158,7 @@ export const getQuestionsRouter = protectedProcedure
     const answererUserIds = [...new Set(answers.map((a) => a.userId))];
 
     // Get roles for all answerers
-    const answererRoles = new Map<string, "organizer" | "chair" | "committee" | "speaker">();
+    const answererRoles = new Map<string, "organizer" | "chair" | "communicator" | "speaker">();
     for (const oderId of answererUserIds) {
       const roleInfo = await getSessionManagerInfo(sessionId, oderId);
       if (roleInfo) {
@@ -166,8 +166,8 @@ export const getQuestionsRouter = protectedProcedure
           ? "organizer"
           : roleInfo.isChair
             ? "chair"
-            : roleInfo.isCommitteeMember
-              ? "committee"
+            : roleInfo.isCommunicator
+              ? "communicator"
               : "speaker";
         answererRoles.set(oderId, role);
       }
@@ -182,7 +182,7 @@ export const getQuestionsRouter = protectedProcedure
         userName: string;
         userImage: string | null;
         content: string;
-        role: "organizer" | "chair" | "committee" | "speaker";
+        role: "organizer" | "chair" | "communicator" | "speaker";
         createdAt: Date;
       }>
     >();

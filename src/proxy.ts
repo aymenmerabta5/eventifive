@@ -22,7 +22,7 @@ const authRequiredRoutes = [
 const authRequiredPatterns = [
   /^\/events\/[^/]+\/register$/,
   /^\/events\/[^/]+\/review$/,
-  /^\/events\/[^/]+\/committee-reviews$/,
+  /^\/events\/[^/]+\/communicator-reviews$/,
   /^\/events\/[^/]+\/calender$/,
   /^\/events\/[^/]+\/workshop$/,
   /^\/events\/[^/]+\/question-answer$/,

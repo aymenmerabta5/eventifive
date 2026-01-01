@@ -70,7 +70,7 @@ export function QuestionForm({
     );
   }
 
-  // Session managers (organizer, chair, committee, speaker) can only answer, not ask
+  // Session managers (organizer, chair, communicator, speaker) can only answer, not ask
   if (isSessionManager) {
     return (
       <div className="bg-primary/5 border-primary/20 mb-6 rounded-lg border p-4">

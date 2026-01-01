@@ -139,7 +139,7 @@ export const getSessionSchema = z.object({
 // MY SESSIONS SCHEMAS
 // =====================
 
-export const mySessionRoleEnum = z.enum(["chair", "speaker", "committee"]);
+export const mySessionRoleEnum = z.enum(["chair", "speaker", "communicator"]);
 
 export const mySessionSchema = z.object({
   id: z.string(),

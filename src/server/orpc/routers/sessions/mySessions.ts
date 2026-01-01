@@ -7,7 +7,7 @@ import {
   room,
   sessionAssignment,
   submission,
-  eventCommittee,
+  eventCommunicator,
 } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { env } from "@/env";
@@ -17,7 +17,7 @@ import type { MySession, MySessionRole } from "@/lib/schemas/sessions";
  * Get all sessions where the authenticated user has a role:
  * - Session chair (chairId)
  * - Speaker (via submission → sessionAssignment)
- * - Committee member (via eventCommittee)
+ * - Communicator (via eventCommunicator)
  */
 export const mySessionsRouter = protectedProcedure
   .route({ method: "GET", path: "/sessions/my" })
@@ -35,7 +35,7 @@ export const mySessionsRouter = protectedProcedure
     const rolePriorities: Record<MySessionRole, number> = {
       chair: 3,
       speaker: 2,
-      committee: 1,
+      communicator: 1,
     };
 
     const addSession = (
@@ -142,8 +142,8 @@ export const mySessionsRouter = protectedProcedure
       );
     }
 
-    // 3. Sessions in events where user is committee member
-    const committeeSessions = await db
+    // 3. Sessions in events where user is communicator member
+    const communicatorSessions = await db
       .select({
         id: programSession.id,
         title: programSession.title,
@@ -162,17 +162,17 @@ export const mySessionsRouter = protectedProcedure
       })
       .from(programSession)
       .innerJoin(event, eq(programSession.eventId, event.id))
-      .innerJoin(eventCommittee, eq(eventCommittee.eventId, event.id))
+      .innerJoin(eventCommunicator, eq(eventCommunicator.eventId, event.id))
       .leftJoin(room, eq(programSession.roomId, room.id))
-      .where(eq(eventCommittee.userId, userId));
+      .where(eq(eventCommunicator.userId, userId));
 
-    for (const session of committeeSessions) {
+    for (const session of communicatorSessions) {
       addSession(
         {
           ...session,
           room: session.room?.id ? session.room : null,
         },
-        "committee",
+        "communicator",
       );
     }
 
