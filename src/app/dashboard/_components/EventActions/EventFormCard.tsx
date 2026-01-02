@@ -11,6 +11,8 @@ import {
 import { Loader2, CalendarDays, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
+import { useQuery } from "@tanstack/react-query";
+import { orpc } from "@/utils/orpc";
 
 import {
   useEventForm,
@@ -120,6 +122,14 @@ export function EventFormCard({
     !!activeEventId && (mode === "update" || step === "sessions"),
   );
 
+  // Chair options - includes accepted speakers, approved communicators, and workshop facilitators
+  const { data: chairOptionsData } = useQuery({
+    ...orpc.sessions.getChairOptions.queryOptions({
+      input: { eventId: activeEventId ?? "" },
+    }),
+    enabled: !!activeEventId && (mode === "update" || step === "sessions"),
+  });
+
   const nowMinDateTime = useMemo(() => getNowMinDateTime(), []);
 
   // Transform existing images to ExistingImage format
@@ -213,34 +223,10 @@ export function EventFormCard({
       }
     : undefined;
 
-  // Build chair options from accepted speakers and communicators
+  // Chair options from API - includes accepted speakers, approved communicators, and workshop facilitators
   const chairOptions = useMemo((): ChairOption[] => {
-    const options: ChairOption[] = [];
-
-    // Add accepted speakers
-    invitesData?.speakers
-      .filter((speaker) => speaker.status === "accepted")
-      .forEach((speaker) => {
-        options.push({
-          id: speaker.userId,
-          name: speaker.userName || speaker.userEmail,
-          email: speaker.userEmail,
-          image: null,
-        });
-      });
-
-    // Add communicators
-    invitesData?.communicators.forEach((member) => {
-      options.push({
-        id: member.userId,
-        name: member.userName || member.userEmail,
-        email: member.userEmail,
-        image: null,
-      });
-    });
-
-    return options;
-  }, [invitesData]);
+    return chairOptionsData?.chairOptions ?? [];
+  }, [chairOptionsData]);
 
   // Parse event dates for SessionsStep
   const eventStartDate = useMemo(() => {
@@ -256,15 +242,15 @@ export function EventFormCard({
   }, [form.state.values.endDate]);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-lg">
+    <div className="border-border/60 bg-card relative overflow-hidden rounded-3xl border shadow-lg">
       {/* Decorative background elements */}
-      <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -left-20 size-64 rounded-full bg-gradient-to-tr from-primary/5 to-transparent blur-3xl" />
+      <div className="from-primary/10 pointer-events-none absolute -top-20 -right-20 size-64 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
+      <div className="from-primary/5 pointer-events-none absolute -bottom-20 -left-20 size-64 rounded-full bg-gradient-to-tr to-transparent blur-3xl" />
 
       {/* Header */}
-      <div className="relative border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent px-6 py-6 sm:px-8">
+      <div className="border-border/40 from-muted/30 relative border-b bg-gradient-to-b to-transparent px-6 py-6 sm:px-8">
         <div className="flex items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+          <div className="bg-primary text-primary-foreground shadow-primary/25 flex size-12 shrink-0 items-center justify-center rounded-2xl shadow-lg">
             {isCreateMode ? (
               <Sparkles className="size-6" />
             ) : (
@@ -272,10 +258,10 @@ export function EventFormCard({
             )}
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="font-display text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
               {isCreateMode ? "Create New Event" : "Update Event"}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">
               {isCreateMode
                 ? "Follow the steps to create and configure your event."
                 : "Modify event details, manage invites, and configure sessions."}
@@ -306,10 +292,10 @@ export function EventFormCard({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-3"
+              className="border-border/60 bg-muted/30 flex items-center gap-3 rounded-xl border px-4 py-3"
             >
-              <Loader2 className="size-5 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">
+              <Loader2 className="text-primary size-5 animate-spin" />
+              <span className="text-muted-foreground text-sm">
                 Loading event details...
               </span>
             </motion.div>
@@ -320,7 +306,7 @@ export function EventFormCard({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              className="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-4 py-3 text-sm"
             >
               Unable to load this event. Please return to your events and try
               again.
@@ -331,7 +317,7 @@ export function EventFormCard({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground"
+              className="border-border text-muted-foreground rounded-xl border border-dashed px-4 py-3 text-sm"
             >
               Select an event from My Events to update it here.
             </motion.div>
@@ -463,12 +449,12 @@ export function EventFormCard({
             activeEventId &&
             !prefill.isPending &&
             !prefill.notFound && (
-              <div className="space-y-8 border-t border-border/40 pt-8">
+              <div className="border-border/40 space-y-8 border-t pt-8">
                 <div>
-                  <h2 className="font-display text-xl font-semibold text-foreground">
+                  <h2 className="font-display text-foreground text-xl font-semibold">
                     Manage Invites
                   </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     Invite speakers and reviewers to your event
                   </p>
                 </div>
@@ -483,11 +469,11 @@ export function EventFormCard({
                   removeReviewerMutation={removeReviewerMutation}
                 />
 
-                <div className="border-t border-border/40 pt-8">
-                  <h2 className="font-display text-xl font-semibold text-foreground">
+                <div className="border-border/40 border-t pt-8">
+                  <h2 className="font-display text-foreground text-xl font-semibold">
                     Program Schedule
                   </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     Manage rooms and session schedule
                   </p>
                 </div>
@@ -509,11 +495,11 @@ export function EventFormCard({
                   chairOptions={chairOptions}
                 />
 
-                <div className="border-t border-border/40 pt-8">
-                  <h2 className="font-display text-xl font-semibold text-foreground">
+                <div className="border-border/40 border-t pt-8">
+                  <h2 className="font-display text-foreground text-xl font-semibold">
                     Event Readiness
                   </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     Check if your event is ready to publish
                   </p>
                 </div>
@@ -525,7 +511,7 @@ export function EventFormCard({
             )}
 
           {/* Navigation */}
-          <div className="border-t border-border/40 pt-6">
+          <div className="border-border/40 border-t pt-6">
             <FormNavigation
               mode={mode}
               step={step}

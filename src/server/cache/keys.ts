@@ -26,7 +26,7 @@ export function getDashboardStatsKey(organizerId: string): string {
  */
 export function getDashboardChartKey(
   organizerId: string,
-  range: string
+  range: string,
 ): string {
   return `${CACHE_KEYS.DASHBOARD_CHART}:${organizerId}:${range}`;
 }

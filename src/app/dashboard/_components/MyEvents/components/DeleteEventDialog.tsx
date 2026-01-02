@@ -28,8 +28,8 @@ export function DeleteEventDialog({
     <Dialog open={!!event} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         {/* Warning icon */}
-        <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-destructive/10">
-          <IconAlertTriangle className="size-7 text-destructive" />
+        <div className="bg-destructive/10 mx-auto mb-4 flex size-14 items-center justify-center rounded-full">
+          <IconAlertTriangle className="text-destructive size-7" />
         </div>
 
         <DialogHeader className="text-center">
@@ -38,7 +38,7 @@ export function DeleteEventDialog({
           </DialogTitle>
           <DialogDescription className="text-center">
             Are you sure you want to delete{" "}
-            <span className="font-medium text-foreground">{event?.title}</span>?
+            <span className="text-foreground font-medium">{event?.title}</span>?
             This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
@@ -46,11 +46,11 @@ export function DeleteEventDialog({
         {/* Warning box */}
         <div
           className={cn(
-            "rounded-xl border border-destructive/20",
-            "bg-destructive/5 p-4"
+            "border-destructive/20 rounded-xl border",
+            "bg-destructive/5 p-4",
           )}
         >
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             All event data including registrations, submissions, and
             certificates will be permanently removed.
           </p>
@@ -60,7 +60,7 @@ export function DeleteEventDialog({
           <Button
             variant="outline"
             onClick={onClose}
-            className="w-full border-border/50 sm:w-auto"
+            className="border-border/50 w-full sm:w-auto"
           >
             Cancel
           </Button>

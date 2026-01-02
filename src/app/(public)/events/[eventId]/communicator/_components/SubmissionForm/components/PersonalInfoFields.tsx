@@ -17,12 +17,12 @@ export function PersonalInfoFields({
     <div className="space-y-4">
       {/* Section header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-chart-1/20 to-chart-1/5 ring-1 ring-chart-1/10">
-          <User className="h-5 w-5 text-chart-1" />
+        <div className="from-chart-1/20 to-chart-1/5 ring-chart-1/10 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ring-1">
+          <User className="text-chart-1 h-5 w-5" />
         </div>
         <div>
           <Label className="text-base font-semibold">Author Information</Label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Your contact details for correspondence
           </p>
         </div>
@@ -37,7 +37,7 @@ export function PersonalInfoFields({
             <span className="text-destructive ml-1">*</span>
           </Label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <User className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               id="name"
               name="name"
@@ -56,7 +56,7 @@ export function PersonalInfoFields({
             Email Address
           </Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               id="email"
               name="email"
@@ -64,10 +64,10 @@ export function PersonalInfoFields({
               value={email}
               disabled
               readOnly
-              className="h-11 pl-10 text-base bg-muted/50 cursor-not-allowed"
+              className="bg-muted/50 h-11 cursor-not-allowed pl-10 text-base"
             />
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Email from your account (cannot be changed)
           </p>
         </div>

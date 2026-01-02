@@ -26,10 +26,7 @@ export {
 
 export { useHeartbeat } from "./use-heartbeat";
 
-export {
-  useTypingIndicator,
-  useIsUserTyping,
-} from "./use-typing-indicator";
+export { useTypingIndicator, useIsUserTyping } from "./use-typing-indicator";
 
 export {
   useReadReceipts,

@@ -1,10 +1,13 @@
 import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
-import { workshop, event } from "@/server/db/schema";
+import { workshop, event, user } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { issueBadgeForRole } from "@/lib/badges/issueBadge";
+import { sendEmail } from "@/lib/sendEmail";
+import { WorkshopStatusEmail } from "@/lib/emails/WorkshopStatusEmail";
+import { env } from "@/env";
 
 const inputSchema = z.object({
   workshopId: z.string().uuid(),
@@ -94,8 +97,69 @@ export const acceptProposalRouter = protectedProcedure
       );
     });
 
+    // Send acceptance email (fire and forget)
+    sendWorkshopAcceptanceEmail(
+      workshopData.facilitatorId,
+      workshopData.eventId,
+      input.workshopId,
+    ).catch((error) => {
+      console.error(
+        `Failed to send workshop acceptance email for workshop ${input.workshopId}:`,
+        error,
+      );
+    });
+
     return {
       ok: true as const,
       workshopId: input.workshopId,
     };
   });
+
+async function sendWorkshopAcceptanceEmail(
+  facilitatorId: string,
+  eventId: string,
+  workshopId: string,
+) {
+  // Get facilitator details
+  const [facilitatorData] = await db
+    .select({
+      name: user.name,
+      email: user.email,
+    })
+    .from(user)
+    .where(eq(user.id, facilitatorId))
+    .limit(1);
+
+  // Get event and workshop details
+  const [workshopData] = await db
+    .select({
+      title: workshop.title,
+      eventTitle: event.title,
+    })
+    .from(workshop)
+    .innerJoin(event, eq(workshop.eventId, event.id))
+    .where(eq(workshop.id, workshopId))
+    .limit(1);
+
+  if (!facilitatorData || !workshopData) {
+    console.error("Missing facilitator or workshop data for acceptance email");
+    return;
+  }
+
+  await sendEmail(
+    facilitatorData.email,
+    `Congratulations! Your workshop has been accepted - ${workshopData.eventTitle}`,
+    WorkshopStatusEmail,
+    {
+      recipientName: facilitatorData.name,
+      eventTitle: workshopData.eventTitle,
+      workshopTitle: workshopData.title,
+      status: "accepted",
+      viewUrl: `${env.BETTER_AUTH_URL}/my-applications`,
+    },
+  );
+
+  console.log(
+    `Workshop acceptance email sent to ${facilitatorData.email} for workshop ${workshopId}`,
+  );
+}

@@ -152,7 +152,7 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <IconLoader2 className="size-8 animate-spin text-chart-4" />
+        <IconLoader2 className="text-chart-4 size-8 animate-spin" />
       </div>
     );
   }
@@ -189,8 +189,8 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
       {/* Status Card */}
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80"
+          "border-border/50 relative overflow-hidden rounded-2xl border",
+          "from-card via-card to-card/80 bg-gradient-to-br",
         )}
       >
         {/* Pattern overlay */}
@@ -203,26 +203,26 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
         />
 
         {/* Accent strip */}
-        <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-chart-4 via-chart-4/80 to-primary" />
+        <div className="from-chart-4 via-chart-4/80 to-primary absolute top-0 right-0 left-0 h-1 bg-gradient-to-r" />
 
         {/* Decorative gradient */}
-        <div className="pointer-events-none absolute -right-20 -top-20 size-48 rounded-full bg-gradient-to-br from-chart-4/10 via-primary/5 to-transparent blur-3xl" />
+        <div className="from-chart-4/10 via-primary/5 pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
 
-        <div className="relative p-6 space-y-6">
+        <div className="relative space-y-6 p-6">
           <div className="flex items-start gap-4">
             <div
               className={cn(
                 "flex size-12 items-center justify-center rounded-xl",
-                "bg-gradient-to-br from-chart-4/10 to-primary/10"
+                "from-chart-4/10 to-primary/10 bg-gradient-to-br",
               )}
             >
-              <IconAward className="size-6 text-chart-4" />
+              <IconAward className="text-chart-4 size-6" />
             </div>
             <div>
-              <h3 className="font-display text-lg font-semibold text-foreground">
+              <h3 className="font-display text-foreground text-lg font-semibold">
                 Certificate Management
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Generate and manage certificates for event participants
               </p>
             </div>
@@ -232,15 +232,15 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
           <div className="flex items-center gap-2">
             {eventEnded ? (
               <>
-                <IconCircleCheck className="size-5 text-primary" />
-                <span className="text-sm text-foreground">
+                <IconCircleCheck className="text-primary size-5" />
+                <span className="text-foreground text-sm">
                   Event has ended - Certificates can be generated
                 </span>
               </>
             ) : (
               <>
-                <IconClock className="size-5 text-chart-4" />
-                <span className="text-sm text-muted-foreground">
+                <IconClock className="text-chart-4 size-5" />
+                <span className="text-muted-foreground text-sm">
                   Certificates can only be generated after the event ends
                 </span>
               </>
@@ -253,12 +253,17 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
               <div
                 key={stat.label}
                 className={cn(
-                  "rounded-xl border border-border/30 p-4 text-center",
-                  "bg-gradient-to-br from-muted/20 to-muted/5"
+                  "border-border/30 rounded-xl border p-4 text-center",
+                  "from-muted/20 to-muted/5 bg-gradient-to-br",
                 )}
               >
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-                <p className={cn("font-display text-2xl font-bold", stat.colorClass)}>
+                <p className="text-muted-foreground text-xs">{stat.label}</p>
+                <p
+                  className={cn(
+                    "font-display text-2xl font-bold",
+                    stat.colorClass,
+                  )}
+                >
                   {stat.value}
                 </p>
               </div>
@@ -285,12 +290,12 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
           {!eventEnded && (
             <div
               className={cn(
-                "flex items-center gap-2 rounded-lg border border-chart-4/30 p-3",
-                "bg-chart-4/5"
+                "border-chart-4/30 flex items-center gap-2 rounded-lg border p-3",
+                "bg-chart-4/5",
               )}
             >
-              <IconAlertCircle className="size-4 text-chart-4" />
-              <p className="text-sm text-chart-4">
+              <IconAlertCircle className="text-chart-4 size-4" />
+              <p className="text-chart-4 text-sm">
                 Wait for the event to end before generating certificates
               </p>
             </div>
@@ -302,8 +307,8 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
       {eligibleData && eligibleData.recipients.length > 0 && (
         <div
           className={cn(
-            "relative overflow-hidden rounded-2xl border border-border/50",
-            "bg-gradient-to-br from-card via-card to-card/80"
+            "border-border/50 relative overflow-hidden rounded-2xl border",
+            "from-card via-card to-card/80 bg-gradient-to-br",
           )}
         >
           {/* Pattern overlay */}
@@ -317,15 +322,15 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
 
           <div className="relative p-6">
             <div className="mb-6 space-y-1">
-              <h3 className="font-display text-lg font-semibold text-foreground">
+              <h3 className="font-display text-foreground text-lg font-semibold">
                 Eligible Recipients
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 People who will receive certificates when generated
               </p>
             </div>
 
-            <div className="rounded-lg border border-border/30 overflow-hidden">
+            <div className="border-border/30 overflow-hidden rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -350,7 +355,10 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={cn("font-medium", getRoleBadgeStyles(recipient.role))}
+                          className={cn(
+                            "font-medium",
+                            getRoleBadgeStyles(recipient.role),
+                          )}
                         >
                           {getRoleLabel(recipient.role)}
                         </Badge>
@@ -359,7 +367,7 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                         {recipient.alreadyIssued ? (
                           <Badge
                             variant="outline"
-                            className="gap-1 border-primary/50 text-primary bg-primary/10"
+                            className="border-primary/50 text-primary bg-primary/10 gap-1"
                           >
                             <IconCircleCheck className="size-3" />
                             Issued
@@ -367,7 +375,7 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                         ) : (
                           <Badge
                             variant="outline"
-                            className="gap-1 border-chart-4/50 text-chart-4 bg-chart-4/10"
+                            className="border-chart-4/50 text-chart-4 bg-chart-4/10 gap-1"
                           >
                             <IconClock className="size-3" />
                             Pending
@@ -387,8 +395,8 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
       {activeCertificates.length > 0 && (
         <div
           className={cn(
-            "relative overflow-hidden rounded-2xl border border-border/50",
-            "bg-gradient-to-br from-card via-card to-card/80"
+            "border-border/50 relative overflow-hidden rounded-2xl border",
+            "from-card via-card to-card/80 bg-gradient-to-br",
           )}
         >
           {/* Pattern overlay */}
@@ -401,28 +409,32 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
           />
 
           {/* Accent strip */}
-          <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-chart-2" />
+          <div className="from-primary via-primary/80 to-chart-2 absolute top-0 right-0 left-0 h-1 bg-gradient-to-r" />
 
           <div className="relative p-6">
             <div className="mb-6 space-y-1">
-              <h3 className="font-display text-lg font-semibold text-foreground">
+              <h3 className="font-display text-foreground text-lg font-semibold">
                 Issued Certificates
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Certificates that have been generated and sent
               </p>
             </div>
 
-            <div className="rounded-lg border border-border/30 overflow-hidden">
+            <div className="border-border/30 overflow-hidden rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
                     <TableHead className="font-medium">Recipient</TableHead>
                     <TableHead className="font-medium">Role</TableHead>
-                    <TableHead className="font-medium">Verification Code</TableHead>
+                    <TableHead className="font-medium">
+                      Verification Code
+                    </TableHead>
                     <TableHead className="font-medium">Issued</TableHead>
                     <TableHead className="font-medium">Downloaded</TableHead>
-                    <TableHead className="text-right font-medium">Actions</TableHead>
+                    <TableHead className="text-right font-medium">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -430,17 +442,17 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                     <TableRow key={cert.id} className="hover:bg-muted/20">
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Avatar className="size-8 ring-2 ring-primary/10">
+                          <Avatar className="ring-primary/10 size-8 ring-2">
                             <AvatarImage src={cert.userImage ?? undefined} />
-                            <AvatarFallback className="bg-gradient-to-br from-primary/10 to-chart-2/10 text-xs font-medium">
+                            <AvatarFallback className="from-primary/10 to-chart-2/10 bg-gradient-to-br text-xs font-medium">
                               {cert.recipientName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium text-foreground">
+                            <p className="text-foreground font-medium">
                               {cert.recipientName}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {cert.recipientEmail}
                             </p>
                           </div>
@@ -449,30 +461,35 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={cn("font-medium", getRoleBadgeStyles(cert.role))}
+                          className={cn(
+                            "font-medium",
+                            getRoleBadgeStyles(cert.role),
+                          )}
                         >
                           {getRoleLabel(cert.role)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <code className="rounded bg-muted/50 px-2 py-1 text-xs font-mono text-primary">
+                        <code className="bg-muted/50 text-primary rounded px-2 py-1 font-mono text-xs">
                           {cert.verificationCode}
                         </code>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-muted-foreground text-sm">
                         {formatDate(cert.issuedAt)}
                       </TableCell>
                       <TableCell>
                         {cert.downloadedAt ? (
                           <Badge
                             variant="outline"
-                            className="gap-1 border-primary/50 text-primary bg-primary/10"
+                            className="border-primary/50 text-primary bg-primary/10 gap-1"
                           >
                             <IconDownload className="size-3" />
                             Yes
                           </Badge>
                         ) : (
-                          <span className="text-sm text-muted-foreground">No</span>
+                          <span className="text-muted-foreground text-sm">
+                            No
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -497,7 +514,9 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Revoke Certificate</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Revoke Certificate
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
                                 This will invalidate the certificate for{" "}
                                 <strong>{cert.recipientName}</strong>. The
@@ -505,12 +524,16 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <div className="space-y-2 py-4">
-                              <Label htmlFor="reason">Reason for revocation</Label>
+                              <Label htmlFor="reason">
+                                Reason for revocation
+                              </Label>
                               <Input
                                 id="reason"
                                 placeholder="Enter reason..."
                                 value={revokeReason}
-                                onChange={(e) => setRevokeReason(e.target.value)}
+                                onChange={(e) =>
+                                  setRevokeReason(e.target.value)
+                                }
                               />
                             </div>
                             <AlertDialogFooter>
@@ -518,7 +541,8 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                               <AlertDialogAction
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 disabled={
-                                  !revokeReason.trim() || revokeMutation.isPending
+                                  !revokeReason.trim() ||
+                                  revokeMutation.isPending
                                 }
                                 onClick={() => {
                                   revokeMutation.mutate({
@@ -549,8 +573,8 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
       {revokedCertificates.length > 0 && (
         <div
           className={cn(
-            "relative overflow-hidden rounded-2xl border border-destructive/30",
-            "bg-gradient-to-br from-card via-card to-destructive/5"
+            "border-destructive/30 relative overflow-hidden rounded-2xl border",
+            "from-card via-card to-destructive/5 bg-gradient-to-br",
           )}
         >
           {/* Pattern overlay */}
@@ -564,13 +588,13 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
 
           <div className="relative p-6">
             <div className="mb-6 flex items-center gap-2">
-              <IconCircleX className="size-5 text-destructive" />
-              <h3 className="font-display text-lg font-semibold text-foreground">
+              <IconCircleX className="text-destructive size-5" />
+              <h3 className="font-display text-foreground text-lg font-semibold">
                 Revoked Certificates
               </h3>
             </div>
 
-            <div className="rounded-lg border border-border/30 overflow-hidden">
+            <div className="border-border/30 overflow-hidden rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -582,19 +606,25 @@ export function CertificatesTab({ eventId }: CertificatesTabProps) {
                 </TableHeader>
                 <TableBody>
                   {revokedCertificates.map((cert) => (
-                    <TableRow key={cert.id} className="opacity-60 hover:bg-muted/20">
+                    <TableRow
+                      key={cert.id}
+                      className="hover:bg-muted/20 opacity-60"
+                    >
                       <TableCell className="font-medium">
                         {cert.recipientName}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="font-medium border-border/50">
+                        <Badge
+                          variant="outline"
+                          className="border-border/50 font-medium"
+                        >
                           {getRoleLabel(cert.role)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-muted-foreground text-sm">
                         {cert.revokedAt ? formatDate(cert.revokedAt) : "-"}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-muted-foreground text-sm">
                         {cert.revokeReason || "-"}
                       </TableCell>
                     </TableRow>

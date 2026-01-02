@@ -22,6 +22,7 @@ import { useChartData } from "./hooks";
 import { LoadingState } from "./components";
 import { chartConfig, TIME_RANGE_LABELS } from "./constants";
 import type { TimeRange } from "./types";
+import { IconChartAreaLine, IconAlertTriangle } from "@tabler/icons-react";
 
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile();
@@ -43,30 +44,20 @@ export function ChartAreaInteractive() {
     return (
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80 p-6"
+          "relative overflow-hidden rounded-2xl",
+          "bg-card border-border/40 border p-6",
         )}
       >
-        <div className="flex flex-col items-center justify-center gap-2 py-12">
-          <div className="size-12 rounded-full bg-destructive/10 p-3">
-            <svg
-              className="size-6 text-destructive"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
+        <div className="flex flex-col items-center justify-center gap-3 py-12">
+          <div className="from-destructive/15 to-destructive/10 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br">
+            <IconAlertTriangle className="text-destructive size-7" />
           </div>
-          <h3 className="font-display text-lg font-semibold text-destructive">
+          <h3 className="font-display text-foreground text-lg font-semibold">
             Failed to load chart data
           </h3>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
+          <p className="text-muted-foreground max-w-sm text-center text-sm">
+            {error.message}
+          </p>
         </div>
       </div>
     );
@@ -75,50 +66,46 @@ export function ChartAreaInteractive() {
   const hasData = chartData.length > 0;
   const totalRegistrations = chartData.reduce(
     (sum, item) => sum + item.registrations,
-    0
+    0,
   );
   const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0);
 
   return (
     <div
       className={cn(
-        "@container/card group relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
+        "group @container/card relative overflow-hidden rounded-2xl",
+        "bg-card border-border/40 border",
         "shadow-sm transition-all duration-500",
-        "hover:shadow-md hover:shadow-primary/5"
+        "hover:shadow-primary/5 hover:border-primary/20 hover:shadow-lg",
       )}
     >
-      {/* Background pattern */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      {/* Accent glow */}
+      {/* Decorative gradient orb */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-12 -top-12 size-48 rounded-full blur-3xl",
-          "bg-gradient-to-br from-chart-1/10 via-chart-2/10 to-chart-3/10",
-          "opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          "pointer-events-none absolute -top-16 -right-16 size-48 rounded-full blur-3xl",
+          "from-chart-1/8 via-chart-2/6 to-chart-3/4 bg-gradient-to-br",
+          "opacity-0 transition-opacity duration-500 group-hover:opacity-100",
         )}
       />
 
       {/* Header */}
-      <div className="relative flex flex-col gap-3 p-6 @[540px]/card:flex-row @[540px]/card:items-start @[540px]/card:justify-between">
-        <div className="space-y-1">
-          <h3 className="font-display text-lg font-semibold text-foreground">
-            Activity Overview
-          </h3>
-          <p className="text-sm text-muted-foreground">
+      <div className="relative flex flex-col gap-4 p-6 @[540px]/card:flex-row @[540px]/card:items-start @[540px]/card:justify-between">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <div className="from-primary/15 to-chart-2/15 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br">
+              <IconChartAreaLine className="text-primary size-4" />
+            </div>
+            <h3 className="font-display text-foreground text-lg font-semibold">
+              Activity Overview
+            </h3>
+          </div>
+          <p className="text-muted-foreground text-sm">
             <span className="hidden @[540px]/card:inline">
-              <span className="font-medium text-foreground">
-                {totalRegistrations}
+              <span className="text-foreground font-medium tabular-nums">
+                {totalRegistrations.toLocaleString()}
               </span>{" "}
-              registrations,{" "}
-              <span className="font-medium text-foreground">
+              registrations &bull;{" "}
+              <span className="text-foreground font-medium tabular-nums">
                 {totalRevenue.toLocaleString()}
               </span>{" "}
               DZD revenue
@@ -140,19 +127,34 @@ export function ChartAreaInteractive() {
           >
             <ToggleGroupItem
               value="90d"
-              className="rounded-lg px-4 text-xs data-[state=on]:bg-secondary data-[state=on]:text-secondary-foreground"
+              className={cn(
+                "rounded-xl px-4 text-xs font-medium",
+                "transition-all duration-300",
+                "data-[state=on]:from-primary/10 data-[state=on]:to-chart-2/10 data-[state=on]:bg-gradient-to-r",
+                "data-[state=on]:text-primary data-[state=on]:ring-primary/20 data-[state=on]:ring-1",
+              )}
             >
               Last 3 months
             </ToggleGroupItem>
             <ToggleGroupItem
               value="30d"
-              className="rounded-lg px-4 text-xs data-[state=on]:bg-secondary data-[state=on]:text-secondary-foreground"
+              className={cn(
+                "rounded-xl px-4 text-xs font-medium",
+                "transition-all duration-300",
+                "data-[state=on]:from-primary/10 data-[state=on]:to-chart-2/10 data-[state=on]:bg-gradient-to-r",
+                "data-[state=on]:text-primary data-[state=on]:ring-primary/20 data-[state=on]:ring-1",
+              )}
             >
               Last 30 days
             </ToggleGroupItem>
             <ToggleGroupItem
               value="7d"
-              className="rounded-lg px-4 text-xs data-[state=on]:bg-secondary data-[state=on]:text-secondary-foreground"
+              className={cn(
+                "rounded-xl px-4 text-xs font-medium",
+                "transition-all duration-300",
+                "data-[state=on]:from-primary/10 data-[state=on]:to-chart-2/10 data-[state=on]:bg-gradient-to-r",
+                "data-[state=on]:text-primary data-[state=on]:ring-primary/20 data-[state=on]:ring-1",
+              )}
             >
               Last 7 days
             </ToggleGroupItem>
@@ -163,7 +165,7 @@ export function ChartAreaInteractive() {
             onValueChange={(value) => setTimeRange(value as TimeRange)}
           >
             <SelectTrigger
-              className="w-40 rounded-xl border-border/50 bg-card @[767px]/card:hidden"
+              className="border-border/50 bg-card w-40 rounded-xl @[767px]/card:hidden"
               size="sm"
               aria-label="Select time range"
             >
@@ -187,23 +189,11 @@ export function ChartAreaInteractive() {
       {/* Chart content */}
       <div className="relative px-2 pb-6 sm:px-6">
         {!hasData ? (
-          <div className="flex h-[250px] flex-col items-center justify-center gap-2 rounded-xl bg-muted/20">
-            <div className="size-10 rounded-full bg-muted/50 p-2.5">
-              <svg
-                className="size-5 text-muted-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
-              </svg>
+          <div className="bg-muted/10 flex h-[250px] flex-col items-center justify-center gap-3 rounded-xl">
+            <div className="bg-muted/30 flex size-12 items-center justify-center rounded-2xl">
+              <IconChartAreaLine className="text-muted-foreground/60 size-6" />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               No activity data available for this period
             </p>
           </div>
@@ -224,39 +214,40 @@ export function ChartAreaInteractive() {
                   <stop
                     offset="5%"
                     stopColor="var(--color-registrations)"
-                    stopOpacity={1.0}
+                    stopOpacity={0.9}
                   />
                   <stop
                     offset="95%"
                     stopColor="var(--color-registrations)"
-                    stopOpacity={0.1}
+                    stopOpacity={0.05}
                   />
                 </linearGradient>
                 <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
                     stopColor="var(--color-revenue)"
-                    stopOpacity={0.8}
+                    stopOpacity={0.7}
                   />
                   <stop
                     offset="95%"
                     stopColor="var(--color-revenue)"
-                    stopOpacity={0.1}
+                    stopOpacity={0.05}
                   />
                 </linearGradient>
               </defs>
               <CartesianGrid
                 vertical={false}
-                strokeDasharray="3 3"
-                className="stroke-border/30"
+                strokeDasharray="4 4"
+                className="stroke-border/20"
               />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
-                tickMargin={8}
+                tickMargin={12}
                 minTickGap={32}
                 className="text-muted-foreground"
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                 tickFormatter={(value) => {
                   const date = new Date(value);
                   return date.toLocaleDateString("en-US", {
@@ -266,30 +257,36 @@ export function ChartAreaInteractive() {
                 }}
               />
               <ChartTooltip
-                cursor={false}
+                cursor={{
+                  stroke: "var(--primary)",
+                  strokeWidth: 1,
+                  strokeOpacity: 0.3,
+                }}
                 content={
                   <ChartTooltipContent
                     labelFormatter={(value) => {
                       return new Date(value).toLocaleDateString("en-US", {
+                        weekday: "short",
                         month: "short",
                         day: "numeric",
                       });
                     }}
                     indicator="dot"
+                    className="border-border/50 bg-card/95 rounded-xl shadow-xl backdrop-blur-sm"
                   />
                 }
               />
               <Area
                 dataKey="registrations"
-                type="natural"
+                type="monotone"
                 fill="url(#fillRegistrations)"
                 stroke="var(--color-registrations)"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 stackId="a"
               />
               <Area
                 dataKey="revenue"
-                type="natural"
+                type="monotone"
                 fill="url(#fillRevenue)"
                 stroke="var(--color-revenue)"
                 strokeWidth={2}

@@ -25,7 +25,7 @@ export type GenerateEventDescriptionInput = z.infer<
  */
 const tiptapContentSchema = z.object({
   type: z.literal("doc"),
-  content: z.array(z.record(z.unknown())),
+  content: z.array(z.record(z.string(), z.unknown())),
 });
 
 export const generateEventDescriptionOutputSchema = z.object({

@@ -137,7 +137,10 @@ export async function* subscribeToPresence(
     }
   };
 
-  const unsubscribe = await subscriptionManager.subscribe(PRESENCE_CHANNEL, handler);
+  const unsubscribe = await subscriptionManager.subscribe(
+    PRESENCE_CHANNEL,
+    handler,
+  );
 
   const cleanup = () => {
     isSubscribed = false;

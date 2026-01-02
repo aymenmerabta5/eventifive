@@ -14,19 +14,20 @@ import {
   aiRateLimitMiddleware,
 } from "./ratelimit";
 
-
-
 export const o = os.$context<Context>();
-
 
 const requireAdmin = o.middleware(async ({ context, next }) => {
   if (!context.session?.user) {
     throw new ORPCError("UNAUTHORIZED");
   }
 
-  const user = await db.select({
-    roleName: roles.name,
-  }).from(userRoles).where(eq(userRoles.userId, context.session.user.id)).innerJoin(roles, eq(userRoles.roleId, roles.id));
+  const user = await db
+    .select({
+      roleName: roles.name,
+    })
+    .from(userRoles)
+    .where(eq(userRoles.userId, context.session.user.id))
+    .innerJoin(roles, eq(userRoles.roleId, roles.id));
   if (!user) {
     throw new ORPCError("UNAUTHORIZED");
   }
@@ -67,7 +68,7 @@ export const adminProcedure = protectedProcedure.use(requireAdmin);
  * Use for: createCheckout, createEventCheckout
  */
 export const rateLimitedPaymentProcedure = protectedProcedure.use(
-  paymentRateLimitMiddleware
+  paymentRateLimitMiddleware,
 );
 
 /**
@@ -75,7 +76,7 @@ export const rateLimitedPaymentProcedure = protectedProcedure.use(
  * Use for: requestUpload
  */
 export const rateLimitedUploadProcedure = protectedProcedure.use(
-  uploadRateLimitMiddleware
+  uploadRateLimitMiddleware,
 );
 
 /**
@@ -83,7 +84,7 @@ export const rateLimitedUploadProcedure = protectedProcedure.use(
  * Use for: sendMessage
  */
 export const rateLimitedMessageProcedure = protectedProcedure.use(
-  messagingRateLimitMiddleware
+  messagingRateLimitMiddleware,
 );
 
 /**
@@ -91,7 +92,7 @@ export const rateLimitedMessageProcedure = protectedProcedure.use(
  * Use for: askQuestion, likeQuestion
  */
 export const rateLimitedQAProcedure = protectedProcedure.use(
-  qaRateLimitMiddleware
+  qaRateLimitMiddleware,
 );
 
 /**
@@ -99,7 +100,7 @@ export const rateLimitedQAProcedure = protectedProcedure.use(
  * Use for: register (free events)
  */
 export const rateLimitedRegistrationProcedure = protectedProcedure.use(
-  registrationRateLimitMiddleware
+  registrationRateLimitMiddleware,
 );
 
 /**
@@ -107,7 +108,7 @@ export const rateLimitedRegistrationProcedure = protectedProcedure.use(
  * Use for: vote
  */
 export const rateLimitedPollVoteProcedure = protectedProcedure.use(
-  pollVotingRateLimitMiddleware
+  pollVotingRateLimitMiddleware,
 );
 
 /**
@@ -115,7 +116,7 @@ export const rateLimitedPollVoteProcedure = protectedProcedure.use(
  * Use for: createPoll, updatePoll, closePoll
  */
 export const rateLimitedPollCreationProcedure = protectedProcedure.use(
-  pollCreationRateLimitMiddleware
+  pollCreationRateLimitMiddleware,
 );
 
 /**
@@ -123,5 +124,5 @@ export const rateLimitedPollCreationProcedure = protectedProcedure.use(
  * Use for: generateEventDescription, and other AI-powered endpoints
  */
 export const rateLimitedAIProcedure = protectedProcedure.use(
-  aiRateLimitMiddleware
+  aiRateLimitMiddleware,
 );

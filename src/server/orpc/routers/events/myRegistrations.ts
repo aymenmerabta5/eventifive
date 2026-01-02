@@ -95,7 +95,8 @@ export const myRegistrationsRouter = protectedProcedure
       }
 
       // Generate presigned URLs for all images in parallel
-      const urlPromises: Promise<{ eventId: string; url: string | null }>[] = [];
+      const urlPromises: Promise<{ eventId: string; url: string | null }>[] =
+        [];
       for (const [eventId, s3Key] of imageMap) {
         urlPromises.push(
           generatePresignedDownloadUrl(s3Key)

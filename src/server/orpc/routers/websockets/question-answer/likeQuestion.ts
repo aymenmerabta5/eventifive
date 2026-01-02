@@ -2,10 +2,7 @@ import { z } from "zod";
 import { rateLimitedQAProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
-import {
-  sessionQuestions,
-  sessionQuestionLikes,
-} from "@/server/db/schema";
+import { sessionQuestions, sessionQuestionLikes } from "@/server/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { publishSessionQAEvent } from "@/server/realtime/session-qa";
 

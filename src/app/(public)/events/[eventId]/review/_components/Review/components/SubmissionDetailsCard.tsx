@@ -43,7 +43,7 @@ export function SubmissionDetailsCard({
   return (
     <Card className="border-border/60 bg-card/80 relative overflow-hidden backdrop-blur-sm">
       {/* Left accent bar */}
-      <div className="from-primary via-primary/80 to-secondary absolute left-0 top-0 h-full w-1 bg-gradient-to-b" />
+      <div className="from-primary via-primary/80 to-secondary absolute top-0 left-0 h-full w-1 bg-gradient-to-b" />
 
       <CardHeader className="pl-5">
         <div className="flex items-start justify-between gap-4">
@@ -65,10 +65,10 @@ export function SubmissionDetailsCard({
       <CardContent className="space-y-6 pl-5">
         {/* Title section */}
         <div className="space-y-2">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+          <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
             Title
           </p>
-          <h2 className="font-display text-foreground text-xl font-semibold leading-snug tracking-tight sm:text-2xl">
+          <h2 className="font-display text-foreground text-xl leading-snug font-semibold tracking-tight sm:text-2xl">
             {title}
           </h2>
         </div>
@@ -76,7 +76,7 @@ export function SubmissionDetailsCard({
         {/* Abstract section */}
         {abstract && (
           <div className="space-y-2">
-            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+            <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
               Abstract
             </p>
             <div className="bg-muted/30 border-border/50 rounded-lg border p-4">
@@ -91,7 +91,7 @@ export function SubmissionDetailsCard({
 
         {/* Files section */}
         <div className="space-y-4">
-          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+          <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
             Attachments
           </p>
 

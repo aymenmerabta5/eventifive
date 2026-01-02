@@ -5,7 +5,10 @@ import {
   sessionPollVote,
 } from "@/server/db/schema";
 import { eq, sql } from "drizzle-orm";
-import type { PollResults, PollOptionResult } from "@/server/realtime/session-polls";
+import type {
+  PollResults,
+  PollOptionResult,
+} from "@/server/realtime/session-polls";
 
 // Re-export getSessionManagerInfo from question-answer utils
 export { getSessionManagerInfo } from "../question-answer/utils";
@@ -13,7 +16,9 @@ export { getSessionManagerInfo } from "../question-answer/utils";
 /**
  * Calculate poll results with vote counts and percentages
  */
-export async function calculatePollResults(pollId: string): Promise<PollResults> {
+export async function calculatePollResults(
+  pollId: string,
+): Promise<PollResults> {
   // Get all options for the poll
   const options = await db
     .select({

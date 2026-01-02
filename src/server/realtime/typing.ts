@@ -36,7 +36,10 @@ export async function setTyping(
       userId,
       isTyping: true,
     };
-    await publisher.publish(getTypingChannel(conversationId), JSON.stringify(event));
+    await publisher.publish(
+      getTypingChannel(conversationId),
+      JSON.stringify(event),
+    );
   }
 }
 
@@ -59,7 +62,10 @@ export async function clearTyping(
       userId,
       isTyping: false,
     };
-    await publisher.publish(getTypingChannel(conversationId), JSON.stringify(event));
+    await publisher.publish(
+      getTypingChannel(conversationId),
+      JSON.stringify(event),
+    );
   }
 }
 
@@ -74,15 +80,19 @@ export async function isUserTyping(
 }
 
 // Get all users currently typing in a conversation
-export async function getTypingUsers(conversationId: string): Promise<string[]> {
+export async function getTypingUsers(
+  conversationId: string,
+): Promise<string[]> {
   const pattern = `typing:${conversationId}:*`;
   const keys = await publisher.keys(pattern);
 
   // Extract user IDs from keys
-  return keys.map((key) => {
-    const parts = key.split(":");
-    return parts[2] || "";
-  }).filter(Boolean);
+  return keys
+    .map((key) => {
+      const parts = key.split(":");
+      return parts[2] || "";
+    })
+    .filter(Boolean);
 }
 
 // Subscribe to typing events for a conversation

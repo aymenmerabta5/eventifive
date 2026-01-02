@@ -45,7 +45,7 @@ export default function Header() {
       } as const,
       { to: "/events", label: "Events", isPublic: true } as const,
     ],
-    []
+    [],
   );
 
   const { scrollY } = useScroll();
@@ -73,7 +73,7 @@ export default function Header() {
         }
         return true;
       }),
-    [links, session, canAccessDashboard]
+    [links, session, canAccessDashboard],
   );
 
   return (
@@ -81,8 +81,8 @@ export default function Header() {
       className={cn(
         "sticky top-0 z-50 transition-all duration-500",
         isScrolled
-          ? "py-3 bg-background/80 backdrop-blur-xl border-b border-border/40 shadow-sm"
-          : "py-4 sm:py-5 bg-transparent"
+          ? "bg-background/80 border-border/40 border-b py-3 shadow-sm backdrop-blur-xl"
+          : "bg-transparent py-4 sm:py-5",
       )}
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -100,7 +100,7 @@ export default function Header() {
             <Logo />
           </motion.div>
 
-          <div className="flex items-center gap-1 rounded-full bg-muted/50 py-1.5">
+          <div className="bg-muted/50 flex items-center gap-1 rounded-full py-1.5">
             {filteredLinks.map(({ to, label }, index) => (
               <motion.div
                 key={to}
@@ -111,9 +111,9 @@ export default function Header() {
                 <Link
                   href={to as Route}
                   className={cn(
-                    "relative px-5 py-2.5 text-sm font-medium rounded-full transition-all duration-300",
+                    "relative rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300",
                     "text-muted-foreground hover:text-foreground",
-                    "hover:bg-muted"
+                    "hover:bg-muted",
                   )}
                 >
                   {label}
@@ -135,29 +135,32 @@ export default function Header() {
 
         {/* Desktop Right Side */}
         <motion.div
-          className="hidden items-center gap-2 md:flex"
+          className="hidden items-center md:flex"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          {session && (
-            <Link
-              href={"/messages" as Route}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "relative size-10 rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
-              )}
-            >
-              <MessageCircle className="size-5" />
-              {/* Notification dot - can be conditionally shown */}
-              {/* <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-destructive" /> */}
-            </Link>
-          )}
-
-          <div className="mx-1 h-6 w-px bg-border/60" />
-
-          <ModeToggle />
-          <UserMenu />
+          {/* Unified Action Bar */}
+          <div className="border-border/40 bg-card/80 flex items-center gap-1 rounded-full border p-1.5 shadow-sm backdrop-blur-sm">
+            {session && (
+              <>
+                <Link
+                  href={"/messages" as Route}
+                  className={cn(
+                    "relative flex size-9 items-center justify-center rounded-full",
+                    "text-muted-foreground transition-all duration-200",
+                    "hover:bg-primary/10 hover:text-primary",
+                  )}
+                >
+                  <MessageCircle className="size-[18px]" />
+                </Link>
+                <div className="bg-border/50 mx-0.5 h-5 w-px" />
+              </>
+            )}
+            <ModeToggle />
+            <div className="bg-border/50 mx-0.5 h-5 w-px" />
+            <UserMenu />
+          </div>
         </motion.div>
 
         {/* Mobile Right Side */}
@@ -166,12 +169,12 @@ export default function Header() {
             <Link
               href={"/messages" as Route}
               className={cn(
-                "relative flex size-10 items-center justify-center rounded-full",
-                "bg-muted/60 text-muted-foreground",
-                "hover:bg-primary/10 hover:text-primary transition-colors"
+                "relative flex size-9 items-center justify-center rounded-full",
+                "border-border/40 bg-card/80 text-muted-foreground border",
+                "hover:bg-primary/10 hover:text-primary transition-colors",
               )}
             >
-              <MessageCircle className="size-5" />
+              <MessageCircle className="size-[18px]" />
             </Link>
           )}
 
@@ -182,13 +185,13 @@ export default function Header() {
                 size="icon"
                 className={cn(
                   "relative size-10 rounded-full",
-                  "hover:bg-muted/60 transition-colors"
+                  "hover:bg-muted/60 transition-colors",
                 )}
                 aria-label="Toggle menu"
               >
                 <div className="flex flex-col items-center justify-center gap-1">
                   <motion.span
-                    className="block h-0.5 w-5 rounded-full bg-current origin-center"
+                    className="block h-0.5 w-5 origin-center rounded-full bg-current"
                     animate={{
                       rotate: mobileMenuOpen ? 45 : 0,
                       y: mobileMenuOpen ? 3 : 0,
@@ -204,7 +207,7 @@ export default function Header() {
                     transition={{ duration: 0.2 }}
                   />
                   <motion.span
-                    className="block h-0.5 w-5 rounded-full bg-current origin-center"
+                    className="block h-0.5 w-5 origin-center rounded-full bg-current"
                     animate={{
                       rotate: mobileMenuOpen ? -45 : 0,
                       y: mobileMenuOpen ? -3 : 0,
@@ -217,11 +220,11 @@ export default function Header() {
 
             <SheetContent
               side="right"
-              className="w-full border-none bg-background/95 backdrop-blur-xl p-0"
+              className="bg-background/95 w-full border-none p-0 backdrop-blur-xl"
             >
               <div className="flex h-full flex-col">
                 {/* Mobile Menu Header */}
-                <SheetHeader className="border-b border-border/40 p-6">
+                <SheetHeader className="border-border/40 border-b p-6">
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <div className="flex items-center justify-between">
                     <Logo />
@@ -250,12 +253,12 @@ export default function Header() {
                               onClick={() => setMobileMenuOpen(false)}
                               className={cn(
                                 "group flex items-center gap-4 rounded-2xl p-4",
-                                "text-2xl font-semibold text-foreground/80",
+                                "text-foreground/80 text-2xl font-semibold",
                                 "hover:bg-primary/5 hover:text-foreground",
-                                "transition-all duration-300"
+                                "transition-all duration-300",
                               )}
                             >
-                              <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
+                              <span className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
                                 <span className="text-lg font-bold">
                                   {label.charAt(0)}
                                 </span>
@@ -274,7 +277,7 @@ export default function Header() {
                             duration: 0.4,
                             delay: filteredLinks.length * 0.1,
                           }}
-                          className="my-6 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+                          className="via-border my-6 h-px bg-gradient-to-r from-transparent to-transparent"
                         />
 
                         {/* Actions */}
@@ -287,11 +290,11 @@ export default function Header() {
                             delay: filteredLinks.length * 0.1 + 0.1,
                             ease: [0.22, 1, 0.36, 1],
                           }}
-                          className="flex items-center justify-center gap-4 pt-4"
+                          className="flex items-center justify-center pt-4"
                         >
-                          <div className="flex items-center gap-3 rounded-full bg-muted/50 p-2">
+                          <div className="border-border/40 bg-card/80 flex items-center gap-1 rounded-full border p-1.5 shadow-sm">
                             <ModeToggle />
-                            <div className="h-6 w-px bg-border/60" />
+                            <div className="bg-border/50 mx-0.5 h-5 w-px" />
                             <UserMenu />
                           </div>
                         </motion.div>
@@ -301,8 +304,8 @@ export default function Header() {
                 </nav>
 
                 {/* Mobile Menu Footer */}
-                <div className="border-t border-border/40 p-6">
-                  <p className="text-center text-sm text-muted-foreground">
+                <div className="border-border/40 border-t p-6">
+                  <p className="text-muted-foreground text-center text-sm">
                     © {new Date().getFullYear()} Eventifive
                   </p>
                 </div>

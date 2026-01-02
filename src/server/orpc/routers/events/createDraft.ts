@@ -74,8 +74,8 @@ async function checkSubscriptionAndQuota(userId: string): Promise<{
       and(
         eq(event.organizerId, userId),
         gte(event.endDate, now),
-        eq(event.status, "published")
-      )
+        eq(event.status, "published"),
+      ),
     );
 
   const used = result?.count ?? 0;

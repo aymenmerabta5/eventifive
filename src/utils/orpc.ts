@@ -37,7 +37,9 @@ const httpLink = new RPCLink({
 
     // Dynamic import for server-side only (Next.js headers)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { headers } = require("next/headers") as { headers: () => Promise<Headers> };
+    const { headers } = require("next/headers") as {
+      headers: () => Promise<Headers>;
+    };
     return Object.fromEntries(await headers());
   },
 });
@@ -50,11 +52,10 @@ const websocketUrl =
     : `ws://${env.NEXT_PUBLIC_WEBSOCKET_URL}`;
 
 // Only create WebSocket in browser environment
-const websocket = typeof window !== "undefined" ? new WebSocket(websocketUrl) : null;
+const websocket =
+  typeof window !== "undefined" ? new WebSocket(websocketUrl) : null;
 
-const webSocketLink = websocket
-  ? new WebSocketRPCLink({ websocket })
-  : null;
+const webSocketLink = websocket ? new WebSocketRPCLink({ websocket }) : null;
 
 export const link = new DynamicLink((options, path) => {
   if (path[0] === "websocketsRouter" && webSocketLink) {

@@ -41,8 +41,8 @@ export function WorkshopTab({
 
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80",
+          "border-border/50 relative overflow-hidden rounded-2xl border",
+          "from-card via-card to-card/80 bg-gradient-to-br",
         )}
       >
         {/* Pattern overlay */}
@@ -55,22 +55,22 @@ export function WorkshopTab({
         />
 
         {/* Accent strip */}
-        <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-chart-3 via-chart-3/80 to-primary" />
+        <div className="from-chart-3 via-chart-3/80 to-primary absolute top-0 right-0 left-0 h-1 bg-gradient-to-r" />
 
         <div className="relative p-6">
           <div className="mb-6 space-y-1">
-            <h3 className="font-display text-lg font-semibold text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold">
               Workshop Proposals
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Review and manage workshop proposals from facilitators.
             </p>
           </div>
 
           {isLoading && (
             <div className="flex items-center justify-center py-12">
-              <IconLoader2 className="size-6 animate-spin text-chart-3" />
-              <span className="ml-2 text-sm text-muted-foreground">
+              <IconLoader2 className="text-chart-3 size-6 animate-spin" />
+              <span className="text-muted-foreground ml-2 text-sm">
                 Loading proposals...
               </span>
             </div>
@@ -79,22 +79,22 @@ export function WorkshopTab({
           {!isLoading && proposals.length === 0 && (
             <div
               className={cn(
-                "flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50 p-12",
-                "bg-gradient-to-br from-muted/30 to-muted/10",
+                "border-border/50 flex flex-col items-center justify-center rounded-xl border border-dashed p-12",
+                "from-muted/30 to-muted/10 bg-gradient-to-br",
               )}
             >
               <div
                 className={cn(
                   "mb-4 flex size-16 items-center justify-center rounded-2xl",
-                  "bg-gradient-to-br from-chart-3/10 to-primary/10",
+                  "from-chart-3/10 to-primary/10 bg-gradient-to-br",
                 )}
               >
-                <IconPresentation className="size-8 text-chart-3/60" />
+                <IconPresentation className="text-chart-3/60 size-8" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-foreground">
+              <h3 className="font-display text-foreground text-lg font-semibold">
                 No workshop proposals
               </h3>
-              <p className="mt-2 max-w-sm text-center text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-2 max-w-sm text-center text-sm">
                 Workshop proposals from facilitators will appear here once
                 they&apos;re submitted.
               </p>

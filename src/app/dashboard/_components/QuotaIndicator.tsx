@@ -15,12 +15,12 @@ import Link from "next/link";
 
 export function QuotaIndicator() {
   const { data: subscription, isLoading } = useQuery(
-    orpc.subscription.getUserSubscription.queryOptions({ input: {} })
+    orpc.subscription.getUserSubscription.queryOptions({ input: {} }),
   );
 
   if (isLoading) {
     return (
-      <div className="relative overflow-hidden rounded-xl border border-border/50 bg-card p-4">
+      <div className="border-border/50 bg-card relative overflow-hidden rounded-xl border p-4">
         {/* Shimmer */}
         <div
           className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]"
@@ -30,10 +30,10 @@ export function QuotaIndicator() {
           }}
         />
         <div className="flex items-center gap-3">
-          <div className="size-8 rounded-lg bg-muted/50" />
+          <div className="bg-muted/50 size-8 rounded-lg" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-24 rounded-full bg-muted/60" />
-            <div className="h-2 w-full rounded-full bg-muted/40" />
+            <div className="bg-muted/60 h-3 w-24 rounded-full" />
+            <div className="bg-muted/40 h-2 w-full rounded-full" />
           </div>
         </div>
         <style>{`
@@ -61,8 +61,8 @@ export function QuotaIndicator() {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border/50 bg-card p-4",
-        "transition-all duration-300 hover:shadow-md hover:shadow-primary/5"
+        "group border-border/50 bg-card relative overflow-hidden rounded-xl border p-4",
+        "hover:shadow-primary/5 transition-all duration-300 hover:shadow-md",
       )}
     >
       {/* Background accent */}
@@ -70,17 +70,17 @@ export function QuotaIndicator() {
         className={cn(
           "absolute inset-0 opacity-[0.03]",
           isAdmin
-            ? "bg-gradient-to-br from-primary via-chart-2 to-accent"
-            : "bg-gradient-to-br from-secondary to-accent"
+            ? "from-primary via-chart-2 to-accent bg-gradient-to-br"
+            : "from-secondary to-accent bg-gradient-to-br",
         )}
       />
 
       {/* Decorative corner glow */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-4 -top-4 size-16 rounded-full blur-2xl",
+          "pointer-events-none absolute -top-4 -right-4 size-16 rounded-full blur-2xl",
           "opacity-0 transition-opacity duration-500 group-hover:opacity-100",
-          isAdmin ? "bg-primary/20" : "bg-chart-2/20"
+          isAdmin ? "bg-primary/20" : "bg-chart-2/20",
         )}
       />
 
@@ -94,7 +94,7 @@ export function QuotaIndicator() {
                 "transition-all duration-300",
                 isAdmin
                   ? "bg-primary/10 text-primary"
-                  : "bg-secondary text-primary"
+                  : "bg-secondary text-primary",
               )}
             >
               {isAdmin ? (
@@ -104,11 +104,11 @@ export function QuotaIndicator() {
               )}
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-foreground text-sm font-medium">
                 {isAdmin ? "Admin Access" : "Event Quota"}
               </span>
               {isUnlimited && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-muted-foreground text-[10px]">
                   {quotaUsage.used} active events
                 </span>
               )}
@@ -125,7 +125,7 @@ export function QuotaIndicator() {
                   ? "border-destructive/30 bg-destructive/10 text-destructive"
                   : isNearLimit
                     ? "border-chart-4/30 bg-chart-4/10 text-chart-4"
-                    : "border-secondary bg-secondary text-secondary-foreground"
+                    : "border-secondary bg-secondary text-secondary-foreground",
             )}
           >
             {isAdmin && <IconSparkles className="size-3" />}
@@ -135,9 +135,9 @@ export function QuotaIndicator() {
 
         {/* Content */}
         {isUnlimited ? (
-          <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-2.5">
-            <IconInfinity className="size-4 text-primary" />
-            <span className="text-sm font-medium text-foreground">
+          <div className="bg-secondary/50 flex items-center gap-2 rounded-lg p-2.5">
+            <IconInfinity className="text-primary size-4" />
+            <span className="text-foreground text-sm font-medium">
               Unlimited events
             </span>
           </div>
@@ -146,7 +146,7 @@ export function QuotaIndicator() {
             {/* Progress info */}
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                <span className="font-semibold text-foreground">
+                <span className="text-foreground font-semibold">
                   {quotaUsage.used}
                 </span>{" "}
                 / {quotaUsage.limit} events
@@ -158,7 +158,7 @@ export function QuotaIndicator() {
                     ? "text-destructive"
                     : isNearLimit
                       ? "text-chart-4"
-                      : "text-muted-foreground"
+                      : "text-muted-foreground",
                 )}
               >
                 {Math.round(percentage)}%
@@ -170,30 +170,30 @@ export function QuotaIndicator() {
               <Progress
                 value={percentage}
                 className={cn(
-                  "h-2 bg-muted/50",
+                  "bg-muted/50 h-2",
                   isAtLimit
                     ? "[&>div]:bg-destructive"
                     : isNearLimit
                       ? "[&>div]:bg-chart-4"
-                      : "[&>div]:bg-gradient-to-r [&>div]:from-chart-1 [&>div]:to-chart-2"
+                      : "[&>div]:from-chart-1 [&>div]:to-chart-2 [&>div]:bg-gradient-to-r",
                 )}
               />
             </div>
 
             {/* Warning messages */}
             {isNearLimit && !isAtLimit && (
-              <div className="flex items-center gap-2 rounded-lg bg-chart-4/10 p-2 text-xs text-chart-4">
-                <div className="size-1.5 animate-pulse rounded-full bg-chart-4" />
+              <div className="bg-chart-4/10 text-chart-4 flex items-center gap-2 rounded-lg p-2 text-xs">
+                <div className="bg-chart-4 size-1.5 animate-pulse rounded-full" />
                 <span>Approaching limit</span>
               </div>
             )}
 
             {isAtLimit && (
-              <div className="flex items-center justify-between rounded-lg bg-destructive/10 p-2">
-                <span className="text-xs text-destructive">Quota reached</span>
+              <div className="bg-destructive/10 flex items-center justify-between rounded-lg p-2">
+                <span className="text-destructive text-xs">Quota reached</span>
                 <Link
                   href="/pricing"
-                  className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+                  className="text-primary text-xs font-medium underline-offset-2 hover:underline"
                 >
                   Upgrade plan
                 </Link>

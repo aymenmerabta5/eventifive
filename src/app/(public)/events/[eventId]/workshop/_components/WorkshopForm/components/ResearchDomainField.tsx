@@ -25,7 +25,7 @@ export function ResearchDomainField({
         htmlFor="researchDomain"
         className="flex items-center gap-2 text-sm font-medium"
       >
-        <FlaskConical className="h-3.5 w-3.5 text-muted-foreground" />
+        <FlaskConical className="text-muted-foreground h-3.5 w-3.5" />
         Research Domain
       </Label>
       <Input
@@ -36,12 +36,12 @@ export function ResearchDomainField({
         onChange={(event) => onResearchDomainChange(event.target.value)}
         placeholder="e.g., Artificial Intelligence"
         autoComplete="organization-title"
-        className="h-11 transition-all duration-200 focus:shadow-lg focus:shadow-primary/5"
+        className="focus:shadow-primary/5 h-11 transition-all duration-200 focus:shadow-lg"
       />
 
       {/* Quick suggestions */}
       <div className="space-y-2">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
           <Lightbulb className="h-3 w-3" />
           <span>Quick picks:</span>
         </div>
@@ -51,7 +51,7 @@ export function ResearchDomainField({
               key={domain}
               type="button"
               onClick={() => onResearchDomainChange(domain)}
-              className="rounded-full border border-border/60 bg-muted/30 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+              className="border-border/60 bg-muted/30 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-primary rounded-full border px-2.5 py-1 text-xs font-medium transition-all duration-200"
             >
               {domain}
             </button>

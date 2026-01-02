@@ -56,7 +56,7 @@ export function useEventForm(
       onSubmit: ({ value }) => {
         const result = schema.safeParse(value);
         if (!result.success) {
-          return result.error.formErrors.fieldErrors;
+          return result.error.flatten().fieldErrors;
         }
       },
     },

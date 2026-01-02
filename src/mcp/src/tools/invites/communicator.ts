@@ -3,7 +3,12 @@ import { z } from "zod";
 import { db } from "../../db.js";
 import { user, eventCommunicator } from "../../schema.js";
 import { eq, and } from "drizzle-orm";
-import { findUser, findEvent, successResponse, errorResponse } from "./helpers.js";
+import {
+  findUser,
+  findEvent,
+  successResponse,
+  errorResponse,
+} from "./helpers.js";
 
 export function registerCommunicatorTools(server: McpServer) {
   // =============================================
@@ -29,18 +34,22 @@ export function registerCommunicatorTools(server: McpServer) {
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -50,8 +59,8 @@ export function registerCommunicatorTools(server: McpServer) {
           .where(
             and(
               eq(eventCommunicator.eventId, input.eventId),
-              eq(eventCommunicator.userId, targetUser.id)
-            )
+              eq(eventCommunicator.userId, targetUser.id),
+            ),
           )
           .limit(1);
 
@@ -67,8 +76,8 @@ export function registerCommunicatorTools(server: McpServer) {
                 },
               },
               null,
-              2
-            )
+              2,
+            ),
           );
         }
 
@@ -97,10 +106,10 @@ export function registerCommunicatorTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error adding communicator: ${error instanceof Error ? error.message : String(error)}`
+          `Error adding communicator: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -125,13 +134,15 @@ export function registerCommunicatorTools(server: McpServer) {
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -141,14 +152,14 @@ export function registerCommunicatorTools(server: McpServer) {
           .where(
             and(
               eq(eventCommunicator.eventId, input.eventId),
-              eq(eventCommunicator.userId, targetUser.id)
-            )
+              eq(eventCommunicator.userId, targetUser.id),
+            ),
           )
           .limit(1);
 
         if (!existingMember) {
           return errorResponse(
-            `Error: User is not a communicator for this event`
+            `Error: User is not a communicator for this event`,
           );
         }
 
@@ -168,10 +179,10 @@ export function registerCommunicatorTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error removing communicator: ${error instanceof Error ? error.message : String(error)}`
+          `Error removing communicator: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -189,7 +200,9 @@ export function registerCommunicatorTools(server: McpServer) {
       try {
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const communicators = await db
@@ -214,9 +227,9 @@ export function registerCommunicatorTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error listing communicators: ${error instanceof Error ? error.message : String(error)}`
+          `Error listing communicators: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 }

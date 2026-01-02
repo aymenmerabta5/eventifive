@@ -60,7 +60,7 @@ export function AcceptWorkshopModal({
                 "bg-primary/10",
               )}
             >
-              <IconCheck className="size-4 text-primary" />
+              <IconCheck className="text-primary size-4" />
             </div>
             Accept Workshop Proposal
           </DialogTitle>
@@ -76,7 +76,7 @@ export function AcceptWorkshopModal({
               htmlFor="startAt"
               className="flex items-center gap-2 text-sm font-medium"
             >
-              <IconCalendar className="size-4 text-muted-foreground" />
+              <IconCalendar className="text-muted-foreground size-4" />
               Start Date & Time (optional)
             </Label>
             <Input
@@ -92,7 +92,7 @@ export function AcceptWorkshopModal({
               htmlFor="endAt"
               className="flex items-center gap-2 text-sm font-medium"
             >
-              <IconCalendar className="size-4 text-muted-foreground" />
+              <IconCalendar className="text-muted-foreground size-4" />
               End Date & Time (optional)
             </Label>
             <Input

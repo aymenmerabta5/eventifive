@@ -1,7 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db } from "../../db.js";
-import { event, eventSpeakers, eventReviewers, eventCommunicator } from "../../schema.js";
+import {
+  event,
+  eventSpeakers,
+  eventReviewers,
+  eventCommunicator,
+} from "../../schema.js";
 import { eq } from "drizzle-orm";
 import { findUser, successResponse, errorResponse } from "./helpers.js";
 
@@ -15,23 +20,30 @@ export function registerUserViewTools(server: McpServer) {
       description:
         "List all speaker invitations, reviewer invitations, and communicator assignments for a specific user",
       inputSchema: z.object({
-        userId: z.string().optional().describe("User ID to get invitations for"),
+        userId: z
+          .string()
+          .optional()
+          .describe("User ID to get invitations for"),
         email: z
           .email()
           .optional()
-          .describe("User email to get invitations for (alternative to userId)"),
+          .describe(
+            "User email to get invitations for (alternative to userId)",
+          ),
       }),
     },
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -85,16 +97,22 @@ export function registerUserViewTools(server: McpServer) {
           },
           speakerInvites: {
             count: speakerInvites.length,
-            pending: speakerInvites.filter((i) => i.status === "pending").length,
-            accepted: speakerInvites.filter((i) => i.status === "accepted").length,
-            rejected: speakerInvites.filter((i) => i.status === "rejected").length,
+            pending: speakerInvites.filter((i) => i.status === "pending")
+              .length,
+            accepted: speakerInvites.filter((i) => i.status === "accepted")
+              .length,
+            rejected: speakerInvites.filter((i) => i.status === "rejected")
+              .length,
             items: speakerInvites,
           },
           reviewerInvites: {
             count: reviewerInvites.length,
-            pending: reviewerInvites.filter((i) => i.status === "pending").length,
-            accepted: reviewerInvites.filter((i) => i.status === "accepted").length,
-            rejected: reviewerInvites.filter((i) => i.status === "rejected").length,
+            pending: reviewerInvites.filter((i) => i.status === "pending")
+              .length,
+            accepted: reviewerInvites.filter((i) => i.status === "accepted")
+              .length,
+            rejected: reviewerInvites.filter((i) => i.status === "rejected")
+              .length,
             items: reviewerInvites,
           },
           communicatorAssignments: {
@@ -104,9 +122,9 @@ export function registerUserViewTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error listing user invitations: ${error instanceof Error ? error.message : String(error)}`
+          `Error listing user invitations: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 }

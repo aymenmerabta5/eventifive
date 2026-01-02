@@ -116,8 +116,8 @@ export const subscribePollsRouter = protectedProcedure
         .where(
           and(
             eq(eventRegistration.eventId, session.eventId),
-            eq(eventRegistration.userId, userId)
-          )
+            eq(eventRegistration.userId, userId),
+          ),
         )
         .limit(1);
 
@@ -132,7 +132,8 @@ export const subscribePollsRouter = protectedProcedure
 
       if (registration.length === 0 && !isOrganizer) {
         throw new ORPCError("FORBIDDEN", {
-          message: "You must be registered for this event to subscribe to polls",
+          message:
+            "You must be registered for this event to subscribe to polls",
         });
       }
     }

@@ -5,7 +5,7 @@ import QRCode from "qrcode";
  */
 export async function generateBadgeQRCodeDataUrl(
   verificationCode: string,
-  baseUrl: string
+  baseUrl: string,
 ): Promise<string> {
   const verifyUrl = `${baseUrl}/verify-badge/${verificationCode}`;
 

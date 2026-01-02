@@ -50,21 +50,21 @@ function InfoBlock({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border/50 bg-muted/30 p-4",
-        "transition-all duration-200 hover:border-border hover:bg-muted/50",
-        fullWidth && "sm:col-span-2"
+        "border-border/50 bg-muted/30 rounded-xl border p-4",
+        "hover:border-border hover:bg-muted/50 transition-all duration-200",
+        fullWidth && "sm:col-span-2",
       )}
     >
       <div className="mb-3 flex items-center gap-2">
         <div
           className={cn(
             "flex size-8 items-center justify-center rounded-lg",
-            colorClasses[color]
+            colorClasses[color],
           )}
         >
           {icon}
         </div>
-        <span className="text-sm font-medium text-foreground">{label}</span>
+        <span className="text-foreground text-sm font-medium">{label}</span>
       </div>
       <div className="text-muted-foreground">{children}</div>
     </div>
@@ -96,7 +96,7 @@ export function EventInfoCard({
   ) : bigDescriptionAsString ? (
     bigDescriptionAsString
   ) : (
-    smallDescription ?? "No description available."
+    (smallDescription ?? "No description available.")
   );
 
   const hasLongDescription =
@@ -106,8 +106,8 @@ export function EventInfoCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-3xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
       )}
     >
       {/* Pattern overlay */}
@@ -120,16 +120,16 @@ export function EventInfoCard({
       />
 
       {/* Decorative gradient */}
-      <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-chart-2/10 via-chart-3/5 to-transparent blur-3xl" />
+      <div className="from-chart-2/10 via-chart-3/5 pointer-events-none absolute -top-20 -right-20 size-64 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
 
       <div className="relative">
         {/* Schedule Section */}
-        <div className="border-b border-border/50 p-6 sm:p-8">
+        <div className="border-border/50 border-b p-6 sm:p-8">
           <div className="mb-6 flex items-center gap-2">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10">
-              <IconCalendar className="size-5 text-primary" />
+            <div className="from-primary/10 to-chart-2/10 flex size-10 items-center justify-center rounded-xl bg-gradient-to-br">
+              <IconCalendar className="text-primary size-5" />
             </div>
-            <h2 className="font-display text-xl font-bold text-foreground">
+            <h2 className="font-display text-foreground text-xl font-bold">
               Schedule
             </h2>
           </div>
@@ -138,20 +138,20 @@ export function EventInfoCard({
             {/* Start */}
             <div
               className={cn(
-                "rounded-xl border border-border/50 bg-muted/30 p-5",
-                "transition-all duration-200 hover:border-primary/30 hover:bg-primary/5"
+                "border-border/50 bg-muted/30 rounded-xl border p-5",
+                "hover:border-primary/30 hover:bg-primary/5 transition-all duration-200",
               )}
             >
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-                  <IconCalendar className="size-4 text-primary" />
+                <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+                  <IconCalendar className="text-primary size-4" />
                 </div>
-                <span className="text-sm font-medium text-primary">Start</span>
+                <span className="text-primary text-sm font-medium">Start</span>
               </div>
-              <p className="font-display text-xl font-semibold text-foreground">
+              <p className="font-display text-foreground text-xl font-semibold">
                 {formatDateFull(startDate)}
               </p>
-              <div className="mt-2 flex items-center gap-2 text-muted-foreground">
+              <div className="text-muted-foreground mt-2 flex items-center gap-2">
                 <IconClock className="size-4" />
                 <span className="text-sm">{formatTime(startDate)}</span>
               </div>
@@ -160,20 +160,20 @@ export function EventInfoCard({
             {/* End */}
             <div
               className={cn(
-                "rounded-xl border border-border/50 bg-muted/30 p-5",
-                "transition-all duration-200 hover:border-chart-2/30 hover:bg-chart-2/5"
+                "border-border/50 bg-muted/30 rounded-xl border p-5",
+                "hover:border-chart-2/30 hover:bg-chart-2/5 transition-all duration-200",
               )}
             >
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-chart-2/10">
-                  <IconCalendar className="size-4 text-chart-2" />
+                <div className="bg-chart-2/10 flex size-8 items-center justify-center rounded-lg">
+                  <IconCalendar className="text-chart-2 size-4" />
                 </div>
-                <span className="text-sm font-medium text-chart-2">End</span>
+                <span className="text-chart-2 text-sm font-medium">End</span>
               </div>
-              <p className="font-display text-xl font-semibold text-foreground">
+              <p className="font-display text-foreground text-xl font-semibold">
                 {formatDateFull(endDate)}
               </p>
-              <div className="mt-2 flex items-center gap-2 text-muted-foreground">
+              <div className="text-muted-foreground mt-2 flex items-center gap-2">
                 <IconClock className="size-4" />
                 <span className="text-sm">{formatTime(endDate)}</span>
               </div>
@@ -184,10 +184,10 @@ export function EventInfoCard({
         {/* Details Section */}
         <div className="p-6 sm:p-8">
           <div className="mb-6 flex items-center gap-2">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-chart-3/10 to-chart-4/10">
-              <IconFileDescription className="size-5 text-chart-3" />
+            <div className="from-chart-3/10 to-chart-4/10 flex size-10 items-center justify-center rounded-xl bg-gradient-to-br">
+              <IconFileDescription className="text-chart-3 size-5" />
             </div>
-            <h2 className="font-display text-xl font-bold text-foreground">
+            <h2 className="font-display text-foreground text-xl font-bold">
               Details
             </h2>
           </div>
@@ -208,24 +208,22 @@ export function EventInfoCard({
               label="Location"
               color="chart-2"
             >
-              <span className="text-sm">
-                {location ?? "To be announced"}
-              </span>
+              <span className="text-sm">{location ?? "To be announced"}</span>
             </InfoBlock>
 
             {/* Description */}
             <div
               className={cn(
-                "rounded-xl border border-border/50 bg-muted/30 p-4 sm:col-span-2",
-                "transition-all duration-200"
+                "border-border/50 bg-muted/30 rounded-xl border p-4 sm:col-span-2",
+                "transition-all duration-200",
               )}
             >
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-chart-3/10">
-                    <IconFileDescription className="size-4 text-chart-3" />
+                  <div className="bg-chart-3/10 flex size-8 items-center justify-center rounded-lg">
+                    <IconFileDescription className="text-chart-3 size-4" />
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-foreground text-sm font-medium">
                     Description
                   </span>
                 </div>
@@ -234,15 +232,15 @@ export function EventInfoCard({
                     type="button"
                     onClick={() => setDescriptionExpanded(!descriptionExpanded)}
                     className={cn(
-                      "flex items-center gap-1 text-xs font-medium text-primary",
-                      "hover:text-primary/80 transition-colors"
+                      "text-primary flex items-center gap-1 text-xs font-medium",
+                      "hover:text-primary/80 transition-colors",
                     )}
                   >
                     {descriptionExpanded ? "Show less" : "Show more"}
                     <IconChevronDown
                       className={cn(
                         "size-4 transition-transform",
-                        descriptionExpanded && "rotate-180"
+                        descriptionExpanded && "rotate-180",
                       )}
                     />
                   </button>
@@ -250,8 +248,8 @@ export function EventInfoCard({
               </div>
               <div
                 className={cn(
-                  "text-sm leading-relaxed text-muted-foreground",
-                  !descriptionExpanded && hasLongDescription && "line-clamp-4"
+                  "text-muted-foreground text-sm leading-relaxed",
+                  !descriptionExpanded && hasLongDescription && "line-clamp-4",
                 )}
               >
                 {descriptionContent}

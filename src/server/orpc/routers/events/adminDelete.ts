@@ -32,13 +32,18 @@ export const adminDeleteEventRouter = adminProcedure
       try {
         await invalidateDashboardCache(ev.organizerId);
       } catch (err) {
-        console.warn("Failed to invalidate dashboard cache after admin delete:", err);
+        console.warn(
+          "Failed to invalidate dashboard cache after admin delete:",
+          err,
+        );
       }
 
       return { success: true };
     } catch (error) {
       if (error instanceof ORPCError) throw error;
       console.error("Error admin deleting event:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to delete event" });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Failed to delete event",
+      });
     }
   });

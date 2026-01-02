@@ -27,9 +27,9 @@ export function FormSection({
       className={cn(
         "group relative overflow-hidden rounded-2xl border transition-all duration-300",
         variant === "default" &&
-          "border-border/60 bg-card shadow-sm hover:shadow-md hover:border-border",
+          "border-border/60 bg-card hover:border-border shadow-sm hover:shadow-md",
         variant === "highlight" &&
-          "border-primary/20 bg-gradient-to-br from-primary/[0.02] to-primary/[0.06] shadow-sm hover:shadow-md hover:border-primary/30",
+          "border-primary/20 from-primary/[0.02] to-primary/[0.06] hover:border-primary/30 bg-gradient-to-br shadow-sm hover:shadow-md",
         variant === "subtle" &&
           "border-border/40 bg-muted/30 hover:bg-muted/50",
         className,
@@ -40,18 +40,18 @@ export function FormSection({
 
       <div className="relative">
         {/* Header */}
-        <div className="flex items-start gap-4 border-b border-border/40 px-6 py-5">
+        <div className="border-border/40 flex items-start gap-4 border-b px-6 py-5">
           {icon && (
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+            <div className="bg-primary/10 text-primary ring-primary/20 flex size-10 shrink-0 items-center justify-center rounded-xl ring-1">
               {icon}
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold tracking-tight">
               {title}
             </h3>
             {description && (
-              <p className="mt-0.5 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-0.5 text-sm">
                 {description}
               </p>
             )}
@@ -103,7 +103,7 @@ export function FormFieldWrapper({
   return (
     <div
       className={cn(
-        "group/field space-y-1.5 rounded-xl bg-muted/30 px-4 py-3 ring-1 ring-border/50 transition-all focus-within:bg-muted/50 focus-within:ring-primary/30",
+        "group/field bg-muted/30 ring-border/50 focus-within:bg-muted/50 focus-within:ring-primary/30 space-y-1.5 rounded-xl px-4 py-3 ring-1 transition-all",
         className,
       )}
     >

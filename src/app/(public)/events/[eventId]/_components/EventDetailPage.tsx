@@ -3,9 +3,14 @@ import { client } from "@/utils/orpc";
 import { getSession } from "@/server/better-auth/server";
 import type { JSONContent } from "@tiptap/react";
 
-import { EventHero, EventCancellationBanner, EventInfoCard } from "./EventDetailPage/index";
+import {
+  EventHero,
+  EventCancellationBanner,
+  EventInfoCard,
+} from "./EventDetailPage/index";
 import { EventImageGallery } from "./EventImageGallery";
 import { SessionsSection } from "./SessionsSection";
+import { WorkshopsSection } from "./WorkshopsSection";
 import { EventRegistrationSection } from "./EventRegistrationSection";
 import ParticipationOptions from "./Testimonials";
 
@@ -53,8 +58,8 @@ export default async function EventDetailPage({
       />
 
       {/* Background gradients */}
-      <div className="pointer-events-none fixed -left-40 top-20 size-[500px] rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
-      <div className="pointer-events-none fixed -right-40 bottom-20 size-[500px] rounded-full bg-gradient-to-bl from-chart-3/10 via-chart-4/5 to-transparent blur-3xl" />
+      <div className="from-primary/10 via-chart-2/5 pointer-events-none fixed top-20 -left-40 size-[500px] rounded-full bg-gradient-to-br to-transparent blur-3xl" />
+      <div className="from-chart-3/10 via-chart-4/5 pointer-events-none fixed -right-40 bottom-20 size-[500px] rounded-full bg-gradient-to-bl to-transparent blur-3xl" />
 
       <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="space-y-8">
@@ -96,6 +101,13 @@ export default async function EventDetailPage({
           <SessionsSection
             eventId={event.id}
             isRegistered={!!registrationStatus?.isRegistered}
+          />
+
+          {/* Workshops Section */}
+          <WorkshopsSection
+            eventId={event.id}
+            isEventRegistered={!!registrationStatus?.isRegistered}
+            isAuthenticated={!!session?.user}
           />
 
           {/* Registration Section - only for published events */}

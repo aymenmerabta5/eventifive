@@ -1,7 +1,11 @@
 "use client";
 
 import { motion } from "motion/react";
-import { IconSparkles, IconShieldCheck, IconCreditCard } from "@tabler/icons-react";
+import {
+  IconSparkles,
+  IconShieldCheck,
+  IconCreditCard,
+} from "@tabler/icons-react";
 import PricingCard from "./_components/PricingCard";
 
 const highlights = [
@@ -15,9 +19,9 @@ export default function PricingPage() {
     <div className="relative min-h-screen overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute -top-40 -left-40 size-80 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -right-40 top-40 size-96 rounded-full bg-chart-2/10 blur-3xl" />
-        <div className="absolute -bottom-40 left-1/3 size-80 rounded-full bg-chart-4/10 blur-3xl" />
+        <div className="bg-primary/10 absolute -top-40 -left-40 size-80 rounded-full blur-3xl" />
+        <div className="bg-chart-2/10 absolute top-40 -right-40 size-96 rounded-full blur-3xl" />
+        <div className="bg-chart-4/10 absolute -bottom-40 left-1/3 size-80 rounded-full blur-3xl" />
       </div>
 
       {/* Header Section */}
@@ -28,7 +32,7 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary backdrop-blur-sm"
+            className="border-primary/20 bg-primary/5 text-primary mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm"
           >
             <IconSparkles className="size-4" />
             Simple, transparent pricing
@@ -39,10 +43,10 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl"
+            className="text-foreground mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"
           >
             Choose the plan that{" "}
-            <span className="bg-gradient-to-r from-primary via-chart-2 to-chart-4 bg-clip-text text-transparent">
+            <span className="from-primary via-chart-2 to-chart-4 bg-gradient-to-r bg-clip-text text-transparent">
               fits your needs
             </span>
           </motion.h1>
@@ -52,7 +56,7 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 text-lg text-muted-foreground sm:text-xl"
+            className="text-muted-foreground mb-8 text-lg sm:text-xl"
           >
             Unlock endless possibilities with our event management platform.
             Start free and scale as you grow.
@@ -68,10 +72,10 @@ export default function PricingPage() {
             {highlights.map((item, index) => (
               <div
                 key={item.text}
-                className="flex items-center gap-2 text-sm text-muted-foreground"
+                className="text-muted-foreground flex items-center gap-2 text-sm"
               >
-                <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
-                  <item.icon className="size-4 text-primary" />
+                <div className="bg-primary/10 flex size-8 items-center justify-center rounded-full">
+                  <item.icon className="text-primary size-4" />
                 </div>
                 <span>{item.text}</span>
               </div>
@@ -95,9 +99,9 @@ export default function PricingPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.6 }}
-        className="border-t border-border/40 bg-muted/20 px-4 py-16 text-center backdrop-blur-sm"
+        className="border-border/40 bg-muted/20 border-t px-4 py-16 text-center backdrop-blur-sm"
       >
-        <h3 className="mb-2 text-lg font-semibold text-foreground">
+        <h3 className="text-foreground mb-2 text-lg font-semibold">
           Have questions?
         </h3>
         <p className="text-muted-foreground">

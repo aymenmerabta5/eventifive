@@ -22,8 +22,10 @@ import {
   Smartphone,
   Crown,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import type { Route } from "next";
 
 const tabs = [
   {
@@ -57,7 +59,35 @@ type TabId = (typeof tabs)[number]["id"];
 export default function Main() {
   const { data: session, isPending, refetch } = authClient.useSession();
   const user = session?.user;
-  const [activeTab, setActiveTab] = useState<TabId>("profile");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const tabParam = searchParams.get("tab");
+  const validTabs = tabs.map((t) => t.id);
+  const initialTab =
+    tabParam && validTabs.includes(tabParam as TabId)
+      ? (tabParam as TabId)
+      : "profile";
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam as TabId)) {
+      setActiveTab(tabParam as TabId);
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    const params = new URLSearchParams(searchParams.toString());
+    if (tabId === "profile") {
+      params.delete("tab");
+    } else {
+      params.set("tab", tabId);
+    }
+    const newUrl = (
+      params.toString() ? `/settings?${params.toString()}` : "/settings"
+    ) as Route;
+    router.replace(newUrl, { scroll: false });
+  };
 
   // Loading skeleton with matching design
   if (isPending || !user) {
@@ -117,7 +147,7 @@ export default function Main() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 style={{ animationDelay: `${index * 50}ms` }}
                 className={cn(
                   "group relative flex w-full items-center gap-4 rounded-2xl p-4 text-left transition-all duration-300",

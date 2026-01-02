@@ -80,7 +80,8 @@ export function SessionHeader({ session, eventTitle }: SessionHeaderProps) {
 
       {session.chair && (
         <div className="text-muted-foreground text-sm">
-          <span className="font-medium">Session Chair:</span> {session.chair.name}
+          <span className="font-medium">Session Chair:</span>{" "}
+          {session.chair.name}
         </div>
       )}
 

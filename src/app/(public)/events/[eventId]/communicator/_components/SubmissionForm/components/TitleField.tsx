@@ -20,8 +20,8 @@ export function TitleField({
     <div className="space-y-3">
       {/* Section header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/10">
-          <FileText className="h-5 w-5 text-primary" />
+        <div className="from-primary/20 to-primary/5 ring-primary/10 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ring-1">
+          <FileText className="text-primary h-5 w-5" />
         </div>
         <div>
           <Label
@@ -31,10 +31,10 @@ export function TitleField({
             Paper Title
             <span className="text-destructive">*</span>
             {hasValue && (
-              <Sparkles className="h-3.5 w-3.5 text-primary animate-in zoom-in duration-200" />
+              <Sparkles className="text-primary animate-in zoom-in h-3.5 w-3.5 duration-200" />
             )}
           </Label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             A clear and descriptive title for your research paper
           </p>
         </div>
@@ -50,10 +50,10 @@ export function TitleField({
           placeholder="e.g., Machine Learning Applications in Climate Prediction"
           required
           maxLength={MAX_TITLE_LENGTH}
-          className="h-12 pr-20 text-base transition-all duration-200 focus:shadow-lg focus:shadow-primary/5"
+          className="focus:shadow-primary/5 h-12 pr-20 text-base transition-all duration-200 focus:shadow-lg"
         />
         {/* Character count */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/60">
+        <div className="text-muted-foreground/60 absolute top-1/2 right-4 -translate-y-1/2 text-xs">
           {titleLength}/{MAX_TITLE_LENGTH}
         </div>
       </div>

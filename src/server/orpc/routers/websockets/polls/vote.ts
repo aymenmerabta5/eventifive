@@ -72,8 +72,8 @@ export const voteRouter = rateLimitedPollVoteProcedure
       .where(
         and(
           eq(sessionPollOption.pollId, pollId),
-          inArray(sessionPollOption.id, optionIds)
-        )
+          inArray(sessionPollOption.id, optionIds),
+        ),
       );
 
     if (validOptions.length !== optionIds.length) {
@@ -103,8 +103,8 @@ export const voteRouter = rateLimitedPollVoteProcedure
         .where(
           and(
             eq(eventRegistration.eventId, eventId),
-            eq(eventRegistration.userId, userId)
-          )
+            eq(eventRegistration.userId, userId),
+          ),
         )
         .limit(1);
 
@@ -131,8 +131,8 @@ export const voteRouter = rateLimitedPollVoteProcedure
       .where(
         and(
           eq(sessionPollVote.pollId, pollId),
-          eq(sessionPollVote.userId, userId)
-        )
+          eq(sessionPollVote.userId, userId),
+        ),
       );
 
     const isVoteChange = existingVotes.length > 0;
@@ -144,8 +144,8 @@ export const voteRouter = rateLimitedPollVoteProcedure
         .where(
           and(
             eq(sessionPollVote.pollId, pollId),
-            eq(sessionPollVote.userId, userId)
-          )
+            eq(sessionPollVote.userId, userId),
+          ),
         );
     }
 

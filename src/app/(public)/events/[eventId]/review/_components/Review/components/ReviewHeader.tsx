@@ -61,7 +61,7 @@ export function ReviewHeader({
             <div className="bg-primary/30 h-32 w-96 rounded-full blur-3xl" />
           </div>
           <h1 className="font-display relative text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+            <span className="from-foreground via-foreground to-foreground/70 bg-gradient-to-br bg-clip-text text-transparent">
               Submission
             </span>{" "}
             <span className="text-primary">Review</span>
@@ -75,7 +75,10 @@ export function ReviewHeader({
               This review has been submitted{" "}
               {submitterName && (
                 <>
-                  by <span className="text-foreground font-medium">{submitterName}</span>
+                  by{" "}
+                  <span className="text-foreground font-medium">
+                    {submitterName}
+                  </span>
                 </>
               )}{" "}
               and is now read-only.

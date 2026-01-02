@@ -24,23 +24,22 @@ export function useClosePoll() {
       await queryClient.cancelQueries({ queryKey: POLLS_QUERY_KEY(sessionId) });
 
       // Snapshot the previous value
-      const previousPolls = queryClient.getQueryData(POLLS_QUERY_KEY(sessionId));
+      const previousPolls = queryClient.getQueryData(
+        POLLS_QUERY_KEY(sessionId),
+      );
 
       // Optimistically update
-      queryClient.setQueryData<PollsData>(
-        POLLS_QUERY_KEY(sessionId),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            polls: old.polls.map((p) =>
-              p.id === pollId
-                ? { ...p, isActive: false, closedAt: new Date() }
-                : p
-            ),
-          };
-        }
-      );
+      queryClient.setQueryData<PollsData>(POLLS_QUERY_KEY(sessionId), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          polls: old.polls.map((p) =>
+            p.id === pollId
+              ? { ...p, isActive: false, closedAt: new Date() }
+              : p,
+          ),
+        };
+      });
 
       return { previousPolls };
     },
@@ -49,7 +48,7 @@ export function useClosePoll() {
       if (context?.previousPolls) {
         queryClient.setQueryData(
           POLLS_QUERY_KEY(variables.sessionId),
-          context.previousPolls
+          context.previousPolls,
         );
       }
       toast.error("Failed to close poll. Please try again.");

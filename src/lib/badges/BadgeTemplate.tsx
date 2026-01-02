@@ -238,11 +238,15 @@ export function BadgeTemplate({
       <Page size={[300, 450]} style={styles.page}>
         <View style={styles.container}>
           {/* Top accent bar */}
-          <View style={[styles.accentBar, { backgroundColor: colors.primary }]} />
+          <View
+            style={[styles.accentBar, { backgroundColor: colors.primary }]}
+          />
 
           {/* Header */}
           <View style={[styles.header, { backgroundColor: colors.light }]}>
-            <View style={[styles.roleBadge, { backgroundColor: colors.primary }]}>
+            <View
+              style={[styles.roleBadge, { backgroundColor: colors.primary }]}
+            >
               <Text style={styles.roleText}>{roleLabel}</Text>
             </View>
             <Text style={styles.eventTitle}>{eventTitle}</Text>
@@ -280,7 +284,9 @@ export function BadgeTemplate({
           </View>
 
           {/* Bottom accent bar */}
-          <View style={[styles.accentBar, { backgroundColor: colors.primary }]} />
+          <View
+            style={[styles.accentBar, { backgroundColor: colors.primary }]}
+          />
 
           {/* Branding */}
           <View style={styles.branding}>

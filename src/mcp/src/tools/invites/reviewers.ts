@@ -1,9 +1,19 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db } from "../../db.js";
-import { user, eventReviewers, submission, reviewAssignment } from "../../schema.js";
+import {
+  user,
+  eventReviewers,
+  submission,
+  reviewAssignment,
+} from "../../schema.js";
 import { eq, and } from "drizzle-orm";
-import { findUser, findEvent, successResponse, errorResponse } from "./helpers.js";
+import {
+  findUser,
+  findEvent,
+  successResponse,
+  errorResponse,
+} from "./helpers.js";
 
 export function registerReviewerTools(server: McpServer) {
   // =============================================
@@ -16,10 +26,7 @@ export function registerReviewerTools(server: McpServer) {
         "Invite a user to be a reviewer for an event. Creates a pending invitation.",
       inputSchema: z.object({
         eventId: z.string().describe("ID of the event"),
-        userId: z
-          .string()
-          .optional()
-          .describe("User ID to invite as reviewer"),
+        userId: z.string().optional().describe("User ID to invite as reviewer"),
         email: z
           .email()
           .optional()
@@ -29,18 +36,22 @@ export function registerReviewerTools(server: McpServer) {
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -50,8 +61,8 @@ export function registerReviewerTools(server: McpServer) {
           .where(
             and(
               eq(eventReviewers.eventId, input.eventId),
-              eq(eventReviewers.userId, targetUser.id)
-            )
+              eq(eventReviewers.userId, targetUser.id),
+            ),
           )
           .limit(1);
 
@@ -68,8 +79,8 @@ export function registerReviewerTools(server: McpServer) {
                 },
               },
               null,
-              2
-            )
+              2,
+            ),
           );
         }
 
@@ -100,10 +111,10 @@ export function registerReviewerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error inviting reviewer: ${error instanceof Error ? error.message : String(error)}`
+          `Error inviting reviewer: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -129,13 +140,15 @@ export function registerReviewerTools(server: McpServer) {
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -145,14 +158,14 @@ export function registerReviewerTools(server: McpServer) {
           .where(
             and(
               eq(eventReviewers.eventId, input.eventId),
-              eq(eventReviewers.userId, targetUser.id)
-            )
+              eq(eventReviewers.userId, targetUser.id),
+            ),
           )
           .limit(1);
 
         if (!existingInvite) {
           return errorResponse(
-            `Error: No reviewer invitation found for this user and event`
+            `Error: No reviewer invitation found for this user and event`,
           );
         }
 
@@ -165,8 +178,8 @@ export function registerReviewerTools(server: McpServer) {
                 invite: existingInvite,
               },
               null,
-              2
-            )
+              2,
+            ),
           );
         }
 
@@ -193,7 +206,7 @@ export function registerReviewerTools(server: McpServer) {
                     submissionId: sub.id,
                     reviewerId: targetUser.id,
                     assignedAt: new Date(),
-                  }))
+                  })),
                 )
                 .onConflictDoNothing();
             }
@@ -252,10 +265,10 @@ export function registerReviewerTools(server: McpServer) {
         }
       } catch (error) {
         return errorResponse(
-          `Error responding to reviewer invite: ${error instanceof Error ? error.message : String(error)}`
+          `Error responding to reviewer invite: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -278,7 +291,9 @@ export function registerReviewerTools(server: McpServer) {
       try {
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const reviewers = await db
@@ -309,10 +324,10 @@ export function registerReviewerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error listing reviewers: ${error instanceof Error ? error.message : String(error)}`
+          `Error listing reviewers: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -330,7 +345,7 @@ export function registerReviewerTools(server: McpServer) {
             z.object({
               email: z.email().optional().describe("User email to invite"),
               userId: z.string().optional().describe("User ID to invite"),
-            })
+            }),
           )
           .min(1)
           .max(3)
@@ -341,7 +356,9 @@ export function registerReviewerTools(server: McpServer) {
       try {
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         // Check current reviewer count
@@ -387,7 +404,10 @@ export function registerReviewerTools(server: McpServer) {
             continue;
           }
 
-          const targetUser = await findUser(inviteInput.userId, inviteInput.email);
+          const targetUser = await findUser(
+            inviteInput.userId,
+            inviteInput.email,
+          );
           if (!targetUser) {
             results.push({
               input: inviteInput,
@@ -403,8 +423,8 @@ export function registerReviewerTools(server: McpServer) {
             .where(
               and(
                 eq(eventReviewers.eventId, input.eventId),
-                eq(eventReviewers.userId, targetUser.id)
-              )
+                eq(eventReviewers.userId, targetUser.id),
+              ),
             )
             .limit(1);
 
@@ -469,9 +489,9 @@ export function registerReviewerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error bulk inviting reviewers: ${error instanceof Error ? error.message : String(error)}`
+          `Error bulk inviting reviewers: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 }

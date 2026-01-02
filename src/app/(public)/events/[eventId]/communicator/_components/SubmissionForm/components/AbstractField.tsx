@@ -20,8 +20,8 @@ export function AbstractField({
     <div className="space-y-3">
       {/* Section header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-chart-2/20 to-chart-2/5 ring-1 ring-chart-2/10">
-          <ScrollText className="h-5 w-5 text-chart-2" />
+        <div className="from-chart-2/20 to-chart-2/5 ring-chart-2/10 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ring-1">
+          <ScrollText className="text-chart-2 h-5 w-5" />
         </div>
         <div>
           <Label
@@ -31,10 +31,10 @@ export function AbstractField({
             Abstract
             <span className="text-destructive">*</span>
             {hasValue && (
-              <Sparkles className="h-3.5 w-3.5 text-chart-2 animate-in zoom-in duration-200" />
+              <Sparkles className="text-chart-2 animate-in zoom-in h-3.5 w-3.5 duration-200" />
             )}
           </Label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Summarize your research, methodology, and key findings
           </p>
         </div>
@@ -51,10 +51,10 @@ export function AbstractField({
           required
           maxLength={MAX_ABSTRACT_LENGTH}
           rows={8}
-          className="min-h-[200px] resize-none text-base transition-all duration-200 focus:shadow-lg focus:shadow-primary/5"
+          className="focus:shadow-primary/5 min-h-[200px] resize-none text-base transition-all duration-200 focus:shadow-lg"
         />
         {/* Character count */}
-        <div className="absolute bottom-3 right-3 text-xs text-muted-foreground/60">
+        <div className="text-muted-foreground/60 absolute right-3 bottom-3 text-xs">
           {abstractLength}/{MAX_ABSTRACT_LENGTH}
         </div>
       </div>

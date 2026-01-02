@@ -19,7 +19,8 @@ export function ErrorState({ message }: ErrorStateProps) {
           Failed to load dashboard stats
         </CardTitle>
         <CardDescription>
-          {message || "An error occurred while fetching your dashboard statistics."}
+          {message ||
+            "An error occurred while fetching your dashboard statistics."}
         </CardDescription>
       </CardHeader>
     </Card>

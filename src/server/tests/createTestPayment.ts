@@ -41,12 +41,18 @@ export async function createTestRegistrationPayment(
   }
 
   // 2. Verify event exists and is paid
-  const [eventData] = await db.select().from(event).where(eq(event.id, eventId));
+  const [eventData] = await db
+    .select()
+    .from(event)
+    .where(eq(event.id, eventId));
   if (!eventData) {
     return { success: false, message: `Event not found: ${eventId}` };
   }
   if (eventData.priceAmount <= 0) {
-    return { success: false, message: `Event "${eventData.title}" is free, no payment needed` };
+    return {
+      success: false,
+      message: `Event "${eventData.title}" is free, no payment needed`,
+    };
   }
 
   // 3. Check if user already registered
@@ -143,7 +149,10 @@ export async function createTestSubscriptionPayment(
       plan: subscriptionPlan,
     })
     .from(subscriptionPrice)
-    .innerJoin(subscriptionPlan, eq(subscriptionPrice.planId, subscriptionPlan.id))
+    .innerJoin(
+      subscriptionPlan,
+      eq(subscriptionPrice.planId, subscriptionPlan.id),
+    )
     .where(
       and(
         eq(subscriptionPrice.id, priceId),
@@ -152,7 +161,10 @@ export async function createTestSubscriptionPayment(
     );
 
   if (!priceWithPlan) {
-    return { success: false, message: `Price not found or plan inactive: ${priceId}` };
+    return {
+      success: false,
+      message: `Price not found or plan inactive: ${priceId}`,
+    };
   }
 
   const { price, plan } = priceWithPlan;
@@ -215,7 +227,9 @@ export async function createTestSubscriptionPayment(
     `Created test payment for ${colors.cyan}${userData.name}${colors.reset} → ${colors.cyan}${plan.name}${colors.reset} subscription`,
   );
   console.log(`  Payment ID: ${colors.yellow}${paymentId}${colors.reset}`);
-  console.log(`  Amount: ${price.amount} ${price.currency}/${price.billingPeriod}`);
+  console.log(
+    `  Amount: ${price.amount} ${price.currency}/${price.billingPeriod}`,
+  );
 
   return {
     success: true,
@@ -298,13 +312,18 @@ export async function listSubscriptionPlans(): Promise<void> {
       billingPeriod: subscriptionPrice.billingPeriod,
     })
     .from(subscriptionPlan)
-    .innerJoin(subscriptionPrice, eq(subscriptionPrice.planId, subscriptionPlan.id))
+    .innerJoin(
+      subscriptionPrice,
+      eq(subscriptionPrice.planId, subscriptionPlan.id),
+    )
     .where(eq(subscriptionPlan.isActive, true));
 
   console.log(`\n${colors.cyan}Subscription Plans:${colors.reset}\n`);
 
   if (plans.length === 0) {
-    console.log(`${colors.dim}  No active subscription plans found${colors.reset}`);
+    console.log(
+      `${colors.dim}  No active subscription plans found${colors.reset}`,
+    );
     console.log(`${colors.dim}  Run: bun run db:seed:plans${colors.reset}`);
     return;
   }
@@ -326,15 +345,31 @@ export async function listSubscriptionPlans(): Promise<void> {
       acc[p.planId] = existing;
       return acc;
     },
-    {} as Record<string, { name: string; displayName: string; prices: { id: string; amount: number; currency: string; billingPeriod: string }[] }>,
+    {} as Record<
+      string,
+      {
+        name: string;
+        displayName: string;
+        prices: {
+          id: string;
+          amount: number;
+          currency: string;
+          billingPeriod: string;
+        }[];
+      }
+    >,
   );
 
   for (const [planId, plan] of Object.entries(grouped)) {
-    console.log(`  ${colors.magenta}${plan.displayName}${colors.reset} (${plan.name})`);
+    console.log(
+      `  ${colors.magenta}${plan.displayName}${colors.reset} (${plan.name})`,
+    );
     console.log(`    Plan ID: ${colors.dim}${planId}${colors.reset}`);
     for (const price of plan.prices) {
       console.log(`    ${colors.yellow}${price.id}${colors.reset}`);
-      console.log(`      ${price.amount} ${price.currency}/${price.billingPeriod}`);
+      console.log(
+        `      ${price.amount} ${price.currency}/${price.billingPeriod}`,
+      );
     }
     console.log();
   }

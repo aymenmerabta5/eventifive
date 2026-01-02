@@ -29,9 +29,9 @@ export function EventImagesSection({
       description="Upload a cover image and gallery photos for your event"
     >
       {isLoadingImages ? (
-        <div className="flex items-center justify-center rounded-2xl border-2 border-dashed border-border/60 bg-muted/20 p-12">
-          <div className="flex flex-col items-center gap-3 text-muted-foreground">
-            <Loader2 className="size-8 animate-spin text-primary" />
+        <div className="border-border/60 bg-muted/20 flex items-center justify-center rounded-2xl border-2 border-dashed p-12">
+          <div className="text-muted-foreground flex flex-col items-center gap-3">
+            <Loader2 className="text-primary size-8 animate-spin" />
             <span className="text-sm">Loading existing images...</span>
           </div>
         </div>
@@ -48,7 +48,7 @@ export function EventImagesSection({
       )}
 
       {disabled && !hasExistingImages && (
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-3 text-xs">
           Images have already been uploaded for this event.
         </p>
       )}

@@ -40,7 +40,7 @@ export function useEventsByType(eventType: EventType): UseEventsByTypeReturn {
       });
       return result;
     },
-    [eventType, debouncedSearchTerm, sortBy]
+    [eventType, debouncedSearchTerm, sortBy],
   );
 
   // Infinite query
@@ -71,7 +71,7 @@ export function useEventsByType(eventType: EventType): UseEventsByTypeReturn {
   // Flatten all events from pages
   const events: EventCardData[] = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
-    [data]
+    [data],
   );
 
   // Calculate stats

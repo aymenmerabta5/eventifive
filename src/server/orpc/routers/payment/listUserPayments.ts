@@ -45,7 +45,10 @@ export const listUserPaymentsRouter = protectedProcedure
     // BATCHED: Fetch all subscriptions with their plans in one query
     const subscriptionsMap = new Map<
       string,
-      { subscription: typeof userSubscription.$inferSelect; plan: typeof subscriptionPlan.$inferSelect }
+      {
+        subscription: typeof userSubscription.$inferSelect;
+        plan: typeof subscriptionPlan.$inferSelect;
+      }
     >();
     if (subscriptionIds.length > 0) {
       const subscriptions = await db
@@ -68,7 +71,10 @@ export const listUserPaymentsRouter = protectedProcedure
     // BATCHED: Fetch all registrations with their events in one query
     const registrationsMap = new Map<
       number,
-      { registration: typeof eventRegistration.$inferSelect; event: typeof event.$inferSelect }
+      {
+        registration: typeof eventRegistration.$inferSelect;
+        event: typeof event.$inferSelect;
+      }
     >();
     if (registrationIds.length > 0) {
       const registrations = await db

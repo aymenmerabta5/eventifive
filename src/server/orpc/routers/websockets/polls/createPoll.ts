@@ -34,7 +34,7 @@ const outputSchema = z.object({
       id: z.number(),
       text: z.string(),
       displayOrder: z.number(),
-    })
+    }),
   ),
 });
 

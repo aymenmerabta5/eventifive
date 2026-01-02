@@ -37,14 +37,16 @@ export function useSubmissionForm({ eventId }: UseSubmissionFormProps) {
   const [title, setTitle] = useState("");
   const [abstract, setAbstract] = useState("");
   const [keywords, setKeywords] = useState("");
-  const [submissionType, setSubmissionType] = useState<SubmissionTypeValue>("oral");
+  const [submissionType, setSubmissionType] =
+    useState<SubmissionTypeValue>("oral");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [files, setFiles] = useState<File[]>([]);
 
   // Submission status
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [existingSubmission, setExistingSubmission] = useState<ExistingSubmission | null>(null);
+  const [existingSubmission, setExistingSubmission] =
+    useState<ExistingSubmission | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
   // UI state
@@ -177,9 +179,12 @@ export function useSubmissionForm({ eventId }: UseSubmissionFormProps) {
     }
   }, []);
 
-  const handleSubmissionTypeChange = useCallback((value: SubmissionTypeValue) => {
-    setSubmissionType(value);
-  }, []);
+  const handleSubmissionTypeChange = useCallback(
+    (value: SubmissionTypeValue) => {
+      setSubmissionType(value);
+    },
+    [],
+  );
 
   const handleNameChange = useCallback((value: string) => {
     setName(value);
@@ -273,7 +278,16 @@ export function useSubmissionForm({ eventId }: UseSubmissionFormProps) {
         setIsSubmitting(false);
       }
     },
-    [title, abstract, keywords, submissionType, files, user, hasSubmitted, eventId],
+    [
+      title,
+      abstract,
+      keywords,
+      submissionType,
+      files,
+      user,
+      hasSubmitted,
+      eventId,
+    ],
   );
 
   // Calculate form progress

@@ -104,5 +104,9 @@ export type NewWorkshop = InferInsertModel<typeof workshop>;
 export type WorkshopFile = InferSelectModel<typeof workshopFile>;
 export type NewWorkshopFile = InferInsertModel<typeof workshopFile>;
 
-export type WorkshopRegistration = InferSelectModel<typeof workshopRegistration>;
-export type NewWorkshopRegistration = InferInsertModel<typeof workshopRegistration>;
+export type WorkshopRegistration = InferSelectModel<
+  typeof workshopRegistration
+>;
+export type NewWorkshopRegistration = InferInsertModel<
+  typeof workshopRegistration
+>;

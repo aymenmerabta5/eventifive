@@ -1,7 +1,7 @@
 // Workshop form props
 export interface WorkshopFormProps {
   eventId: string;
-  eventType: string;
+  eventType?: string;
 }
 
 // Form submission data

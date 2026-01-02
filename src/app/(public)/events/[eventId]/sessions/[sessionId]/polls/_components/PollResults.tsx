@@ -19,12 +19,12 @@ export function PollResults({
   // Calculate total individual votes for percentage
   const totalIndividualVotes = options.reduce(
     (sum, o) => sum + (o.voteCount ?? 0),
-    0
+    0,
   );
 
   // Sort by vote count descending for display
   const sortedOptions = [...options].sort(
-    (a, b) => (b.voteCount ?? 0) - (a.voteCount ?? 0)
+    (a, b) => (b.voteCount ?? 0) - (a.voteCount ?? 0),
   );
   const maxVotes = Math.max(...options.map((o) => o.voteCount ?? 0), 1);
 
@@ -36,31 +36,30 @@ export function PollResults({
             ? Math.round(((option.voteCount ?? 0) / totalIndividualVotes) * 100)
             : 0;
         const isHighlighted = highlightedOptionIds.includes(option.id);
-        const isLeading =
-          (option.voteCount ?? 0) === maxVotes && maxVotes > 0;
+        const isLeading = (option.voteCount ?? 0) === maxVotes && maxVotes > 0;
 
         return (
           <div key={option.id} className="relative">
-            <div className="flex items-center justify-between mb-1">
+            <div className="mb-1 flex items-center justify-between">
               <span
                 className={cn(
                   "text-sm font-medium",
                   isHighlighted && "text-primary",
-                  isLeading && "font-semibold"
+                  isLeading && "font-semibold",
                 )}
               >
                 {option.text}
                 {isLeading && totalVotes > 0 && (
-                  <span className="ml-2 text-xs text-primary">Leading</span>
+                  <span className="text-primary ml-2 text-xs">Leading</span>
                 )}
               </span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {option.voteCount ?? 0} ({percentage}%)
               </span>
             </div>
 
             {/* Progress bar */}
-            <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
+            <div className="bg-muted h-3 w-full overflow-hidden rounded-full">
               <div
                 className={cn(
                   "h-full rounded-full",
@@ -71,7 +70,7 @@ export function PollResults({
                     ? "bg-primary"
                     : isLeading
                       ? "bg-primary/80"
-                      : "bg-primary/50"
+                      : "bg-primary/50",
                 )}
                 style={{
                   width: `${percentage}%`,
@@ -84,8 +83,8 @@ export function PollResults({
       })}
 
       {/* Total votes footer */}
-      <div className="pt-2 border-t text-center">
-        <span className="text-sm text-muted-foreground">
+      <div className="border-t pt-2 text-center">
+        <span className="text-muted-foreground text-sm">
           Total: {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
         </span>
       </div>

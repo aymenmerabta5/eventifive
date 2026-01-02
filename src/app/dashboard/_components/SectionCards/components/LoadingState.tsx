@@ -1,44 +1,52 @@
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
-function LoadingCard({ delay = 0 }: { delay?: number }) {
+function StatCardSkeleton({ delay = 0 }: { delay?: number }) {
   return (
     <div
       className={cn(
-        "@container/card relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "@container/card relative overflow-hidden rounded-2xl",
+        "bg-card border-border/40 border",
+        "animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-backwards duration-500",
       )}
       style={{ animationDelay: `${delay}ms` }}
       data-slot="card"
     >
-      {/* Shimmer overlay */}
-      <div
-        className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
-        }}
-      />
-
       {/* Accent strip skeleton */}
-      <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-muted/50" />
+      <div className="absolute top-0 left-0 h-full w-1 rounded-l-2xl">
+        <Skeleton className="h-full w-full rounded-l-2xl" />
+      </div>
+
+      {/* Shimmer overlay */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, rgba(var(--primary)/0.04) 50%, transparent 100%)",
+          }}
+        />
+      </div>
 
       {/* Content */}
-      <div className="relative flex flex-col gap-4 p-5 @[200px]/card:p-6">
+      <div className="relative flex flex-col gap-4 p-5 @[220px]/card:p-6">
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
-          <div className="h-3 w-20 rounded-full bg-muted/60" />
-          <div className="h-5 w-14 rounded-full bg-muted/40" />
+          <Skeleton className="h-3 w-24 @[200px]/card:w-28" />
+          <Skeleton className="h-6 w-16 rounded-full" />
         </div>
 
         {/* Main value */}
-        <div className="h-9 w-32 rounded-lg bg-muted/50 @[250px]/card:h-10" />
+        <div className="flex flex-col gap-1">
+          <Skeleton className="h-9 w-32 @[250px]/card:h-10 @[250px]/card:w-40" />
+        </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-2 border-t border-border/30 pt-3">
-          <div className="size-6 rounded-full bg-muted/40" />
+        <div className="border-border/40 flex items-center gap-3 border-t pt-4">
+          <Skeleton className="size-8 rounded-xl" />
           <div className="flex flex-col gap-1.5">
-            <div className="h-3 w-28 rounded-full bg-muted/50" />
-            <div className="h-2.5 w-36 rounded-full bg-muted/30" />
+            <Skeleton className="h-3 w-32" />
+            <Skeleton className="h-2.5 w-40" />
           </div>
         </div>
       </div>
@@ -49,15 +57,15 @@ function LoadingCard({ delay = 0 }: { delay?: number }) {
 export function LoadingState() {
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      <LoadingCard delay={0} />
-      <LoadingCard delay={100} />
-      <LoadingCard delay={200} />
-      <LoadingCard delay={300} />
+      <StatCardSkeleton delay={0} />
+      <StatCardSkeleton delay={75} />
+      <StatCardSkeleton delay={150} />
+      <StatCardSkeleton delay={225} />
 
       <style>{`
         @keyframes shimmer {
           100% {
-            transform: translateX(100%);
+            transform: translateX(200%);
           }
         }
       `}</style>

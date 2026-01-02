@@ -1,11 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  IconFileText,
-  IconCircleCheck,
-  IconClock,
-} from "@tabler/icons-react";
+import { IconFileText, IconCircleCheck, IconClock } from "@tabler/icons-react";
 
 interface CommunicatorStatsCardsProps {
   total: number;
@@ -54,8 +50,8 @@ export function CommunicatorStatsCards({
         <div
           key={stat.label}
           className={cn(
-            "relative overflow-hidden rounded-2xl border border-border/50",
-            "bg-gradient-to-br from-card via-card to-card/80"
+            "border-border/50 relative overflow-hidden rounded-2xl border",
+            "from-card via-card to-card/80 bg-gradient-to-br",
           )}
         >
           {/* Pattern overlay */}
@@ -70,26 +66,33 @@ export function CommunicatorStatsCards({
           {/* Gradient accent */}
           <div
             className={cn(
-              "pointer-events-none absolute -right-8 -top-8 size-24 rounded-full blur-2xl",
-              stat.bgClass.replace("from-", "bg-").split(" ")[0]
+              "pointer-events-none absolute -top-8 -right-8 size-24 rounded-full blur-2xl",
+              stat.bgClass.replace("from-", "bg-").split(" ")[0],
             )}
           />
 
           <div className="relative p-5">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-muted-foreground text-sm font-medium">
                   {stat.label}
                 </p>
-                <p className={cn("font-display text-3xl font-bold", stat.colorClass)}>
+                <p
+                  className={cn(
+                    "font-display text-3xl font-bold",
+                    stat.colorClass,
+                  )}
+                >
                   {stat.value}
                 </p>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
+                <p className="text-muted-foreground text-xs">
+                  {stat.description}
+                </p>
               </div>
               <div
                 className={cn(
                   "flex size-12 items-center justify-center rounded-xl",
-                  stat.iconBgClass
+                  stat.iconBgClass,
                 )}
               >
                 <stat.icon className={cn("size-6", stat.colorClass)} />

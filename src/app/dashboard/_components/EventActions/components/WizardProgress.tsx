@@ -35,11 +35,11 @@ export function WizardProgress({
       <div className="hidden md:block">
         <ol className="relative flex items-center justify-between">
           {/* Background line */}
-          <div className="absolute left-0 top-5 h-0.5 w-full bg-border/60" />
+          <div className="bg-border/60 absolute top-5 left-0 h-0.5 w-full" />
 
           {/* Progress line */}
           <motion.div
-            className="absolute left-0 top-5 h-0.5 bg-gradient-to-r from-primary via-primary to-primary/70"
+            className="from-primary via-primary to-primary/70 absolute top-5 left-0 h-0.5 bg-gradient-to-r"
             initial={{ width: "0%" }}
             animate={{
               width: `${(currentIndex / (steps.length - 1)) * 100}%`,
@@ -53,16 +53,18 @@ export function WizardProgress({
             const isPending = idx > currentIndex;
 
             return (
-              <li key={step.key} className="relative z-10 flex flex-col items-center">
+              <li
+                key={step.key}
+                className="relative z-10 flex flex-col items-center"
+              >
                 <motion.div
                   className={cn(
                     "relative flex size-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
                     isComplete &&
-                      "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/25",
+                      "border-primary bg-primary text-primary-foreground shadow-primary/25 shadow-lg",
                     isCurrent &&
-                      "border-primary bg-card text-primary ring-4 ring-primary/20 shadow-lg",
-                    isPending &&
-                      "border-border bg-card text-muted-foreground",
+                      "border-primary bg-card text-primary ring-primary/20 shadow-lg ring-4",
+                    isPending && "border-border bg-card text-muted-foreground",
                   )}
                   initial={false}
                   animate={{
@@ -81,7 +83,7 @@ export function WizardProgress({
                   {/* Pulse effect for current step */}
                   {isCurrent && (
                     <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-primary"
+                      className="border-primary absolute inset-0 rounded-full border-2"
                       initial={{ scale: 1, opacity: 0.5 }}
                       animate={{ scale: 1.5, opacity: 0 }}
                       transition={{

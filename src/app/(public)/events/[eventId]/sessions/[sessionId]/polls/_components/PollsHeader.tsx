@@ -73,7 +73,8 @@ export function PollsHeader({ session, eventTitle }: PollsHeaderProps) {
 
       {session.chair && (
         <div className="text-muted-foreground text-sm">
-          <span className="font-medium">Session Chair:</span> {session.chair.name}
+          <span className="font-medium">Session Chair:</span>{" "}
+          {session.chair.name}
         </div>
       )}
 
@@ -82,7 +83,8 @@ export function PollsHeader({ session, eventTitle }: PollsHeaderProps) {
         <div className="text-sm">
           <p className="font-medium">Live Polls</p>
           <p className="text-muted-foreground">
-            Participate in real-time polls during the session. Results update live as votes come in.
+            Participate in real-time polls during the session. Results update
+            live as votes come in.
           </p>
         </div>
       </div>

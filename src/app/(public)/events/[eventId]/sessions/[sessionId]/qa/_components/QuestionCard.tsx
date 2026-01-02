@@ -32,10 +32,14 @@ interface Answer {
   createdAt: Date;
 }
 
-const roleBadgeConfig: Record<AnswerRole, { label: string; className: string }> = {
+const roleBadgeConfig: Record<
+  AnswerRole,
+  { label: string; className: string }
+> = {
   organizer: {
     label: "Organizer",
-    className: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+    className:
+      "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
   },
   chair: {
     label: "Chair",
@@ -43,11 +47,13 @@ const roleBadgeConfig: Record<AnswerRole, { label: string; className: string }> 
   },
   communicator: {
     label: "Communicator",
-    className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+    className:
+      "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
   },
   speaker: {
     label: "Speaker",
-    className: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+    className:
+      "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
   },
 };
 
@@ -96,9 +102,12 @@ export function QuestionCard({
   const queryClient = useQueryClient();
 
   const likeMutation = useMutation({
-    mutationFn: () => orpc.websocketsRouter.qa.like.call({ questionId: question.id }),
+    mutationFn: () =>
+      orpc.websocketsRouter.qa.like.call({ questionId: question.id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
+      queryClient.invalidateQueries({
+        queryKey: QA_QUERY_KEY(question.sessionId),
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to like question");
@@ -107,11 +116,16 @@ export function QuestionCard({
 
   const answerMutation = useMutation({
     mutationFn: (content: string) =>
-      orpc.websocketsRouter.qa.answer.call({ questionId: question.id, content }),
+      orpc.websocketsRouter.qa.answer.call({
+        questionId: question.id,
+        content,
+      }),
     onSuccess: () => {
       setAnswerContent("");
       setShowAnswerForm(false);
-      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
+      queryClient.invalidateQueries({
+        queryKey: QA_QUERY_KEY(question.sessionId),
+      });
       toast.success("Answer submitted!");
     },
     onError: (error: Error) => {
@@ -120,9 +134,12 @@ export function QuestionCard({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => orpc.websocketsRouter.qa.delete.call({ questionId: question.id }),
+    mutationFn: () =>
+      orpc.websocketsRouter.qa.delete.call({ questionId: question.id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
+      queryClient.invalidateQueries({
+        queryKey: QA_QUERY_KEY(question.sessionId),
+      });
       toast.success("Question deleted");
     },
     onError: (error: Error) => {
@@ -132,9 +149,14 @@ export function QuestionCard({
 
   const approveMutation = useMutation({
     mutationFn: (approved: boolean) =>
-      orpc.websocketsRouter.qa.approve.call({ questionId: question.id, approved }),
+      orpc.websocketsRouter.qa.approve.call({
+        questionId: question.id,
+        approved,
+      }),
     onSuccess: (_, approved) => {
-      queryClient.invalidateQueries({ queryKey: QA_QUERY_KEY(question.sessionId) });
+      queryClient.invalidateQueries({
+        queryKey: QA_QUERY_KEY(question.sessionId),
+      });
       toast.success(approved ? "Question approved" : "Question rejected");
     },
     onError: (error: Error) => {
@@ -151,7 +173,8 @@ export function QuestionCard({
       className={cn(
         "rounded-lg border p-4",
         !question.isApproved && "border-dashed opacity-75",
-        question.isAnswered && "border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20",
+        question.isAnswered &&
+          "border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20",
       )}
     >
       {/* Question Header */}
@@ -161,8 +184,14 @@ export function QuestionCard({
             {!question.isAnonymous && question.userImage && (
               <AvatarImage src={question.userImage} />
             )}
-            <AvatarFallback className={question.isAnonymous ? "bg-muted text-muted-foreground" : ""}>
-              {question.isAnonymous ? "A" : question.userName.charAt(0).toUpperCase()}
+            <AvatarFallback
+              className={
+                question.isAnonymous ? "bg-muted text-muted-foreground" : ""
+              }
+            >
+              {question.isAnonymous
+                ? "A"
+                : question.userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -209,15 +238,22 @@ export function QuestionCard({
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{answer.userName}</span>
-                    <Badge variant="secondary" className={cn("text-xs", badgeConfig.className)}>
+                    <span className="text-sm font-medium">
+                      {answer.userName}
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className={cn("text-xs", badgeConfig.className)}
+                    >
                       {badgeConfig.label}
                     </Badge>
                     <span className="text-muted-foreground text-xs">
                       {formatRelativeTime(answer.createdAt)}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm whitespace-pre-wrap">{answer.content}</p>
+                  <p className="mt-1 text-sm whitespace-pre-wrap">
+                    {answer.content}
+                  </p>
                 </div>
               </div>
             );
@@ -270,9 +306,7 @@ export function QuestionCard({
           size="sm"
           onClick={() => likeMutation.mutate()}
           disabled={likeMutation.isPending || !question.isApproved}
-          className={cn(
-            question.hasLiked && "text-primary",
-          )}
+          className={cn(question.hasLiked && "text-primary")}
         >
           <ThumbsUp
             className={cn("mr-1 h-4 w-4", question.hasLiked && "fill-current")}
@@ -281,7 +315,11 @@ export function QuestionCard({
         </Button>
 
         {canAnswer && !showAnswerForm && (
-          <Button variant="ghost" size="sm" onClick={() => setShowAnswerForm(true)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAnswerForm(true)}
+          >
             <MessageSquare className="mr-1 h-4 w-4" />
             Answer
           </Button>

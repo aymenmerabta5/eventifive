@@ -11,19 +11,19 @@ export function FreePlanState() {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
-        "transition-all duration-300 hover:shadow-md hover:shadow-primary/5"
+        "group border-border/50 relative overflow-hidden rounded-2xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
+        "hover:shadow-primary/5 transition-all duration-300 hover:shadow-md",
       )}
     >
       {/* Background accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-accent/20 opacity-50" />
+      <div className="from-secondary/30 to-accent/20 absolute inset-0 bg-gradient-to-br opacity-50" />
 
       {/* Decorative elements */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-6 -top-6 size-24 rounded-full blur-3xl",
-          "bg-primary/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          "pointer-events-none absolute -top-6 -right-6 size-24 rounded-full blur-3xl",
+          "bg-primary/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
         )}
       />
 
@@ -33,12 +33,12 @@ export function FreePlanState() {
           <div
             className={cn(
               "flex size-8 items-center justify-center rounded-lg",
-              "bg-secondary text-primary"
+              "bg-secondary text-primary",
             )}
           >
             <IconCreditCard className="size-4" />
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-foreground text-sm font-medium">
             Subscription
           </span>
         </div>
@@ -47,18 +47,18 @@ export function FreePlanState() {
       {/* Content */}
       <div className="relative space-y-4 p-6 pt-0">
         <div className="space-y-1">
-          <h3 className="font-display text-2xl font-bold text-foreground">
+          <h3 className="font-display text-foreground text-2xl font-bold">
             Free Plan
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Upgrade to unlock premium features
           </p>
         </div>
 
         {/* Features hint */}
-        <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-2.5">
-          <IconSparkles className="size-4 text-primary" />
-          <span className="text-xs text-muted-foreground">
+        <div className="bg-secondary/50 flex items-center gap-2 rounded-lg p-2.5">
+          <IconSparkles className="text-primary size-4" />
+          <span className="text-muted-foreground text-xs">
             Get more events, analytics, and priority support
           </span>
         </div>

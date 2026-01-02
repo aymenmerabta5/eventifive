@@ -1,7 +1,5 @@
 import type { Event } from "@/server/db/schema";
-import type {
-  IconBuildingBank,
-} from "@tabler/icons-react";
+import type { IconBuildingBank } from "@tabler/icons-react";
 
 // Event card data type (from API response)
 export type EventCardData = Pick<

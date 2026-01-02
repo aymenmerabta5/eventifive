@@ -4,11 +4,7 @@ import { onError } from "@orpc/server";
 import { auth } from "../better-auth/config-ws";
 import type { ServerWebSocket } from "bun";
 import type { NextRequest } from "next/server";
-import {
-  setUserOnline,
-  setUserOffline,
-  refreshPresence,
-} from "./presence";
+import { setUserOnline, setUserOffline, refreshPresence } from "./presence";
 
 interface WSData {
   headers: Headers;
@@ -40,7 +36,7 @@ function getUserConnectionCount(userId: string): number {
  */
 function addUserConnection(
   userId: string,
-  ws: ServerWebSocket<WSData>
+  ws: ServerWebSocket<WSData>,
 ): boolean {
   const currentCount = getUserConnectionCount(userId);
   if (currentCount >= MAX_CONNECTIONS_PER_USER) {
@@ -61,7 +57,7 @@ function addUserConnection(
  */
 function removeUserConnection(
   userId: string,
-  ws: ServerWebSocket<WSData>
+  ws: ServerWebSocket<WSData>,
 ): void {
   const connections = userConnections.get(userId);
   if (connections) {
@@ -182,7 +178,7 @@ Bun.serve<WSData>({
       // Rate limit: Check connection count per user
       if (!addUserConnection(userId, ws)) {
         console.log(
-          `[WS] Rejected connection for user ${userId}: too many connections (limit: ${MAX_CONNECTIONS_PER_USER})`
+          `[WS] Rejected connection for user ${userId}: too many connections (limit: ${MAX_CONNECTIONS_PER_USER})`,
         );
         ws.close(1008, "Too many connections");
         return;

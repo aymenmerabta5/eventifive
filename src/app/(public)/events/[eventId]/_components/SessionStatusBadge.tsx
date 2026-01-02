@@ -20,11 +20,14 @@ interface SessionStatusBadgeProps {
   className?: string;
 }
 
-export function SessionStatusBadge({ status, className }: SessionStatusBadgeProps) {
+export function SessionStatusBadge({
+  status,
+  className,
+}: SessionStatusBadgeProps) {
   return (
     <Badge
       className={cn(
-        "text-xs font-medium uppercase tracking-wide",
+        "text-xs font-medium tracking-wide uppercase",
         status === "live" && [
           "border-destructive/30 bg-destructive/10 text-destructive",
           "animate-pulse",
@@ -35,13 +38,17 @@ export function SessionStatusBadge({ status, className }: SessionStatusBadgeProp
         status === "ended" && [
           "border-muted-foreground/30 bg-muted text-muted-foreground",
         ],
-        className
+        className,
       )}
     >
       {status === "live" && (
-        <span className="mr-1.5 inline-flex size-1.5 rounded-full bg-destructive" />
+        <span className="bg-destructive mr-1.5 inline-flex size-1.5 rounded-full" />
       )}
-      {status === "live" ? "Live" : status === "upcoming" ? "Upcoming" : "Ended"}
+      {status === "live"
+        ? "Live"
+        : status === "upcoming"
+          ? "Upcoming"
+          : "Ended"}
     </Badge>
   );
 }

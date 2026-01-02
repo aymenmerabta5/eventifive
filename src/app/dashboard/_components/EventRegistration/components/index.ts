@@ -10,8 +10,14 @@ export { ParticipantsTab } from "./ParticipantsTab";
 export { ParticipantCard } from "./ParticipantCard";
 export { ParticipantStatsCards } from "./ParticipantStatsCards";
 export { CommunicatorTab, CommitteeTab } from "./CommunicatorTab";
-export { CommunicatorSubmissionCard, CommitteeSubmissionCard } from "./CommunicatorSubmissionCard";
-export { CommunicatorStatsCards, CommitteeStatsCards } from "./CommunicatorStatsCards";
+export {
+  CommunicatorSubmissionCard,
+  CommitteeSubmissionCard,
+} from "./CommunicatorSubmissionCard";
+export {
+  CommunicatorStatsCards,
+  CommitteeStatsCards,
+} from "./CommunicatorStatsCards";
 export { WorkshopTab } from "./WorkshopTab";
 export { WorkshopProposalCard } from "./WorkshopProposalCard";
 export { WorkshopStatsCards } from "./WorkshopStatsCards";

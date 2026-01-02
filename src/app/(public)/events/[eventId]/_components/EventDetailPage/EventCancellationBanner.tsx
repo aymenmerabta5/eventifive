@@ -19,8 +19,8 @@ export function EventCancellationBanner({
     <div
       className={cn(
         "relative overflow-hidden rounded-2xl",
-        "border border-destructive/30",
-        "bg-gradient-to-r from-destructive/10 via-destructive/5 to-destructive/10"
+        "border-destructive/30 border",
+        "from-destructive/10 via-destructive/5 to-destructive/10 bg-gradient-to-r",
       )}
     >
       {/* Pattern overlay */}
@@ -42,20 +42,20 @@ export function EventCancellationBanner({
         <div
           className={cn(
             "flex size-12 shrink-0 items-center justify-center rounded-xl",
-            "bg-destructive/10 ring-1 ring-destructive/20"
+            "bg-destructive/10 ring-destructive/20 ring-1",
           )}
         >
-          <IconAlertTriangle className="size-6 text-destructive" />
+          <IconAlertTriangle className="text-destructive size-6" />
         </div>
 
         {/* Content */}
         <div className="flex-1 space-y-1">
-          <h3 className="font-display text-lg font-semibold text-destructive">
+          <h3 className="font-display text-destructive text-lg font-semibold">
             This event has been cancelled
           </h3>
           {reason && (
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">Reason:</span>{" "}
+            <p className="text-muted-foreground text-sm">
+              <span className="text-foreground font-medium">Reason:</span>{" "}
               {reason}
             </p>
           )}
@@ -68,7 +68,7 @@ export function EventCancellationBanner({
           className={cn(
             "flex size-8 items-center justify-center rounded-lg",
             "text-muted-foreground hover:text-destructive",
-            "hover:bg-destructive/10 transition-colors"
+            "hover:bg-destructive/10 transition-colors",
           )}
         >
           <IconX className="size-4" />

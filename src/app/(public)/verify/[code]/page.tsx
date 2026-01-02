@@ -1,7 +1,13 @@
 "use client";
 
 import { use } from "react";
-import { CheckCircle, XCircle, AlertCircle, Loader2, Award } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Loader2,
+  Award,
+} from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
@@ -96,7 +102,8 @@ export default function VerifyCertificatePage({ params }: PageProps) {
               Verification Error
             </h1>
             <p className="text-muted-foreground">
-              An error occurred while verifying this certificate. Please try again later.
+              An error occurred while verifying this certificate. Please try
+              again later.
             </p>
           </div>
           <Button asChild>
@@ -126,7 +133,8 @@ export default function VerifyCertificatePage({ params }: PageProps) {
               <span className="font-mono font-semibold">{code}</span>
             </p>
             <p className="text-muted-foreground text-sm">
-              Please check the code and try again, or contact the event organizer.
+              Please check the code and try again, or contact the event
+              organizer.
             </p>
           </div>
           <Button asChild>

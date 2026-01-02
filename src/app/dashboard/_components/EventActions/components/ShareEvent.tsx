@@ -77,7 +77,7 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
     const url = encodeURIComponent(eventUrl);
     window.open(
       `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
-      "_blank"
+      "_blank",
     );
   };
 
@@ -85,7 +85,7 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
     const url = encodeURIComponent(eventUrl);
     window.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-      "_blank"
+      "_blank",
     );
   };
 
@@ -97,7 +97,7 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
   const shareViaEmail = () => {
     const subject = encodeURIComponent("Check out this event!");
     const body = encodeURIComponent(
-      `I thought you might be interested in this event:\n\n${eventUrl}`
+      `I thought you might be interested in this event:\n\n${eventUrl}`,
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };
@@ -107,13 +107,13 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
       <div
         className={cn(
           "mx-auto w-full max-w-lg",
-          "relative overflow-hidden rounded-2xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80",
-          "p-8"
+          "border-border/50 relative overflow-hidden rounded-2xl border",
+          "from-card via-card to-card/80 bg-gradient-to-br",
+          "p-8",
         )}
       >
         <div className="flex items-center justify-center py-12">
-          <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="border-primary size-8 animate-spin rounded-full border-2 border-t-transparent" />
         </div>
       </div>
     );
@@ -123,8 +123,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
     <div
       className={cn(
         "mx-auto w-full max-w-lg",
-        "relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-2xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
       )}
     >
       {/* Background pattern */}
@@ -137,24 +137,24 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
       />
 
       {/* Decorative gradient */}
-      <div className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-gradient-to-br from-primary/15 via-chart-2/10 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-16 -left-16 size-64 rounded-full bg-gradient-to-tr from-chart-3/10 via-accent/10 to-transparent blur-3xl" />
+      <div className="from-primary/15 via-chart-2/10 pointer-events-none absolute -top-16 -right-16 size-64 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
+      <div className="from-chart-3/10 via-accent/10 pointer-events-none absolute -bottom-16 -left-16 size-64 rounded-full bg-gradient-to-tr to-transparent blur-3xl" />
 
       {/* Header */}
-      <div className="relative border-b border-border/50 p-6 text-center">
+      <div className="border-border/50 relative border-b p-6 text-center">
         <div
           className={cn(
             "mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl",
-            "bg-gradient-to-br from-primary/10 to-chart-2/10",
-            "ring-1 ring-border/50"
+            "from-primary/10 to-chart-2/10 bg-gradient-to-br",
+            "ring-border/50 ring-1",
           )}
         >
-          <IconShare className="size-7 text-primary" />
+          <IconShare className="text-primary size-7" />
         </div>
-        <h2 className="font-display text-2xl font-bold text-foreground">
+        <h2 className="font-display text-foreground text-2xl font-bold">
           Share Event
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Share this QR code or link with your attendees
         </p>
       </div>
@@ -165,16 +165,16 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
         <div className="flex flex-col items-center gap-4">
           <div
             className={cn(
-              "relative rounded-2xl border border-border/50 bg-white p-5",
-              "shadow-lg shadow-primary/5",
-              "transition-transform duration-300 hover:scale-[1.02]"
+              "border-border/50 relative rounded-2xl border bg-white p-5",
+              "shadow-primary/5 shadow-lg",
+              "transition-transform duration-300 hover:scale-[1.02]",
             )}
           >
             {/* Corner accents */}
-            <div className="absolute -left-px -top-px size-4 rounded-tl-2xl border-l-2 border-t-2 border-primary" />
-            <div className="absolute -right-px -top-px size-4 rounded-tr-2xl border-r-2 border-t-2 border-primary" />
-            <div className="absolute -bottom-px -left-px size-4 rounded-bl-2xl border-b-2 border-l-2 border-primary" />
-            <div className="absolute -bottom-px -right-px size-4 rounded-br-2xl border-b-2 border-r-2 border-primary" />
+            <div className="border-primary absolute -top-px -left-px size-4 rounded-tl-2xl border-t-2 border-l-2" />
+            <div className="border-primary absolute -top-px -right-px size-4 rounded-tr-2xl border-t-2 border-r-2" />
+            <div className="border-primary absolute -bottom-px -left-px size-4 rounded-bl-2xl border-b-2 border-l-2" />
+            <div className="border-primary absolute -right-px -bottom-px size-4 rounded-br-2xl border-r-2 border-b-2" />
 
             <QRCodeSVG
               value={eventUrl}
@@ -187,7 +187,7 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
             />
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
             <IconQrcode className="size-4" />
             <span>Scan to open event page</span>
           </div>
@@ -195,8 +195,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
 
         {/* Link Section */}
         <div className="space-y-2">
-          <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <IconLink className="size-4 text-primary" />
+          <Label className="text-foreground flex items-center gap-2 text-sm font-medium">
+            <IconLink className="text-primary size-4" />
             Event Link
           </Label>
           <div className="flex items-center gap-2">
@@ -204,8 +204,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
               value={eventUrl}
               readOnly
               className={cn(
-                "h-11 bg-muted/30 font-mono text-sm",
-                "border-border/50 focus:border-primary/50 focus:ring-primary/20"
+                "bg-muted/30 h-11 font-mono text-sm",
+                "border-border/50 focus:border-primary/50 focus:ring-primary/20",
               )}
             />
             <Button
@@ -214,12 +214,12 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
               className={cn(
                 "size-11 shrink-0",
                 "border-border/50 transition-all duration-200",
-                copied && "border-primary/50 bg-primary/10"
+                copied && "border-primary/50 bg-primary/10",
               )}
               onClick={handleCopy}
             >
               {copied ? (
-                <IconCheck className="size-4 text-primary" />
+                <IconCheck className="text-primary size-4" />
               ) : (
                 <IconCopy className="size-4" />
               )}
@@ -230,7 +230,7 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
 
         {/* Social Share */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-foreground">
+          <Label className="text-foreground text-sm font-medium">
             Share on Social
           </Label>
           <div className="flex items-center justify-center gap-2">
@@ -239,8 +239,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
               size="icon"
               onClick={shareOnTwitter}
               className={cn(
-                "size-10 border-border/50",
-                "hover:border-[#1DA1F2]/50 hover:bg-[#1DA1F2]/10 hover:text-[#1DA1F2]"
+                "border-border/50 size-10",
+                "hover:border-[#1DA1F2]/50 hover:bg-[#1DA1F2]/10 hover:text-[#1DA1F2]",
               )}
             >
               <IconBrandTwitter className="size-5" />
@@ -250,8 +250,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
               size="icon"
               onClick={shareOnLinkedIn}
               className={cn(
-                "size-10 border-border/50",
-                "hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                "border-border/50 size-10",
+                "hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]",
               )}
             >
               <IconBrandLinkedin className="size-5" />
@@ -261,8 +261,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
               size="icon"
               onClick={shareOnWhatsApp}
               className={cn(
-                "size-10 border-border/50",
-                "hover:border-[#25D366]/50 hover:bg-[#25D366]/10 hover:text-[#25D366]"
+                "border-border/50 size-10",
+                "hover:border-[#25D366]/50 hover:bg-[#25D366]/10 hover:text-[#25D366]",
               )}
             >
               <IconBrandWhatsapp className="size-5" />
@@ -272,8 +272,8 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
               size="icon"
               onClick={shareViaEmail}
               className={cn(
-                "size-10 border-border/50",
-                "hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                "border-border/50 size-10",
+                "hover:border-primary/50 hover:bg-primary/10 hover:text-primary",
               )}
             >
               <IconMail className="size-5" />
@@ -283,13 +283,13 @@ export default function ShareEvent({ eventId }: ShareEventProps) {
       </div>
 
       {/* Footer */}
-      <div className="relative border-t border-border/50 p-6">
+      <div className="border-border/50 relative border-t p-6">
         <Button
           variant="secondary"
           className={cn(
             "w-full gap-2",
             "bg-secondary hover:bg-secondary/80",
-            "transition-all duration-200"
+            "transition-all duration-200",
           )}
           onClick={handleDownloadQRCode}
         >

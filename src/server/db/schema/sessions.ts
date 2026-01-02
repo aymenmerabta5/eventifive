@@ -234,10 +234,16 @@ export type SessionQuestion = InferSelectModel<typeof sessionQuestions>;
 export type NewSessionQuestion = InferInsertModel<typeof sessionQuestions>;
 
 export type SessionQuestionLike = InferSelectModel<typeof sessionQuestionLikes>;
-export type NewSessionQuestionLike = InferInsertModel<typeof sessionQuestionLikes>;
+export type NewSessionQuestionLike = InferInsertModel<
+  typeof sessionQuestionLikes
+>;
 
-export type SessionQuestionAnswer = InferSelectModel<typeof sessionQuestionAnswers>;
-export type NewSessionQuestionAnswer = InferInsertModel<typeof sessionQuestionAnswers>;
+export type SessionQuestionAnswer = InferSelectModel<
+  typeof sessionQuestionAnswers
+>;
+export type NewSessionQuestionAnswer = InferInsertModel<
+  typeof sessionQuestionAnswers
+>;
 
 export type SessionPoll = InferSelectModel<typeof sessionPoll>;
 export type NewSessionPoll = InferInsertModel<typeof sessionPoll>;

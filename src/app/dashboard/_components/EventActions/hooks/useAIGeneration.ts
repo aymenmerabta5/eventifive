@@ -15,7 +15,7 @@ export function useAIGeneration() {
       onError: (error: Error) => {
         toast.error(error.message || "Failed to generate description");
       },
-    })
+    }),
   );
 
   return {

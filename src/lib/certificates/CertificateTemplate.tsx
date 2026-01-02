@@ -205,7 +205,7 @@ interface CertificateTemplateProps {
 }
 
 const getRoleText = (
-  role: CertificateRole
+  role: CertificateRole,
 ): { title: string; description: string } => {
   switch (role) {
     case "speaker":
@@ -313,7 +313,9 @@ export function CertificateTemplate({
               )}
 
               {sessionTitle && (
-                <Text style={styles.sessionTitle}>Workshop: {sessionTitle}</Text>
+                <Text style={styles.sessionTitle}>
+                  Workshop: {sessionTitle}
+                </Text>
               )}
             </View>
 
@@ -324,8 +326,12 @@ export function CertificateTemplate({
               <View style={styles.verificationSection}>
                 <Image style={styles.qrCode} src={qrCodeDataUrl} />
                 <View style={styles.verificationInfo}>
-                  <Text style={styles.verificationLabel}>Verification Code</Text>
-                  <Text style={styles.verificationCode}>{verificationCode}</Text>
+                  <Text style={styles.verificationLabel}>
+                    Verification Code
+                  </Text>
+                  <Text style={styles.verificationCode}>
+                    {verificationCode}
+                  </Text>
                   <Text style={styles.issuedDate}>
                     Issued on {formatDate(issuedAt)}
                   </Text>
@@ -336,8 +342,8 @@ export function CertificateTemplate({
               <View style={styles.branding}>
                 <Text style={styles.brandingText}>
                   This certificate was issued through{" "}
-                  <Text style={styles.brandingHighlight}>Eventifive</Text>
-                  {" "}- Event Management Platform
+                  <Text style={styles.brandingHighlight}>Eventifive</Text> -
+                  Event Management Platform
                 </Text>
               </View>
             </View>

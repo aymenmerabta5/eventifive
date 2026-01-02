@@ -1,6 +1,9 @@
 import type { RoleConfig } from "./types";
 
-export const ROLE_CONFIG: Record<"registration_document" | "event_image", RoleConfig> = {
+export const ROLE_CONFIG: Record<
+  "registration_document" | "event_image",
+  RoleConfig
+> = {
   registration_document: {
     label: "Supporting document",
     accept:

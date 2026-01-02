@@ -8,7 +8,12 @@ import { IconClock, IconMapPin, IconArrowRight } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { STATUS_CONFIG } from "../constants";
-import { cn, formatDateLong, formatTimeRange12h, getEventStatus } from "../utils";
+import {
+  cn,
+  formatDateLong,
+  formatTimeRange12h,
+  getEventStatus,
+} from "../utils";
 import type { EventCardData } from "../types";
 
 interface EventTypeCardProps {
@@ -37,14 +42,14 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
     >
       <Link
         href={`/events/${event.id}` as Route}
-        className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-3xl"
+        className="group focus-visible:ring-ring block rounded-3xl focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         <article
           className={cn(
-            "relative overflow-hidden rounded-3xl border bg-card transition-all duration-500",
-            "hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2",
-            isLive && "ring-2 ring-destructive/30",
-            isEnded && "opacity-70 hover:opacity-100"
+            "bg-card relative overflow-hidden rounded-3xl border transition-all duration-500",
+            "hover:shadow-primary/10 hover:-translate-y-2 hover:shadow-2xl",
+            isLive && "ring-destructive/30 ring-2",
+            isEnded && "opacity-70 hover:opacity-100",
           )}
         >
           {/* Image section */}
@@ -56,23 +61,23 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               className={cn(
                 "object-cover transition-all duration-700 ease-out",
-                "group-hover:scale-110 group-hover:rotate-1"
+                "group-hover:scale-110 group-hover:rotate-1",
               )}
               unoptimized={!!event.imageUrl}
             />
 
             {/* Gradient overlays */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="from-primary/20 to-secondary/20 absolute inset-0 bg-gradient-to-br via-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
             {/* Top badges */}
-            <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
+            <div className="absolute top-4 right-4 left-4 flex items-start justify-between">
               {/* Status badge */}
               <Badge
                 variant="outline"
                 className={cn(
-                  "gap-1.5 font-semibold text-xs backdrop-blur-md",
-                  config.className
+                  "gap-1.5 text-xs font-semibold backdrop-blur-md",
+                  config.className,
                 )}
               >
                 {isLive && config.dotClassName && (
@@ -86,15 +91,15 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
               {/* Date badge */}
               <Badge
                 variant="secondary"
-                className="bg-card/90 text-card-foreground backdrop-blur-md border-0 shadow-sm"
+                className="bg-card/90 text-card-foreground border-0 shadow-sm backdrop-blur-md"
               >
                 {formatDateLong(startDate).split(",")[0]}
               </Badge>
             </div>
 
             {/* Title overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <h3 className="text-xl md:text-2xl font-bold text-white line-clamp-2 drop-shadow-lg transition-colors duration-300">
+            <div className="absolute right-0 bottom-0 left-0 p-5">
+              <h3 className="line-clamp-2 text-xl font-bold text-white drop-shadow-lg transition-colors duration-300 md:text-2xl">
                 {event.title}
               </h3>
             </div>
@@ -102,19 +107,19 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
             {/* Live glow effect */}
             {isLive && (
               <>
-                <div className="absolute -top-20 -right-20 size-40 rounded-full bg-destructive/30 blur-3xl animate-pulse" />
-                <div className="absolute inset-0 border-2 border-destructive/30 rounded-3xl" />
+                <div className="bg-destructive/30 absolute -top-20 -right-20 size-40 animate-pulse rounded-full blur-3xl" />
+                <div className="border-destructive/30 absolute inset-0 rounded-3xl border-2" />
               </>
             )}
           </div>
 
           {/* Content section */}
-          <div className="p-5 space-y-4">
+          <div className="space-y-4 p-5">
             {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
-                  <IconClock className="size-3.5 text-primary" />
+                <div className="bg-primary/10 flex size-7 items-center justify-center rounded-lg">
+                  <IconClock className="text-primary size-3.5" />
                 </div>
                 <span className="font-medium">
                   {formatTimeRange12h(startDate, endDate)}
@@ -123,10 +128,10 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
 
               {event.location && (
                 <div className="flex items-center gap-2">
-                  <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
-                    <IconMapPin className="size-3.5 text-primary" />
+                  <div className="bg-primary/10 flex size-7 items-center justify-center rounded-lg">
+                    <IconMapPin className="text-primary size-3.5" />
                   </div>
-                  <span className="font-medium line-clamp-1">
+                  <span className="line-clamp-1 font-medium">
                     {event.location}
                   </span>
                 </div>
@@ -135,7 +140,7 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
 
             {/* Description */}
             {event.smallDescription && (
-              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+              <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
                 {event.smallDescription}
               </p>
             )}
@@ -145,9 +150,9 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full justify-between font-semibold rounded-xl transition-all duration-300",
+                  "w-full justify-between rounded-xl font-semibold transition-all duration-300",
                   "group-hover:bg-primary group-hover:text-primary-foreground",
-                  "group-hover:border-transparent group-hover:shadow-lg group-hover:shadow-primary/20"
+                  "group-hover:shadow-primary/20 group-hover:border-transparent group-hover:shadow-lg",
                 )}
               >
                 <span>Explore Event</span>
@@ -157,7 +162,7 @@ export function EventTypeCard({ event, index }: EventTypeCardProps) {
           </div>
 
           {/* Decorative corner */}
-          <div className="absolute -bottom-16 -right-16 size-32 rounded-full bg-gradient-to-br from-primary/10 to-secondary/20 blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
+          <div className="from-primary/10 to-secondary/20 absolute -right-16 -bottom-16 size-32 rounded-full bg-gradient-to-br opacity-0 blur-2xl transition-all duration-500 group-hover:opacity-100" />
         </article>
       </Link>
     </motion.div>

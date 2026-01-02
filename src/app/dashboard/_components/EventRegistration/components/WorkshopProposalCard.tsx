@@ -110,10 +110,10 @@ export function WorkshopProposalCard({
     <>
       <div
         className={cn(
-          "relative overflow-hidden rounded-xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80",
+          "border-border/50 relative overflow-hidden rounded-xl border",
+          "from-card via-card to-card/80 bg-gradient-to-br",
           "transition-all duration-300",
-          "hover:border-chart-3/30 hover:shadow-lg hover:shadow-chart-3/5",
+          "hover:border-chart-3/30 hover:shadow-chart-3/5 hover:shadow-lg",
         )}
       >
         {/* Pattern overlay */}
@@ -129,16 +129,16 @@ export function WorkshopProposalCard({
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-1.5">
-              <div className="font-display text-base font-semibold text-foreground">
+              <div className="font-display text-foreground text-base font-semibold">
                 {proposal.title}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {proposal.facilitator.name}
                 {proposal.facilitator.email
                   ? ` • ${proposal.facilitator.email}`
                   : ""}
               </div>
-              <div className="text-xs text-muted-foreground/80">
+              <div className="text-muted-foreground/80 text-xs">
                 Proposed{" "}
                 {new Date(proposal.proposedAt).toLocaleDateString("en-US", {
                   year: "numeric",
@@ -164,13 +164,13 @@ export function WorkshopProposalCard({
           {(proposal.researchDomain || proposal.capacity) && (
             <div className="flex flex-wrap gap-3">
               {proposal.researchDomain && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
                   <IconFlask className="size-4" />
                   <span>{proposal.researchDomain}</span>
                 </div>
               )}
               {proposal.capacity && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
                   <IconUsers className="size-4" />
                   <span>{proposal.capacity} max attendees</span>
                 </div>
@@ -182,14 +182,14 @@ export function WorkshopProposalCard({
           {proposal.description && (
             <div
               className={cn(
-                "rounded-lg border border-border/30 p-4",
-                "bg-gradient-to-br from-muted/20 to-muted/5",
+                "border-border/30 rounded-lg border p-4",
+                "from-muted/20 to-muted/5 bg-gradient-to-br",
               )}
             >
-              <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+              <div className="text-muted-foreground/70 mb-1.5 text-[11px] font-medium tracking-wider uppercase">
                 Description
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {proposal.description}
               </p>
             </div>
@@ -199,14 +199,14 @@ export function WorkshopProposalCard({
           {status === "rejected" && proposal.rejectionReason && (
             <div
               className={cn(
-                "rounded-lg border border-destructive/30 p-4",
-                "bg-gradient-to-br from-destructive/5 to-destructive/10",
+                "border-destructive/30 rounded-lg border p-4",
+                "from-destructive/5 to-destructive/10 bg-gradient-to-br",
               )}
             >
-              <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-destructive/70">
+              <div className="text-destructive/70 mb-1.5 text-[11px] font-medium tracking-wider uppercase">
                 Rejection Reason
               </div>
-              <p className="text-sm text-destructive/80">
+              <p className="text-destructive/80 text-sm">
                 {proposal.rejectionReason}
               </p>
             </div>
@@ -237,8 +237,8 @@ export function WorkshopProposalCard({
             <CollapsibleContent className="pt-2">
               {isLoadingFiles ? (
                 <div className="flex items-center justify-center py-4">
-                  <IconLoader2 className="size-5 animate-spin text-chart-3" />
-                  <span className="ml-2 text-sm text-muted-foreground">
+                  <IconLoader2 className="text-chart-3 size-5 animate-spin" />
+                  <span className="text-muted-foreground ml-2 text-sm">
                     Loading files...
                   </span>
                 </div>
@@ -248,30 +248,30 @@ export function WorkshopProposalCard({
                     <div
                       key={file.id}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg border border-border/30 p-3",
-                        "bg-gradient-to-br from-muted/20 to-muted/5",
+                        "border-border/30 flex items-center gap-3 rounded-lg border p-3",
+                        "from-muted/20 to-muted/5 bg-gradient-to-br",
                       )}
                     >
                       <div
                         className={cn(
                           "flex size-10 items-center justify-center rounded-lg",
-                          "bg-gradient-to-br from-chart-3/10 to-primary/10",
+                          "from-chart-3/10 to-primary/10 bg-gradient-to-br",
                         )}
                       >
-                        <IconFileText className="size-5 text-chart-3" />
+                        <IconFileText className="text-chart-3 size-5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-foreground">
+                        <p className="text-foreground truncate text-sm font-medium">
                           {file.fileName}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {(file.fileSize / 1024 / 1024).toFixed(2)} MB ·{" "}
                           {file.contentType}
                         </p>
                         {file.purpose && (
                           <Badge
                             variant="outline"
-                            className="mt-1 border-border/50 text-xs"
+                            className="border-border/50 mt-1 text-xs"
                           >
                             {file.purpose}
                           </Badge>
@@ -282,7 +282,7 @@ export function WorkshopProposalCard({
                         size="sm"
                         onClick={() => handleDownload(file.id, file.fileName)}
                         disabled={downloadingFileId === file.id}
-                        className="gap-1.5 border-border/50 hover:border-chart-3/50 hover:bg-chart-3/5"
+                        className="border-border/50 hover:border-chart-3/50 hover:bg-chart-3/5 gap-1.5"
                       >
                         {downloadingFileId === file.id ? (
                           <IconLoader2 className="size-4 animate-spin" />
@@ -295,7 +295,7 @@ export function WorkshopProposalCard({
                   ))}
                 </div>
               ) : (
-                <p className="py-2 text-center text-sm text-muted-foreground">
+                <p className="text-muted-foreground py-2 text-center text-sm">
                   No files attached to this proposal.
                 </p>
               )}
@@ -303,17 +303,17 @@ export function WorkshopProposalCard({
           </Collapsible>
 
           {/* Actions */}
-          <div className="flex flex-wrap items-center gap-2 border-t border-border/30 pt-4">
+          <div className="border-border/30 flex flex-wrap items-center gap-2 border-t pt-4">
             {hasDecision ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
                 {status === "accepted" ? (
                   <>
-                    <IconCircleCheck className="size-4 text-primary" />
+                    <IconCircleCheck className="text-primary size-4" />
                     <span>
                       This workshop has been{" "}
                       <strong className="text-primary">accepted</strong>
                       {proposal.respondedAt && (
-                        <span className="ml-1 text-muted-foreground/60">
+                        <span className="text-muted-foreground/60 ml-1">
                           on{" "}
                           {new Date(proposal.respondedAt).toLocaleDateString()}
                         </span>
@@ -322,12 +322,12 @@ export function WorkshopProposalCard({
                   </>
                 ) : (
                   <>
-                    <IconCircleX className="size-4 text-destructive" />
+                    <IconCircleX className="text-destructive size-4" />
                     <span>
                       This workshop has been{" "}
                       <strong className="text-destructive">rejected</strong>
                       {proposal.respondedAt && (
-                        <span className="ml-1 text-muted-foreground/60">
+                        <span className="text-muted-foreground/60 ml-1">
                           on{" "}
                           {new Date(proposal.respondedAt).toLocaleDateString()}
                         </span>
@@ -357,7 +357,7 @@ export function WorkshopProposalCard({
                   variant="outline"
                   disabled={isUpdating}
                   onClick={() => setIsRejectModalOpen(true)}
-                  className="gap-1.5 border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                  className="border-destructive/30 hover:bg-destructive/10 hover:text-destructive gap-1.5"
                 >
                   {isRejecting ? (
                     <IconLoader2 className="size-4 animate-spin" />

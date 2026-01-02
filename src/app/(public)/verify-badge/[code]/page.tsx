@@ -1,7 +1,13 @@
 "use client";
 
 import { use } from "react";
-import { CheckCircle, XCircle, AlertCircle, Loader2, BadgeCheck } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Loader2,
+  BadgeCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
@@ -112,7 +118,8 @@ export default function VerifyBadgePage({ params }: PageProps) {
               Verification Error
             </h1>
             <p className="text-muted-foreground">
-              An error occurred while verifying this badge. Please try again later.
+              An error occurred while verifying this badge. Please try again
+              later.
             </p>
           </div>
           <Button asChild>
@@ -142,7 +149,8 @@ export default function VerifyBadgePage({ params }: PageProps) {
               <span className="font-mono font-semibold">{code}</span>
             </p>
             <p className="text-muted-foreground text-sm">
-              Please check the code and try again, or contact the event organizer.
+              Please check the code and try again, or contact the event
+              organizer.
             </p>
           </div>
           <Button asChild>
@@ -262,7 +270,9 @@ export default function VerifyBadgePage({ params }: PageProps) {
 
                 {/* Verification Code */}
                 <div className="mt-3 text-center">
-                  <p className="text-muted-foreground text-sm">Verification Code</p>
+                  <p className="text-muted-foreground text-sm">
+                    Verification Code
+                  </p>
                   <p className="text-primary font-mono font-semibold">{code}</p>
                 </div>
               </div>

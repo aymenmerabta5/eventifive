@@ -1,7 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getStatusStyles } from "../../EventManagement/utils";
+import { getStatusStyles } from "../../AdminEventManagement/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +40,6 @@ interface EventTableRowProps extends EventActionHandlers {
   event: AdminEvent;
 }
 
-
 export function EventTableRow({
   event,
   onUpdate,
@@ -61,7 +60,7 @@ export function EventTableRow({
       className={cn(
         "group border-border/50",
         "transition-colors duration-200",
-        "hover:bg-secondary/30"
+        "hover:bg-secondary/30",
       )}
     >
       <TableCell>
@@ -69,13 +68,13 @@ export function EventTableRow({
           <div
             className={cn(
               "flex size-9 shrink-0 items-center justify-center rounded-lg",
-              "bg-gradient-to-br from-primary/10 to-chart-2/10",
-              "text-xs font-bold text-primary"
+              "from-primary/10 to-chart-2/10 bg-gradient-to-br",
+              "text-primary text-xs font-bold",
             )}
           >
             {event.title.charAt(0).toUpperCase()}
           </div>
-          <div className="font-medium text-foreground">{event.title}</div>
+          <div className="text-foreground font-medium">{event.title}</div>
         </div>
       </TableCell>
 
@@ -90,17 +89,17 @@ export function EventTableRow({
 
       <TableCell>
         <div className="space-y-0.5">
-          <div className="text-sm font-medium text-foreground">
+          <div className="text-foreground text-sm font-medium">
             {formatSchedule(event.startDate, event.endDate)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Created {formatDate(event.createdAt)}
           </p>
         </div>
       </TableCell>
 
       <TableCell>
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
           <IconMapPin className="size-3.5" />
           <span>{event.location || "TBA"}</span>
         </div>
@@ -120,14 +119,14 @@ export function EventTableRow({
               size="icon"
               className={cn(
                 "size-8 opacity-0 transition-opacity group-hover:opacity-100",
-                "hover:bg-secondary"
+                "hover:bg-secondary",
               )}
             >
               <IconDotsVertical className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
+            <DropdownMenuLabel className="text-muted-foreground text-xs">
               Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -138,7 +137,7 @@ export function EventTableRow({
                 onClick={() => onPublish(event)}
                 className="gap-2"
               >
-                <IconSend className="size-4 text-primary" />
+                <IconSend className="text-primary size-4" />
                 <span>Publish</span>
               </DropdownMenuItem>
             )}
@@ -186,17 +185,17 @@ export function EventTableRow({
             {canCancel(event) && onCancel && (
               <DropdownMenuItem
                 onClick={() => onCancel(event)}
-                className="gap-2 text-destructive focus:text-destructive"
+                className="text-destructive focus:text-destructive gap-2"
               >
-                <IconCircleX className="size-4" />
+                <IconCircleX className="text-destructive size-4" />
                 <span>Cancel Event</span>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
               onClick={() => onDelete(event)}
-              className="gap-2 text-destructive focus:text-destructive"
+              className="text-destructive focus:text-destructive gap-2"
             >
-              <IconTrash className="size-4" />
+              <IconTrash className="text-destructive size-4" />
               <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

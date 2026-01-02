@@ -2,7 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { IconAlertTriangle, IconLoader2, IconRefresh } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconLoader2,
+  IconRefresh,
+} from "@tabler/icons-react";
 
 interface ErrorStateProps {
   error: Error | null;
@@ -19,8 +23,8 @@ export function ErrorState({ error, onRetry, isRetrying }: ErrorStateProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-destructive/30",
-        "bg-gradient-to-br from-card via-card to-destructive/5"
+        "border-destructive/30 relative overflow-hidden rounded-3xl border",
+        "from-card via-card to-destructive/5 bg-gradient-to-br",
       )}
     >
       {/* Pattern overlay */}
@@ -33,22 +37,22 @@ export function ErrorState({ error, onRetry, isRetrying }: ErrorStateProps) {
       />
 
       {/* Decorative glow */}
-      <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-destructive/10 blur-3xl" />
+      <div className="bg-destructive/10 pointer-events-none absolute -top-12 -right-12 size-48 rounded-full blur-3xl" />
 
       <div className="relative flex flex-col items-center justify-center py-16">
         <div
           className={cn(
             "mb-4 flex size-16 items-center justify-center rounded-2xl",
-            "bg-destructive/10"
+            "bg-destructive/10",
           )}
         >
-          <IconAlertTriangle className="size-8 text-destructive" />
+          <IconAlertTriangle className="text-destructive size-8" />
         </div>
 
-        <h3 className="font-display text-lg font-semibold text-destructive">
+        <h3 className="font-display text-destructive text-lg font-semibold">
           Failed to load registrations
         </h3>
-        <p className="mb-6 mt-1 max-w-sm text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 mb-6 max-w-sm text-center text-sm">
           {message}
         </p>
 
@@ -57,8 +61,8 @@ export function ErrorState({ error, onRetry, isRetrying }: ErrorStateProps) {
           onClick={onRetry}
           disabled={isRetrying}
           className={cn(
-            "gap-2 border-destructive/30",
-            "hover:bg-destructive/10 hover:text-destructive"
+            "border-destructive/30 gap-2",
+            "hover:bg-destructive/10 hover:text-destructive",
           )}
         >
           {isRetrying ? (

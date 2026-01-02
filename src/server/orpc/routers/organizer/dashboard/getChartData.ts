@@ -3,11 +3,7 @@ import {
   chartDataInputSchema,
   chartDataOutputSchema,
 } from "@/lib/schemas/dashboard";
-import {
-  cache,
-  CACHE_TTL,
-  getDashboardChartKey,
-} from "@/server/cache";
+import { cache, CACHE_TTL, getDashboardChartKey } from "@/server/cache";
 import { getTimeSeriesData } from "./queries";
 import type { ChartDataOutput } from "@/lib/schemas/dashboard";
 

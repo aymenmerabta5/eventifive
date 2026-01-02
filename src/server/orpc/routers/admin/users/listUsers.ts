@@ -7,11 +7,11 @@ import { eq, count } from "drizzle-orm";
 
 /**
  * Output schema for the listUsers endpoint
- * 
+ *
  * This defines the shape of data returned to the frontend.
  * Each user includes their basic information plus their role,
  * which is joined from the userRoles and roles tables.
- * 
+ *
  * The role field uses the same enum values as the database schema
  * to ensure type safety across the entire application.
  */
@@ -37,17 +37,17 @@ const outputSchema = z.object({
 
 /**
  * Admin endpoint to list all users with their roles
- * 
+ *
  * This endpoint:
  * 1. Requires super_admin authentication (via adminProcedure)
  * 2. Fetches all users from the database
  * 3. Joins with userRoles and roles tables to get each user's role
  * 4. Returns users array with total count
- * 
+ *
  * The query uses a LEFT JOIN on userRoles because not all users
  * may have a role assigned (though they should default to "user").
  * If no role is found, we default to "user" role.
- * 
+ *
  * This follows the same pattern as other list endpoints in the codebase,
  * ensuring consistency in API design and error handling.
  */
@@ -57,9 +57,7 @@ export const listUsersRouter = adminProcedure
   .handler(async () => {
     try {
       // Get total count first (more efficient)
-      const [totalResult] = await db
-        .select({ total: count() })
-        .from(user);
+      const [totalResult] = await db.select({ total: count() }).from(user);
 
       // Fetch all users with their roles
       // We use a LEFT JOIN because some users might not have a role assigned
@@ -117,4 +115,3 @@ export const listUsersRouter = adminProcedure
       });
     }
   });
-

@@ -93,9 +93,9 @@ function StatusCard({
             <div className={styles.icon}>{icon}</div>
           </div>
           <div>
-            <div className="font-medium text-foreground">{title}</div>
+            <div className="text-foreground font-medium">{title}</div>
             {description && (
-              <div className="text-xs text-muted-foreground">{description}</div>
+              <div className="text-muted-foreground text-xs">{description}</div>
             )}
           </div>
         </div>
@@ -122,8 +122,8 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="text-muted-foreground flex items-center gap-2">
+          <div className="border-primary size-4 animate-spin rounded-full border-2 border-t-transparent" />
           <span>Loading review data...</span>
         </div>
       </div>
@@ -211,8 +211,8 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
             )}
           >
             {/* Decorative background elements */}
-            <div className="pointer-events-none absolute -right-8 -top-8 size-32 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-8 -left-8 size-32 rounded-full bg-gradient-to-tr from-primary/10 to-transparent blur-2xl" />
+            <div className="from-primary/10 pointer-events-none absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br to-transparent blur-2xl" />
+            <div className="from-primary/10 pointer-events-none absolute -bottom-8 -left-8 size-32 rounded-full bg-gradient-to-tr to-transparent blur-2xl" />
 
             <div className="relative flex flex-col items-center justify-center gap-4 text-center sm:flex-row sm:text-left">
               <motion.div
@@ -312,8 +312,8 @@ export function ReviewStep({ invitesData, isLoading }: ReviewStepProps) {
           </motion.div>
 
           {/* Checklist */}
-          <div className="space-y-2 rounded-xl bg-muted/30 p-4 ring-1 ring-border/50">
-            <h4 className="text-sm font-medium text-foreground">
+          <div className="bg-muted/30 ring-border/50 space-y-2 rounded-xl p-4 ring-1">
+            <h4 className="text-foreground text-sm font-medium">
               Requirements Checklist
             </h4>
             <div className="space-y-2">
@@ -351,7 +351,7 @@ function ChecklistItem({
           "flex size-5 items-center justify-center rounded-full transition-colors",
           checked
             ? "bg-emerald-500 text-white"
-            : "border-2 border-border bg-background",
+            : "border-border bg-background border-2",
         )}
       >
         {checked && <CheckCircle2 className="size-3" />}

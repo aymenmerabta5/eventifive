@@ -335,12 +335,14 @@ export const inviteCommunicatorRouter = protectedProcedure
     });
 
     // Issue communicator badge (fire and forget)
-    issueBadgeForRole(input.eventId, foundUser.id, "communicator").catch((error) => {
-      console.error(
-        `Failed to issue communicator badge for user ${foundUser.id}:`,
-        error,
-      );
-    });
+    issueBadgeForRole(input.eventId, foundUser.id, "communicator").catch(
+      (error) => {
+        console.error(
+          `Failed to issue communicator badge for user ${foundUser.id}:`,
+          error,
+        );
+      },
+    );
 
     return { ok: true as const };
   });
@@ -491,7 +493,10 @@ export const acceptReviewerRouter = protectedProcedure
 
     // Issue reviewer badge (fire and forget, after transaction)
     issueBadgeForRole(input.eventId, userId, "reviewer").catch((error) => {
-      console.error(`Failed to issue reviewer badge for user ${userId}:`, error);
+      console.error(
+        `Failed to issue reviewer badge for user ${userId}:`,
+        error,
+      );
     });
 
     return { ok: true as const };
@@ -620,7 +625,9 @@ export const removeCommunicatorRouter = protectedProcedure
       });
     }
 
-    await db.delete(eventCommunicator).where(eq(eventCommunicator.id, found.id));
+    await db
+      .delete(eventCommunicator)
+      .where(eq(eventCommunicator.id, found.id));
 
     return { ok: true as const };
   });

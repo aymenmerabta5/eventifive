@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -159,6 +161,15 @@ export function SessionDialog({
     );
     return dateOnly < startOnly || dateOnly > endOnly;
   };
+
+  // Group chair options by role
+  const groupedChairOptions = useMemo(() => {
+    const speakers = chairOptions.filter((c) => c.role === "speaker");
+    const communicators = chairOptions.filter((c) => c.role === "communicator");
+    const facilitators = chairOptions.filter((c) => c.role === "facilitator");
+    const others = chairOptions.filter((c) => !c.role);
+    return { speakers, communicators, facilitators, others };
+  }, [chairOptions]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -304,17 +315,52 @@ export function SessionDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No chair</SelectItem>
-                  {chairOptions.map((chair) => (
-                    <SelectItem key={chair.id} value={chair.id}>
-                      {chair.name} ({chair.email})
-                    </SelectItem>
-                  ))}
+                  {groupedChairOptions.speakers.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Speakers</SelectLabel>
+                      {groupedChairOptions.speakers.map((chair) => (
+                        <SelectItem key={chair.id} value={chair.id}>
+                          {chair.name} ({chair.email})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {groupedChairOptions.communicators.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Communicators</SelectLabel>
+                      {groupedChairOptions.communicators.map((chair) => (
+                        <SelectItem key={chair.id} value={chair.id}>
+                          {chair.name} ({chair.email})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {groupedChairOptions.facilitators.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Workshop Facilitators</SelectLabel>
+                      {groupedChairOptions.facilitators.map((chair) => (
+                        <SelectItem key={chair.id} value={chair.id}>
+                          {chair.name} ({chair.email})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {groupedChairOptions.others.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Others</SelectLabel>
+                      {groupedChairOptions.others.map((chair) => (
+                        <SelectItem key={chair.id} value={chair.id}>
+                          {chair.name} ({chair.email})
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
                 </SelectContent>
               </Select>
               {chairOptions.length === 0 && (
                 <p className="text-muted-foreground text-xs">
-                  Invite speakers or communicators first to assign them as
-                  chair.
+                  Add speakers, approved communicators, or workshop facilitators
+                  first to assign them as chair.
                 </p>
               )}
             </div>

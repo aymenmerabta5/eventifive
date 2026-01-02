@@ -35,7 +35,10 @@ export const eventCommunicator = pgTable(
     assignedAt: timestamp("assigned_at").notNull().defaultNow(),
   },
   (table) => [
-    unique("event_communicator_event_user_unique").on(table.eventId, table.userId),
+    unique("event_communicator_event_user_unique").on(
+      table.eventId,
+      table.userId,
+    ),
     index("event_communicator_event_id_idx").on(table.eventId),
   ],
 );

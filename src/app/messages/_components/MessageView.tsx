@@ -4,13 +4,13 @@ import { useRef, useEffect, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeft,
-  Phone,
-  Video,
-  MoreVertical,
-  Loader2,
-  UserRound,
-} from "lucide-react";
+  IconArrowLeft,
+  IconPhone,
+  IconVideo,
+  IconDotsVertical,
+  IconLoader2,
+  IconUser,
+} from "@tabler/icons-react";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
 import { OnlineIndicator } from "./OnlineIndicator";
@@ -87,7 +87,7 @@ export function MessageView({
     if (!otherUserReadReceipt?.lastReadMessageId) return -1;
 
     return messages.findIndex(
-      (m) => m.id === otherUserReadReceipt.lastReadMessageId
+      (m) => m.id === otherUserReadReceipt.lastReadMessageId,
     );
   }, [messages, otherUserReadReceipt?.lastReadMessageId]);
 
@@ -151,22 +151,22 @@ export function MessageView({
   return (
     <div className="bg-background flex h-full w-full flex-col">
       {/* Header */}
-      <div className="border-border bg-card flex items-center gap-3 border-b px-4 py-3">
+      <div className="border-border/50 bg-card/50 flex items-center gap-3 border-b px-4 py-3 backdrop-blur-sm">
         <Button
           variant="ghost"
           size="icon"
           onClick={onBack}
-          className="text-muted-foreground md:hidden"
+          className="text-muted-foreground size-9 rounded-full md:hidden"
         >
-          <ArrowLeft className="size-5" />
+          <IconArrowLeft className="size-5" />
         </Button>
 
         <div className="relative">
-          <Avatar className="size-10">
+          <Avatar className="ring-offset-background ring-primary/20 size-11 ring-2 ring-offset-2">
             {otherUser.image && (
               <AvatarImage src={otherUser.image} alt={otherUser.name} />
             )}
-            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+            <AvatarFallback className="from-primary to-primary/80 text-primary-foreground bg-gradient-to-br text-sm font-medium">
               {getInitials(otherUser.name)}
             </AvatarFallback>
           </Avatar>
@@ -177,50 +177,55 @@ export function MessageView({
           <h2 className="text-foreground truncate font-semibold">
             {otherUser.name}
           </h2>
-          <p className="text-muted-foreground text-xs">
-            {isOnline
-              ? "Online"
-              : lastSeenAt
-                ? `Last seen ${formatRelativeTime(lastSeenAt)}`
-                : "Offline"}
+          <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
+            {isOnline ? (
+              <>
+                <span className="size-1.5 rounded-full bg-green-500" />
+                Online
+              </>
+            ) : lastSeenAt ? (
+              `Last seen ${formatRelativeTime(lastSeenAt)}`
+            ) : (
+              "Offline"
+            )}
           </p>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="border-border/40 bg-card/80 flex items-center gap-1 rounded-full border p-1">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             asChild
-            className="hidden sm:inline-flex"
+            className="text-muted-foreground hover:bg-primary/10 hover:text-primary hidden h-8 gap-2 rounded-full px-3 sm:inline-flex"
           >
             <Link
               href={`/users/${otherUser.id}` as Route}
               aria-label="View profile"
             >
-              <UserRound className="mr-2 size-4" />
-              View profile
+              <IconUser className="size-4" />
+              Profile
             </Link>
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:bg-primary/10 hover:text-primary size-8 rounded-full"
           >
-            <Phone className="size-5" />
+            <IconPhone className="size-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:bg-primary/10 hover:text-primary size-8 rounded-full"
           >
-            <Video className="size-5" />
+            <IconVideo className="size-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:bg-primary/10 hover:text-primary size-8 rounded-full"
           >
-            <MoreVertical className="size-5" />
+            <IconDotsVertical className="size-4" />
           </Button>
         </div>
       </div>
@@ -235,26 +240,34 @@ export function MessageView({
           {/* Load more indicator */}
           {isFetchingNextPage && (
             <div className="flex justify-center py-2">
-              <Loader2 className="text-muted-foreground size-5 animate-spin" />
+              <IconLoader2 className="text-muted-foreground size-5 animate-spin" />
             </div>
           )}
 
           {isLoadingMessages ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="text-muted-foreground size-6 animate-spin" />
+            <div className="flex flex-col items-center justify-center py-12">
+              <IconLoader2 className="text-primary size-8 animate-spin" />
+              <p className="text-muted-foreground mt-3 text-sm">
+                Loading messages...
+              </p>
             </div>
           ) : messages.length === 0 ? (
-            <div className="text-muted-foreground flex flex-col items-center justify-center py-8">
-              <p className="text-sm">No messages yet</p>
-              <p className="mt-1 text-xs">
-                Send a message to start the conversation
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="bg-primary/10 mb-4 flex size-16 items-center justify-center rounded-2xl">
+                <IconUser className="text-primary size-8" />
+              </div>
+              <p className="text-foreground font-medium">
+                Start the conversation
+              </p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Send a message to {otherUser.name}
               </p>
             </div>
           ) : (
             Object.entries(groupedMessages).map(([date, dateMessages]) => (
               <div key={date}>
                 <div className="mb-4 flex items-center justify-center">
-                  <div className="bg-muted rounded-full px-3 py-1">
+                  <div className="border-border/50 bg-card/80 rounded-full border px-3 py-1.5 backdrop-blur-sm">
                     <span className="text-muted-foreground text-xs font-medium">
                       {formatDateHeader(date)}
                     </span>
@@ -275,7 +288,7 @@ export function MessageView({
                     // 1. It was sent by the current user (isMe)
                     // 2. Its index in the messages array is <= lastReadMessageIndex
                     const messageIndex = messages.findIndex(
-                      (m) => m.id === message.id
+                      (m) => m.id === message.id,
                     );
                     const isRead =
                       message.senderId === currentUser.id &&
@@ -303,7 +316,7 @@ export function MessageView({
 
       {/* Typing Indicator */}
       {isOtherUserTyping && (
-        <div className="border-border border-t px-4 py-2">
+        <div className="border-border/50 border-t px-4 py-2">
           <div className="mx-auto max-w-3xl">
             <TypingIndicator names={[conversation.otherUser.name]} />
           </div>

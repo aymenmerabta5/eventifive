@@ -28,10 +28,15 @@ export const adminListEventsRouter = adminProcedure
   .output(outputSchema)
   .handler(async () => {
     try {
-      const events = await db.select().from(event).orderBy(desc(event.createdAt));
+      const events = await db
+        .select()
+        .from(event)
+        .orderBy(desc(event.createdAt));
       return { events };
     } catch (error) {
       console.error("Failed to list events for admin:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to list events" });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Failed to list events",
+      });
     }
   });

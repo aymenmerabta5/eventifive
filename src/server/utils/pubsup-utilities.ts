@@ -12,7 +12,8 @@ import { env } from "@/env";
  */
 function hashChannel(type: string, id: string): string {
   // Use BETTER_AUTH_SECRET for HMAC, fallback to a dev secret in development
-  const secret = env.BETTER_AUTH_SECRET ?? "dev-secret-do-not-use-in-production";
+  const secret =
+    env.BETTER_AUTH_SECRET ?? "dev-secret-do-not-use-in-production";
   const hmac = createHmac("sha256", secret);
   hmac.update(`${type}:${id}`);
   return hmac.digest("hex").substring(0, 16);

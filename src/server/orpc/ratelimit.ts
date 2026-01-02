@@ -20,7 +20,7 @@ import type { Context } from "./context";
 function createRedisLimiter(
   prefix: string,
   maxRequests: number,
-  windowMs: number = 60000
+  windowMs: number = 60000,
 ): RedisRatelimiter {
   return new RedisRatelimiter({
     eval: async (script, numKeys, ...rest) => {
@@ -142,10 +142,12 @@ export const qaRateLimitMiddleware = createRatelimitMiddleware<Context>({
  * Poll voting rate limit middleware
  * Applied to: vote
  */
-export const pollVotingRateLimitMiddleware = createRatelimitMiddleware<Context>({
-  limiter: () => pollVotingLimiter,
-  key: ({ context }) => getUserKey(context),
-});
+export const pollVotingRateLimitMiddleware = createRatelimitMiddleware<Context>(
+  {
+    limiter: () => pollVotingLimiter,
+    key: ({ context }) => getUserKey(context),
+  },
+);
 
 /**
  * Poll creation rate limit middleware

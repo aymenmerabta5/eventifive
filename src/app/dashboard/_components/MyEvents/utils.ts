@@ -7,7 +7,9 @@ export { formatDate, formatDateTime, formatSchedule } from "@/lib/date";
  * Get the display status for an event.
  * Database status takes precedence, then date-based status for published events.
  */
-export const getEventDisplayStatus = (event: AdminEvent): EventDisplayStatus => {
+export const getEventDisplayStatus = (
+  event: AdminEvent,
+): EventDisplayStatus => {
   // Database status takes precedence
   if (event.status === "draft") return "Draft";
   if (event.status === "cancelled") return "Cancelled";
@@ -27,7 +29,7 @@ export const getEventDisplayStatus = (event: AdminEvent): EventDisplayStatus => 
  * Get badge variant for event status
  */
 export const getStatusBadgeVariant = (
-  status: EventDisplayStatus
+  status: EventDisplayStatus,
 ): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
     case "Draft":

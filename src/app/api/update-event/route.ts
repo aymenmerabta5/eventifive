@@ -142,10 +142,7 @@ export async function POST(req: NextRequest) {
 
     // Check if updating dates for published events
     const newEndDateStr = formData.get("endDate") as string;
-    if (
-      eventData.status === "published" &&
-      newEndDateStr
-    ) {
+    if (eventData.status === "published" && newEndDateStr) {
       const newEndDate = new Date(newEndDateStr);
       const now = new Date();
       if (newEndDate < now) {

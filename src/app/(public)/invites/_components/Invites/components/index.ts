@@ -9,6 +9,9 @@ export { SpeakerSection } from "./SpeakerSection";
 export { ReviewerSection } from "./ReviewerSection";
 
 // Card components
-export { CommunicatorMembershipCard, CommitteeMembershipCard } from "./CommunicatorMembershipCard";
+export {
+  CommunicatorMembershipCard,
+  CommitteeMembershipCard,
+} from "./CommunicatorMembershipCard";
 export { SpeakerInviteCard } from "./SpeakerInviteCard";
 export { ReviewerInviteCard } from "./ReviewerInviteCard";

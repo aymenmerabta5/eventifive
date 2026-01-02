@@ -36,17 +36,20 @@ function ParticipationCard({
     primary: {
       icon: "from-primary/20 to-chart-2/20 text-primary",
       border: "hover:border-primary/30",
-      button: "from-primary to-chart-2 hover:from-primary/90 hover:to-chart-2/90",
+      button:
+        "from-primary to-chart-2 hover:from-primary/90 hover:to-chart-2/90",
     },
     "chart-2": {
       icon: "from-chart-2/20 to-chart-3/20 text-chart-2",
       border: "hover:border-chart-2/30",
-      button: "from-chart-2 to-chart-3 hover:from-chart-2/90 hover:to-chart-3/90",
+      button:
+        "from-chart-2 to-chart-3 hover:from-chart-2/90 hover:to-chart-3/90",
     },
     "chart-3": {
       icon: "from-chart-3/20 to-chart-4/20 text-chart-3",
       border: "hover:border-chart-3/30",
-      button: "from-chart-3 to-chart-4 hover:from-chart-3/90 hover:to-chart-4/90",
+      button:
+        "from-chart-3 to-chart-4 hover:from-chart-3/90 hover:to-chart-4/90",
     },
   };
 
@@ -59,11 +62,11 @@ function ParticipationCard({
       transition={{ delay, duration: 0.5 }}
       className={cn(
         "group relative overflow-hidden rounded-3xl",
-        "border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
+        "border-border/50 border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
         "transition-all duration-300",
         colors.border,
-        "hover:shadow-lg hover:shadow-primary/5"
+        "hover:shadow-primary/5 hover:shadow-lg",
       )}
     >
       {/* Pattern overlay */}
@@ -78,12 +81,12 @@ function ParticipationCard({
       {/* Decorative gradient */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-20 -top-20 size-64 rounded-full blur-3xl",
+          "pointer-events-none absolute -top-20 -right-20 size-64 rounded-full blur-3xl",
           "bg-gradient-to-br opacity-0 transition-opacity duration-300",
           "group-hover:opacity-100",
           color === "primary" && "from-primary/10 to-chart-2/5",
           color === "chart-2" && "from-chart-2/10 to-chart-3/5",
-          color === "chart-3" && "from-chart-3/10 to-chart-4/5"
+          color === "chart-3" && "from-chart-3/10 to-chart-4/5",
         )}
       />
 
@@ -93,28 +96,24 @@ function ParticipationCard({
           className={cn(
             "mb-6 flex size-14 items-center justify-center rounded-2xl",
             "bg-gradient-to-br",
-            colors.icon
+            colors.icon,
           )}
         >
           {icon}
         </div>
 
         {/* Content */}
-        <h3 className="font-display text-xl font-bold text-foreground">
+        <h3 className="font-display text-foreground text-xl font-bold">
           {title}
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
           {description}
         </p>
 
         {/* CTA Button */}
         <Button
           asChild
-          className={cn(
-            "mt-6 w-full gap-2",
-            "bg-gradient-to-r",
-            colors.button
-          )}
+          className={cn("mt-6 w-full gap-2", "bg-gradient-to-r", colors.button)}
         >
           <Link href={href as Route}>
             {buttonLabel}
@@ -135,7 +134,7 @@ export default function ParticipationOptions() {
   return (
     <section className="relative">
       {/* Background decorative elements */}
-      <div className="pointer-events-none absolute left-1/2 top-0 size-96 -translate-x-1/2 rounded-full bg-gradient-to-br from-primary/5 via-chart-2/5 to-transparent blur-3xl" />
+      <div className="from-primary/5 via-chart-2/5 pointer-events-none absolute top-0 left-1/2 size-96 -translate-x-1/2 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
 
       <div className="relative">
         {/* Header */}
@@ -144,10 +143,10 @@ export default function ParticipationOptions() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5"
+            className="border-primary/20 bg-primary/5 mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5"
           >
-            <IconSparkles className="size-4 text-primary" />
-            <span className="text-sm font-medium text-primary">
+            <IconSparkles className="text-primary size-4" />
+            <span className="text-primary text-sm font-medium">
               Get Involved
             </span>
           </motion.div>
@@ -156,7 +155,7 @@ export default function ParticipationOptions() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+            className="font-display text-foreground text-3xl font-bold tracking-tight sm:text-4xl"
           >
             Join Us
           </motion.h2>
@@ -165,7 +164,7 @@ export default function ParticipationOptions() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mx-auto mt-3 max-w-xl text-muted-foreground"
+            className="text-muted-foreground mx-auto mt-3 max-w-xl"
           >
             We&apos;re looking for talented individuals to help make this event
             a success. Explore the opportunities below.

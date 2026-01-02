@@ -53,7 +53,7 @@ export function MyEvents() {
 
   return (
     <div className="space-y-6">
-      <EventsHeader onRefresh={handleRefresh} isRefetching={isRefetching} />
+      <EventsHeader />
 
       <EventStatsCards stats={stats} />
 

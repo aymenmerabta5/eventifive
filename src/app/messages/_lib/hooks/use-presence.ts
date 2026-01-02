@@ -79,9 +79,10 @@ export function usePresence({ userIds, enabled = true }: UsePresenceOptions) {
 
     const subscribe = async () => {
       try {
-        const subscription = await client.websocketsRouter.messages.subscribePresence({
-          userIds,
-        });
+        const subscription =
+          await client.websocketsRouter.messages.subscribePresence({
+            userIds,
+          });
 
         for await (const event of subscription) {
           if (signal.aborted) break;

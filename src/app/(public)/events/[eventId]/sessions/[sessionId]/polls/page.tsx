@@ -38,15 +38,13 @@ export default function SessionPollsPage() {
   });
 
   // Check registration status
-  const {
-    data: registrationStatus,
-    isLoading: isRegistrationLoading,
-  } = useQuery({
-    ...orpc.events.getRegistrationStatus.queryOptions({
-      input: { eventId },
-    }),
-    enabled: !!eventId && !!authSession,
-  });
+  const { data: registrationStatus, isLoading: isRegistrationLoading } =
+    useQuery({
+      ...orpc.events.getRegistrationStatus.queryOptions({
+        input: { eventId },
+      }),
+      enabled: !!eventId && !!authSession,
+    });
 
   // Loading states
   if (isAuthPending || isSessionLoading || isRegistrationLoading) {
@@ -59,7 +57,9 @@ export default function SessionPollsPage() {
 
   // Auth required
   if (!authSession) {
-    redirect(`/login?callbackUrl=/events/${eventId}/sessions/${sessionId}/polls`);
+    redirect(
+      `/login?callbackUrl=/events/${eventId}/sessions/${sessionId}/polls`,
+    );
   }
 
   // Session not found
@@ -87,7 +87,7 @@ export default function SessionPollsPage() {
       <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <Lock className="text-muted-foreground h-12 w-12" />
         <h1 className="text-xl font-semibold">Registration Required</h1>
-        <p className="text-muted-foreground text-center max-w-md">
+        <p className="text-muted-foreground max-w-md text-center">
           You need to register for this event to access the polls.
         </p>
         <Button asChild>
@@ -99,15 +99,9 @@ export default function SessionPollsPage() {
 
   return (
     <div className="container mx-auto max-w-2xl py-8">
-      <PollsHeader
-        session={session}
-        eventTitle={eventTitle}
-      />
+      <PollsHeader session={session} eventTitle={eventTitle} />
 
-      <PollList
-        sessionId={sessionId}
-        currentUserId={authSession.user.id}
-      />
+      <PollList sessionId={sessionId} currentUserId={authSession.user.id} />
     </div>
   );
 }

@@ -20,7 +20,7 @@ const pollResultsSchema = z.object({
       text: z.string(),
       voteCount: z.number(),
       percentage: z.number(),
-    })
+    }),
   ),
 });
 

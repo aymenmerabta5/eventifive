@@ -31,8 +31,8 @@ function PricingCardSkeleton() {
         <div
           key={i}
           className={cn(
-            "relative flex flex-col rounded-2xl border border-border/60 bg-card/50 p-6 backdrop-blur-sm",
-            i === 2 && "md:-mt-4 md:mb-4"
+            "border-border/60 bg-card/50 relative flex flex-col rounded-2xl border p-6 backdrop-blur-sm",
+            i === 2 && "md:-mt-4 md:mb-4",
           )}
         >
           <div className="space-y-4">
@@ -71,7 +71,7 @@ export default function PricingCard() {
   } = useQuery(
     orpc.subscription.listPlans.queryOptions({
       input: { includeInactive: false },
-    })
+    }),
   );
 
   // Create checkout mutation
@@ -93,7 +93,7 @@ export default function PricingCard() {
 
   const handleSubscribe = async (plan: PlanOutput) => {
     const price = plan.prices.find(
-      (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly")
+      (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly"),
     );
 
     if (!price) {
@@ -132,7 +132,7 @@ export default function PricingCard() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-12 text-center sm:px-6">
-        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8">
+        <div className="border-destructive/20 bg-destructive/5 rounded-2xl border p-8">
           <p className="text-destructive">
             Failed to load pricing plans. Please try again later.
           </p>
@@ -144,7 +144,7 @@ export default function PricingCard() {
   if (!plans || plans.length === 0) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-12 text-center sm:px-6">
-        <div className="rounded-2xl border border-border/60 bg-card/50 p-8">
+        <div className="border-border/60 bg-card/50 rounded-2xl border p-8">
           <p className="text-muted-foreground">
             No pricing plans available at the moment.
           </p>
@@ -160,9 +160,9 @@ export default function PricingCard() {
     <div className="mx-auto w-full max-w-6xl space-y-10 px-4 sm:px-6">
       {/* Billing toggle */}
       <div className="flex flex-col items-center gap-4">
-        <div className="relative inline-flex items-center rounded-full border border-border/60 bg-card/80 p-1.5 shadow-sm backdrop-blur-sm">
+        <div className="border-border/60 bg-card/80 relative inline-flex items-center rounded-full border p-1.5 shadow-sm backdrop-blur-sm">
           <motion.div
-            className="absolute h-[calc(100%-12px)] rounded-full bg-primary shadow-lg"
+            className="bg-primary absolute h-[calc(100%-12px)] rounded-full shadow-lg"
             initial={false}
             animate={{
               x: isYearly ? "calc(100% + 6px)" : "6px",
@@ -176,7 +176,7 @@ export default function PricingCard() {
               "relative z-10 rounded-full px-6 py-2.5 text-sm font-medium transition-colors",
               !isYearly
                 ? "text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             Monthly
@@ -187,7 +187,7 @@ export default function PricingCard() {
               "relative z-10 rounded-full px-6 py-2.5 text-sm font-medium transition-colors",
               isYearly
                 ? "text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             Yearly
@@ -203,12 +203,12 @@ export default function PricingCard() {
             className="flex items-center gap-2"
           >
             {isYearly && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-chart-4/10 px-3 py-1 text-xs font-medium text-chart-4">
+              <span className="bg-chart-4/10 text-chart-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium">
                 <IconSparkles className="size-3" />
                 Save up to 25%
               </span>
             )}
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               {isYearly ? "Billed annually" : "Billed monthly"}
             </span>
           </motion.div>
@@ -220,7 +220,7 @@ export default function PricingCard() {
         {sortedPlans.map((plan, index) => {
           const isPopular = index === popularIndex;
           const price = plan.prices.find(
-            (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly")
+            (p) => p.billingPeriod === (isYearly ? "yearly" : "monthly"),
           );
           const isButtonLoading = loadingPriceId === price?.id;
           const isAvailable = !!price?.chargilyPriceId;
@@ -231,22 +231,19 @@ export default function PricingCard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className={cn(
-                "group relative",
-                isPopular && "md:-mt-4 md:mb-4"
-              )}
+              className={cn("group relative", isPopular && "md:-mt-4 md:mb-4")}
             >
               <Card
                 className={cn(
                   "relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300",
                   isPopular
-                    ? "border-primary bg-gradient-to-b from-primary/5 to-background shadow-xl shadow-primary/10"
-                    : "border-border/60 bg-card/50 hover:border-primary/30 hover:shadow-lg"
+                    ? "border-primary from-primary/5 to-background shadow-primary/10 bg-gradient-to-b shadow-xl"
+                    : "border-border/60 bg-card/50 hover:border-primary/30 hover:shadow-lg",
                 )}
               >
                 {/* Popular badge */}
                 {isPopular && (
-                  <div className="absolute -right-12 top-6 rotate-45 bg-primary px-12 py-1.5 text-xs font-semibold text-primary-foreground shadow-md">
+                  <div className="bg-primary text-primary-foreground absolute top-6 -right-12 rotate-45 px-12 py-1.5 text-xs font-semibold shadow-md">
                     Popular
                   </div>
                 )}
@@ -254,16 +251,16 @@ export default function PricingCard() {
                 <CardHeader className="space-y-4 pb-4">
                   <div className="flex items-center gap-2">
                     {isPopular && (
-                      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-                        <IconCrown className="size-4 text-primary" />
+                      <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+                        <IconCrown className="text-primary size-4" />
                       </div>
                     )}
-                    <CardTitle className="text-xl font-bold text-foreground">
+                    <CardTitle className="text-foreground text-xl font-bold">
                       {plan.displayName}
                     </CardTitle>
                   </div>
 
-                  <p className="min-h-[48px] text-sm leading-relaxed text-muted-foreground">
+                  <p className="text-muted-foreground min-h-[48px] text-sm leading-relaxed">
                     {plan.description}
                   </p>
 
@@ -276,20 +273,20 @@ export default function PricingCard() {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className="text-4xl font-bold tracking-tight text-foreground"
+                          className="text-foreground text-4xl font-bold tracking-tight"
                         >
                           {price ? formatPrice(price.amount) : "N/A"}
                         </motion.span>
                       </AnimatePresence>
-                      <span className="text-lg font-medium text-muted-foreground">
+                      <span className="text-muted-foreground text-lg font-medium">
                         DA
                       </span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm">
                         /{isYearly ? "year" : "month"}
                       </span>
                     </div>
                     {isYearly && price && (
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="text-muted-foreground mt-1 text-xs">
                         ≈ {formatPrice(Math.round(price.amount / 12))} DA/month
                       </p>
                     )}
@@ -304,8 +301,8 @@ export default function PricingCard() {
                     className={cn(
                       "group/btn w-full rounded-full font-semibold transition-all duration-300",
                       isPopular
-                        ? "shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
-                        : "border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:dark:text-primary"
+                        ? "shadow-primary/20 hover:shadow-primary/30 shadow-lg hover:shadow-xl"
+                        : "hover:border-primary hover:bg-primary hover:text-primary-foreground hover:dark:text-primary border-2",
                     )}
                     onClick={() => handleSubscribe(plan)}
                     disabled={isButtonLoading || !isAvailable}
@@ -327,7 +324,7 @@ export default function PricingCard() {
 
                   {/* Features list */}
                   <div className="flex-1 space-y-3">
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                       What&apos;s included
                     </p>
                     {plan.features?.map((feature, featureIndex) => (
@@ -346,12 +343,12 @@ export default function PricingCard() {
                             "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full",
                             isPopular
                               ? "bg-primary/20 text-primary"
-                              : "bg-chart-4/10 text-chart-4"
+                              : "bg-chart-4/10 text-chart-4",
                           )}
                         >
                           <IconCheck className="size-3" strokeWidth={3} />
                         </div>
-                        <span className="flex-1 text-sm text-foreground/80">
+                        <span className="text-foreground/80 flex-1 text-sm">
                           {feature}
                         </span>
                       </motion.div>
@@ -361,7 +358,7 @@ export default function PricingCard() {
 
                 {/* Decorative gradient */}
                 {isPopular && (
-                  <div className="absolute -bottom-20 -left-20 size-40 rounded-full bg-primary/10 blur-3xl" />
+                  <div className="bg-primary/10 absolute -bottom-20 -left-20 size-40 rounded-full blur-3xl" />
                 )}
               </Card>
             </motion.div>

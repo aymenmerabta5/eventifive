@@ -23,8 +23,8 @@ export function RegistrationHeader({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-3xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
       )}
     >
       {/* Pattern overlay */}
@@ -37,11 +37,11 @@ export function RegistrationHeader({
       />
 
       {/* Decorative gradients */}
-      <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -left-20 size-48 rounded-full bg-gradient-to-tr from-chart-3/10 via-accent/5 to-transparent blur-3xl" />
+      <div className="from-primary/10 via-chart-2/5 pointer-events-none absolute -top-20 -right-20 size-64 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
+      <div className="from-chart-3/10 via-accent/5 pointer-events-none absolute -bottom-20 -left-20 size-48 rounded-full bg-gradient-to-tr to-transparent blur-3xl" />
 
       {/* Accent strip at top */}
-      <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-primary via-chart-2 to-chart-3" />
+      <div className="from-primary via-chart-2 to-chart-3 absolute top-0 right-0 left-0 h-1 bg-gradient-to-r" />
 
       <div className="relative p-6 sm:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -49,17 +49,17 @@ export function RegistrationHeader({
             <div
               className={cn(
                 "flex size-14 items-center justify-center rounded-2xl",
-                "bg-gradient-to-br from-primary/10 to-chart-2/10",
-                "ring-1 ring-border/50"
+                "from-primary/10 to-chart-2/10 bg-gradient-to-br",
+                "ring-border/50 ring-1",
               )}
             >
-              <IconUsers className="size-7 text-primary" />
+              <IconUsers className="text-primary size-7" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              <h1 className="font-display text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
                 Event Registrations
               </h1>
-              <p className="mt-1 text-muted-foreground">
+              <p className="text-muted-foreground mt-1">
                 Manage participants, communicator applications, and workshop
                 proposals.
               </p>
@@ -72,8 +72,8 @@ export function RegistrationHeader({
               onClick={onRefresh}
               disabled={isRefetching}
               className={cn(
-                "gap-2 border-border/50",
-                "hover:border-primary/50 hover:bg-primary/5"
+                "border-border/50 gap-2",
+                "hover:border-primary/50 hover:bg-primary/5",
               )}
             >
               {isRefetching ? (
@@ -87,8 +87,8 @@ export function RegistrationHeader({
               variant="outline"
               onClick={onBack}
               className={cn(
-                "gap-2 border-border/50",
-                "hover:border-chart-2/50 hover:bg-chart-2/5"
+                "border-border/50 gap-2",
+                "hover:border-chart-2/50 hover:bg-chart-2/5",
               )}
             >
               <IconArrowLeft className="size-4" />

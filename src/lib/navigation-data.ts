@@ -37,6 +37,13 @@ export const navigationData = {
       url: "/dashboard?view=my-events",
       icon: IconFolder,
     },
+  ],
+  adminNavItems: [
+    {
+      title: "Event Management",
+      url: "/dashboard?view=event-management",
+      icon: IconListDetails,
+    },
     {
       title: "Users",
       url: "/dashboard?view=users",
@@ -94,7 +101,7 @@ export const navigationData = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
     },
     {

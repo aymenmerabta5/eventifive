@@ -21,26 +21,26 @@ export function LoadingState({ eventType }: LoadingStateProps) {
         <div
           className={cn(
             "absolute inset-0 bg-gradient-to-br opacity-30",
-            config.bgGradient
+            config.bgGradient,
           )}
         />
         <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="flex flex-col items-center text-center">
             <Skeleton
               className={cn(
-                "mb-6 size-20 md:size-24 rounded-3xl opacity-50",
-                config.iconBg
+                "mb-6 size-20 rounded-3xl opacity-50 md:size-24",
+                config.iconBg,
               )}
             />
-            <Skeleton className="mb-4 h-16 w-64 sm:w-80 rounded-2xl" />
-            <Skeleton className="mb-8 h-6 w-80 sm:w-96 rounded-xl" />
+            <Skeleton className="mb-4 h-16 w-64 rounded-2xl sm:w-80" />
+            <Skeleton className="mb-8 h-6 w-80 rounded-xl sm:w-96" />
             <div className="flex gap-4">
               <Skeleton className="h-16 w-36 rounded-2xl" />
               <Skeleton className="h-16 w-36 rounded-2xl" />
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        <div className="from-background absolute right-0 bottom-0 left-0 h-32 bg-gradient-to-t to-transparent" />
       </div>
 
       {/* Content skeleton */}
@@ -54,9 +54,9 @@ export function LoadingState({ eventType }: LoadingStateProps) {
         {/* Cards skeleton */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="overflow-hidden rounded-3xl border bg-card">
+            <div key={i} className="bg-card overflow-hidden rounded-3xl border">
               <Skeleton className="aspect-[16/10] w-full" />
-              <div className="p-5 space-y-4">
+              <div className="space-y-4 p-5">
                 <div className="flex gap-4">
                   <Skeleton className="h-7 w-24 rounded-lg" />
                   <Skeleton className="h-7 w-32 rounded-lg" />

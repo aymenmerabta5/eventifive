@@ -2,7 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Paperclip, Smile, Send, Mic } from "lucide-react";
+import {
+  IconPaperclip,
+  IconMoodSmile,
+  IconSend,
+  IconMicrophone,
+} from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
 interface MessageInputProps {
@@ -54,19 +59,19 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-border bg-card border-t px-4 py-3">
+    <div className="border-border/50 bg-card/50 border-t px-4 py-3 backdrop-blur-sm">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-end gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-foreground mb-0.5 shrink-0"
+            className="text-muted-foreground hover:bg-primary/10 hover:text-primary mb-0.5 size-10 shrink-0 rounded-full transition-colors"
             disabled={disabled}
           >
-            <Paperclip className="size-5" />
+            <IconPaperclip className="size-5" />
           </Button>
 
-          <div className="bg-muted/50 focus-within:border-ring focus-within:ring-ring/50 flex flex-1 items-end gap-2 rounded-2xl border border-transparent px-4 py-2 transition-all focus-within:ring-[3px]">
+          <div className="border-border/50 bg-background focus-within:border-primary/30 focus-within:ring-primary/20 flex flex-1 items-end gap-2 rounded-2xl border px-4 py-2.5 transition-all focus-within:ring-2">
             <textarea
               ref={textareaRef}
               value={message}
@@ -86,10 +91,10 @@ export function MessageInput({
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground size-8 shrink-0"
+              className="text-muted-foreground hover:bg-primary/10 hover:text-primary size-8 shrink-0 rounded-full transition-colors"
               disabled={disabled}
             >
-              <Smile className="size-5" />
+              <IconMoodSmile className="size-5" />
             </Button>
           </div>
 
@@ -98,23 +103,21 @@ export function MessageInput({
               size="icon"
               onClick={handleSubmit}
               disabled={disabled}
-              className="bg-primary hover:bg-primary/90 mb-0.5 shrink-0 rounded-full"
+              className="bg-primary shadow-primary/25 hover:bg-primary/90 hover:shadow-primary/40 mb-0.5 size-10 shrink-0 rounded-full shadow-lg transition-all"
             >
-              <Send className="size-5" />
+              <IconSend className="size-5" />
             </Button>
           ) : (
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground mb-0.5 shrink-0"
+              className="text-muted-foreground hover:bg-primary/10 hover:text-primary mb-0.5 size-10 shrink-0 rounded-full transition-colors"
               disabled={disabled}
             >
-              <Mic className="size-5" />
+              <IconMicrophone className="size-5" />
             </Button>
           )}
         </div>
-
-        <div className="mt-1 h-4"></div>
       </div>
     </div>
   );

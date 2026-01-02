@@ -24,7 +24,7 @@ const outputSchema = z.object({
       text: z.string(),
       voteCount: z.number(),
       percentage: z.number(),
-    })
+    }),
   ),
 });
 
@@ -64,8 +64,8 @@ export const getResultsRouter = protectedProcedure
       .where(
         and(
           eq(sessionPollVote.pollId, pollId),
-          eq(sessionPollVote.userId, userId)
-        )
+          eq(sessionPollVote.userId, userId),
+        ),
       );
 
     return {

@@ -59,17 +59,17 @@ export function FileUploadArea({
       {/* Section header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-chart-4/20 to-chart-4/5 ring-1 ring-chart-4/10">
-            <Cloud className="h-5 w-5 text-chart-4" />
+          <div className="from-chart-4/20 to-chart-4/5 ring-chart-4/10 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ring-1">
+            <Cloud className="text-chart-4 h-5 w-5" />
           </div>
           <div>
             <Label className="flex items-center gap-2 text-base font-semibold">
               Supporting Documents
               {files.length > 0 && (
-                <CheckCircle2 className="h-4 w-4 text-green-500 animate-in zoom-in duration-200" />
+                <CheckCircle2 className="animate-in zoom-in h-4 w-4 text-green-500 duration-200" />
               )}
             </Label>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {isLoadingQuota ? (
                 <span className="flex items-center gap-1.5">
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -84,7 +84,7 @@ export function FileUploadArea({
 
         {/* File count badge */}
         {files.length > 0 && (
-          <div className="flex h-8 items-center gap-1.5 rounded-full bg-primary/10 px-3 text-sm font-medium text-primary">
+          <div className="bg-primary/10 text-primary flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium">
             <FileType className="h-3.5 w-3.5" />
             {files.length} file{files.length !== 1 && "s"}
           </div>
@@ -100,15 +100,15 @@ export function FileUploadArea({
           className={cn(
             "group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition-all duration-300",
             isDragOver
-              ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
-              : "border-border/60 hover:border-primary/40 hover:bg-muted/30"
+              ? "border-primary bg-primary/5 shadow-primary/5 shadow-lg"
+              : "border-border/60 hover:border-primary/40 hover:bg-muted/30",
           )}
         >
           {/* Animated background gradient on drag */}
           <div
             className={cn(
-              "absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-chart-2/5 opacity-0 transition-opacity duration-300",
-              isDragOver && "opacity-100"
+              "from-primary/5 to-chart-2/5 absolute inset-0 rounded-2xl bg-gradient-to-br via-transparent opacity-0 transition-opacity duration-300",
+              isDragOver && "opacity-100",
             )}
           />
 
@@ -118,7 +118,7 @@ export function FileUploadArea({
               "relative flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-300",
               isDragOver
                 ? "bg-primary/20 scale-110"
-                : "bg-muted group-hover:bg-primary/10"
+                : "bg-muted group-hover:bg-primary/10",
             )}
           >
             <FileUp
@@ -126,7 +126,7 @@ export function FileUploadArea({
                 "h-8 w-8 transition-all duration-300",
                 isDragOver
                   ? "text-primary scale-110"
-                  : "text-muted-foreground group-hover:text-primary"
+                  : "text-muted-foreground group-hover:text-primary",
               )}
             />
           </div>
@@ -140,9 +140,9 @@ export function FileUploadArea({
                 "Drag and drop your files"
               )}
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">
               or{" "}
-              <span className="font-medium text-primary cursor-pointer hover:underline">
+              <span className="text-primary cursor-pointer font-medium hover:underline">
                 browse
               </span>{" "}
               from your computer
@@ -165,12 +165,12 @@ export function FileUploadArea({
             {["PDF", "DOC", "DOCX"].map((format) => (
               <span
                 key={format}
-                className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                className="border-border/60 bg-card text-muted-foreground rounded-full border px-2.5 py-1 text-xs font-medium"
               >
                 .{format.toLowerCase()}
               </span>
             ))}
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               Up to 10MB each
             </span>
           </div>
@@ -178,17 +178,17 @@ export function FileUploadArea({
       ) : (
         <div className="space-y-3">
           {/* File list */}
-          <div className="divide-y divide-border/40 rounded-xl border border-border/60 bg-card/50">
+          <div className="divide-border/40 border-border/60 bg-card/50 divide-y rounded-xl border">
             {files.map((file, index) => (
               <div
                 key={`${file.name}-${file.size}-${index}`}
-                className="group flex items-center gap-4 p-4 transition-colors hover:bg-muted/30"
+                className="group hover:bg-muted/30 flex items-center gap-4 p-4 transition-colors"
               >
                 {/* File icon */}
                 <div
                   className={cn(
                     "flex h-12 w-12 items-center justify-center rounded-xl",
-                    getFileIcon(file.name)
+                    getFileIcon(file.name),
                   )}
                 >
                   <FileText className="h-6 w-6" />
@@ -197,7 +197,7 @@ export function FileUploadArea({
                 {/* File info */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{file.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {formatFileSize(file.size)}
                   </p>
                 </div>
@@ -207,7 +207,7 @@ export function FileUploadArea({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                  className="hover:bg-destructive/10 hover:text-destructive h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={() => onRemoveFile(index)}
                 >
                   <X className="h-4 w-4" />
@@ -219,7 +219,7 @@ export function FileUploadArea({
           {/* Add more files */}
           {canAddMoreFiles && (
             <div className="relative">
-              <div className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary">
+              <div className="border-border/60 bg-muted/20 text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary flex items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-sm transition-colors">
                 <FileUp className="h-4 w-4" />
                 <span>Add more files (up to {MAX_FILES} total)</span>
               </div>

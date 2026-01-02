@@ -10,9 +10,11 @@ export function useConversations() {
   return useQuery({
     queryKey: CONVERSATIONS_QUERY_KEY,
     queryFn: async () => {
-      const response = await client.websocketsRouter.messages.listConversations({
-        limit: 50,
-      });
+      const response = await client.websocketsRouter.messages.listConversations(
+        {
+          limit: 50,
+        },
+      );
       return response.conversations as Conversation[];
     },
     staleTime: 1000 * 60, // 1 minute

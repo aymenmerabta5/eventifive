@@ -208,9 +208,14 @@ async function main() {
 
   // Handle create + simulate for user + event
   if (args.userId && args.eventId) {
-    console.log(`\n${colors.blue}Creating test registration payment...${colors.reset}\n`);
+    console.log(
+      `\n${colors.blue}Creating test registration payment...${colors.reset}\n`,
+    );
 
-    const createResult = await createTestRegistrationPayment(args.userId, args.eventId);
+    const createResult = await createTestRegistrationPayment(
+      args.userId,
+      args.eventId,
+    );
 
     if (!createResult.success) {
       console.error(`${colors.red}✗${colors.reset} ${createResult.message}\n`);
@@ -218,7 +223,9 @@ async function main() {
     }
 
     if (args.create) {
-      console.log(`\n${colors.green}Done!${colors.reset} Use --payment-id ${createResult.paymentId} to simulate webhook.\n`);
+      console.log(
+        `\n${colors.green}Done!${colors.reset} Use --payment-id ${createResult.paymentId} to simulate webhook.\n`,
+      );
       process.exit(0);
     }
 
@@ -226,15 +233,21 @@ async function main() {
     console.log(`\n${colors.blue}Simulating webhook...${colors.reset}\n`);
     const payment = await getPaymentById(createResult.paymentId!);
     if (!payment) {
-      console.error(`${colors.red}✗${colors.reset} Payment not found after creation\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} Payment not found after creation\n`,
+      );
       process.exit(1);
     }
 
     const result = await simulateWebhook(payment, args.type, args.baseUrl);
     if (result.success) {
-      console.log(`${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.log(
+        `${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
     } else {
-      console.error(`${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
       process.exit(1);
     }
     process.exit(0);
@@ -242,9 +255,14 @@ async function main() {
 
   // Handle create + simulate for user + subscription price
   if (args.userId && args.priceId) {
-    console.log(`\n${colors.blue}Creating test subscription payment...${colors.reset}\n`);
+    console.log(
+      `\n${colors.blue}Creating test subscription payment...${colors.reset}\n`,
+    );
 
-    const createResult = await createTestSubscriptionPayment(args.userId, args.priceId);
+    const createResult = await createTestSubscriptionPayment(
+      args.userId,
+      args.priceId,
+    );
 
     if (!createResult.success) {
       console.error(`${colors.red}✗${colors.reset} ${createResult.message}\n`);
@@ -252,7 +270,9 @@ async function main() {
     }
 
     if (args.create) {
-      console.log(`\n${colors.green}Done!${colors.reset} Use --payment-id ${createResult.paymentId} to simulate webhook.\n`);
+      console.log(
+        `\n${colors.green}Done!${colors.reset} Use --payment-id ${createResult.paymentId} to simulate webhook.\n`,
+      );
       process.exit(0);
     }
 
@@ -260,15 +280,21 @@ async function main() {
     console.log(`\n${colors.blue}Simulating webhook...${colors.reset}\n`);
     const payment = await getPaymentById(createResult.paymentId!);
     if (!payment) {
-      console.error(`${colors.red}✗${colors.reset} Payment not found after creation\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} Payment not found after creation\n`,
+      );
       process.exit(1);
     }
 
     const result = await simulateWebhook(payment, args.type, args.baseUrl);
     if (result.success) {
-      console.log(`${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.log(
+        `${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
     } else {
-      console.error(`${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
       process.exit(1);
     }
     process.exit(0);
@@ -276,10 +302,7 @@ async function main() {
 
   // If no specific action, check for payments to process
   const hasFilter =
-    args.paymentId ||
-    args.subscription ||
-    args.registration ||
-    args.all;
+    args.paymentId || args.subscription || args.registration || args.all;
 
   if (!hasFilter) {
     const payments = await getPendingPaymentsWithDetails();
@@ -325,7 +348,9 @@ async function main() {
     }
   }
 
-  console.log(`${colors.cyan}────────────────────────────────────────────${colors.reset}`);
+  console.log(
+    `${colors.cyan}────────────────────────────────────────────${colors.reset}`,
+  );
   console.log(
     `${colors.green}Success: ${successCount}${colors.reset} | ${colors.red}Errors: ${errorCount}${colors.reset}`,
   );

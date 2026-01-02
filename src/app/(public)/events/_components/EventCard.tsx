@@ -53,13 +53,11 @@ const statusConfig: Record<
   },
   upcoming: {
     label: "Upcoming",
-    className:
-      "bg-chart-4/10 text-chart-4 border-chart-4/30",
+    className: "bg-chart-4/10 text-chart-4 border-chart-4/30",
   },
   ended: {
     label: "Ended",
-    className:
-      "bg-muted text-muted-foreground border-border",
+    className: "bg-muted text-muted-foreground border-border",
   },
 };
 
@@ -83,14 +81,14 @@ export default function EventCard({ event }: EventCardProps) {
   return (
     <Link
       href={`/events/${event.id}` as Route}
-      className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl"
+      className="group focus-visible:ring-ring block rounded-2xl focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       <article
         className={cn(
-          "relative overflow-hidden rounded-2xl border bg-card transition-all duration-500",
-          "hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1",
-          isLive && "ring-2 ring-destructive/20",
-          isEnded && "opacity-75 hover:opacity-100"
+          "bg-card relative overflow-hidden rounded-2xl border transition-all duration-500",
+          "hover:shadow-primary/5 hover:-translate-y-1 hover:shadow-xl",
+          isLive && "ring-destructive/20 ring-2",
+          isEnded && "opacity-75 hover:opacity-100",
         )}
       >
         {/* Image section */}
@@ -102,21 +100,21 @@ export default function EventCard({ event }: EventCardProps) {
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className={cn(
               "object-cover transition-transform duration-700 ease-out",
-              "group-hover:scale-105"
+              "group-hover:scale-105",
             )}
             unoptimized={!!event.imageUrl}
           />
 
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          <div className="from-primary/10 to-secondary/10 absolute inset-0 bg-gradient-to-br via-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
           {/* Top badges */}
-          <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
+          <div className="absolute top-4 right-4 left-4 flex items-start justify-between">
             {/* Event type badge */}
             <Badge
               variant="secondary"
-              className="bg-card/90 text-card-foreground backdrop-blur-sm border-0 shadow-sm"
+              className="bg-card/90 text-card-foreground border-0 shadow-sm backdrop-blur-sm"
             >
               {typeLabels[event.type] || event.type}
             </Badge>
@@ -136,32 +134,32 @@ export default function EventCard({ event }: EventCardProps) {
           </div>
 
           {/* Bottom gradient text area */}
-          <div className="absolute bottom-0 left-0 right-0 p-5">
-            <h3 className="text-xl font-bold text-white line-clamp-2 drop-shadow-sm group-hover:text-primary transition-colors">
+          <div className="absolute right-0 bottom-0 left-0 p-5">
+            <h3 className="group-hover:text-primary line-clamp-2 text-xl font-bold text-white drop-shadow-sm transition-colors">
               {event.title}
             </h3>
           </div>
 
           {/* Live indicator glow */}
           {isLive && (
-            <div className="absolute -top-20 -right-20 size-40 rounded-full bg-destructive/20 blur-3xl animate-pulse" />
+            <div className="bg-destructive/20 absolute -top-20 -right-20 size-40 animate-pulse rounded-full blur-3xl" />
           )}
         </div>
 
         {/* Content section */}
-        <div className="p-5 space-y-4">
+        <div className="space-y-4 p-5">
           {/* Meta info */}
           <div className="space-y-2.5">
-            <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-                <IconCalendarEvent className="size-4 text-primary" />
+            <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
+              <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+                <IconCalendarEvent className="text-primary size-4" />
               </div>
               <span className="font-medium">{formatDateLong(startDate)}</span>
             </div>
 
-            <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-                <IconClock className="size-4 text-primary" />
+            <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
+              <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+                <IconClock className="text-primary size-4" />
               </div>
               <span className="font-medium">
                 {formatTimeRange12h(startDate, endDate)}
@@ -169,18 +167,20 @@ export default function EventCard({ event }: EventCardProps) {
             </div>
 
             {event.location && (
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-                  <IconMapPin className="size-4 text-primary" />
+              <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
+                <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+                  <IconMapPin className="text-primary size-4" />
                 </div>
-                <span className="font-medium line-clamp-1">{event.location}</span>
+                <span className="line-clamp-1 font-medium">
+                  {event.location}
+                </span>
               </div>
             )}
           </div>
 
           {/* Description */}
           {event.smallDescription && (
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
               {event.smallDescription}
             </p>
           )}
@@ -191,7 +191,7 @@ export default function EventCard({ event }: EventCardProps) {
             className={cn(
               "w-full justify-between font-semibold transition-all duration-300",
               "group-hover:bg-primary group-hover:text-primary-foreground",
-              "group-hover:border-transparent group-hover:shadow-lg group-hover:shadow-primary/20"
+              "group-hover:shadow-primary/20 group-hover:border-transparent group-hover:shadow-lg",
             )}
           >
             <span>View Details</span>
@@ -200,7 +200,7 @@ export default function EventCard({ event }: EventCardProps) {
         </div>
 
         {/* Decorative corner accent */}
-        <div className="absolute -bottom-8 -right-8 size-24 rounded-full bg-gradient-to-br from-primary/5 to-secondary/10 blur-2xl transition-opacity duration-500 opacity-0 group-hover:opacity-100" />
+        <div className="from-primary/5 to-secondary/10 absolute -right-8 -bottom-8 size-24 rounded-full bg-gradient-to-br opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
       </article>
     </Link>
   );

@@ -1,10 +1,6 @@
 import { protectedProcedure } from "../../../index";
 import { dashboardStatsOutputSchema } from "@/lib/schemas/dashboard";
-import {
-  cache,
-  CACHE_TTL,
-  getDashboardStatsKey,
-} from "@/server/cache";
+import { cache, CACHE_TTL, getDashboardStatsKey } from "@/server/cache";
 import {
   getTotalRevenue,
   getRevenueInRange,
@@ -77,19 +73,19 @@ export const getStatsRouter = protectedProcedure
       totalRevenue,
       totalRevenueChange: calculatePercentageChange(
         currentRevenue,
-        previousRevenue
+        previousRevenue,
       ),
       totalParticipants,
       participantsChange: calculatePercentageChange(
         currentParticipants,
-        previousParticipants
+        previousParticipants,
       ),
       totalEvents,
       eventsChange: calculatePercentageChange(currentEvents, previousEvents),
       totalSubmissions,
       submissionsChange: calculatePercentageChange(
         currentSubmissions,
-        previousSubmissions
+        previousSubmissions,
       ),
       currency: "DZD",
     };

@@ -42,10 +42,9 @@ export function useReadReceipts({
   const { data: initialReceipts, isLoading } = useQuery({
     queryKey: READ_RECEIPTS_QUERY_KEY(conversationId),
     queryFn: async () => {
-      const receipts =
-        await client.websocketsRouter.messages.getReadReceipts({
-          conversationId,
-        });
+      const receipts = await client.websocketsRouter.messages.getReadReceipts({
+        conversationId,
+      });
       return receipts;
     },
     staleTime: 30 * 1000, // 30 seconds
@@ -121,12 +120,15 @@ export function useReadReceipts({
             (old: ReadReceipt[] | undefined) => {
               if (!old) return [readEvent];
               const filtered = old.filter((r) => r.userId !== readEvent.userId);
-              return [...filtered, {
-                userId: readEvent.userId,
-                lastReadMessageId: readEvent.lastReadMessageId,
-                readAt: new Date(readEvent.readAt),
-              }];
-            }
+              return [
+                ...filtered,
+                {
+                  userId: readEvent.userId,
+                  lastReadMessageId: readEvent.lastReadMessageId,
+                  readAt: new Date(readEvent.readAt),
+                },
+              ];
+            },
           );
         }
       } catch (error) {

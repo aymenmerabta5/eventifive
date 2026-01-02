@@ -4,13 +4,7 @@ import { headers } from "next/headers";
 import { s3Client } from "@/server/bucket/s3Client";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
-import {
-  event,
-  files,
-  workshop,
-  workshopFile,
-  user,
-} from "@/server/db/schema";
+import { event, files, workshop, workshopFile, user } from "@/server/db/schema";
 import { validateFile, sanitizeFileName } from "@/server/utils/fileValidation";
 import { and, eq, sql } from "drizzle-orm";
 
@@ -143,7 +137,10 @@ export async function POST(req: NextRequest) {
         ? description.trim()
         : null;
 
-    if (normalizedDescription && normalizedDescription.length > MAX_DESCRIPTION_LENGTH) {
+    if (
+      normalizedDescription &&
+      normalizedDescription.length > MAX_DESCRIPTION_LENGTH
+    ) {
       return NextResponse.json(
         { message: "Description is too long" },
         { status: 400 },
@@ -156,7 +153,10 @@ export async function POST(req: NextRequest) {
         ? researchDomain.trim()
         : null;
 
-    if (normalizedResearchDomain && normalizedResearchDomain.length > MAX_RESEARCH_DOMAIN_LENGTH) {
+    if (
+      normalizedResearchDomain &&
+      normalizedResearchDomain.length > MAX_RESEARCH_DOMAIN_LENGTH
+    ) {
       return NextResponse.json(
         { message: "Research domain is too long" },
         { status: 400 },
@@ -167,7 +167,11 @@ export async function POST(req: NextRequest) {
     let normalizedCapacity: number | null = null;
     if (capacity) {
       const parsedCapacity = parseInt(String(capacity), 10);
-      if (!isNaN(parsedCapacity) && parsedCapacity > 0 && parsedCapacity <= 1000) {
+      if (
+        !isNaN(parsedCapacity) &&
+        parsedCapacity > 0 &&
+        parsedCapacity <= 1000
+      ) {
         normalizedCapacity = parsedCapacity;
       }
     }
@@ -183,10 +187,7 @@ export async function POST(req: NextRequest) {
       .limit(1);
 
     if (!eventData) {
-      return NextResponse.json(
-        { message: "Event not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: "Event not found" }, { status: 404 });
     }
 
     if (eventData.status !== "published") {
@@ -211,7 +212,10 @@ export async function POST(req: NextRequest) {
 
     if (existingProposal) {
       return NextResponse.json(
-        { message: "You already have a pending workshop proposal for this event" },
+        {
+          message:
+            "You already have a pending workshop proposal for this event",
+        },
         { status: 400 },
       );
     }
@@ -309,7 +313,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message:
-          error instanceof Error ? error.message : "Error submitting workshop proposal",
+          error instanceof Error
+            ? error.message
+            : "Error submitting workshop proposal",
       },
       { status: 500 },
     );

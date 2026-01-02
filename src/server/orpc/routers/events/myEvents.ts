@@ -1,6 +1,12 @@
 import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
-import { event, eventImages, files, eventTypeValues, eventStatusValues } from "@/server/db/schema";
+import {
+  event,
+  eventImages,
+  files,
+  eventTypeValues,
+  eventStatusValues,
+} from "@/server/db/schema";
 import { z } from "zod";
 import { desc, eq, inArray } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
@@ -47,7 +53,10 @@ export const myEventsRouter = protectedProcedure
       .orderBy(desc(event.createdAt));
 
     // Initialize events with null imageUrl
-    let eventsWithUrls = events.map((evt) => ({ ...evt, imageUrl: null as string | null }));
+    let eventsWithUrls = events.map((evt) => ({
+      ...evt,
+      imageUrl: null as string | null,
+    }));
 
     if (events.length > 0) {
       const eventIds = events.map((evt) => evt.id);
@@ -71,7 +80,8 @@ export const myEventsRouter = protectedProcedure
       }
 
       // Generate presigned URLs for all images in parallel
-      const urlPromises: Promise<{ eventId: string; url: string | null }>[] = [];
+      const urlPromises: Promise<{ eventId: string; url: string | null }>[] =
+        [];
       for (const [eventId, s3Key] of imageMap) {
         urlPromises.push(
           generatePresignedDownloadUrl(s3Key)

@@ -6,8 +6,8 @@ export function LoadingState() {
     <div className="relative min-h-screen overflow-hidden">
       {/* Decorative background - matches page.tsx */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="animate-pulse absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent blur-3xl" />
-        <div className="animate-pulse absolute -bottom-32 -left-32 h-[400px] w-[400px] rounded-full bg-gradient-to-tr from-secondary/15 via-accent/10 to-transparent blur-3xl" />
+        <div className="from-primary/10 via-primary/5 absolute -top-40 -right-40 h-[600px] w-[600px] animate-pulse rounded-full bg-gradient-to-br to-transparent blur-3xl" />
+        <div className="from-secondary/15 via-accent/10 absolute -bottom-32 -left-32 h-[400px] w-[400px] animate-pulse rounded-full bg-gradient-to-tr to-transparent blur-3xl" />
       </div>
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-16">
@@ -25,11 +25,11 @@ export function LoadingState() {
           </div>
 
           {/* Form card skeleton */}
-          <Card className="relative overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
+          <Card className="border-border/50 bg-card/80 relative overflow-hidden backdrop-blur-sm">
             {/* Decorative top line */}
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+            <div className="via-primary/20 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
 
-            <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8">
+            <CardContent className="space-y-8 p-6 sm:p-8 lg:p-10">
               {/* Section 1 */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -143,13 +143,13 @@ export function LoadingState() {
                 <Skeleton className="h-20 w-full rounded-xl" />
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <Skeleton className="h-4 w-64" />
-                  <Skeleton className="h-11 w-full sm:w-48 rounded-md" />
+                  <Skeleton className="h-11 w-full rounded-md sm:w-48" />
                 </div>
               </div>
             </CardContent>
 
             {/* Decorative bottom line */}
-            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+            <div className="via-primary/10 absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent" />
           </Card>
         </div>
       </div>

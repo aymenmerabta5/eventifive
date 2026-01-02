@@ -40,21 +40,16 @@ export default function SessionQAPage() {
   });
 
   // Check registration status
-  const {
-    data: registrationStatus,
-    isLoading: isRegistrationLoading,
-  } = useQuery({
-    ...orpc.events.getRegistrationStatus.queryOptions({
-      input: { eventId },
-    }),
-    enabled: !!eventId && !!authSession,
-  });
+  const { data: registrationStatus, isLoading: isRegistrationLoading } =
+    useQuery({
+      ...orpc.events.getRegistrationStatus.queryOptions({
+        input: { eventId },
+      }),
+      enabled: !!eventId && !!authSession,
+    });
 
   // Fetch questions
-  const {
-    data: questionsData,
-    isLoading: isQuestionsLoading,
-  } = useQuery({
+  const { data: questionsData, isLoading: isQuestionsLoading } = useQuery({
     queryKey: QA_QUERY_KEY(sessionId),
     queryFn: () =>
       orpc.websocketsRouter.qa.list.call({
@@ -110,7 +105,7 @@ export default function SessionQAPage() {
       <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <Lock className="text-muted-foreground h-12 w-12" />
         <h1 className="text-xl font-semibold">Registration Required</h1>
-        <p className="text-muted-foreground text-center max-w-md">
+        <p className="text-muted-foreground max-w-md text-center">
           You need to register for this event to access the Q&A session.
         </p>
         <Button asChild>
@@ -124,10 +119,7 @@ export default function SessionQAPage() {
   if (!session.qaEnabled) {
     return (
       <div className="container mx-auto max-w-2xl py-8">
-        <SessionHeader
-          session={session}
-          eventTitle={eventTitle}
-        />
+        <SessionHeader session={session} eventTitle={eventTitle} />
         <div className="bg-muted/50 rounded-lg p-8 text-center">
           <AlertCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
           <h2 className="text-lg font-semibold">Q&A Not Available</h2>
@@ -141,10 +133,7 @@ export default function SessionQAPage() {
 
   return (
     <div className="container mx-auto max-w-2xl py-8">
-      <SessionHeader
-        session={session}
-        eventTitle={eventTitle}
-      />
+      <SessionHeader session={session} eventTitle={eventTitle} />
 
       {isQuestionsLoading ? (
         <div className="flex items-center justify-center py-12">

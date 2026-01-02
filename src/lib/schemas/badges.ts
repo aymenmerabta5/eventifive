@@ -148,11 +148,15 @@ export const eventBadgesListSchema = z.array(eventBadgeSchema);
 export type DownloadBadgeInput = z.infer<typeof downloadBadgeInputSchema>;
 export type VerifyBadgeInput = z.infer<typeof verifyBadgeInputSchema>;
 export type RevokeBadgeInput = z.infer<typeof revokeBadgeInputSchema>;
-export type ListBadgesByEventInput = z.infer<typeof listBadgesByEventInputSchema>;
+export type ListBadgesByEventInput = z.infer<
+  typeof listBadgesByEventInputSchema
+>;
 
 export type Badge = z.infer<typeof badgeSchema>;
 export type BadgeWithDetails = z.infer<typeof badgeWithDetailsSchema>;
-export type BadgeVerificationResult = z.infer<typeof badgeVerificationResultSchema>;
+export type BadgeVerificationResult = z.infer<
+  typeof badgeVerificationResultSchema
+>;
 export type BadgeDownloadData = z.infer<typeof badgeDownloadDataSchema>;
 export type MyBadge = z.infer<typeof myBadgeSchema>;
 export type EventBadge = z.infer<typeof eventBadgeSchema>;

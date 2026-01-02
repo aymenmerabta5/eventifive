@@ -22,7 +22,7 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://eventifive.com";
  * - Free registration is completed
  */
 export async function issueBadgeForRegistration(
-  registrationId: number
+  registrationId: number,
 ): Promise<void> {
   // Get registration with event and user data
   const [registration] = await db
@@ -45,14 +45,16 @@ export async function issueBadgeForRegistration(
     .limit(1);
 
   if (!registration) {
-    console.error(`Registration ${registrationId} not found for badge issuance`);
+    console.error(
+      `Registration ${registrationId} not found for badge issuance`,
+    );
     return;
   }
 
   // Check if registration is paid
   if (registration.paymentStatus !== "paid") {
     console.log(
-      `Skipping badge for registration ${registrationId}: payment status is ${registration.paymentStatus}`
+      `Skipping badge for registration ${registrationId}: payment status is ${registration.paymentStatus}`,
     );
     return;
   }
@@ -65,14 +67,14 @@ export async function issueBadgeForRegistration(
       and(
         eq(badge.eventId, registration.eventId),
         eq(badge.userId, registration.userId),
-        eq(badge.role, "participant")
-      )
+        eq(badge.role, "participant"),
+      ),
     )
     .limit(1);
 
   if (existingBadge) {
     console.log(
-      `Badge already exists for user ${registration.userId} at event ${registration.eventId}`
+      `Badge already exists for user ${registration.userId} at event ${registration.eventId}`,
     );
     return;
   }
@@ -93,7 +95,7 @@ export async function issueBadgeForRegistration(
   });
 
   console.log(
-    `Badge issued for participant ${registration.userId} at event ${registration.eventId}`
+    `Badge issued for participant ${registration.userId} at event ${registration.eventId}`,
   );
 
   // Send email notification (fire and forget)
@@ -108,11 +110,11 @@ export async function issueBadgeForRegistration(
       verificationCode,
       downloadUrl: `${baseUrl}/registrations`,
       verifyUrl: `${baseUrl}/verify-badge/${verificationCode}`,
-    }
+    },
   ).catch((error) => {
     console.error(
       `Failed to send badge email to ${registration.userEmail}:`,
-      error
+      error,
     );
   });
 }
@@ -127,7 +129,7 @@ export async function issueBadgeForRegistration(
 export async function issueBadgeForRole(
   eventId: string,
   userId: string,
-  role: BadgeRole
+  role: BadgeRole,
 ): Promise<void> {
   // Get event and user data
   const [eventData] = await db
@@ -166,12 +168,18 @@ export async function issueBadgeForRole(
     .select({ id: badge.id })
     .from(badge)
     .where(
-      and(eq(badge.eventId, eventId), eq(badge.userId, userId), eq(badge.role, role))
+      and(
+        eq(badge.eventId, eventId),
+        eq(badge.userId, userId),
+        eq(badge.role, role),
+      ),
     )
     .limit(1);
 
   if (existingBadge) {
-    console.log(`Badge already exists for user ${userId} at event ${eventId} with role ${role}`);
+    console.log(
+      `Badge already exists for user ${userId} at event ${eventId} with role ${role}`,
+    );
     return;
   }
 
@@ -182,7 +190,10 @@ export async function issueBadgeForRole(
       .select({ affiliation: eventSpeakers.affiliation })
       .from(eventSpeakers)
       .where(
-        and(eq(eventSpeakers.eventId, eventId), eq(eventSpeakers.userId, userId))
+        and(
+          eq(eventSpeakers.eventId, eventId),
+          eq(eventSpeakers.userId, userId),
+        ),
       )
       .limit(1);
     affiliation = speakerData?.affiliation ?? null;
@@ -218,7 +229,7 @@ export async function issueBadgeForRole(
       verificationCode,
       downloadUrl: `${baseUrl}/registrations`,
       verifyUrl: `${baseUrl}/verify-badge/${verificationCode}`,
-    }
+    },
   ).catch((error) => {
     console.error(`Failed to send badge email to ${userData.email}:`, error);
   });

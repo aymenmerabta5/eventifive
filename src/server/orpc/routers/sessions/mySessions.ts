@@ -27,10 +27,7 @@ export const mySessionsRouter = protectedProcedure
     const baseUrl = env.BETTER_AUTH_URL;
 
     // Map to store sessions with their highest priority role
-    const sessionMap = new Map<
-      string,
-      MySession & { rolePriority: number }
-    >();
+    const sessionMap = new Map<string, MySession & { rolePriority: number }>();
 
     const rolePriorities: Record<MySessionRole, number> = {
       chair: 3,

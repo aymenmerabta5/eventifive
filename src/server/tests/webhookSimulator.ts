@@ -87,7 +87,11 @@ function buildWebhookEvent(
  * Get the webhook URL (supports custom base URL for testing)
  */
 function getWebhookUrl(baseUrl?: string): string {
-  const base = (baseUrl ?? env.BETTER_AUTH_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  const base = (
+    baseUrl ??
+    env.BETTER_AUTH_URL ??
+    "http://localhost:3000"
+  ).replace(/\/+$/, "");
   return `${base}/api/webhooks/chargily`;
 }
 
@@ -118,9 +122,7 @@ export async function simulateWebhook(
   const signature = createSignature(payload, secret);
   const webhookUrl = getWebhookUrl(baseUrl);
 
-  console.log(
-    `  ${colors.dim}POST ${webhookUrl}${colors.reset}`,
-  );
+  console.log(`  ${colors.dim}POST ${webhookUrl}${colors.reset}`);
 
   try {
     const response = await fetch(webhookUrl, {

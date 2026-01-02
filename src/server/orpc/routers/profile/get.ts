@@ -39,7 +39,10 @@ const fullProfileSchema = z.object({
 });
 
 // Union of both schemas for the output
-const outputGetProfileSchema = z.union([publicProfileSchema, fullProfileSchema]);
+const outputGetProfileSchema = z.union([
+  publicProfileSchema,
+  fullProfileSchema,
+]);
 
 export const getProfileRouter = publicProcedure
   .route({ method: "POST", path: "/profile/get" })

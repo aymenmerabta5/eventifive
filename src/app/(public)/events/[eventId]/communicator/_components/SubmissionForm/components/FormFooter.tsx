@@ -23,10 +23,10 @@ export function FormFooter({
         size="lg"
         disabled={isSubmitting || !hasFile}
         className={cn(
-          "group relative w-full h-14 text-base font-semibold transition-all duration-300",
+          "group relative h-14 w-full text-base font-semibold transition-all duration-300",
           isComplete
-            ? "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25"
-            : ""
+            ? "from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-primary/25 bg-gradient-to-r shadow-lg"
+            : "",
         )}
       >
         {isSubmitting ? (
@@ -49,8 +49,9 @@ export function FormFooter({
       </Button>
 
       {/* Helper text */}
-      <p className="text-center text-xs text-muted-foreground">
-        By submitting, you confirm that this is your original work and agree to the review process.
+      <p className="text-muted-foreground text-center text-xs">
+        By submitting, you confirm that this is your original work and agree to
+        the review process.
       </p>
     </div>
   );

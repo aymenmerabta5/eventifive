@@ -14,6 +14,7 @@ import { certificatesRouter } from "./certificates";
 import { badgesRouter } from "./badges";
 import { aiRouter } from "./ai";
 import { workshopsRouter } from "./workshops";
+import { applicationsRouter } from "./applications";
 
 /**
  * Main application router
@@ -35,6 +36,7 @@ import { workshopsRouter } from "./workshops";
  * - certificates: Certificate management (getEligibleRecipients, generate, listByEvent, listMyCertificates, download, verify, revoke)
  * - badges: Badge management (listMyBadges, download, verify, listByEvent, revoke)
  * - workshops: Workshop proposal management (propose, listProposals, get, accept, reject, listMine)
+ * - applications: User application management (listMine - submissions and workshop proposals)
  * - communicators: Communicator management (add, remove, list)
  */
 export const appRouter = {
@@ -53,6 +55,7 @@ export const appRouter = {
   badges: badgesRouter,
   ai: aiRouter,
   workshops: workshopsRouter,
+  applications: applicationsRouter,
 };
 
 export type AppRouter = typeof appRouter;

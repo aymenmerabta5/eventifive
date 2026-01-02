@@ -3,7 +3,11 @@ import { protectedProcedure } from "../../../index";
 import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
-import { sessionQuestions, sessionQuestionAnswers, user } from "@/server/db/schema";
+import {
+  sessionQuestions,
+  sessionQuestionAnswers,
+  user,
+} from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { publishSessionQAEvent } from "@/server/realtime/session-qa";
 import { getSessionManagerInfo } from "./utils";
@@ -13,7 +17,12 @@ const inputAnswerQuestionSchema = z.object({
   content: z.string().min(1).max(2000),
 });
 
-const answerRoleSchema = z.enum(["organizer", "chair", "communicator", "speaker"]);
+const answerRoleSchema = z.enum([
+  "organizer",
+  "chair",
+  "communicator",
+  "speaker",
+]);
 
 const outputAnswerQuestionSchema = z.object({
   id: z.string(),

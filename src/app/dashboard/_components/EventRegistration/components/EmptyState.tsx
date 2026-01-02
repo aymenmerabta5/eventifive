@@ -7,8 +7,8 @@ export function EmptyState() {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-dashed border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-2xl border border-dashed",
+        "from-card via-card to-card/80 bg-gradient-to-br",
       )}
     >
       {/* Pattern overlay */}
@@ -21,21 +21,21 @@ export function EmptyState() {
       />
 
       {/* Decorative gradient */}
-      <div className="pointer-events-none absolute -right-20 -top-20 size-48 rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
+      <div className="from-primary/10 via-chart-2/5 pointer-events-none absolute -top-20 -right-20 size-48 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
 
       <div className="relative flex flex-col items-center justify-center py-16">
         <div
           className={cn(
             "mb-4 flex size-16 items-center justify-center rounded-2xl",
-            "bg-gradient-to-br from-primary/10 to-chart-2/10"
+            "from-primary/10 to-chart-2/10 bg-gradient-to-br",
           )}
         >
-          <IconUsers className="size-8 text-primary/60" />
+          <IconUsers className="text-primary/60 size-8" />
         </div>
-        <h3 className="font-display text-lg font-semibold text-foreground">
+        <h3 className="font-display text-foreground text-lg font-semibold">
           No registrations yet
         </h3>
-        <p className="mt-2 max-w-sm text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-2 max-w-sm text-center text-sm">
           There are no participants or submissions for this event yet.
           <br />
           Registrations will appear here once users sign up.

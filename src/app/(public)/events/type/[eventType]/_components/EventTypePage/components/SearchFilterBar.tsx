@@ -46,21 +46,21 @@ export function SearchFilterBar({
       transition={{ delay: 0.4 }}
       className="mb-10"
     >
-      <div className="flex flex-col gap-4 p-4 rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-border/60 bg-card/50 flex flex-col gap-4 rounded-2xl border p-4 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
         {/* Search Input */}
-        <div className="relative flex-1 max-w-lg">
-          <IconSearch className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-lg flex-1">
+          <IconSearch className="text-muted-foreground absolute top-1/2 left-4 size-5 -translate-y-1/2" />
           <Input
             type="text"
             placeholder="Search events..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-12 h-12 rounded-xl border-border/60 bg-background/80 focus-visible:ring-2 focus-visible:ring-primary/20"
+            className="border-border/60 bg-background/80 focus-visible:ring-primary/20 h-12 rounded-xl pl-12 focus-visible:ring-2"
           />
           {searchTerm && (
             <button
               onClick={onClearSearch}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-4 -translate-y-1/2 transition-colors"
             >
               <IconX className="size-4" />
             </button>
@@ -74,8 +74,8 @@ export function SearchFilterBar({
             size="icon"
             onClick={onToggleFilters}
             className={cn(
-              "rounded-xl h-12 w-12 sm:hidden",
-              showFilters && "bg-primary/10 border-primary/30"
+              "h-12 w-12 rounded-xl sm:hidden",
+              showFilters && "bg-primary/10 border-primary/30",
             )}
           >
             <IconFilter className="size-5" />
@@ -84,14 +84,14 @@ export function SearchFilterBar({
           <div
             className={cn(
               "flex items-center gap-2",
-              !showFilters && "hidden sm:flex"
+              !showFilters && "hidden sm:flex",
             )}
           >
-            <span className="text-sm text-muted-foreground whitespace-nowrap">
+            <span className="text-muted-foreground text-sm whitespace-nowrap">
               Sort by:
             </span>
             <Select value={sortBy} onValueChange={onSortChange}>
-              <SelectTrigger className="w-44 h-12 rounded-xl border-border/60 bg-background/80">
+              <SelectTrigger className="border-border/60 bg-background/80 h-12 w-44 rounded-xl">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -119,17 +119,17 @@ export function SearchFilterBar({
             exit={{ opacity: 0, height: 0 }}
             className="mt-4 flex items-center gap-2"
           >
-            <Badge variant="secondary" className="gap-2 px-4 py-2 rounded-full">
+            <Badge variant="secondary" className="gap-2 rounded-full px-4 py-2">
               <IconSearch className="size-3" />
               Searching: &quot;{debouncedSearchTerm}&quot;
               <button
                 onClick={onClearSearch}
-                className="ml-1 hover:text-foreground transition-colors"
+                className="hover:text-foreground ml-1 transition-colors"
               >
                 <IconX className="size-3" />
               </button>
             </Badge>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               {totalCount} {totalCount === 1 ? "result" : "results"}
             </span>
           </motion.div>

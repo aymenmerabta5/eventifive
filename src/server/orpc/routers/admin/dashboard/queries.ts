@@ -21,7 +21,7 @@ export async function getTotalUsers(): Promise<number> {
  */
 export async function getUsersInRange(
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({ total: count() })
@@ -44,7 +44,7 @@ export async function getTotalEvents(): Promise<number> {
  */
 export async function getEventsInRange(
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({ total: count() })
@@ -71,7 +71,7 @@ export async function getTotalRevenue(): Promise<number> {
  */
 export async function getRevenueInRange(
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({ total: sum(payment.amount) })
@@ -80,8 +80,8 @@ export async function getRevenueInRange(
       and(
         eq(payment.status, "paid"),
         gte(payment.paidAt, startDate),
-        lte(payment.paidAt, endDate)
-      )
+        lte(payment.paidAt, endDate),
+      ),
     );
 
   return Number(result[0]?.total ?? 0);
@@ -104,7 +104,7 @@ export async function getActiveSubscriptions(): Promise<number> {
  */
 export async function getSubscriptionsInRange(
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({ total: count() })
@@ -113,8 +113,8 @@ export async function getSubscriptionsInRange(
       and(
         eq(userSubscription.status, "active"),
         gte(userSubscription.createdAt, startDate),
-        lte(userSubscription.createdAt, endDate)
-      )
+        lte(userSubscription.createdAt, endDate),
+      ),
     );
 
   return result[0]?.total ?? 0;
@@ -125,7 +125,7 @@ export async function getSubscriptionsInRange(
  */
 export function calculatePercentageChange(
   current: number,
-  previous: number
+  previous: number,
 ): number {
   if (previous === 0) {
     return current > 0 ? 100 : 0;

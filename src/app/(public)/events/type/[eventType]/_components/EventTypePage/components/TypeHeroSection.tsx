@@ -30,12 +30,12 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
         <div
           className={cn(
             "absolute inset-0 bg-gradient-to-br opacity-60 dark:opacity-40",
-            config.bgGradient
+            config.bgGradient,
           )}
         />
         {/* Subtle animated gradient orb */}
         <motion.div
-          className="absolute -top-32 -left-32 size-96 rounded-full bg-primary/20 blur-3xl"
+          className="bg-primary/20 absolute -top-32 -left-32 size-96 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.2, 0.3, 0.2],
@@ -47,7 +47,7 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
           }}
         />
         <motion.div
-          className="absolute -bottom-48 -right-48 size-[500px] rounded-full bg-secondary/20 blur-3xl"
+          className="bg-secondary/20 absolute -right-48 -bottom-48 size-[500px] rounded-full blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.15, 0.25, 0.15],
@@ -63,7 +63,7 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
 
       {/* Content */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center py-16 md:py-24 text-center">
+        <div className="flex flex-col items-center py-16 text-center md:py-24">
           {/* Back button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -75,7 +75,7 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="group gap-2 rounded-full border-2 border-border/60 bg-background/80 backdrop-blur-sm hover:border-primary hover:bg-primary/5"
+                className="group border-border/60 bg-background/80 hover:border-primary hover:bg-primary/5 gap-2 rounded-full border-2 backdrop-blur-sm"
               >
                 <IconArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
                 <span className="hidden sm:inline">All Events</span>
@@ -92,16 +92,16 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
           >
             <div
               className={cn(
-                "relative flex size-20 md:size-24 items-center justify-center rounded-3xl shadow-2xl",
-                config.iconBg
+                "relative flex size-20 items-center justify-center rounded-3xl shadow-2xl md:size-24",
+                config.iconBg,
               )}
             >
-              <Icon className="size-10 md:size-12 text-primary-foreground" />
+              <Icon className="text-primary-foreground size-10 md:size-12" />
               {/* Glow effect */}
               <div
                 className={cn(
-                  "absolute inset-0 rounded-3xl blur-xl opacity-50 -z-10",
-                  config.iconBg
+                  "absolute inset-0 -z-10 rounded-3xl opacity-50 blur-xl",
+                  config.iconBg,
                 )}
               />
             </div>
@@ -112,12 +112,12 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+            className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           >
             <span
               className={cn(
                 "bg-gradient-to-r bg-clip-text text-transparent",
-                config.gradient
+                config.gradient,
               )}
             >
               {config.label}
@@ -129,7 +129,7 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 max-w-2xl text-base md:text-lg text-muted-foreground leading-relaxed"
+            className="text-muted-foreground mb-8 max-w-2xl text-base leading-relaxed md:text-lg"
           >
             {config.description}
           </motion.p>
@@ -141,37 +141,37 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-wrap items-center justify-center gap-4"
           >
-            <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/80 px-5 py-3 backdrop-blur-sm">
+            <div className="border-border/60 bg-card/80 flex items-center gap-3 rounded-2xl border px-5 py-3 backdrop-blur-sm">
               <div
                 className={cn(
                   "flex size-10 items-center justify-center rounded-xl",
-                  config.iconBg
+                  config.iconBg,
                 )}
               >
-                <IconCalendarEvent className="size-5 text-primary-foreground" />
+                <IconCalendarEvent className="text-primary-foreground size-5" />
               </div>
               <div className="text-left">
-                <p className="text-2xl font-bold text-foreground tabular-nums">
+                <p className="text-foreground text-2xl font-bold tabular-nums">
                   {totalCount}
                 </p>
-                <p className="text-xs text-muted-foreground">Total Events</p>
+                <p className="text-muted-foreground text-xs">Total Events</p>
               </div>
             </div>
 
             {liveCount > 0 && (
-              <div className="flex items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 px-5 py-3 backdrop-blur-sm ring-2 ring-destructive/20">
-                <div className="relative flex size-10 items-center justify-center rounded-xl bg-destructive">
-                  <IconSparkles className="size-5 text-destructive-foreground" />
+              <div className="border-destructive/20 bg-destructive/5 ring-destructive/20 flex items-center gap-3 rounded-2xl border px-5 py-3 ring-2 backdrop-blur-sm">
+                <div className="bg-destructive relative flex size-10 items-center justify-center rounded-xl">
+                  <IconSparkles className="text-destructive-foreground size-5" />
                   <span className="absolute -top-1 -right-1 flex size-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
-                    <span className="relative inline-flex rounded-full size-3 bg-destructive" />
+                    <span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                    <span className="bg-destructive relative inline-flex size-3 rounded-full" />
                   </span>
                 </div>
                 <div className="text-left">
-                  <p className="text-2xl font-bold text-destructive tabular-nums">
+                  <p className="text-destructive text-2xl font-bold tabular-nums">
                     {liveCount}
                   </p>
-                  <p className="text-xs text-muted-foreground">Live Now</p>
+                  <p className="text-muted-foreground text-xs">Live Now</p>
                 </div>
               </div>
             )}
@@ -180,7 +180,7 @@ export function TypeHeroSection({ eventType, stats }: TypeHeroSectionProps) {
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="from-background absolute right-0 bottom-0 left-0 h-32 bg-gradient-to-t to-transparent" />
     </div>
   );
 }

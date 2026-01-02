@@ -39,7 +39,7 @@ export function SubmissionCard({
     <Card
       className={cn(
         "group relative overflow-hidden transition-all duration-300",
-        "hover:shadow-lg hover:-translate-y-0.5",
+        "hover:-translate-y-0.5 hover:shadow-lg",
         "border-border/60 hover:border-primary/30",
         "bg-card/80 backdrop-blur-sm",
       )}
@@ -51,7 +51,7 @@ export function SubmissionCard({
       <div className="from-primary/5 via-primary/3 pointer-events-none absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
       {/* Left accent bar */}
-      <div className="bg-primary/50 group-hover:bg-primary absolute left-0 top-0 h-full w-1 transition-colors duration-300" />
+      <div className="bg-primary/50 group-hover:bg-primary absolute top-0 left-0 h-full w-1 transition-colors duration-300" />
 
       <CardHeader className="gap-3 pb-3 pl-5">
         <div className="flex items-start justify-between gap-4">

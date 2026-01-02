@@ -5,7 +5,7 @@ import QRCode from "qrcode";
  */
 export async function generateQRCodeDataUrl(
   verificationCode: string,
-  baseUrl: string
+  baseUrl: string,
 ): Promise<string> {
   const verifyUrl = `${baseUrl}/verify/${verificationCode}`;
 

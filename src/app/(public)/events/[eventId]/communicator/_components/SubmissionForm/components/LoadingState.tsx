@@ -6,7 +6,7 @@ export function LoadingState() {
     <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
       <div className="w-full max-w-3xl space-y-8">
         {/* Header skeleton */}
-        <div className="text-center space-y-4">
+        <div className="space-y-4 text-center">
           <Skeleton className="mx-auto h-16 w-16 rounded-2xl" />
           <Skeleton className="mx-auto h-10 w-64" />
           <Skeleton className="mx-auto h-5 w-96" />
@@ -22,8 +22,8 @@ export function LoadingState() {
         </div>
 
         {/* Form skeleton */}
-        <Card className="border-border/50 bg-gradient-to-b from-card via-card to-card/80 shadow-xl">
-          <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8">
+        <Card className="border-border/50 from-card via-card to-card/80 bg-gradient-to-b shadow-xl">
+          <CardContent className="space-y-8 p-6 sm:p-8 lg:p-10">
             {/* Title section */}
             <div className="space-y-3">
               <div className="flex items-center gap-3">

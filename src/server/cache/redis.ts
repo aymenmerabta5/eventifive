@@ -58,7 +58,7 @@ export const cache = {
           "MATCH",
           pattern,
           "COUNT",
-          100
+          100,
         );
         cursor = nextCursor;
         if (keys.length > 0) {

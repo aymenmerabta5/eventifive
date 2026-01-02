@@ -7,8 +7,8 @@ export function LoadingState() {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-3xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
       )}
     >
       {/* Pattern overlay */}
@@ -33,15 +33,15 @@ export function LoadingState() {
         <div
           className={cn(
             "mb-4 flex size-16 items-center justify-center rounded-2xl",
-            "bg-gradient-to-br from-primary/10 to-chart-2/10"
+            "from-primary/10 to-chart-2/10 bg-gradient-to-br",
           )}
         >
-          <IconLoader2 className="size-8 animate-spin text-primary" />
+          <IconLoader2 className="text-primary size-8 animate-spin" />
         </div>
-        <h3 className="font-display text-lg font-semibold text-foreground">
+        <h3 className="font-display text-foreground text-lg font-semibold">
           Loading registrations
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Fetching participants and submissions for this event...
         </p>
       </div>

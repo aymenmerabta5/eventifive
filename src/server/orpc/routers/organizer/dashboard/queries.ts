@@ -18,7 +18,7 @@ export async function getTotalRevenue(organizerId: string): Promise<number> {
     .from(payment)
     .innerJoin(
       eventRegistration,
-      eq(payment.registrationId, eventRegistration.id)
+      eq(payment.registrationId, eventRegistration.id),
     )
     .innerJoin(event, eq(eventRegistration.eventId, event.id))
     .where(and(eq(event.organizerId, organizerId), eq(payment.status, "paid")));
@@ -32,7 +32,7 @@ export async function getTotalRevenue(organizerId: string): Promise<number> {
 export async function getRevenueInRange(
   organizerId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({
@@ -41,7 +41,7 @@ export async function getRevenueInRange(
     .from(payment)
     .innerJoin(
       eventRegistration,
-      eq(payment.registrationId, eventRegistration.id)
+      eq(payment.registrationId, eventRegistration.id),
     )
     .innerJoin(event, eq(eventRegistration.eventId, event.id))
     .where(
@@ -49,8 +49,8 @@ export async function getRevenueInRange(
         eq(event.organizerId, organizerId),
         eq(payment.status, "paid"),
         gte(payment.paidAt, startDate),
-        lte(payment.paidAt, endDate)
-      )
+        lte(payment.paidAt, endDate),
+      ),
     );
 
   return Number(result[0]?.total ?? 0);
@@ -60,7 +60,7 @@ export async function getRevenueInRange(
  * Get total participants across all organizer's events
  */
 export async function getTotalParticipants(
-  organizerId: string
+  organizerId: string,
 ): Promise<number> {
   const result = await db
     .select({
@@ -79,7 +79,7 @@ export async function getTotalParticipants(
 export async function getParticipantsInRange(
   organizerId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({
@@ -91,8 +91,8 @@ export async function getParticipantsInRange(
       and(
         eq(event.organizerId, organizerId),
         gte(eventRegistration.registeredAt, startDate),
-        lte(eventRegistration.registeredAt, endDate)
-      )
+        lte(eventRegistration.registeredAt, endDate),
+      ),
     );
 
   return result[0]?.total ?? 0;
@@ -118,7 +118,7 @@ export async function getTotalEvents(organizerId: string): Promise<number> {
 export async function getEventsInRange(
   organizerId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({
@@ -129,8 +129,8 @@ export async function getEventsInRange(
       and(
         eq(event.organizerId, organizerId),
         gte(event.createdAt, startDate),
-        lte(event.createdAt, endDate)
-      )
+        lte(event.createdAt, endDate),
+      ),
     );
 
   return result[0]?.total ?? 0;
@@ -140,7 +140,7 @@ export async function getEventsInRange(
  * Get total submissions count for an organizer's events
  */
 export async function getTotalSubmissions(
-  organizerId: string
+  organizerId: string,
 ): Promise<number> {
   const result = await db
     .select({
@@ -159,7 +159,7 @@ export async function getTotalSubmissions(
 export async function getSubmissionsInRange(
   organizerId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> {
   const result = await db
     .select({
@@ -171,8 +171,8 @@ export async function getSubmissionsInRange(
       and(
         eq(event.organizerId, organizerId),
         gte(submission.submittedAt, startDate),
-        lte(submission.submittedAt, endDate)
-      )
+        lte(submission.submittedAt, endDate),
+      ),
     );
 
   return result[0]?.total ?? 0;
@@ -183,7 +183,7 @@ export async function getSubmissionsInRange(
  */
 export async function getTimeSeriesData(
   organizerId: string,
-  days: number
+  days: number,
 ): Promise<Array<{ date: string; registrations: number; revenue: number }>> {
   const endDate = new Date();
   const startDate = new Date();
@@ -201,8 +201,8 @@ export async function getTimeSeriesData(
       and(
         eq(event.organizerId, organizerId),
         gte(eventRegistration.registeredAt, startDate),
-        lte(eventRegistration.registeredAt, endDate)
-      )
+        lte(eventRegistration.registeredAt, endDate),
+      ),
     )
     .groupBy(sql`DATE(${eventRegistration.registeredAt})`)
     .orderBy(sql`DATE(${eventRegistration.registeredAt})`);
@@ -216,7 +216,7 @@ export async function getTimeSeriesData(
     .from(payment)
     .innerJoin(
       eventRegistration,
-      eq(payment.registrationId, eventRegistration.id)
+      eq(payment.registrationId, eventRegistration.id),
     )
     .innerJoin(event, eq(eventRegistration.eventId, event.id))
     .where(
@@ -224,23 +224,26 @@ export async function getTimeSeriesData(
         eq(event.organizerId, organizerId),
         eq(payment.status, "paid"),
         gte(payment.paidAt, startDate),
-        lte(payment.paidAt, endDate)
-      )
+        lte(payment.paidAt, endDate),
+      ),
     )
     .groupBy(sql`DATE(${payment.paidAt})`)
     .orderBy(sql`DATE(${payment.paidAt})`);
 
   // Create a map for easy lookup
   const registrationsMap = new Map(
-    registrationsData.map((r) => [r.date, r.count])
+    registrationsData.map((r) => [r.date, r.count]),
   );
   const revenueMap = new Map(
-    revenueData.map((r) => [r.date, Number(r.total ?? 0)])
+    revenueData.map((r) => [r.date, Number(r.total ?? 0)]),
   );
 
   // Generate all dates in the range
-  const result: Array<{ date: string; registrations: number; revenue: number }> =
-    [];
+  const result: Array<{
+    date: string;
+    registrations: number;
+    revenue: number;
+  }> = [];
   const currentDate = new Date(startDate);
 
   while (currentDate <= endDate) {
@@ -261,7 +264,7 @@ export async function getTimeSeriesData(
  */
 export function calculatePercentageChange(
   current: number,
-  previous: number
+  previous: number,
 ): number {
   if (previous === 0) {
     return current > 0 ? 100 : 0;

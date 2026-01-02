@@ -13,10 +13,15 @@ export type PollType = z.infer<typeof pollTypeSchema>;
 
 export const createPollSchema = z.object({
   sessionId: z.string().min(1, "Session ID is required"),
-  question: z.string().min(1, "Question is required").max(500, "Question too long"),
+  question: z
+    .string()
+    .min(1, "Question is required")
+    .max(500, "Question too long"),
   pollType: pollTypeSchema.default("single"),
   options: z
-    .array(z.string().min(1, "Option cannot be empty").max(200, "Option too long"))
+    .array(
+      z.string().min(1, "Option cannot be empty").max(200, "Option too long"),
+    )
     .min(2, "At least 2 options required")
     .max(10, "Maximum 10 options allowed"),
 });
@@ -116,7 +121,7 @@ export const pollCreatedEventSchema = z.object({
         id: z.number(),
         text: z.string(),
         displayOrder: z.number(),
-      })
+      }),
     ),
   }),
 });

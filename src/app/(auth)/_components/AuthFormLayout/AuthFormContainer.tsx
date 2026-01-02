@@ -1,4 +1,6 @@
-import { Card } from "@/components/ui/card";
+"use client";
+
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
 interface AuthFormContainerProps {
@@ -7,19 +9,25 @@ interface AuthFormContainerProps {
 
 export function AuthFormContainer({ children }: AuthFormContainerProps) {
   return (
-    <div className="mt-12 flex items-center justify-center p-4">
-      <div className="relative w-full max-w-lg">
-        <div
-          className="absolute inset-0 -z-10 rounded-xl opacity-10 blur-3xl dark:opacity-40"
-          style={{
-            background: "oklch(var(--primary))",
-            transform: "scale(1.15)",
-          }}
-        />
-        <Card className="border-primary/20 dark:border-primary/40 bg-card/95 relative w-full p-8 shadow-lg backdrop-blur-md dark:shadow-[0_0_60px_rgba(139,92,246,0.5),0_0_120px_rgba(139,92,246,0.3),0_25px_80px_rgba(0,0,0,0.2),0_10px_30px_rgba(0,0,0,0.3)]">
-          {children}
-        </Card>
-      </div>
+    <div className="flex min-h-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8">
+      <motion.div
+        className="relative w-full max-w-sm sm:max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        {/* Ambient glow effect */}
+        <div className="bg-primary pointer-events-none absolute -inset-3 -z-10 rounded-2xl opacity-[0.03] blur-xl dark:opacity-[0.08]" />
+
+        {/* Main card */}
+        <div className="border-border/40 bg-card/90 dark:border-border/20 dark:bg-card/70 relative rounded-xl border p-6 shadow-lg backdrop-blur-xl sm:p-8 dark:shadow-xl">
+          {/* Subtle inner glow on top edge */}
+          <div className="via-primary/15 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
+
+          {/* Content */}
+          <div className="relative">{children}</div>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -73,7 +73,7 @@ export const listBadgesByEventRouter = protectedProcedure
           ...b,
           userImage: presignedUrl?.downloadUrl ?? null,
         };
-      })
+      }),
     );
 
     return badgesWithUrls;

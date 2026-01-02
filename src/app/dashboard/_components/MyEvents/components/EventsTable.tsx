@@ -27,8 +27,8 @@ export function EventsTable({
   return (
     <div
       className={cn(
-       "relative overflow-hidden rounded-2xl border border-border/50",
-        " from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-2xl border",
+        "from-card via-card to-card/80",
       )}
     >
       {/* Background pattern */}
@@ -41,11 +41,11 @@ export function EventsTable({
       />
 
       {/* Header */}
-      <div className="relative border-b border-border/50 px-6 py-4">
-        <h2 className="font-display text-lg font-semibold text-foreground">
+      <div className="border-border/50 relative border-b px-6 py-4">
+        <h2 className="font-display text-foreground text-lg font-semibold">
           Your Events
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Manage and track all your created events
         </p>
       </div>
@@ -55,19 +55,19 @@ export function EventsTable({
         <Table>
           <TableHeader>
             <TableRow className="border-border/50 hover:bg-transparent">
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Event
               </TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Type
               </TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Schedule
               </TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Location
               </TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 Status
               </TableHead>
               <TableHead className="w-[50px]"></TableHead>
@@ -93,10 +93,10 @@ export function EventsTable({
       </div>
 
       {/* Footer */}
-      <div className="relative border-t border-border/50 px-6 py-3">
-        <p className="text-xs text-muted-foreground">
+      <div className="border-border/50 relative border-t px-6 py-3">
+        <p className="text-muted-foreground text-xs">
           Showing{" "}
-          <span className="font-medium text-foreground">{events.length}</span>{" "}
+          <span className="text-foreground font-medium">{events.length}</span>{" "}
           event{events.length !== 1 ? "s" : ""}
         </p>
       </div>

@@ -29,7 +29,10 @@ export const publishEventRouter = protectedProcedure
         .select()
         .from(event)
         .where(
-          and(eq(event.id, input.eventId), eq(event.organizerId, session.user.id))
+          and(
+            eq(event.id, input.eventId),
+            eq(event.organizerId, session.user.id),
+          ),
         );
 
       if (!eventData) {
@@ -61,8 +64,8 @@ export const publishEventRouter = protectedProcedure
         .where(
           and(
             eq(eventSpeakers.eventId, input.eventId),
-            eq(eventSpeakers.status, "accepted")
-          )
+            eq(eventSpeakers.status, "accepted"),
+          ),
         );
 
       const [reviewerCount] = await db
@@ -71,8 +74,8 @@ export const publishEventRouter = protectedProcedure
         .where(
           and(
             eq(eventReviewers.eventId, input.eventId),
-            eq(eventReviewers.status, "accepted")
-          )
+            eq(eventReviewers.status, "accepted"),
+          ),
         );
 
       const acceptedSpeakers = speakerCount?.count ?? 0;

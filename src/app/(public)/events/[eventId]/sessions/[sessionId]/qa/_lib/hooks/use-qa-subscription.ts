@@ -3,7 +3,13 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { client } from "@/utils/orpc";
-import type { Question, SessionQAEvent, QuestionEvent, LikeEvent, AnswerEvent } from "../types";
+import type {
+  Question,
+  SessionQAEvent,
+  QuestionEvent,
+  LikeEvent,
+  AnswerEvent,
+} from "../types";
 
 export const QA_QUERY_KEY = (sessionId: string) =>
   ["websocketsRouter", "qa", "list", sessionId] as const;
@@ -39,7 +45,9 @@ export function useQASubscription({
           switch (event.type) {
             case "question_created": {
               // Check if question already exists
-              const exists = old.questions.some((q) => q.id === event.question.id);
+              const exists = old.questions.some(
+                (q) => q.id === event.question.id,
+              );
               if (exists) return old;
 
               // Add new question at the beginning
@@ -66,7 +74,7 @@ export function useQASubscription({
                         hasLiked: q.hasLiked,
                         answers: q.answers,
                       }
-                    : q
+                    : q,
                 ),
               };
             }
@@ -74,17 +82,19 @@ export function useQASubscription({
             case "question_deleted": {
               return {
                 ...old,
-                questions: old.questions.filter((q) => q.id !== event.question.id),
+                questions: old.questions.filter(
+                  (q) => q.id !== event.question.id,
+                ),
               };
             }
 
             default:
               return old;
           }
-        }
+        },
       );
     },
-    [queryClient, sessionId]
+    [queryClient, sessionId],
   );
 
   const handleLikeEvent = useCallback(
@@ -106,13 +116,13 @@ export function useQASubscription({
                         ? event.type === "question_liked"
                         : q.hasLiked,
                   }
-                : q
+                : q,
             ),
           };
-        }
+        },
       );
     },
-    [queryClient, sessionId, currentUserId]
+    [queryClient, sessionId, currentUserId],
   );
 
   const handleAnswerEvent = useCallback(
@@ -133,7 +143,7 @@ export function useQASubscription({
                         isAnswered: true,
                         answers: [...q.answers, event.answer],
                       }
-                    : q
+                    : q,
                 ),
               };
             }
@@ -146,10 +156,10 @@ export function useQASubscription({
                     ? {
                         ...q,
                         answers: q.answers.map((a) =>
-                          a.id === event.answer.id ? event.answer : a
+                          a.id === event.answer.id ? event.answer : a,
                         ),
                       }
-                    : q
+                    : q,
                 ),
               };
             }
@@ -161,10 +171,12 @@ export function useQASubscription({
                   q.id === event.answer.questionId
                     ? {
                         ...q,
-                        answers: q.answers.filter((a) => a.id !== event.answer.id),
+                        answers: q.answers.filter(
+                          (a) => a.id !== event.answer.id,
+                        ),
                         isAnswered: q.answers.length > 1,
                       }
-                    : q
+                    : q,
                 ),
               };
             }
@@ -172,10 +184,10 @@ export function useQASubscription({
             default:
               return old;
           }
-        }
+        },
       );
     },
-    [queryClient, sessionId]
+    [queryClient, sessionId],
   );
 
   const handleEvent = useCallback(
@@ -183,7 +195,8 @@ export function useQASubscription({
       if (event.type.startsWith("question_") && "question" in event) {
         handleQuestionEvent(event as QuestionEvent);
       } else if (
-        (event.type === "question_liked" || event.type === "question_unliked") &&
+        (event.type === "question_liked" ||
+          event.type === "question_unliked") &&
         "questionId" in event
       ) {
         handleLikeEvent(event as LikeEvent);
@@ -191,7 +204,7 @@ export function useQASubscription({
         handleAnswerEvent(event as AnswerEvent);
       }
     },
-    [handleQuestionEvent, handleLikeEvent, handleAnswerEvent]
+    [handleQuestionEvent, handleLikeEvent, handleAnswerEvent],
   );
 
   useEffect(() => {

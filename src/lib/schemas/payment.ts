@@ -180,7 +180,7 @@ export const chargilyCheckoutDataSchema = z.object({
   amount: z.number(),
   currency: z.string(),
   payment_method: z.string().nullable(),
-  metadata: z.record(z.string()).nullable(),
+  metadata: z.record(z.string(), z.string()).nullable(),
   success_url: z.string(),
   failure_url: z.string(),
   created_at: z.number(),

@@ -34,7 +34,7 @@ export function LoadingState() {
                 }}
               >
                 {/* Left accent bar */}
-                <div className="bg-primary/20 absolute left-0 top-0 h-full w-1" />
+                <div className="bg-primary/20 absolute top-0 left-0 h-full w-1" />
 
                 <CardHeader className="gap-3 pb-3 pl-5">
                   <div className="flex items-start justify-between gap-4">

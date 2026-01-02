@@ -100,7 +100,8 @@ export const submissionTypeValues = submissionTypeEnum.enumValues;
 export const submissionStatusValues = submissionStatusEnum.enumValues;
 export const reviewRecommendationValues = reviewRecommendationEnum.enumValues;
 export const eventSpeakerStatusValues = eventSpeakerStatusEnum.enumValues;
-export const workshopProposalStatusValues = workshopProposalStatusEnum.enumValues;
+export const workshopProposalStatusValues =
+  workshopProposalStatusEnum.enumValues;
 export const fileTypeValues = fileTypeEnum.enumValues;
 export const fileStatusValues = fileStatusEnum.enumValues;
 export const paymentStatusValues = paymentStatusEnum.enumValues;
@@ -120,7 +121,8 @@ export type SubmissionType = (typeof submissionTypeValues)[number];
 export type SubmissionStatus = (typeof submissionStatusValues)[number];
 export type ReviewRecommendation = (typeof reviewRecommendationValues)[number];
 export type EventSpeakerStatus = (typeof eventSpeakerStatusValues)[number];
-export type WorkshopProposalStatus = (typeof workshopProposalStatusValues)[number];
+export type WorkshopProposalStatus =
+  (typeof workshopProposalStatusValues)[number];
 export type FileType = (typeof fileTypeValues)[number];
 export type FileStatus = (typeof fileStatusValues)[number];
 export type PaymentStatus = (typeof paymentStatusValues)[number];

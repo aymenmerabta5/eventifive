@@ -110,7 +110,10 @@ export const getQuestionsRouter = protectedProcedure
               eq(sessionQuestions.isApproved, true),
             ),
       )
-      .orderBy(desc(sessionQuestions.likeCount), desc(sessionQuestions.createdAt));
+      .orderBy(
+        desc(sessionQuestions.likeCount),
+        desc(sessionQuestions.createdAt),
+      );
 
     const questionsResult = await questionsQuery;
 
@@ -158,7 +161,10 @@ export const getQuestionsRouter = protectedProcedure
     const answererUserIds = [...new Set(answers.map((a) => a.userId))];
 
     // Get roles for all answerers
-    const answererRoles = new Map<string, "organizer" | "chair" | "communicator" | "speaker">();
+    const answererRoles = new Map<
+      string,
+      "organizer" | "chair" | "communicator" | "speaker"
+    >();
     for (const oderId of answererUserIds) {
       const roleInfo = await getSessionManagerInfo(sessionId, oderId);
       if (roleInfo) {

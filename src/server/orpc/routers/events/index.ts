@@ -27,6 +27,7 @@ import { listParticipantsRouter } from "./listParticipants";
 import { getRegistrationStatusRouter } from "./getRegistrationStatus";
 import { myRegistrationsRouter } from "./myRegistrations";
 import { adminListEventsRouter } from "./adminList";
+import { adminListEventsPaginatedRouter } from "./adminListPaginated";
 import { adminDeleteEventRouter } from "./adminDelete";
 
 export const eventsRouter = {
@@ -57,6 +58,7 @@ export const eventsRouter = {
   getRegistrationStatus: getRegistrationStatusRouter,
   myRegistrations: myRegistrationsRouter,
   adminList: adminListEventsRouter,
+  adminListPaginated: adminListEventsPaginatedRouter,
   adminDelete: adminDeleteEventRouter,
 };
 
@@ -76,5 +78,6 @@ export {
   getRegistrationStatusRouter,
   myRegistrationsRouter,
   adminListEventsRouter,
+  adminListEventsPaginatedRouter,
   adminDeleteEventRouter,
 };

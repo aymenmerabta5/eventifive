@@ -12,14 +12,17 @@ interface CommunicatorTabProps {
   isLoading: boolean;
 }
 
-export function CommunicatorTab({ submissions, isLoading }: CommunicatorTabProps) {
+export function CommunicatorTab({
+  submissions,
+  isLoading,
+}: CommunicatorTabProps) {
   const stats = {
     total: submissions.length,
     reviewed: submissions.filter((s) => {
       const decision = computeFinalDecision(
         s.reviewers.map((r) => ({
           reviewStatus: r.reviewStatus as ReviewStatus,
-        }))
+        })),
       );
       return decision.finalStatus !== "pending";
     }).length,
@@ -27,7 +30,7 @@ export function CommunicatorTab({ submissions, isLoading }: CommunicatorTabProps
       const decision = computeFinalDecision(
         s.reviewers.map((r) => ({
           reviewStatus: r.reviewStatus as ReviewStatus,
-        }))
+        })),
       );
       return decision.finalStatus === "pending";
     }).length,
@@ -43,8 +46,8 @@ export function CommunicatorTab({ submissions, isLoading }: CommunicatorTabProps
 
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80"
+          "border-border/50 relative overflow-hidden rounded-2xl border",
+          "from-card via-card to-card/80 bg-gradient-to-br",
         )}
       >
         {/* Pattern overlay */}
@@ -57,22 +60,22 @@ export function CommunicatorTab({ submissions, isLoading }: CommunicatorTabProps
         />
 
         {/* Accent strip */}
-        <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-chart-2 via-chart-2/80 to-primary" />
+        <div className="from-chart-2 via-chart-2/80 to-primary absolute top-0 right-0 left-0 h-1 bg-gradient-to-r" />
 
         <div className="relative p-6">
           <div className="mb-6 space-y-1">
-            <h3 className="font-display text-lg font-semibold text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold">
               Paper Submissions
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Research papers submitted for review.
             </p>
           </div>
 
           {isLoading && (
             <div className="flex items-center justify-center py-12">
-              <IconLoader2 className="size-6 animate-spin text-chart-2" />
-              <span className="ml-2 text-sm text-muted-foreground">
+              <IconLoader2 className="text-chart-2 size-6 animate-spin" />
+              <span className="text-muted-foreground ml-2 text-sm">
                 Loading submissions...
               </span>
             </div>
@@ -81,23 +84,24 @@ export function CommunicatorTab({ submissions, isLoading }: CommunicatorTabProps
           {!isLoading && submissions.length === 0 && (
             <div
               className={cn(
-                "flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50 p-12",
-                "bg-gradient-to-br from-muted/30 to-muted/10"
+                "border-border/50 flex flex-col items-center justify-center rounded-xl border border-dashed p-12",
+                "from-muted/30 to-muted/10 bg-gradient-to-br",
               )}
             >
               <div
                 className={cn(
                   "mb-4 flex size-16 items-center justify-center rounded-2xl",
-                  "bg-gradient-to-br from-chart-2/10 to-primary/10"
+                  "from-chart-2/10 to-primary/10 bg-gradient-to-br",
                 )}
               >
-                <IconFileText className="size-8 text-chart-2/60" />
+                <IconFileText className="text-chart-2/60 size-8" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-foreground">
+              <h3 className="font-display text-foreground text-lg font-semibold">
                 No submissions yet
               </h3>
-              <p className="mt-2 max-w-sm text-center text-sm text-muted-foreground">
-                Submissions will appear here once researchers submit their papers.
+              <p className="text-muted-foreground mt-2 max-w-sm text-center text-sm">
+                Submissions will appear here once researchers submit their
+                papers.
               </p>
             </div>
           )}

@@ -59,7 +59,7 @@ export function RejectWorkshopModal({
                 "bg-destructive/10",
               )}
             >
-              <IconX className="size-4 text-destructive" />
+              <IconX className="text-destructive size-4" />
             </div>
             Reject Workshop Proposal
           </DialogTitle>
@@ -84,7 +84,7 @@ export function RejectWorkshopModal({
               maxLength={1000}
               className="resize-none"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {reason.length}/1000 characters
             </p>
           </div>

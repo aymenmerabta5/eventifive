@@ -54,7 +54,8 @@ function getStatusStyles(status: string) {
   switch (status) {
     case "accepted":
       return {
-        badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400",
+        badge:
+          "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400",
         ring: "ring-emerald-500/20",
       };
     case "rejected":
@@ -65,7 +66,8 @@ function getStatusStyles(status: string) {
     case "pending":
     default:
       return {
-        badge: "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400",
+        badge:
+          "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400",
         ring: "ring-amber-500/20",
       };
   }
@@ -97,14 +99,14 @@ function InviteCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
       className={cn(
-        "group relative overflow-hidden rounded-xl border bg-card p-4 transition-all hover:shadow-md",
+        "group bg-card relative overflow-hidden rounded-xl border p-4 transition-all hover:shadow-md",
         styles.ring,
       )}
     >
       {/* Status indicator line */}
       <div
         className={cn(
-          "absolute left-0 top-0 h-full w-1 transition-all",
+          "absolute top-0 left-0 h-full w-1 transition-all",
           status === "accepted" && "bg-emerald-500",
           status === "rejected" && "bg-destructive",
           status === "pending" && "bg-amber-500",
@@ -113,32 +115,29 @@ function InviteCard({
 
       <div className="flex items-start gap-3 pl-2">
         {/* Avatar placeholder */}
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <div className="bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-full">
           <UserCircle className="size-6" />
         </div>
 
         {/* Info */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate font-medium text-foreground">
+            <span className="text-foreground truncate font-medium">
               {name || email.split("@")[0]}
             </span>
             <Badge
               variant="outline"
-              className={cn(
-                "shrink-0 border text-xs capitalize",
-                styles.badge,
-              )}
+              className={cn("shrink-0 border text-xs capitalize", styles.badge)}
             >
               {status}
             </Badge>
           </div>
-          <div className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+          <div className="text-muted-foreground mt-0.5 flex items-center gap-1 text-sm">
             <Mail className="size-3" />
             <span className="truncate">{email}</span>
           </div>
           {affiliation && (
-            <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground/80">
+            <div className="text-muted-foreground/80 mt-0.5 flex items-center gap-1 text-xs">
               <Building2 className="size-3" />
               <span className="truncate">{affiliation}</span>
             </div>
@@ -154,7 +153,7 @@ function InviteCard({
             disabled={isRemoving}
             className="size-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
           >
-            <Trash2 className="size-4 text-destructive" />
+            <Trash2 className="text-destructive size-4" />
           </Button>
         )}
       </div>
@@ -186,14 +185,14 @@ function InviteForm({
   };
 
   return (
-    <div className="space-y-3 rounded-xl bg-muted/30 p-4 ring-1 ring-border/50">
-      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-        <Send className="size-4 text-primary" />
+    <div className="bg-muted/30 ring-border/50 space-y-3 rounded-xl p-4 ring-1">
+      <div className="text-foreground flex items-center gap-2 text-sm font-medium">
+        <Send className="text-primary size-4" />
         Send Invitation
       </div>
       <div className="space-y-2">
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Mail className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             placeholder={placeholder}
             type="email"
@@ -211,7 +210,7 @@ function InviteForm({
         </div>
         {showAffiliation && (
           <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Building2 className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
               placeholder="Organization / University (optional)"
               value={affiliation}
@@ -277,8 +276,8 @@ export function InvitesStep({
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-8">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="text-muted-foreground flex items-center gap-2">
+            <div className="border-primary size-4 animate-spin rounded-full border-2 border-t-transparent" />
             <span>Loading invites...</span>
           </div>
         </div>
@@ -314,14 +313,14 @@ export function InvitesStep({
               </AnimatePresence>
 
               {speakerCount === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 py-8 text-center">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                    <UserPlus className="size-6 text-muted-foreground" />
+                <div className="border-border/60 flex flex-col items-center justify-center rounded-xl border border-dashed py-8 text-center">
+                  <div className="bg-muted flex size-12 items-center justify-center rounded-full">
+                    <UserPlus className="text-muted-foreground size-6" />
                   </div>
-                  <p className="mt-3 text-sm font-medium text-foreground">
+                  <p className="text-foreground mt-3 text-sm font-medium">
                     No speakers invited yet
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     Invite speakers to present at your event
                   </p>
                 </div>
@@ -364,14 +363,14 @@ export function InvitesStep({
               </AnimatePresence>
 
               {reviewerCount === 0 && (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 py-8 text-center">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                    <Users className="size-6 text-muted-foreground" />
+                <div className="border-border/60 flex flex-col items-center justify-center rounded-xl border border-dashed py-8 text-center">
+                  <div className="bg-muted flex size-12 items-center justify-center rounded-full">
+                    <Users className="text-muted-foreground size-6" />
                   </div>
-                  <p className="mt-3 text-sm font-medium text-foreground">
+                  <p className="text-foreground mt-3 text-sm font-medium">
                     No reviewers invited yet
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     Invite {REQUIRED_REVIEWERS} reviewers for submissions
                   </p>
                 </div>
@@ -388,9 +387,9 @@ export function InvitesStep({
                       {reviewerCount}/{REQUIRED_REVIEWERS}
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div className="bg-muted h-2 overflow-hidden rounded-full">
                     <motion.div
-                      className="h-full bg-primary"
+                      className="bg-primary h-full"
                       initial={{ width: 0 }}
                       animate={{
                         width: `${(reviewerCount / REQUIRED_REVIEWERS) * 100}%`,
@@ -411,7 +410,7 @@ export function InvitesStep({
               )}
 
               {!canAddReviewer && (
-                <div className="rounded-xl bg-primary/5 p-4 text-center text-sm text-primary">
+                <div className="bg-primary/5 text-primary rounded-xl p-4 text-center text-sm">
                   All reviewer slots filled. Remove a reviewer to add a new one.
                 </div>
               )}

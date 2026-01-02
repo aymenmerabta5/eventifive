@@ -30,7 +30,7 @@ export function LoadingState() {
           <div className="mt-12 space-y-8">
             {/* Submission details card skeleton */}
             <Card className="border-border/60 bg-card/80 relative overflow-hidden backdrop-blur-sm">
-              <div className="bg-primary/20 absolute left-0 top-0 h-full w-1" />
+              <div className="bg-primary/20 absolute top-0 left-0 h-full w-1" />
 
               <CardHeader className="pl-5">
                 <div className="flex items-center justify-between">
@@ -73,7 +73,7 @@ export function LoadingState() {
 
             {/* Review form card skeleton */}
             <Card className="border-border/60 bg-card/80 relative overflow-hidden backdrop-blur-sm">
-              <div className="bg-primary/20 absolute left-0 top-0 h-full w-1" />
+              <div className="bg-primary/20 absolute top-0 left-0 h-full w-1" />
 
               <CardHeader className="pl-5">
                 <div className="space-y-2">

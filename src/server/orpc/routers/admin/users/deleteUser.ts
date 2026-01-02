@@ -15,12 +15,12 @@ const outputSchema = z.object({
 
 /**
  * Admin endpoint to delete a user
- * 
+ *
  * This endpoint:
  * 1. Requires super_admin authentication (via adminProcedure)
  * 2. Verifies the user exists
  * 3. Deletes the user (cascade deletes handle userRoles, sessions, accounts)
- * 
+ *
  * Cascade deletes in the database schema ensure that related records
  * (userRoles, sessions, accounts) are automatically removed when a user is deleted.
  * This prevents orphaned records and maintains data integrity.
@@ -63,4 +63,3 @@ export const deleteUserRouter = adminProcedure
       });
     }
   });
-

@@ -19,7 +19,7 @@ export function Hero() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-8"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary backdrop-blur-sm">
+          <span className="border-primary/20 bg-primary/5 text-primary inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm">
             <IconCalendarEvent className="size-4" />
             <span>Scientific Events Management</span>
           </span>
@@ -33,16 +33,16 @@ export function Hero() {
           className="relative"
         >
           <h1 className="font-display mb-2 text-center text-5xl font-black tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
-            <span className="bg-gradient-to-r from-primary via-chart-2 to-chart-3 bg-clip-text text-transparent drop-shadow-2xl">
+            <span className="from-primary via-chart-2 to-chart-3 bg-gradient-to-r bg-clip-text text-transparent drop-shadow-2xl">
               Eventi
             </span>
-            <span className="bg-gradient-to-r from-chart-3 via-chart-4 to-chart-5 bg-clip-text tracking-wider text-transparent">
+            <span className="from-chart-3 via-chart-4 to-chart-5 bg-gradient-to-r bg-clip-text tracking-wider text-transparent">
               Five
             </span>
           </h1>
 
           {/* Glow effect behind title */}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/30 via-chart-2/30 to-chart-5/30 opacity-50 blur-3xl" />
+          <div className="from-primary/30 via-chart-2/30 to-chart-5/30 absolute inset-0 -z-10 bg-gradient-to-r opacity-50 blur-3xl" />
         </motion.div>
 
         {/* Subtitle */}
@@ -50,7 +50,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="mt-6 max-w-2xl text-center text-lg font-light leading-relaxed tracking-wide text-foreground/80 sm:text-xl md:text-2xl"
+          className="text-foreground/80 mt-6 max-w-2xl text-center text-lg leading-relaxed font-light tracking-wide sm:text-xl md:text-2xl"
         >
           Your ultimate platform for organizing scientific conferences,
           seminars, and workshops
@@ -61,7 +61,7 @@ export function Hero() {
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
           transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-          className="mt-8 h-1 w-24 rounded-full bg-gradient-to-r from-transparent via-primary to-transparent sm:w-32"
+          className="via-primary mt-8 h-1 w-24 rounded-full bg-gradient-to-r from-transparent to-transparent sm:w-32"
         />
 
         {/* Tagline */}
@@ -69,7 +69,7 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.7 }}
-          className="mt-8 text-center text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground sm:text-sm"
+          className="text-muted-foreground mt-8 text-center text-xs font-medium tracking-[0.3em] uppercase sm:text-sm"
         >
           Create • Manage • Celebrate
         </motion.p>
@@ -86,15 +86,15 @@ export function Hero() {
               size="lg"
               className={cn(
                 "group relative overflow-hidden rounded-full px-8 py-6 text-base font-semibold",
-                "bg-primary text-primary-foreground shadow-lg shadow-primary/25",
-                "hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                "bg-primary text-primary-foreground shadow-primary/25 shadow-lg",
+                "hover:shadow-primary/30 transition-all duration-300 hover:shadow-xl",
               )}
             >
               <span className="relative z-10 flex items-center gap-2">
                 Browse Events
                 <IconArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
-              <div className="absolute inset-0 -z-0 bg-gradient-to-r from-primary via-chart-2 to-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="from-primary via-chart-2 to-primary absolute inset-0 -z-0 bg-gradient-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </Button>
           </Link>
 
@@ -103,9 +103,9 @@ export function Hero() {
               size="lg"
               variant="outline"
               className={cn(
-                "rounded-full border-2 border-primary/30 px-8 py-6 text-base font-semibold",
+                "border-primary/30 rounded-full border-2 px-8 py-6 text-base font-semibold",
                 "text-foreground backdrop-blur-sm",
-                "hover:border-primary/60 hover:bg-primary/5 transition-all duration-300"
+                "hover:border-primary/60 hover:bg-primary/5 transition-all duration-300",
               )}
             >
               View Pricing
@@ -132,10 +132,10 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 1.2 + index * 0.1 }}
               className="text-center"
             >
-              <div className="text-2xl font-bold text-foreground sm:text-3xl">
+              <div className="text-foreground text-2xl font-bold sm:text-3xl">
                 {stat.value}
               </div>
-              <div className="text-xs text-muted-foreground sm:text-sm">
+              <div className="text-muted-foreground text-xs sm:text-sm">
                 {stat.label}
               </div>
             </motion.div>

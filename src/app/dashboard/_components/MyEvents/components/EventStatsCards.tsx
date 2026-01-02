@@ -48,19 +48,19 @@ function StatCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
+        "group border-border/50 relative overflow-hidden rounded-2xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
         "shadow-sm transition-all duration-500 ease-out",
-        "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5"
+        "hover:shadow-primary/5 hover:-translate-y-0.5 hover:shadow-lg",
       )}
     >
       {/* Accent strip */}
       <div
         className={cn(
-          "absolute left-0 top-0 h-full w-1 rounded-l-2xl",
+          "absolute top-0 left-0 h-full w-1 rounded-l-2xl",
           "bg-gradient-to-b",
           colors.strip,
-          "opacity-80 transition-opacity group-hover:opacity-100"
+          "opacity-80 transition-opacity group-hover:opacity-100",
         )}
       />
 
@@ -77,20 +77,20 @@ function StatCard({
       <div className="relative p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-3">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
+            <span className="text-muted-foreground/80 text-xs font-medium tracking-wider uppercase">
               {title}
             </span>
-            <div className="font-display text-3xl font-bold tabular-nums text-foreground">
+            <div className="font-display text-foreground text-3xl font-bold tabular-nums">
               {value}
             </div>
-            <p className="text-xs text-muted-foreground">{description}</p>
+            <p className="text-muted-foreground text-xs">{description}</p>
           </div>
 
           <div
             className={cn(
               "flex size-10 items-center justify-center rounded-xl",
               "transition-transform duration-300 group-hover:scale-110",
-              colors.icon
+              colors.icon,
             )}
           >
             {icon}
@@ -101,9 +101,9 @@ function StatCard({
       {/* Hover glow */}
       <div
         className={cn(
-          "pointer-events-none absolute -bottom-8 -right-8 size-32 rounded-full blur-3xl",
+          "pointer-events-none absolute -right-8 -bottom-8 size-32 rounded-full blur-3xl",
           "opacity-0 transition-opacity duration-500 group-hover:opacity-100",
-          colors.glow
+          colors.glow,
         )}
       />
     </div>

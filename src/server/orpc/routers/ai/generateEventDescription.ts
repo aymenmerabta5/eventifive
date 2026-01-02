@@ -29,9 +29,9 @@ const responseSchema = z.object({
           z.object({
             type: z.literal("text"),
             text: z.string(),
-          })
+          }),
         ),
-      })
+      }),
     ),
   }),
 });
@@ -59,8 +59,8 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
     .where(
       and(
         eq(userSubscription.userId, userId),
-        eq(userSubscription.status, "active")
-      )
+        eq(userSubscription.status, "active"),
+      ),
     )
     .limit(1);
   return !!subscription;

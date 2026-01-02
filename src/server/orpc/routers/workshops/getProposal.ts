@@ -110,7 +110,10 @@ export const getProposalRouter = protectedProcedure
       description: workshopData.description,
       researchDomain: workshopData.researchDomain,
       capacity: workshopData.capacity,
-      proposalStatus: workshopData.proposalStatus as "pending" | "accepted" | "rejected",
+      proposalStatus: workshopData.proposalStatus as
+        | "pending"
+        | "accepted"
+        | "rejected",
       proposedAt: workshopData.proposedAt,
       respondedAt: workshopData.respondedAt,
       rejectionReason: workshopData.rejectionReason,

@@ -71,8 +71,8 @@ export const listEventsRouter = publicProcedure
               and(
                 eq(event.type, type),
                 gt(event.startDate, now),
-                eq(event.status, "published")
-              )
+                eq(event.status, "published"),
+              ),
             )
             .orderBy(desc(event.startDate))
             .limit(3);

@@ -45,8 +45,8 @@ export function CancelEventDialog({
     <Dialog open={!!event} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         {/* Warning icon */}
-        <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-chart-4/10">
-          <IconAlertCircle className="size-7 text-chart-4" />
+        <div className="bg-chart-4/10 mx-auto mb-4 flex size-14 items-center justify-center rounded-full">
+          <IconAlertCircle className="text-chart-4 size-7" />
         </div>
 
         <DialogHeader className="text-center">
@@ -55,18 +55,18 @@ export function CancelEventDialog({
           </DialogTitle>
           <DialogDescription className="text-center">
             Are you sure you want to cancel{" "}
-            <span className="font-medium text-foreground">{event?.title}</span>?
+            <span className="text-foreground font-medium">{event?.title}</span>?
           </DialogDescription>
         </DialogHeader>
 
         {/* Info box */}
         <div
           className={cn(
-            "rounded-xl border border-chart-4/20",
-            "bg-chart-4/5 p-4"
+            "border-chart-4/20 rounded-xl border",
+            "bg-chart-4/5 p-4",
           )}
         >
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             This will prevent new registrations. Existing registrants should be
             notified separately.
           </p>
@@ -76,10 +76,10 @@ export function CancelEventDialog({
         <div className="space-y-2">
           <Label
             htmlFor="cancel-reason"
-            className="text-sm font-medium text-foreground"
+            className="text-foreground text-sm font-medium"
           >
             Cancellation reason{" "}
-            <span className="font-normal text-muted-foreground">
+            <span className="text-muted-foreground font-normal">
               (optional, visible to public)
             </span>
           </Label>
@@ -90,8 +90,8 @@ export function CancelEventDialog({
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             className={cn(
-              "resize-none border-border/50",
-              "focus:border-primary/50 focus:ring-primary/20"
+              "border-border/50 resize-none",
+              "focus:border-primary/50 focus:ring-primary/20",
             )}
           />
         </div>
@@ -101,7 +101,7 @@ export function CancelEventDialog({
             variant="outline"
             onClick={handleClose}
             disabled={isLoading}
-            className="w-full border-border/50 sm:w-auto"
+            className="border-border/50 w-full sm:w-auto"
           >
             Keep Event
           </Button>

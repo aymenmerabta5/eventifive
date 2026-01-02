@@ -37,7 +37,11 @@
       "Bash(git -C \"D:\\\\MyWork\\\\Web Dev\\\\eventifive\" ls-files)",
       "Bash(git -C D:MyWorkWeb Deveventifive ls-files)",
       "Bash(for dir in */)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(taskkill /F /FI \"IMAGENAME eq node.exe\")",
+      "Bash(taskkill /F /FI \"IMAGENAME eq bun.exe\")",
+      "Bash(taskkill:*)",
+      "Bash(bun add:*)"
     ],
     "deny": [],
     "ask": []

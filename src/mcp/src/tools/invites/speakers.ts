@@ -3,7 +3,12 @@ import { z } from "zod";
 import { db } from "../../db.js";
 import { user, eventSpeakers } from "../../schema.js";
 import { eq, and } from "drizzle-orm";
-import { findUser, findEvent, successResponse, errorResponse } from "./helpers.js";
+import {
+  findUser,
+  findEvent,
+  successResponse,
+  errorResponse,
+} from "./helpers.js";
 
 export function registerSpeakerTools(server: McpServer) {
   // =============================================
@@ -30,18 +35,22 @@ export function registerSpeakerTools(server: McpServer) {
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -51,8 +60,8 @@ export function registerSpeakerTools(server: McpServer) {
           .where(
             and(
               eq(eventSpeakers.eventId, input.eventId),
-              eq(eventSpeakers.userId, targetUser.id)
-            )
+              eq(eventSpeakers.userId, targetUser.id),
+            ),
           )
           .limit(1);
 
@@ -69,8 +78,8 @@ export function registerSpeakerTools(server: McpServer) {
                 },
               },
               null,
-              2
-            )
+              2,
+            ),
           );
         }
 
@@ -103,10 +112,10 @@ export function registerSpeakerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error inviting speaker: ${error instanceof Error ? error.message : String(error)}`
+          `Error inviting speaker: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -132,13 +141,15 @@ export function registerSpeakerTools(server: McpServer) {
     async (input) => {
       try {
         if (!input.userId && !input.email) {
-          return errorResponse("Error: Either userId or email must be provided");
+          return errorResponse(
+            "Error: Either userId or email must be provided",
+          );
         }
 
         const targetUser = await findUser(input.userId, input.email);
         if (!targetUser) {
           return errorResponse(
-            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`
+            `Error: User not found with ${input.userId ? `ID: ${input.userId}` : `email: ${input.email}`}`,
           );
         }
 
@@ -148,14 +159,14 @@ export function registerSpeakerTools(server: McpServer) {
           .where(
             and(
               eq(eventSpeakers.eventId, input.eventId),
-              eq(eventSpeakers.userId, targetUser.id)
-            )
+              eq(eventSpeakers.userId, targetUser.id),
+            ),
           )
           .limit(1);
 
         if (!existingInvite) {
           return errorResponse(
-            `Error: No speaker invitation found for this user and event`
+            `Error: No speaker invitation found for this user and event`,
           );
         }
 
@@ -168,8 +179,8 @@ export function registerSpeakerTools(server: McpServer) {
                 invite: existingInvite,
               },
               null,
-              2
-            )
+              2,
+            ),
           );
         }
 
@@ -199,10 +210,10 @@ export function registerSpeakerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error responding to speaker invite: ${error instanceof Error ? error.message : String(error)}`
+          `Error responding to speaker invite: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -211,7 +222,8 @@ export function registerSpeakerTools(server: McpServer) {
   server.registerTool(
     "eventifive_list_event_speakers",
     {
-      description: "List all speakers (invited, accepted, rejected) for an event",
+      description:
+        "List all speakers (invited, accepted, rejected) for an event",
       inputSchema: z.object({
         eventId: z.string().describe("ID of the event"),
         status: z
@@ -224,7 +236,9 @@ export function registerSpeakerTools(server: McpServer) {
       try {
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const speakers = await db
@@ -256,10 +270,10 @@ export function registerSpeakerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error listing speakers: ${error instanceof Error ? error.message : String(error)}`
+          `Error listing speakers: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 
   // =============================================
@@ -281,7 +295,7 @@ export function registerSpeakerTools(server: McpServer) {
                 .string()
                 .optional()
                 .describe("Speaker's affiliation/institution"),
-            })
+            }),
           )
           .min(1)
           .max(50)
@@ -292,7 +306,9 @@ export function registerSpeakerTools(server: McpServer) {
       try {
         const targetEvent = await findEvent(input.eventId);
         if (!targetEvent) {
-          return errorResponse(`Error: Event not found with ID: ${input.eventId}`);
+          return errorResponse(
+            `Error: Event not found with ID: ${input.eventId}`,
+          );
         }
 
         const results: Array<{
@@ -316,7 +332,10 @@ export function registerSpeakerTools(server: McpServer) {
             continue;
           }
 
-          const targetUser = await findUser(inviteInput.userId, inviteInput.email);
+          const targetUser = await findUser(
+            inviteInput.userId,
+            inviteInput.email,
+          );
           if (!targetUser) {
             results.push({
               input: inviteInput,
@@ -332,8 +351,8 @@ export function registerSpeakerTools(server: McpServer) {
             .where(
               and(
                 eq(eventSpeakers.eventId, input.eventId),
-                eq(eventSpeakers.userId, targetUser.id)
-              )
+                eq(eventSpeakers.userId, targetUser.id),
+              ),
             )
             .limit(1);
 
@@ -391,9 +410,9 @@ export function registerSpeakerTools(server: McpServer) {
         });
       } catch (error) {
         return errorResponse(
-          `Error bulk inviting speakers: ${error instanceof Error ? error.message : String(error)}`
+          `Error bulk inviting speakers: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
-    }
+    },
   );
 }

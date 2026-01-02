@@ -70,3 +70,11 @@ export interface InvitesData {
   reviewers: ReviewerInvite[];
   communicators: Communicator[];
 }
+
+export interface ChairOption {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: "speaker" | "communicator" | "facilitator";
+}

@@ -37,8 +37,8 @@ export function EventHero({
   return (
     <div className="relative">
       {/* Background decorative elements */}
-      <div className="pointer-events-none absolute -left-20 -top-20 size-80 rounded-full bg-gradient-to-br from-primary/20 via-chart-2/10 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute -right-20 top-0 size-64 rounded-full bg-gradient-to-bl from-chart-3/15 via-chart-4/10 to-transparent blur-3xl" />
+      <div className="from-primary/20 via-chart-2/10 pointer-events-none absolute -top-20 -left-20 size-80 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
+      <div className="from-chart-3/15 via-chart-4/10 pointer-events-none absolute top-0 -right-20 size-64 rounded-full bg-gradient-to-bl to-transparent blur-3xl" />
 
       <div className="relative">
         {/* Breadcrumb / Navigation */}
@@ -46,7 +46,7 @@ export function EventHero({
           <div className="flex items-center gap-2 text-sm">
             <Link
               href="/events"
-              className="text-muted-foreground transition-colors hover:text-primary"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               Events
             </Link>
@@ -59,8 +59,8 @@ export function EventHero({
               variant="outline"
               size="sm"
               className={cn(
-                "gap-2 border-border/50",
-                "hover:border-primary/50 hover:bg-primary/5"
+                "border-border/50 gap-2",
+                "hover:border-primary/50 hover:bg-primary/5",
               )}
             >
               <Link href={`/events/${eventId}/calender`}>
@@ -73,8 +73,8 @@ export function EventHero({
               size="sm"
               className={cn(
                 "gap-2",
-                "bg-gradient-to-r from-primary to-chart-2",
-                "hover:from-primary/90 hover:to-chart-2/90"
+                "from-primary to-chart-2 bg-gradient-to-r",
+                "hover:from-primary/90 hover:to-chart-2/90",
               )}
             >
               <Link href="/events">
@@ -88,9 +88,9 @@ export function EventHero({
         {/* Hero Card */}
         <div
           className={cn(
-            "relative overflow-hidden rounded-3xl border border-border/50",
-            "bg-gradient-to-br from-card via-card to-card/80",
-            status === "cancelled" && "border-destructive/30"
+            "border-border/50 relative overflow-hidden rounded-3xl border",
+            "from-card via-card to-card/80 bg-gradient-to-br",
+            status === "cancelled" && "border-destructive/30",
           )}
         >
           {/* Pattern overlay */}
@@ -105,10 +105,10 @@ export function EventHero({
           {/* Accent strip at top */}
           <div
             className={cn(
-              "absolute left-0 right-0 top-0 h-1",
+              "absolute top-0 right-0 left-0 h-1",
               status === "cancelled"
-                ? "bg-gradient-to-r from-destructive via-destructive/50 to-destructive"
-                : "bg-gradient-to-r from-primary via-chart-2 to-chart-3"
+                ? "from-destructive via-destructive/50 to-destructive bg-gradient-to-r"
+                : "from-primary via-chart-2 to-chart-3 bg-gradient-to-r",
             )}
           />
 
@@ -122,7 +122,7 @@ export function EventHero({
                     variant="secondary"
                     className={cn(
                       "capitalize",
-                      "bg-primary/10 text-primary border-primary/20"
+                      "bg-primary/10 text-primary border-primary/20",
                     )}
                   >
                     <IconSparkles className="mr-1 size-3" />
@@ -142,7 +142,7 @@ export function EventHero({
                 <h1
                   className={cn(
                     "font-display text-3xl font-bold tracking-tight",
-                    "text-foreground sm:text-4xl lg:text-5xl"
+                    "text-foreground sm:text-4xl lg:text-5xl",
                   )}
                 >
                   {title}
@@ -154,16 +154,16 @@ export function EventHero({
                 {/* Meta info */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   {location && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-                        <IconMapPin className="size-4 text-primary" />
+                    <div className="text-muted-foreground flex items-center gap-2">
+                      <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+                        <IconMapPin className="text-primary size-4" />
                       </div>
                       <span>{location}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-chart-2/10">
-                      <IconCalendar className="size-4 text-chart-2" />
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <div className="bg-chart-2/10 flex size-8 items-center justify-center rounded-lg">
+                      <IconCalendar className="text-chart-2 size-4" />
                     </div>
                     <span>
                       {formatDateFull(startDate)} &mdash;{" "}
@@ -177,17 +177,17 @@ export function EventHero({
               <div
                 className={cn(
                   "hidden shrink-0 lg:block",
-                  "rounded-2xl border border-border/50 bg-muted/30 p-6"
+                  "border-border/50 bg-muted/30 rounded-2xl border p-6",
                 )}
               >
                 <div className="text-center">
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                     Starts at
                   </p>
-                  <p className="font-display text-4xl font-bold text-primary">
+                  <p className="font-display text-primary text-4xl font-bold">
                     {formatTime(startDate)}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     {formatDateFull(startDate)}
                   </p>
                 </div>

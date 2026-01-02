@@ -22,7 +22,7 @@ A modern event management platform built with Next.js 16 and Bun, supporting con
 
 ## Prerequisites
 
-- **Bun 1.1+** - Runtime and package manager
+- **Bun 1.3+** - Runtime and package manager
 - **PostgreSQL** - Database
 - **Redis** - Caching, real-time features, and rate limiting
 
@@ -38,15 +38,6 @@ bun install
 
 ```bash
 cp .env.example .env
-```
-
-Fill in your environment variables. Required:
-
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/eventifive"
-BETTER_AUTH_SECRET="generate-with-openssl-rand-base64-32"
-BETTER_AUTH_URL="http://localhost:3000"
-REDIS_URL="redis://localhost:6379"
 ```
 
 See `.env.example` for the complete list.
@@ -99,17 +90,44 @@ bun run ws            # WebSocket server only
 src/
 ├── app/                          # Next.js App Router
 │   ├── (auth)/                   # Auth pages (login, signup, reset-password)
-│   ├── (public)/                 # Public pages (events, certificates, settings)
-│   │   ├── events/               # Event listing, details, registration, reviews, workshops
-│   │   ├── certificates/         # Certificate viewing and verification
-│   │   ├── messages/             # Real-time messaging
-│   │   ├── sessions/             # User's sessions (chair/facilitator)
-│   │   ├── registrations/        # User's event registrations + badge download
+│   ├── (public)/                 # Public pages
+│   │   ├── events/               # Event listing, details, registration
+│   │   │   ├── [eventId]/        # Event detail pages
+│   │   │   │   ├── register/     # Event registration
+│   │   │   │   ├── communicator/ # Submit paper/presentation
+│   │   │   │   ├── communicator-reviews/ # Review submissions
+│   │   │   │   ├── review/       # Peer review interface
+│   │   │   │   ├── workshop/     # Workshop proposals
+│   │   │   │   ├── workshops/    # View event workshops
+│   │   │   │   ├── sessions/[sessionId]/
+│   │   │   │   │   ├── qa/       # Session Q&A (real-time)
+│   │   │   │   │   └── polls/    # Live polls (real-time)
+│   │   │   │   ├── question-answer/ # Event-level Q&A
+│   │   │   │   └── calender/     # Calendar view
+│   │   │   └── type/[eventType]/ # Events filtered by type
+│   │   ├── certificates/         # Certificate viewing
 │   │   ├── invites/              # Speaker/reviewer/communicator invites
+│   │   ├── my-applications/      # Track submissions & proposals (NEW)
+│   │   ├── registrations/        # User's event registrations
+│   │   ├── sessions/             # User's sessions (chair/facilitator)
+│   │   ├── settings/             # User profile settings
+│   │   ├── users/[userId]/       # Public user profiles
 │   │   ├── pricing/              # Subscription plans
 │   │   ├── verify/[code]/        # Certificate verification
-│   │   └── verify-badge/[code]/  # Badge verification (public)
+│   │   ├── verify-badge/[code]/  # Badge verification
+│   │   └── payment/              # Payment callbacks
 │   ├── dashboard/                # Protected organizer/admin dashboard
+│   │   └── _components/
+│   │       ├── AdminSectionCards/     # Admin statistics (NEW)
+│   │       ├── AdminEventManagement/  # Admin event management (NEW)
+│   │       ├── AdminUsersManagement/  # Admin user management (NEW)
+│   │       ├── MyEvents/              # Organizer event management
+│   │       ├── EventActions/          # Multi-step event wizard
+│   │       ├── EventRegistration/     # Approvals & certificates
+│   │       ├── SectionCards/          # Organizer stats
+│   │       ├── ChartAreaInteractive/  # Activity charts
+│   │       └── SubscriptionStatus/    # Subscription info
+│   ├── messages/                 # Real-time messaging
 │   └── api/                      # API routes
 │       ├── auth/                 # Better Auth handler
 │       ├── rpc/                  # oRPC endpoints
@@ -117,7 +135,8 @@ src/
 │       └── arcjet/               # Bot detection
 ├── components/
 │   ├── ui/                       # shadcn/ui components (40+)
-│   ├── uploader/                 # Modular file uploader (5 hooks, 7 components)
+│   ├── uploader/                 # Modular file uploader (5 hooks, 12 components)
+│   ├── calendar/                 # Calendar view (8 components)
 │   └── rich-text-editor/         # TipTap WYSIWYG editor
 ├── server/
 │   ├── ai/                       # AI integration (OpenRouter + Vercel AI SDK)
@@ -128,7 +147,26 @@ src/
 │   │   └── schema/               # 13 domain schemas (40+ tables)
 │   ├── gateway/                  # Chargily integration
 │   ├── orpc/                     # API layer
-│   │   ├── routers/              # 16 domain routers (100+ endpoints)
+│   │   ├── routers/              # 17 domain routers (100+ endpoints)
+│   │   │   ├── admin/            # Admin dashboard, user management
+│   │   │   ├── organizer/        # Organizer dashboard
+│   │   │   ├── events/           # Event CRUD, lifecycle, invites
+│   │   │   ├── applications/     # User submissions + proposals (NEW)
+│   │   │   ├── workshops/        # Workshop proposals (17 endpoints)
+│   │   │   ├── sessions/         # Program sessions + Q&A + polls
+│   │   │   ├── submissions/      # Submission management
+│   │   │   ├── reviews/          # Reviewer feedback
+│   │   │   ├── certificates/     # Certificate generation
+│   │   │   ├── badges/           # Badge management
+│   │   │   ├── profile/          # User profile
+│   │   │   ├── files/            # File operations
+│   │   │   ├── payment/          # Payment processing
+│   │   │   ├── subscription/     # Subscription management
+│   │   │   ├── ai/               # AI features
+│   │   │   └── websockets/       # Real-time features
+│   │   │       ├── messaging/    # Real-time chat
+│   │   │       ├── question-answer/ # Session Q&A
+│   │   │       └── polls/        # Live polls
 │   │   ├── index.ts              # Procedure types & middleware
 │   │   ├── context.ts            # Session context
 │   │   └── ratelimit.ts          # Rate limiting config
@@ -143,18 +181,13 @@ src/
 │   ├── tests/                    # Server test utilities
 │   └── utils/                    # Server utility functions
 ├── lib/
-│   ├── schemas/                  # Zod validation schemas
+│   ├── schemas/                  # Zod validation schemas (50+)
 │   ├── certificates/             # Certificate generation (PDF, QR)
-│   ├── emails/                   # React Email templates
-│   └── badges/                   # Badge generation (issueBadge, verification)
+│   ├── badges/                   # Badge generation
+│   └── emails/                   # React Email templates (6 templates)
 └── mcp/                          # MCP server for test data generation
     └── src/tools/
-        ├── invites/              # Modular invite management (refactored)
-        │   ├── speakers.ts       # Speaker invitation tools (4 tools)
-        │   ├── reviewers.ts      # Reviewer invitation tools (4 tools)
-        │   ├── committee.ts      # Committee management (3 tools)
-        │   ├── user-view.ts      # User invitation listing (1 tool)
-        │   └── helpers.ts        # Shared utilities
+        ├── invites/              # Modular invite management
         ├── events.ts             # Event CRUD tools
         ├── users.ts              # User management tools
         ├── submissions.ts        # Submission tools
@@ -171,7 +204,32 @@ src/
 - **Rich Text Descriptions**: TipTap editor for event details
 - **Invitations**: Invite speakers, reviewers, and communicator members
 - **Registration**: Free event registration with payment support for paid events
-- **Multi-Step Wizard**: Animated 4-step wizard for event creation (Details → Invites → Sessions → Review)
+- **Multi-Step Wizard**: Animated 5-step wizard for event creation (Details → Images → Invites → Sessions → Review)
+
+### Session Management (Enhanced)
+- **Program Sessions**: Create sessions with start/end times, rooms, and chairs
+- **Session Q&A**: Real-time questions with anonymous option, likes, moderation
+- **Live Polls**: Create single/multiple choice polls during sessions
+  - Real-time voting via WebSocket + Redis pub/sub
+  - Vote tracking and result aggregation
+  - Poll lifecycle (open, close, archive)
+- **Session Status**: Computed status badges (Live, Upcoming, Completed)
+- **Meeting Links**: Optional video conference links
+
+### Workshops System (Enhanced)
+- **Proposal Workflow**: Submit → Organizer Review → Accept/Reject
+- **Registration Management**: Attendees can register/unregister
+- **Materials Management**: Upload, download, delete workshop resources
+- **Capacity Tracking**: Workshop slot limits
+- **Status Tracking**: Pending, Accepted, Rejected with reasons
+- **Automatic Badge Issuance**: On proposal acceptance
+
+### Applications Tracking (NEW)
+- **Unified View**: Track all submissions and workshop proposals in one place
+- **Status Filtering**: Filter by accepted, pending, rejected
+- **Reviewer Feedback**: View feedback on submissions
+- **Quick Stats**: Accepted count, pending count, totals
+- **Event Navigation**: Direct links to event pages
 
 ### Badges System
 - Generate digital badges for participants, speakers, reviewers, and communicator members
@@ -219,19 +277,6 @@ src/
 - Review workflow with accept/reject recommendations
 - Communicator reviews page for assigned reviewers
 
-### Workshops System (New)
-- Workshop proposal submission with file attachments
-- Multi-step proposal form (personal info, workshop details, files)
-- Proposal management for organizers (accept/reject with reasons)
-- Automatic badge issuance on proposal acceptance
-- Capacity tracking for workshop slots
-
-### Poll System (Real-time, New)
-- Create polls during sessions with multiple options
-- Real-time voting via WebSocket + Redis pub/sub
-- Vote tracking and result aggregation
-- Poll lifecycle management (open, close, archive)
-
 ### Payments & Subscriptions
 - Chargily payment gateway integration
 - Subscription plans with event quotas
@@ -239,10 +284,29 @@ src/
 - Webhook signature verification
 - Support for subscription and event registration payments
 
-### Dashboard
-- Organizer dashboard with event stats and charts
-- Admin dashboard for platform-wide statistics
-- Redis-based caching with cache invalidation
+### Dashboard (Enhanced)
+
+#### Organizer Dashboard
+- **Welcome Section**: Time-based greeting with quick actions
+- **Stats Cards**: Revenue, participants, events, submissions
+- **Activity Charts**: Interactive area charts (7/30/90 day views)
+- **My Events**: Full event lifecycle management
+- **Event Wizard**: 5-step event creation/editing
+- **Approvals**: Manage registrations, submissions, certificates
+- **Quota Indicator**: Subscription event quota tracking
+
+#### Admin Dashboard (NEW)
+- **Platform Statistics**: Total users, events, revenue, active subscriptions
+- **Event Management**:
+  - Search/filter all events platform-wide
+  - Delete and cancel events
+  - Pagination with infinite scroll
+- **User Management**:
+  - Search by name, email, institution, research domain
+  - Filter by role (super_admin, organizer, user)
+  - Change user roles
+  - Delete users
+  - Pagination with infinite scroll
 
 ### AI-Powered Features
 - **Provider**: OpenRouter with Vercel AI SDK
@@ -261,6 +325,16 @@ src/
 publicProcedure     // No auth required
 protectedProcedure  // Requires login
 adminProcedure      // Requires super_admin role
+
+// Specialized rate-limited procedures
+rateLimitedPaymentProcedure
+rateLimitedUploadProcedure
+rateLimitedMessageProcedure
+rateLimitedQAProcedure
+rateLimitedRegistrationProcedure
+rateLimitedPollVoteProcedure
+rateLimitedPollCreationProcedure
+rateLimitedAIProcedure
 ```
 
 ### Rate Limiting (per user, per minute)
@@ -272,16 +346,19 @@ adminProcedure      // Requires super_admin role
 | Messaging | 30/min | Real-time messages |
 | Q&A | 20/min | Session questions |
 | Registration | 10/min | Event registration |
+| Poll Voting | 10/min | Vote manipulation prevention |
+| Poll Creation | 5/min | Session management |
 | AI | 10/min | AI description generation |
 | General | 100/min | Other protected endpoints |
 
-### API Routers (16 domains, 100+ endpoints)
+### API Routers (17 domains, 100+ endpoints)
 
 | Router | Endpoints | Description |
 |--------|-----------|-------------|
-| admin | 1 | Platform-wide statistics |
+| admin | 5 | Platform statistics, user management (paginated) |
 | organizer | 2 | Organizer dashboard stats & charts |
 | events | 28+ | Event CRUD, lifecycle, invites, registration |
+| applications | 1 | Combined submissions + workshop proposals (NEW) |
 | profile | 3 | User profile management |
 | files | 5 | Upload/download with presigned URLs |
 | payment | 4 | Chargily checkout integration |
@@ -289,15 +366,16 @@ adminProcedure      // Requires super_admin role
 | websockets | - | Real-time features container |
 | ↳ messages | 12 | Real-time messaging + presence |
 | ↳ qa | 7 | Session Q&A operations |
+| ↳ polls | 6 | Live polling (create, vote, close, results) |
 | submissions | 4 | Event submissions |
 | reviews | 2 | Submission reviews |
 | sessions | 10 | Program sessions, rooms |
 | certificates | 7 | Generate, download, verify, revoke |
 | badges | 5 | Badge generation, download, verify, revoke |
 | ai | 1 | AI-powered event description generation |
-| workshops | 6 | Propose, accept/reject, list proposals |
+| workshops | 17 | Propose, accept/reject, registration, materials |
 
-## Database Schema (40+ tables)
+## Database Schema (35+ tables)
 
 ### Domain Organization
 
@@ -307,9 +385,8 @@ adminProcedure      // Requires super_admin role
 | Events | 6 | event, eventImages, eventCommunicators, eventSpeakers, eventReviewers, eventRegistration |
 | Files | 1 | files (S3 metadata) |
 | Communicators | 4 | submission, submissionFile, review, reviewAssignment |
-| Sessions | 6 | room, programSession, sessionAssignment, sessionQuestions, sessionQuestionLikes, sessionQuestionAnswers |
-| Workshops | 3 | workshop, workshopProposal, workshopProposalFiles |
-| Polls | 3 | poll, pollOption, pollVote |
+| Sessions | 9 | room, programSession, sessionAssignment, sessionQuestions, sessionQuestionLikes, sessionQuestionAnswers, sessionPoll, sessionPollOption, sessionPollVote |
+| Workshops | 3 | workshop, workshopFile, workshopRegistration |
 | Payments | 4 | subscriptionPlan, subscriptionPrice, userSubscription, payment |
 | Messaging | 3 | conversations, messages, readReceipts |
 | Certificates | 1 | certificate (with verification codes, data snapshots) |
@@ -326,7 +403,10 @@ subscriptionStatusEnum: "pending" | "active" | "cancelled" | "expired"
 certificateRoleEnum: "speaker" | "communicator" | "reviewer" | "facilitator"
 badgeRoleEnum: "participant" | "speaker" | "reviewer" | "communicator"
 workshopProposalStatusEnum: "pending" | "accepted" | "rejected"
-pollStatusEnum: "draft" | "open" | "closed"
+pollTypeEnum: "single" | "multiple"
+submissionTypeEnum: "oral" | "poster" | "displayed_paper"
+submissionStatusEnum: "draft" | "accepted" | "rejected"
+reviewRecommendationEnum: "accept" | "reject"
 ```
 
 ## Real-time Architecture
@@ -364,7 +444,7 @@ Single Redis connection for all pub/sub subscriptions (prevents Upstash connecti
 - Google OAuth integration
 
 ### API Security
-- Zod validation on all 80+ endpoints
+- Zod validation on all 100+ endpoints
 - Drizzle ORM prevents SQL injection
 - Ownership validation (`assertOrganizer` pattern)
 - Rate limiting with Redis backend
@@ -405,36 +485,45 @@ Built with React Email for cross-client compatibility:
 - **SessionChairAssignedEmail** - Chair notification with QR code
 - **EmailLayout** - Base template with Tailwind styles
 
-## UI Components (40+)
+## UI Components (77+)
 
-### shadcn/ui Components
+### shadcn/ui Components (36+)
 Layout, Forms, Dialogs, Data Display, Navigation, Charts, and more.
 
-### Custom Components
-- **Rich Text Editor** (TipTap) - WYSIWYG editor for event descriptions
-- **Calendar View** - Week/day scheduling for program sessions
-- **Certificate Viewer** - PDF display with download
-- **Conversation List & Message View** - Real-time messaging UI
-- **Event Form Wizard** - Animated 4-step wizard with progress indicator (Details → Invites → Sessions → Review)
+### Custom Components (14+)
+- **Header/Footer** - Site navigation
+- **Logo** - Brand component
+- **StepProgress** - Multi-step form indicator
+- **GlowingEffect** - Visual effects
+- **WavyBackground** - Animated backgrounds
+- **GoToTop/ReturnBack** - Navigation helpers
 
-### Modular Uploader Component (Refactored)
-File upload component split into reusable hooks and presentational components:
+### Modular Uploader Component (12 components, 5 hooks)
+**Hooks:**
+- `useUploader` - Main orchestrator
+- `useFileDragDrop` - Drag-drop handling
+- `useImageReorder` - Drag-to-reorder
+- `usePreviewUrls` - Blob URL management
+- `useUploadQuota` - Quota fetching
 
-**Hooks (5 custom hooks):**
-- `useUploader` - Main orchestrator coordinating all upload state
-- `useFileDragDrop` - Drag-over state and file drop handling
-- `useImageReorder` - Drag-to-reorder functionality for images
-- `usePreviewUrls` - Blob URL management with memory cleanup
-- `useUploadQuota` - Upload quota fetching for documents
+**Components:**
+- `DropZone` - Drag-drop input area
+- `ImageGrid` / `ImageCard` - Image previews
+- `FileList` / `FileItem` - Document list
+- `AddMoreSlot` - Add files button
+- `UploaderActions` - Upload/clear buttons
 
-**Components (7 presentational):**
-- `DropZone` - Drag-drop file input area
-- `ImageGrid` / `ImageCard` - Image preview grid with cover badge
-- `FileList` / `FileItem` - Document file list display
-- `AddMoreSlot` - Add more files button
-- `UploaderActions` - Upload/clear action buttons
+### Calendar System (8 components)
+- `CalendarView` - Main week-based scheduler
+- `CalendarWeekHeader` - Week navigation
+- `CalendarDayColumn` - Day columns
+- `CalendarHoursColumn` - Time labels
+- `SessionCard` - Session display
+- `SessionSheet/SessionDialog` - Session details
+- `CurrentTimeIndicator` - Real-time indicator
 
-**Supports:** Event images (JPEG/PNG/WebP/GIF) and registration documents (PDF/DOC/DOCX)
+### Rich Text Editor
+TipTap-based WYSIWYG with formatting toolbar and HTML output.
 
 ## Deployment
 
@@ -447,11 +536,31 @@ Auto-generated OpenAPI at `/api/rpc/api-reference`
 
 ## Architecture Highlights
 
-- **Type Safety**: Full TypeScript with Zod schemas on all endpoints
-- **Real-time**: WebSocket + Redis pub/sub for messaging and Q&A
+- **Type Safety**: Full TypeScript with 50+ Zod schemas on all endpoints
+- **Real-time**: WebSocket + Redis pub/sub for messaging, Q&A, polls
 - **Performance**: Redis caching, presigned URLs, batch operations
 - **Security**: Multi-layer rate limiting, ownership validation, input sanitization
 - **Scalability**: Modular schema design, connection pooling, cache invalidation
+- **Code Quality**: Consistent component architecture with hooks + components pattern
+
+## Component Architecture Pattern
+
+All features follow a consistent structure:
+```
+FeatureName/
+├── FeatureName.tsx      # Main component
+├── components/          # UI sub-components
+│   ├── Component1.tsx
+│   ├── Component2.tsx
+│   └── index.ts
+├── hooks/               # Data fetching & mutations
+│   ├── useFeatureHook.ts
+│   └── index.ts
+├── types.ts             # TypeScript interfaces
+├── constants.ts         # Configuration
+├── utils.ts             # Helper functions
+└── index.ts             # Exports
+```
 
 ## License
 

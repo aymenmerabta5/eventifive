@@ -61,7 +61,7 @@ export function EventTypePage({ eventType }: EventTypePageProps) {
       <TypeHeroSection eventType={eventType} stats={stats} />
 
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
         {/* Search and Filter Bar */}
         <SearchFilterBar
           searchTerm={searchTerm}

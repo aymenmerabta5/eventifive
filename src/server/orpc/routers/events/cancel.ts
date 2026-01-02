@@ -31,7 +31,10 @@ export const cancelEventRouter = protectedProcedure
         .select()
         .from(event)
         .where(
-          and(eq(event.id, input.eventId), eq(event.organizerId, session.user.id))
+          and(
+            eq(event.id, input.eventId),
+            eq(event.organizerId, session.user.id),
+          ),
         );
 
       if (!eventData) {

@@ -86,7 +86,7 @@ export function EventDetailsForm({
               <FormFieldWrapper>
                 <Label
                   htmlFor={field.name}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                  className="text-foreground flex items-center gap-2 text-sm font-medium"
                 >
                   Event Title
                   <span className="text-destructive">*</span>
@@ -99,11 +99,11 @@ export function EventDetailsForm({
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="e.g., International AI Conference 2025"
-                  className="h-10 border-0 bg-transparent text-base shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
+                  className="placeholder:text-muted-foreground/50 h-10 border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
                   disabled={disabled}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error} className="text-sm text-destructive">
+                  <p key={error} className="text-destructive text-sm">
                     {error}
                   </p>
                 ))}
@@ -117,7 +117,7 @@ export function EventDetailsForm({
               <FormFieldWrapper>
                 <Label
                   htmlFor={field.name}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                  className="text-foreground flex items-center gap-2 text-sm font-medium"
                 >
                   Event Type
                   <span className="text-destructive">*</span>
@@ -142,7 +142,7 @@ export function EventDetailsForm({
                   </SelectContent>
                 </Select>
                 {field.state.meta.errors.map((error) => (
-                  <p key={error} className="text-sm text-destructive">
+                  <p key={error} className="text-destructive text-sm">
                     {error}
                   </p>
                 ))}
@@ -191,11 +191,11 @@ export function EventDetailsForm({
               <div className="space-y-2">
                 <Label
                   htmlFor={field.name}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                  className="text-foreground flex items-center gap-2 text-sm font-medium"
                 >
                   Short Summary
                   <span className="text-destructive">*</span>
-                  <span className="ml-auto text-xs font-normal text-muted-foreground">
+                  <span className="text-muted-foreground ml-auto text-xs font-normal">
                     Shown in cards and listings
                   </span>
                 </Label>
@@ -206,11 +206,11 @@ export function EventDetailsForm({
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="A brief, compelling description of your event..."
-                  className="min-h-[100px] resize-none rounded-xl border-border/60 bg-muted/30 text-base transition-colors focus:bg-muted/50"
+                  className="border-border/60 bg-muted/30 focus:bg-muted/50 min-h-[100px] resize-none rounded-xl text-base transition-colors"
                   disabled={disabled}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error} className="text-sm text-destructive">
+                  <p key={error} className="text-destructive text-sm">
                     {error}
                   </p>
                 ))}
@@ -225,24 +225,26 @@ export function EventDetailsForm({
                 <div className="space-y-2">
                   <Label
                     htmlFor={field.name}
-                    className="flex items-center gap-2 text-sm font-medium text-foreground"
+                    className="text-foreground flex items-center gap-2 text-sm font-medium"
                   >
                     Full Description
-                    <span className="ml-auto flex items-center gap-1 text-xs font-normal text-muted-foreground">
+                    <span className="text-muted-foreground ml-auto flex items-center gap-1 text-xs font-normal">
                       <Info className="size-3" />
                       Rich text editor
                     </span>
                   </Label>
-                  <div className="overflow-hidden rounded-xl border border-border/60 bg-muted/20 transition-colors focus-within:border-primary/30 focus-within:bg-muted/30">
+                  <div className="border-border/60 bg-muted/20 focus-within:border-primary/30 focus-within:bg-muted/30 overflow-hidden rounded-xl border transition-colors">
                     <Editor
                       className="min-h-[200px] bg-transparent"
                       content={field.state.value as JSONContent | undefined}
-                      value={field.state.value as JSONContent | string | undefined}
+                      value={
+                        field.state.value as JSONContent | string | undefined
+                      }
                       onChange={(value) => field.handleChange(value)}
                     />
                   </div>
                   {field.state.meta.errors.map((error) => (
-                    <p key={error} className="text-sm text-destructive">
+                    <p key={error} className="text-destructive text-sm">
                       {error}
                     </p>
                   ))}
@@ -266,7 +268,7 @@ export function EventDetailsForm({
               <FormFieldWrapper>
                 <Label
                   htmlFor={field.name}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                  className="text-foreground flex items-center gap-2 text-sm font-medium"
                 >
                   Start Date & Time
                   <span className="text-destructive">*</span>
@@ -283,7 +285,7 @@ export function EventDetailsForm({
                   disabled={disabled}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error} className="text-sm text-destructive">
+                  <p key={error} className="text-destructive text-sm">
                     {error}
                   </p>
                 ))}
@@ -304,7 +306,7 @@ export function EventDetailsForm({
                 <FormFieldWrapper>
                   <Label
                     htmlFor={field.name}
-                    className="flex items-center gap-2 text-sm font-medium text-foreground"
+                    className="text-foreground flex items-center gap-2 text-sm font-medium"
                   >
                     End Date & Time
                     <span className="text-destructive">*</span>
@@ -322,7 +324,7 @@ export function EventDetailsForm({
                     disabled={disabled}
                   />
                   {field.state.meta.errors.map((error) => (
-                    <p key={error} className="text-sm text-destructive">
+                    <p key={error} className="text-destructive text-sm">
                       {error}
                     </p>
                   ))}
@@ -346,9 +348,9 @@ export function EventDetailsForm({
               <FormFieldWrapper>
                 <Label
                   htmlFor={field.name}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                  className="text-foreground flex items-center gap-2 text-sm font-medium"
                 >
-                  <MapPin className="size-3.5 text-muted-foreground" />
+                  <MapPin className="text-muted-foreground size-3.5" />
                   Venue / Location
                 </Label>
                 <Input
@@ -359,11 +361,11 @@ export function EventDetailsForm({
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="e.g., Convention Center, City"
-                  className="h-10 border-0 bg-transparent shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
+                  className="placeholder:text-muted-foreground/50 h-10 border-0 bg-transparent shadow-none focus-visible:ring-0"
                   disabled={disabled}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error} className="text-sm text-destructive">
+                  <p key={error} className="text-destructive text-sm">
                     {error}
                   </p>
                 ))}
@@ -377,11 +379,11 @@ export function EventDetailsForm({
               <FormFieldWrapper>
                 <Label
                   htmlFor={field.name}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground"
+                  className="text-foreground flex items-center gap-2 text-sm font-medium"
                 >
-                  <Coins className="size-3.5 text-muted-foreground" />
+                  <Coins className="text-muted-foreground size-3.5" />
                   Registration Price
-                  <span className="ml-auto rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                  <span className="bg-muted text-muted-foreground ml-auto rounded-md px-1.5 py-0.5 text-xs font-medium">
                     DZD
                   </span>
                 </Label>
@@ -397,14 +399,14 @@ export function EventDetailsForm({
                     field.handleChange(parseInt(e.target.value) || 0)
                   }
                   placeholder="0 for free event"
-                  className="h-10 border-0 bg-transparent shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
+                  className="placeholder:text-muted-foreground/50 h-10 border-0 bg-transparent shadow-none focus-visible:ring-0"
                   disabled={disabled}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Enter 0 for a free event
                 </p>
                 {field.state.meta.errors.map((error) => (
-                  <p key={error} className="text-sm text-destructive">
+                  <p key={error} className="text-destructive text-sm">
                     {error}
                   </p>
                 ))}

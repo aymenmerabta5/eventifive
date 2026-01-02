@@ -35,11 +35,11 @@ export function SubscriptionSettings() {
     return (
       <div className="space-y-6">
         <div className="rounded-xl border border-dashed p-8 text-center">
-          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
-            <IconCrown className="size-8 text-muted-foreground" />
+          <div className="bg-muted mx-auto mb-4 flex size-16 items-center justify-center rounded-full">
+            <IconCrown className="text-muted-foreground size-8" />
           </div>
           <h3 className="mb-2 text-lg font-semibold">No Active Subscription</h3>
-          <p className="mb-6 text-muted-foreground">
+          <p className="text-muted-foreground mb-6">
             Subscribe to a plan to create and manage events.
           </p>
           <Button asChild size="lg">
@@ -64,16 +64,17 @@ export function SubscriptionSettings() {
   return (
     <div className="space-y-6">
       {/* Current Plan Card */}
-      <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/10 p-6">
+      <div className="from-primary/5 to-primary/10 rounded-xl border bg-gradient-to-br p-6">
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-xl">
               <IconCrown className="size-6" />
             </div>
             <div>
               <h3 className="text-xl font-semibold">{plan.displayName}</h3>
-              <p className="text-sm text-muted-foreground">
-                {price.amount.toLocaleString()} {price.currency} / {price.billingPeriod}
+              <p className="text-muted-foreground text-sm">
+                {price.amount.toLocaleString()} {price.currency} /{" "}
+                {price.billingPeriod}
               </p>
             </div>
           </div>
@@ -89,7 +90,7 @@ export function SubscriptionSettings() {
         <div className="mb-4 grid gap-2 sm:grid-cols-2">
           {plan.features?.map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
-              <IconCheck className="size-4 text-primary" />
+              <IconCheck className="text-primary size-4" />
               <span>{feature}</span>
             </div>
           ))}
@@ -98,23 +99,25 @@ export function SubscriptionSettings() {
         {/* Period Info */}
         <div className="flex items-center justify-between border-t pt-4 text-sm">
           <span className="text-muted-foreground">Current period ends</span>
-          <span className="font-medium">{formatDateFull(currentPeriodEnd)}</span>
+          <span className="font-medium">
+            {formatDateFull(currentPeriodEnd)}
+          </span>
         </div>
       </div>
 
       {/* Quota Usage Card */}
       <div className="rounded-xl border p-6">
         <div className="mb-4 flex items-center gap-2">
-          <IconCalendarEvent className="size-5 text-primary" />
+          <IconCalendarEvent className="text-primary size-5" />
           <h3 className="font-semibold">Event Quota Usage</h3>
         </div>
 
         {isUnlimited ? (
-          <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-4">
-            <IconInfinity className="size-6 text-primary" />
+          <div className="bg-muted/50 flex items-center gap-3 rounded-lg p-4">
+            <IconInfinity className="text-primary size-6" />
             <div>
               <p className="font-medium">Unlimited Events</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 You currently have {quotaUsage.used} active event
                 {quotaUsage.used !== 1 ? "s" : ""}
               </p>
@@ -123,7 +126,7 @@ export function SubscriptionSettings() {
         ) : (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {quotaUsage.used} of {quotaUsage.limit} events used
               </span>
               <span className="text-sm font-medium">
@@ -135,7 +138,7 @@ export function SubscriptionSettings() {
               className={`h-3 ${isAtLimit ? "[&>div]:bg-destructive" : isNearLimit ? "[&>div]:bg-yellow-500" : ""}`}
             />
             {isAtLimit && (
-              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg p-3 text-sm">
                 <IconAlertCircle className="size-4" />
                 <span>
                   You&apos;ve reached your quota. Upgrade to create more events.
@@ -163,7 +166,7 @@ export function SubscriptionSettings() {
       </div>
 
       {/* Note */}
-      <p className="text-center text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-center text-xs">
         Event quota counts upcoming and ongoing events. Past events don&apos;t
         count against your limit.
       </p>

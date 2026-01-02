@@ -64,7 +64,7 @@ export function ReviewFormCard({
       {/* Left accent bar */}
       <div
         className={cn(
-          "absolute left-0 top-0 h-full w-1 transition-colors duration-300",
+          "absolute top-0 left-0 h-full w-1 transition-colors duration-300",
           isReadOnly
             ? "from-primary/60 to-primary/30 bg-gradient-to-b"
             : "from-secondary via-primary to-primary/80 bg-gradient-to-b",
@@ -122,7 +122,9 @@ export function ReviewFormCard({
               <p className="text-destructive text-sm font-medium">
                 Could not load existing review
               </p>
-              <p className="text-destructive/80 text-xs">{reviewErrorMessage}</p>
+              <p className="text-destructive/80 text-xs">
+                {reviewErrorMessage}
+              </p>
             </div>
           </div>
         )}
@@ -265,7 +267,7 @@ export function ReviewFormCard({
         </div>
       </CardContent>
 
-      <CardFooter className="flex-col gap-4 border-t pl-5 pt-6 sm:flex-row sm:justify-between">
+      <CardFooter className="flex-col gap-4 border-t pt-6 pl-5 sm:flex-row sm:justify-between">
         <p className="text-muted-foreground text-xs">
           {isReadOnly
             ? "This review is complete and cannot be modified."
@@ -277,7 +279,7 @@ export function ReviewFormCard({
           disabled={isSubmitting || !canSubmit}
           className={cn(
             "w-full gap-2 font-medium transition-all sm:w-auto sm:min-w-[180px]",
-            canSubmit && !isSubmitting && "shadow-lg shadow-primary/20",
+            canSubmit && !isSubmitting && "shadow-primary/20 shadow-lg",
           )}
         >
           {isSubmitting ? (

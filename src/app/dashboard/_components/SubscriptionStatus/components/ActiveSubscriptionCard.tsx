@@ -24,19 +24,19 @@ export function ActiveSubscriptionCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
-        "transition-all duration-300 hover:shadow-md hover:shadow-primary/5"
+        "group border-border/50 relative overflow-hidden rounded-2xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
+        "hover:shadow-primary/5 transition-all duration-300 hover:shadow-md",
       )}
     >
       {/* Premium gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-chart-2/5 opacity-60" />
+      <div className="from-primary/5 to-chart-2/5 absolute inset-0 bg-gradient-to-br via-transparent opacity-60" />
 
       {/* Decorative glow */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-8 -top-8 size-32 rounded-full blur-3xl",
-          "bg-primary/15 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          "pointer-events-none absolute -top-8 -right-8 size-32 rounded-full blur-3xl",
+          "bg-primary/15 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
         )}
       />
 
@@ -46,12 +46,12 @@ export function ActiveSubscriptionCard({
           <div
             className={cn(
               "flex size-8 items-center justify-center rounded-lg",
-              "bg-primary/10 text-primary"
+              "bg-primary/10 text-primary",
             )}
           >
             <IconCrown className="size-4" />
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-foreground text-sm font-medium">
             Subscription
           </span>
         </div>
@@ -60,7 +60,7 @@ export function ActiveSubscriptionCard({
           variant="outline"
           className={cn(
             "text-xs font-medium",
-            STATUS_STYLES[subscription.status as SubscriptionStatusType]
+            STATUS_STYLES[subscription.status as SubscriptionStatusType],
           )}
         >
           {subscription.status.charAt(0).toUpperCase() +
@@ -73,18 +73,18 @@ export function ActiveSubscriptionCard({
         {/* Plan and price */}
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h3 className="font-display text-2xl font-bold text-foreground">
+            <h3 className="font-display text-foreground text-2xl font-bold">
               {subscription.plan.displayName}
             </h3>
           </div>
           <div className="text-right">
-            <p className="font-display text-lg font-semibold text-foreground">
+            <p className="font-display text-foreground text-lg font-semibold">
               {formatPrice(
                 subscription.price.amount,
-                subscription.price.currency
+                subscription.price.currency,
               )}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               /{subscription.price.billingPeriod}
             </p>
           </div>
@@ -92,9 +92,9 @@ export function ActiveSubscriptionCard({
 
         {/* Status messages */}
         {subscription.status === "active" && (
-          <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-2.5">
-            <IconCalendar className="size-4 text-primary" />
-            <span className="text-sm text-foreground">
+          <div className="bg-secondary/50 flex items-center gap-2 rounded-lg p-2.5">
+            <IconCalendar className="text-primary size-4" />
+            <span className="text-foreground text-sm">
               {daysRemaining > 0 ? (
                 <>
                   Renews in{" "}
@@ -108,43 +108,45 @@ export function ActiveSubscriptionCard({
         )}
 
         {isPending && (
-          <div className="flex items-center gap-2 rounded-lg bg-chart-4/10 p-2.5">
-            <IconClock className="size-4 animate-pulse text-chart-4" />
-            <span className="text-sm text-chart-4">
+          <div className="bg-chart-4/10 flex items-center gap-2 rounded-lg p-2.5">
+            <IconClock className="text-chart-4 size-4 animate-pulse" />
+            <span className="text-chart-4 text-sm">
               Payment is being processed...
             </span>
           </div>
         )}
 
         {/* Features */}
-        {subscription.plan.features && subscription.plan.features.length > 0 && (
-          <div className="border-t border-border/30 pt-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Your plan includes:
-            </p>
-            <ul className="space-y-1.5">
-              {subscription.plan.features
-                .slice(0, MAX_FEATURES_DISPLAYED)
-                .map((feature, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 text-xs text-muted-foreground"
-                  >
-                    <div className="flex size-4 items-center justify-center rounded-full bg-primary/10">
-                      <IconCheck className="size-2.5 text-primary" />
-                    </div>
-                    {feature}
+        {subscription.plan.features &&
+          subscription.plan.features.length > 0 && (
+            <div className="border-border/30 border-t pt-3">
+              <p className="text-muted-foreground mb-2 text-xs font-medium">
+                Your plan includes:
+              </p>
+              <ul className="space-y-1.5">
+                {subscription.plan.features
+                  .slice(0, MAX_FEATURES_DISPLAYED)
+                  .map((feature, i) => (
+                    <li
+                      key={i}
+                      className="text-muted-foreground flex items-center gap-2 text-xs"
+                    >
+                      <div className="bg-primary/10 flex size-4 items-center justify-center rounded-full">
+                        <IconCheck className="text-primary size-2.5" />
+                      </div>
+                      {feature}
+                    </li>
+                  ))}
+                {subscription.plan.features.length > MAX_FEATURES_DISPLAYED && (
+                  <li className="text-primary text-xs font-medium">
+                    +
+                    {subscription.plan.features.length - MAX_FEATURES_DISPLAYED}{" "}
+                    more features
                   </li>
-                ))}
-              {subscription.plan.features.length > MAX_FEATURES_DISPLAYED && (
-                <li className="text-xs font-medium text-primary">
-                  +{subscription.plan.features.length - MAX_FEATURES_DISPLAYED}{" "}
-                  more features
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+                )}
+              </ul>
+            </div>
+          )}
       </div>
     </div>
   );

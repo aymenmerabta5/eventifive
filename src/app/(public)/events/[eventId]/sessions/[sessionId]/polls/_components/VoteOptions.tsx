@@ -43,7 +43,7 @@ export function VoteOptions({
   // Calculate total individual votes for percentage
   const totalIndividualVotes = options.reduce(
     (sum, o) => sum + (o.voteCount ?? 0),
-    0
+    0,
   );
 
   return (
@@ -63,8 +63,8 @@ export function VoteOptions({
               "relative flex items-center gap-3 rounded-lg border p-3 transition-all",
               disabled
                 ? "cursor-default opacity-70"
-                : "cursor-pointer hover:border-primary/50 hover:bg-accent/50",
-              isSelected && !disabled && "border-primary bg-primary/5"
+                : "hover:border-primary/50 hover:bg-accent/50 cursor-pointer",
+              isSelected && !disabled && "border-primary bg-primary/5",
             )}
           >
             {/* Selection indicator */}
@@ -75,7 +75,7 @@ export function VoteOptions({
                     "size-4 rounded-full border-2 transition-colors",
                     isSelected
                       ? "border-primary bg-primary"
-                      : "border-muted-foreground"
+                      : "border-muted-foreground",
                   )}
                 >
                   {isSelected && (
@@ -92,23 +92,23 @@ export function VoteOptions({
             </div>
 
             {/* Option text and results */}
-            <div className="flex-1 min-w-0">
-              <Label className="text-sm font-medium cursor-pointer">
+            <div className="min-w-0 flex-1">
+              <Label className="cursor-pointer text-sm font-medium">
                 {option.text}
               </Label>
 
               {showResults && (
                 <div className="mt-2">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                  <div className="text-muted-foreground mb-1 flex items-center justify-between text-xs">
                     <span>{option.voteCount ?? 0} votes</span>
                     <span>{percentage}%</span>
                   </div>
                   {/* Progress bar */}
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                  <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
                     <div
                       className={cn(
-                        "h-full transition-all duration-500 ease-out rounded-full",
-                        isSelected ? "bg-primary" : "bg-primary/60"
+                        "h-full rounded-full transition-all duration-500 ease-out",
+                        isSelected ? "bg-primary" : "bg-primary/60",
                       )}
                       style={{ width: `${percentage}%` }}
                     />

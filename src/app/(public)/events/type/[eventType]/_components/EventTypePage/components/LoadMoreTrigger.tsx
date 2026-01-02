@@ -24,7 +24,7 @@ export function LoadMoreTrigger({
   const config = TYPE_CONFIG[eventType];
 
   return (
-    <div ref={loadMoreRef} className="py-12 flex justify-center">
+    <div ref={loadMoreRef} className="flex justify-center py-12">
       {isFetchingNextPage && (
         <motion.div
           initial={{ opacity: 0 }}

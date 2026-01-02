@@ -19,9 +19,10 @@ export default function ChangePassword() {
       onSubmit: ({ value }) => {
         const result = changePasswordSchema.safeParse(value);
         if (!result.success) {
+          const flattened = result.error.flatten();
           return {
-            form: result.error.formErrors.formErrors[0],
-            fields: result.error.flatten().fieldErrors,
+            form: flattened.formErrors[0],
+            fields: flattened.fieldErrors,
           };
         }
         return undefined;

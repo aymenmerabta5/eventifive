@@ -28,7 +28,7 @@ export function ReviewsHeader({ submissionCount }: ReviewsHeaderProps) {
           <div className="bg-primary/30 h-32 w-96 rounded-full blur-3xl" />
         </div>
         <h1 className="font-display relative text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+          <span className="from-foreground via-foreground to-foreground/70 bg-gradient-to-br bg-clip-text text-transparent">
             Communicator
           </span>
           <br />

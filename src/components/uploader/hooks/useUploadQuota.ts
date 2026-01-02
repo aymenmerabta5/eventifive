@@ -9,9 +9,15 @@ interface UseUploadQuotaOptions {
   userId: string | undefined;
 }
 
-export function useUploadQuota({ role, eventId, userId }: UseUploadQuotaOptions) {
+export function useUploadQuota({
+  role,
+  eventId,
+  userId,
+}: UseUploadQuotaOptions) {
   const [uploadedCount, setUploadedCount] = useState(0);
-  const [maxFiles, setMaxFiles] = useState<number>(ROLE_CONFIG[role].maxFilesDefault);
+  const [maxFiles, setMaxFiles] = useState<number>(
+    ROLE_CONFIG[role].maxFilesDefault,
+  );
   const [isLoadingQuota, setIsLoadingQuota] = useState(false);
 
   useEffect(() => {

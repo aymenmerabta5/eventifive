@@ -95,8 +95,8 @@ export const listPollsRouter = protectedProcedure
       .where(
         and(
           inArray(sessionPollVote.pollId, pollIds),
-          eq(sessionPollVote.userId, userId)
-        )
+          eq(sessionPollVote.userId, userId),
+        ),
       );
 
     // Group options and votes by poll
@@ -133,21 +133,26 @@ export const listPollsRouter = protectedProcedure
           closedAt: poll.closedAt,
           options: options.map((opt) => {
             const resultOpt = results?.options.find(
-              (r) => r.optionId === opt.id
+              (r) => r.optionId === opt.id,
             );
             return {
               id: opt.id,
               text: opt.text,
               displayOrder: opt.displayOrder,
               ...(includeResults && resultOpt
-                ? { voteCount: resultOpt.voteCount, percentage: resultOpt.percentage }
+                ? {
+                    voteCount: resultOpt.voteCount,
+                    percentage: resultOpt.percentage,
+                  }
                 : {}),
             };
           }),
-          ...(includeResults && results ? { totalVotes: results.totalVotes } : {}),
+          ...(includeResults && results
+            ? { totalVotes: results.totalVotes }
+            : {}),
           userVotedOptionIds: userVotesByPoll.get(poll.id) ?? [],
         };
-      })
+      }),
     );
 
     return { polls: pollsWithDetails, isSessionManager };

@@ -5,10 +5,7 @@ import Logo from "@/components/logo";
 import { authClient } from "@/lib/auth-client";
 import { navigationData } from "@/lib/navigation-data";
 
-import { NavDocuments } from "./nav-documents";
 import { NavMain } from "./nav-main";
-import { IconListDetails } from "@tabler/icons-react";
-import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import { QuotaIndicator } from "./QuotaIndicator";
 import {
@@ -24,14 +21,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
-  const navMainItems = [...navigationData.navMain];
-  if (user?.isAdmin) {
-    navMainItems.push({
-      title: "Event Management",
-      url: "/dashboard?view=event-management",
-      icon: IconListDetails,
-    });
-  }
+  const navMainItems = [
+    ...navigationData.navMain,
+    ...(user?.isAdmin ? navigationData.adminNavItems : []),
+  ];
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -49,8 +42,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMainItems} />
-        <NavDocuments items={navigationData.documents} />
-        <NavSecondary items={navigationData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="gap-3">
         <QuotaIndicator />

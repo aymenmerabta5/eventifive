@@ -99,8 +99,8 @@ export function EventRegistrationSection({
       <div
         className={cn(
           "relative overflow-hidden rounded-3xl",
-          "border-2 border-primary/30",
-          "bg-gradient-to-br from-primary/5 via-chart-2/5 to-primary/5"
+          "border-primary/30 border-2",
+          "from-primary/5 via-chart-2/5 to-primary/5 bg-gradient-to-br",
         )}
       >
         {/* Pattern overlay */}
@@ -113,7 +113,7 @@ export function EventRegistrationSection({
         />
 
         {/* Success glow */}
-        <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/20 blur-3xl" />
+        <div className="bg-primary/20 pointer-events-none absolute -top-20 -right-20 size-64 rounded-full blur-3xl" />
 
         <div className="relative p-8">
           <div className="flex flex-col items-center text-center">
@@ -121,19 +121,19 @@ export function EventRegistrationSection({
             <div
               className={cn(
                 "mb-4 flex size-16 items-center justify-center rounded-2xl",
-                "bg-gradient-to-br from-primary/20 to-chart-2/20",
-                "ring-4 ring-primary/10"
+                "from-primary/20 to-chart-2/20 bg-gradient-to-br",
+                "ring-primary/10 ring-4",
               )}
             >
-              <IconCheck className="size-8 text-primary" />
+              <IconCheck className="text-primary size-8" />
             </div>
 
-            <h3 className="font-display text-2xl font-bold text-foreground">
+            <h3 className="font-display text-foreground text-2xl font-bold">
               You&apos;re Registered!
             </h3>
-            <p className="mt-2 max-w-md text-muted-foreground">
+            <p className="text-muted-foreground mt-2 max-w-md">
               You have successfully registered for{" "}
-              <span className="font-medium text-foreground">{eventTitle}</span>.
+              <span className="text-foreground font-medium">{eventTitle}</span>.
               We look forward to seeing you there!
             </p>
 
@@ -141,17 +141,17 @@ export function EventRegistrationSection({
             <div
               className={cn(
                 "mt-6 flex items-center gap-6 rounded-xl",
-                "bg-card/50 border border-border/50 px-6 py-3"
+                "bg-card/50 border-border/50 border px-6 py-3",
               )}
             >
               <div className="flex items-center gap-2">
-                <IconTicket className="size-5 text-primary" />
+                <IconTicket className="text-primary size-5" />
                 <span className="text-sm font-medium">Registration Fee</span>
               </div>
               <Badge
                 className={cn(
                   "border-primary/30 bg-primary/10 text-primary",
-                  "text-sm font-medium"
+                  "text-sm font-medium",
                 )}
               >
                 {priceDisplay} &mdash; Paid
@@ -169,8 +169,8 @@ export function EventRegistrationSection({
       <div
         className={cn(
           "relative overflow-hidden rounded-3xl",
-          "border-2 border-chart-4/30",
-          "bg-gradient-to-br from-chart-4/5 via-card to-chart-4/5"
+          "border-chart-4/30 border-2",
+          "from-chart-4/5 via-card to-chart-4/5 bg-gradient-to-br",
         )}
       >
         {/* Pattern overlay */}
@@ -188,16 +188,16 @@ export function EventRegistrationSection({
             <div
               className={cn(
                 "mb-4 flex size-16 items-center justify-center rounded-2xl",
-                "bg-chart-4/10 ring-4 ring-chart-4/10"
+                "bg-chart-4/10 ring-chart-4/10 ring-4",
               )}
             >
-              <IconClock className="size-8 text-chart-4" />
+              <IconClock className="text-chart-4 size-8" />
             </div>
 
-            <h3 className="font-display text-2xl font-bold text-chart-4">
+            <h3 className="font-display text-chart-4 text-2xl font-bold">
               Payment Pending
             </h3>
-            <p className="mt-2 max-w-md text-muted-foreground">
+            <p className="text-muted-foreground mt-2 max-w-md">
               Your registration is pending payment. Please complete the payment
               to confirm your spot.
             </p>
@@ -206,17 +206,17 @@ export function EventRegistrationSection({
             <div
               className={cn(
                 "mt-6 flex items-center gap-6 rounded-xl",
-                "bg-card/50 border border-border/50 px-6 py-3"
+                "bg-card/50 border-border/50 border px-6 py-3",
               )}
             >
               <div className="flex items-center gap-2">
-                <IconCurrencyDollar className="size-5 text-chart-4" />
+                <IconCurrencyDollar className="text-chart-4 size-5" />
                 <span className="text-sm font-medium">Amount Due</span>
               </div>
               <Badge
                 className={cn(
                   "border-chart-4/30 bg-chart-4/10 text-chart-4",
-                  "text-sm font-medium"
+                  "text-sm font-medium",
                 )}
               >
                 {priceDisplay}
@@ -229,8 +229,8 @@ export function EventRegistrationSection({
               size="lg"
               className={cn(
                 "mt-6 gap-2",
-                "bg-gradient-to-r from-chart-4 to-chart-4/80",
-                "hover:from-chart-4/90 hover:to-chart-4/70"
+                "from-chart-4 to-chart-4/80 bg-gradient-to-r",
+                "hover:from-chart-4/90 hover:to-chart-4/70",
               )}
             >
               {isLoading ? (
@@ -238,7 +238,9 @@ export function EventRegistrationSection({
               ) : (
                 <IconArrowRight className="size-5" />
               )}
-              {isLoading ? "Processing..." : `Complete Payment (${priceDisplay})`}
+              {isLoading
+                ? "Processing..."
+                : `Complete Payment (${priceDisplay})`}
             </Button>
           </div>
         </div>
@@ -251,8 +253,8 @@ export function EventRegistrationSection({
     return (
       <div
         className={cn(
-          "relative overflow-hidden rounded-3xl border border-border/50",
-          "bg-gradient-to-br from-card via-card to-card/80"
+          "border-border/50 relative overflow-hidden rounded-3xl border",
+          "from-card via-card to-card/80 bg-gradient-to-br",
         )}
       >
         {/* Pattern overlay */}
@@ -265,20 +267,20 @@ export function EventRegistrationSection({
         />
 
         {/* Decorative gradient */}
-        <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
+        <div className="from-primary/10 via-chart-2/5 pointer-events-none absolute -top-20 -right-20 size-64 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
 
         <div className="relative p-8">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10">
-                <IconTicket className="size-6 text-primary" />
+              <div className="from-primary/10 to-chart-2/10 flex size-12 items-center justify-center rounded-xl bg-gradient-to-br">
+                <IconTicket className="text-primary size-6" />
               </div>
               <div>
-                <h3 className="font-display text-xl font-bold text-foreground">
+                <h3 className="font-display text-foreground text-xl font-bold">
                   Registration
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Secure your spot at this event
                 </p>
               </div>
@@ -288,7 +290,7 @@ export function EventRegistrationSection({
                 isFreeEvent
                   ? "border-primary/30 bg-primary/10 text-primary"
                   : "border-chart-2/30 bg-chart-2/10 text-chart-2",
-                "text-base font-semibold px-4 py-1"
+                "px-4 py-1 text-base font-semibold",
               )}
             >
               {priceDisplay}
@@ -298,17 +300,17 @@ export function EventRegistrationSection({
           {/* Sign in prompt */}
           <div
             className={cn(
-              "rounded-2xl border-2 border-dashed border-border/50",
-              "bg-muted/30 p-6 text-center"
+              "border-border/50 rounded-2xl border-2 border-dashed",
+              "bg-muted/30 p-6 text-center",
             )}
           >
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary/10">
-              <IconLogin className="size-7 text-primary" />
+            <div className="bg-primary/10 mx-auto mb-4 flex size-14 items-center justify-center rounded-xl">
+              <IconLogin className="text-primary size-7" />
             </div>
-            <h4 className="font-display font-semibold text-foreground">
+            <h4 className="font-display text-foreground font-semibold">
               Sign in to register
             </h4>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-sm">
               Please sign in to your account to register for this event.
             </p>
             <Button
@@ -316,8 +318,8 @@ export function EventRegistrationSection({
               size="lg"
               className={cn(
                 "mt-4 w-full gap-2",
-                "bg-gradient-to-r from-primary to-chart-2",
-                "hover:from-primary/90 hover:to-chart-2/90"
+                "from-primary to-chart-2 bg-gradient-to-r",
+                "hover:from-primary/90 hover:to-chart-2/90",
               )}
             >
               <Link href="/login">
@@ -335,8 +337,8 @@ export function EventRegistrationSection({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "border-border/50 relative overflow-hidden rounded-3xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
       )}
     >
       {/* Pattern overlay */}
@@ -349,20 +351,20 @@ export function EventRegistrationSection({
       />
 
       {/* Decorative gradient */}
-      <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-primary/10 via-chart-2/5 to-transparent blur-3xl" />
+      <div className="from-primary/10 via-chart-2/5 pointer-events-none absolute -top-20 -right-20 size-64 rounded-full bg-gradient-to-br to-transparent blur-3xl" />
 
       <div className="relative p-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10">
-              <IconTicket className="size-6 text-primary" />
+            <div className="from-primary/10 to-chart-2/10 flex size-12 items-center justify-center rounded-xl bg-gradient-to-br">
+              <IconTicket className="text-primary size-6" />
             </div>
             <div>
-              <h3 className="font-display text-xl font-bold text-foreground">
+              <h3 className="font-display text-foreground text-xl font-bold">
                 Registration
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Secure your spot at this event
               </p>
             </div>
@@ -372,7 +374,7 @@ export function EventRegistrationSection({
               isFreeEvent
                 ? "border-primary/30 bg-primary/10 text-primary"
                 : "border-chart-2/30 bg-chart-2/10 text-chart-2",
-              "text-base font-semibold px-4 py-1"
+              "px-4 py-1 text-base font-semibold",
             )}
           >
             {priceDisplay}
@@ -381,20 +383,20 @@ export function EventRegistrationSection({
 
         {/* Features */}
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <IconCheck className="size-4 text-primary" />
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <IconCheck className="text-primary size-4" />
             <span>Access to all sessions</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <IconCheck className="size-4 text-primary" />
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <IconCheck className="text-primary size-4" />
             <span>Q&A participation</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <IconCheck className="size-4 text-primary" />
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <IconCheck className="text-primary size-4" />
             <span>Live polls access</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <IconCheck className="size-4 text-primary" />
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <IconCheck className="text-primary size-4" />
             <span>Certificate of attendance</span>
           </div>
         </div>
@@ -406,9 +408,9 @@ export function EventRegistrationSection({
           size="lg"
           className={cn(
             "w-full gap-2 text-base",
-            "bg-gradient-to-r from-primary to-chart-2",
+            "from-primary to-chart-2 bg-gradient-to-r",
             "hover:from-primary/90 hover:to-chart-2/90",
-            "transition-all duration-300"
+            "transition-all duration-300",
           )}
         >
           {isLoading ? (
@@ -427,7 +429,7 @@ export function EventRegistrationSection({
 
         {/* Security note */}
         {!isFreeEvent && (
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-4 flex items-center justify-center gap-2 text-xs">
             <IconShieldCheck className="size-4" />
             Secure payment powered by Chargily
           </p>

@@ -29,12 +29,12 @@ export function CapacityField({
         htmlFor="capacity"
         className="flex items-center gap-2 text-sm font-medium"
       >
-        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+        <Users className="text-muted-foreground h-3.5 w-3.5" />
         Expected Capacity
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Info className="h-3.5 w-3.5 cursor-help text-muted-foreground/60" />
+              <Info className="text-muted-foreground/60 h-3.5 w-3.5 cursor-help" />
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs">
               <p className="text-xs">
@@ -54,7 +54,7 @@ export function CapacityField({
         value={capacity}
         onChange={(event) => onCapacityChange(event.target.value)}
         placeholder="e.g., 30"
-        className="h-11 transition-all duration-200 focus:shadow-lg focus:shadow-primary/5"
+        className="focus:shadow-primary/5 h-11 transition-all duration-200 focus:shadow-lg"
       />
 
       {/* Preset buttons */}

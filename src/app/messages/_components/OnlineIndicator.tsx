@@ -28,7 +28,7 @@ export function OnlineIndicator({
   return (
     <span
       className={cn(
-        "absolute rounded-full ring-2 ring-background",
+        "ring-background absolute rounded-full ring-2",
         positionClasses[size],
         sizeClasses[size],
         isOnline ? "bg-green-500" : "bg-gray-400",

@@ -22,7 +22,7 @@ export const getAdminStatsRouter = adminProcedure
   .handler(async () => {
     // Check cache first
     const cached = await cache.get<AdminDashboardStatsOutput>(
-      ADMIN_STATS_CACHE_KEY
+      ADMIN_STATS_CACHE_KEY,
     );
     if (cached) {
       return cached;
@@ -73,12 +73,12 @@ export const getAdminStatsRouter = adminProcedure
       totalRevenue,
       totalRevenueChange: calculatePercentageChange(
         currentRevenue,
-        previousRevenue
+        previousRevenue,
       ),
       activeSubscriptions,
       subscriptionsChange: calculatePercentageChange(
         currentSubscriptions,
-        previousSubscriptions
+        previousSubscriptions,
       ),
       currency: "DZD",
     };

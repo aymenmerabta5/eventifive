@@ -22,6 +22,7 @@ export interface ChairOption {
   name: string;
   email: string;
   image: string | null;
+  role?: "speaker" | "communicator" | "facilitator";
 }
 
 // Props for the main calendar view

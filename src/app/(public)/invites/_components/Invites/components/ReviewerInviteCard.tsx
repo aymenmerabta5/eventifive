@@ -63,9 +63,7 @@ export function ReviewerInviteCard({
             )}
           >
             <Link
-              href={
-                `/events/${invite.eventId}/communicator-reviews` as Route
-              }
+              href={`/events/${invite.eventId}/communicator-reviews` as Route}
             >
               View communicator registrations
             </Link>

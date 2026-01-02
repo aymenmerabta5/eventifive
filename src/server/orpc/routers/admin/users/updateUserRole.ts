@@ -16,14 +16,14 @@ const outputSchema = z.object({
 
 /**
  * Admin endpoint to update a user's role
- * 
+ *
  * This endpoint:
  * 1. Requires super_admin authentication (via adminProcedure)
  * 2. Verifies the user exists
  * 3. Gets the role ID for the new role
  * 4. Deletes existing user role assignment
  * 5. Inserts new role assignment
- * 
+ *
  * The userRoles table has a unique constraint on (userId, roleId),
  * so we need to delete the old assignment before inserting the new one.
  * This ensures a user only has one role at a time.
@@ -63,9 +63,7 @@ export const updateUserRoleRouter = adminProcedure
       }
 
       // Delete existing user role assignment
-      await db
-        .delete(userRoles)
-        .where(eq(userRoles.userId, userId));
+      await db.delete(userRoles).where(eq(userRoles.userId, userId));
 
       // Insert new role assignment
       await db.insert(userRoles).values({
@@ -87,4 +85,3 @@ export const updateUserRoleRouter = adminProcedure
       });
     }
   });
-

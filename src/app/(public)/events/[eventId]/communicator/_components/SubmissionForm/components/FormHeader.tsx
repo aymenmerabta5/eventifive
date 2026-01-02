@@ -6,10 +6,10 @@ interface FormHeaderProps {
 
 export function FormHeader({ eventTitle }: FormHeaderProps) {
   return (
-    <div className="text-center space-y-4">
+    <div className="space-y-4 text-center">
       {/* Icon */}
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 ring-1 ring-primary/20 shadow-lg shadow-primary/10">
-        <FileText className="h-8 w-8 text-primary" />
+      <div className="from-primary/20 via-primary/10 to-primary/5 ring-primary/20 shadow-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg ring-1">
+        <FileText className="text-primary h-8 w-8" />
       </div>
 
       {/* Title */}
@@ -18,22 +18,23 @@ export function FormHeader({ eventTitle }: FormHeaderProps) {
           Call for Papers
         </h1>
         {eventTitle && (
-          <p className="text-lg text-primary font-medium">{eventTitle}</p>
+          <p className="text-primary text-lg font-medium">{eventTitle}</p>
         )}
-        <p className="mx-auto max-w-lg text-muted-foreground">
-          Submit your research paper for review. Fill in the details below and upload your document.
+        <p className="text-muted-foreground mx-auto max-w-lg">
+          Submit your research paper for review. Fill in the details below and
+          upload your document.
         </p>
       </div>
 
       {/* Features */}
-      <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-4 text-sm">
         <div className="flex items-center gap-1.5">
-          <Send className="h-4 w-4 text-primary" />
+          <Send className="text-primary h-4 w-4" />
           <span>One submission per event</span>
         </div>
-        <div className="h-1 w-1 rounded-full bg-border" />
+        <div className="bg-border h-1 w-1 rounded-full" />
         <div className="flex items-center gap-1.5">
-          <FileText className="h-4 w-4 text-primary" />
+          <FileText className="text-primary h-4 w-4" />
           <span>PDF, DOC, DOCX supported</span>
         </div>
       </div>

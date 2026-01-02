@@ -40,8 +40,8 @@ async function countActiveEvents(userId: string): Promise<number> {
       and(
         eq(event.organizerId, userId),
         eq(event.status, "published"),
-        gte(event.endDate, now)
-      )
+        gte(event.endDate, now),
+      ),
     );
 
   return result?.count ?? 0;

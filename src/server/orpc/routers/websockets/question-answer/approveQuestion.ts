@@ -66,8 +66,7 @@ export const approveQuestionRouter = protectedProcedure
     // Only session managers can approve/reject questions
     if (!managerInfo.isSessionManager) {
       throw new ORPCError("FORBIDDEN", {
-        message:
-          "Only session managers can approve or reject questions",
+        message: "Only session managers can approve or reject questions",
       });
     }
 

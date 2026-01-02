@@ -19,7 +19,12 @@ const redisOptions: RedisOptions = {
   },
   reconnectOnError(err: Error) {
     // Reconnect on connection-related errors
-    const targetErrors = ["READONLY", "ECONNRESET", "ETIMEDOUT", "ECONNREFUSED"];
+    const targetErrors = [
+      "READONLY",
+      "ECONNRESET",
+      "ETIMEDOUT",
+      "ECONNREFUSED",
+    ];
     const shouldReconnect = targetErrors.some((e) => err.message.includes(e));
     if (shouldReconnect) {
       console.log(`[Redis] Reconnecting due to error: ${err.message}`);
@@ -106,7 +111,10 @@ class SubscriptionManager {
       });
     }).catch((err: Error) => {
       // Log but don't crash - allow retries on individual subscribe calls
-      console.error(`[SubscriptionManager] Initial connection failed:`, err.message);
+      console.error(
+        `[SubscriptionManager] Initial connection failed:`,
+        err.message,
+      );
     });
 
     this.subscriber.on("message", (channel, message) => {
@@ -116,14 +124,20 @@ class SubscriptionManager {
           try {
             handler(channel, message);
           } catch (err) {
-            console.error(`[SubscriptionManager] Handler error on ${channel}:`, err);
+            console.error(
+              `[SubscriptionManager] Handler error on ${channel}:`,
+              err,
+            );
           }
         }
       }
     });
   }
 
-  async subscribe(channel: string, handler: MessageHandler): Promise<() => void> {
+  async subscribe(
+    channel: string,
+    handler: MessageHandler,
+  ): Promise<() => void> {
     // Wait for initial ready (may have already resolved/rejected)
     await this.readyPromise;
 
@@ -133,7 +147,9 @@ class SubscriptionManager {
       // Try to wait for reconnection (with timeout)
       await new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => {
-          reject(new Error(`Redis not ready for subscription (status: ${status})`));
+          reject(
+            new Error(`Redis not ready for subscription (status: ${status})`),
+          );
         }, 5000);
 
         if (this.subscriber.status === "ready") {
@@ -166,7 +182,10 @@ class SubscriptionManager {
     };
   }
 
-  private async unsubscribe(channel: string, handler: MessageHandler): Promise<void> {
+  private async unsubscribe(
+    channel: string,
+    handler: MessageHandler,
+  ): Promise<void> {
     const channelHandlers = this.handlers.get(channel);
     if (!channelHandlers) return;
 

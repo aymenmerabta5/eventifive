@@ -33,7 +33,10 @@ export const getPresenceRouter = protectedProcedure
       })
       .from(conversations)
       .where(
-        or(eq(conversations.userId1, userId), eq(conversations.userId2, userId)),
+        or(
+          eq(conversations.userId1, userId),
+          eq(conversations.userId2, userId),
+        ),
       );
 
     // Extract the IDs of users the current user has conversations with

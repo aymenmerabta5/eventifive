@@ -79,7 +79,8 @@ export function QuestionForm({
           <div>
             <p className="font-medium">Session Host Mode</p>
             <p className="text-muted-foreground text-sm">
-              As a session host, you can answer and moderate questions from participants.
+              As a session host, you can answer and moderate questions from
+              participants.
             </p>
           </div>
         </div>

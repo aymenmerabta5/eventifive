@@ -257,7 +257,17 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
         setIsSubmitting(false);
       }
     },
-    [workshopTitle, name, files, uploadedCount, user, description, eventId, researchDomain, capacity],
+    [
+      workshopTitle,
+      name,
+      files,
+      uploadedCount,
+      user,
+      description,
+      eventId,
+      researchDomain,
+      capacity,
+    ],
   );
 
   return {

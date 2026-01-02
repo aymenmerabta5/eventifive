@@ -15,10 +15,10 @@ export function ParticipantCard({ participant }: ParticipantCardProps) {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
+        "group border-border/50 relative overflow-hidden rounded-xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
         "transition-all duration-300",
-        "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+        "hover:border-primary/30 hover:shadow-primary/5 hover:shadow-lg",
       )}
     >
       {/* Pattern overlay */}
@@ -31,34 +31,36 @@ export function ParticipantCard({ participant }: ParticipantCardProps) {
       />
 
       <div className="relative flex items-start gap-3 p-4">
-        <Avatar className="size-10 ring-2 ring-primary/10">
+        <Avatar className="ring-primary/10 size-10 ring-2">
           <AvatarFallback
             className={cn(
-              "bg-gradient-to-br from-primary/10 to-chart-2/10",
-              "font-medium text-primary text-xs"
+              "from-primary/10 to-chart-2/10 bg-gradient-to-br",
+              "text-primary text-xs font-medium",
             )}
           >
             {getInitials(participant.userName)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 space-y-1.5">
-          <div className="truncate font-medium text-sm text-foreground">
+          <div className="text-foreground truncate text-sm font-medium">
             {participant.userName ?? "Unknown user"}
           </div>
-          <div className="truncate text-xs text-muted-foreground">
+          <div className="text-muted-foreground truncate text-xs">
             {participant.userEmail}
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-0.5">
             <Badge
               variant="outline"
               className={cn(
-                "text-[10px] capitalize font-medium",
-                PAYMENT_STATUS_STYLES[participant.paymentStatus as PaymentStatus]
+                "text-[10px] font-medium capitalize",
+                PAYMENT_STATUS_STYLES[
+                  participant.paymentStatus as PaymentStatus
+                ],
               )}
             >
               {participant.paymentStatus}
             </Badge>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-muted-foreground text-[10px]">
               Registered{" "}
               {new Date(participant.registeredAt).toLocaleDateString()}
             </span>

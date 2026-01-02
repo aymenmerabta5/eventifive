@@ -41,14 +41,15 @@ export function PollCard({
   onClose,
 }: PollCardProps) {
   const [selectedOptionIds, setSelectedOptionIds] = useState<number[]>(
-    poll.userVotedOptionIds ?? []
+    poll.userVotedOptionIds ?? [],
   );
   const [showResults, setShowResults] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
   const voteMutation = useVote();
 
-  const hasVoted = poll.userVotedOptionIds && poll.userVotedOptionIds.length > 0;
+  const hasVoted =
+    poll.userVotedOptionIds && poll.userVotedOptionIds.length > 0;
   const isClosed = !poll.isActive || poll.closedAt !== null;
   const canVote = !isClosed && !isSessionManager;
   const hasChangedSelection = useMemo(() => {
@@ -89,15 +90,15 @@ export function PollCard({
     <Card className={cn("transition-all", isClosed && "opacity-80")}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
               <Badge
                 variant={isClosed ? "secondary" : "default"}
                 className="shrink-0"
               >
                 {isClosed ? (
                   <>
-                    <Lock className="w-3 h-3 mr-1" />
+                    <Lock className="mr-1 h-3 w-3" />
                     Closed
                   </>
                 ) : (
@@ -105,13 +106,15 @@ export function PollCard({
                 )}
               </Badge>
               <Badge variant="outline" className="shrink-0">
-                {poll.pollType === "single" ? "Single choice" : "Multiple choice"}
+                {poll.pollType === "single"
+                  ? "Single choice"
+                  : "Multiple choice"}
               </Badge>
             </div>
             <CardTitle className="text-base leading-tight">
               {poll.question}
             </CardTitle>
-            <CardDescription className="text-xs mt-1">
+            <CardDescription className="mt-1 text-xs">
               Created by {poll.createdByName} at {formatDate(poll.createdAt)}
               {poll.closedAt &&
                 ` - Closed at ${formatDate(new Date(poll.closedAt))}`}
@@ -158,7 +161,7 @@ export function PollCard({
             )}
           </CardContent>
 
-          <CardFooter className="flex flex-wrap gap-2 pt-3 border-t">
+          <CardFooter className="flex flex-wrap gap-2 border-t pt-3">
             {/* Vote/Update button for attendees */}
             {canVote && !showResults && (
               <Button
@@ -172,12 +175,12 @@ export function PollCard({
               >
                 {voteMutation.isPending ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Submitting...
                   </>
                 ) : hasVoted ? (
                   <>
-                    <Check className="w-4 h-4 mr-2" />
+                    <Check className="mr-2 h-4 w-4" />
                     Update Vote
                   </>
                 ) : (
@@ -193,7 +196,7 @@ export function PollCard({
                 size="sm"
                 onClick={() => setShowResults(!showResults)}
               >
-                <BarChart3 className="w-4 h-4 mr-2" />
+                <BarChart3 className="mr-2 h-4 w-4" />
                 {showResults ? "Change Vote" : "View Results"}
               </Button>
             )}
@@ -201,15 +204,15 @@ export function PollCard({
             {/* Session manager controls */}
             {isSessionManager && !isClosed && (
               <Button variant="destructive" size="sm" onClick={onClose}>
-                <Lock className="w-4 h-4 mr-2" />
+                <Lock className="mr-2 h-4 w-4" />
                 Close Poll
               </Button>
             )}
 
             {/* Vote indicator */}
             {hasVoted && (
-              <span className="text-xs text-muted-foreground ml-auto flex items-center">
-                <Check className="w-3 h-3 mr-1 text-green-500" />
+              <span className="text-muted-foreground ml-auto flex items-center text-xs">
+                <Check className="mr-1 h-3 w-3 text-green-500" />
                 You voted
               </span>
             )}

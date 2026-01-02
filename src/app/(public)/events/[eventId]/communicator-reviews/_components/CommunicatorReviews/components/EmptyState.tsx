@@ -17,7 +17,7 @@ export function EmptyState() {
           <div className="border-border bg-card relative flex h-20 w-20 items-center justify-center rounded-2xl border shadow-sm">
             <Inbox className="text-primary h-10 w-10" />
           </div>
-          <div className="bg-primary/20 absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full">
+          <div className="bg-primary/20 absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full">
             <Sparkles className="text-primary h-3.5 w-3.5" />
           </div>
         </div>

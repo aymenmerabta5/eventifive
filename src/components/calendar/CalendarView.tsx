@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  format,
-  startOfWeek,
-  addWeeks,
-  subWeeks,
-  addDays,
-  isAfter,
-  isBefore,
-  isSameDay,
-} from "date-fns";
+import { format, addDays, differenceInDays } from "date-fns";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +17,9 @@ import type {
   UpdateSessionData,
 } from "./types";
 
+// Maximum number of days to display at once
+const MAX_VISIBLE_DAYS = 7;
+
 export function CalendarView({
   eventId,
   sessions,
@@ -39,12 +33,20 @@ export function CalendarView({
   isEditable = false,
   isLoading = false,
 }: CalendarViewProps) {
-  // Calculate initial week based on event start date
-  const getInitialWeekStart = useCallback(() => {
-    return startOfWeek(eventStartDate, { weekStartsOn: 0 });
-  }, [eventStartDate]);
+  // Helper to normalize a date to midnight (remove time component)
+  const normalizeDate = useCallback((date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }, []);
 
-  const [currentWeekStart, setCurrentWeekStart] = useState(getInitialWeekStart);
+  // Calculate total event days
+  const totalEventDays =
+    differenceInDays(
+      normalizeDate(eventEndDate),
+      normalizeDate(eventStartDate),
+    ) + 1;
+
+  // Use day offset for pagination (start at day 0 = first event day)
+  const [dayOffset, setDayOffset] = useState(0);
 
   const hoursScrollRef = useRef<HTMLDivElement>(null);
   const daysScrollRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -59,54 +61,41 @@ export function CalendarView({
 
   const today = new Date();
 
-  // Update current week when event dates change
+  // Reset day offset when event dates change
   useEffect(() => {
-    setCurrentWeekStart(getInitialWeekStart());
-  }, [getInitialWeekStart]);
+    setDayOffset(0);
+  }, [eventStartDate, eventEndDate]);
+
+  // Calculate how many days to show in current view
+  const daysToShow = Math.min(MAX_VISIBLE_DAYS, totalEventDays - dayOffset);
 
   // Navigation functions with bounds checking
   const canGoPrevious = useCallback(() => {
-    const prevWeekStart = subWeeks(currentWeekStart, 1);
-    const prevWeekEnd = addDays(prevWeekStart, 6);
-    // Can go previous if the previous week's end is >= event start date
-    return !isBefore(prevWeekEnd, eventStartDate);
-  }, [currentWeekStart, eventStartDate]);
+    return dayOffset > 0;
+  }, [dayOffset]);
 
   const canGoNext = useCallback(() => {
-    const nextWeekStart = addWeeks(currentWeekStart, 1);
-    // Can go next if the next week's start is <= event end date
-    return !isAfter(nextWeekStart, eventEndDate);
-  }, [currentWeekStart, eventEndDate]);
+    return dayOffset + MAX_VISIBLE_DAYS < totalEventDays;
+  }, [dayOffset, totalEventDays]);
 
   const goToNextWeek = () => {
     if (canGoNext()) {
-      setCurrentWeekStart((prev) => addWeeks(prev, 1));
+      setDayOffset((prev) =>
+        Math.min(prev + MAX_VISIBLE_DAYS, totalEventDays - 1),
+      );
     }
   };
 
   const goToPreviousWeek = () => {
     if (canGoPrevious()) {
-      setCurrentWeekStart((prev) => subWeeks(prev, 1));
+      setDayOffset((prev) => Math.max(prev - MAX_VISIBLE_DAYS, 0));
     }
   };
 
-  // Get week days array, filtering to only show days within event range
-  const weekDays = Array.from({ length: 7 }, (_, i) =>
-    addDays(currentWeekStart, i),
-  ).filter((day) => {
-    const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-    const eventStart = new Date(
-      eventStartDate.getFullYear(),
-      eventStartDate.getMonth(),
-      eventStartDate.getDate(),
-    );
-    const eventEnd = new Date(
-      eventEndDate.getFullYear(),
-      eventEndDate.getMonth(),
-      eventEndDate.getDate(),
-    );
-    return dayStart >= eventStart && dayStart <= eventEnd;
-  });
+  // Get visible days array based on day offset
+  const weekDays = Array.from({ length: daysToShow }, (_, i) =>
+    addDays(normalizeDate(eventStartDate), dayOffset + i),
+  );
 
   // Get sessions for current view
   const getVisibleSessions = () => {

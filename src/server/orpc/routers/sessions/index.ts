@@ -12,6 +12,7 @@ import {
   getSessionRouter,
 } from "./sessions";
 import { mySessionsRouter } from "./mySessions";
+import { getChairOptionsRouter } from "./getChairOptions";
 
 export const sessionsRouter = {
   // Room management
@@ -27,6 +28,7 @@ export const sessionsRouter = {
   listSessions: listSessionsRouter,
   getSession: getSessionRouter,
   mySessions: mySessionsRouter,
+  getChairOptions: getChairOptionsRouter,
 };
 
 export {
@@ -40,4 +42,5 @@ export {
   listSessionsRouter,
   getSessionRouter,
   mySessionsRouter,
+  getChairOptionsRouter,
 };

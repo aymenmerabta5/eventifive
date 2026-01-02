@@ -50,7 +50,7 @@ const features = [
 
 export default function WhoWeAre() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-secondary/20 py-20 dark:to-background md:py-32">
+    <section className="from-background via-background to-secondary/20 dark:to-background relative overflow-hidden bg-gradient-to-b py-20 md:py-32">
       {/* Section header */}
       <div className="mx-auto mb-12 max-w-3xl px-4 text-center md:mb-16">
         <motion.div
@@ -58,7 +58,7 @@ export default function WhoWeAre() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary"
+          className="border-primary/20 bg-primary/5 text-primary mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium"
         >
           <IconSparkles className="size-4" />
           Why Choose Us
@@ -69,10 +69,10 @@ export default function WhoWeAre() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl"
+          className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
         >
           Everything you need to{" "}
-          <span className="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">
+          <span className="from-primary to-chart-2 bg-gradient-to-r bg-clip-text text-transparent">
             succeed
           </span>
         </motion.h2>
@@ -82,7 +82,7 @@ export default function WhoWeAre() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base text-muted-foreground sm:text-lg"
+          className="text-muted-foreground text-base sm:text-lg"
         >
           Powerful features designed to make your event management seamless
         </motion.p>
@@ -99,7 +99,7 @@ export default function WhoWeAre() {
             transition={{ duration: 0.5, delay: index * 0.1 }}
             className={`min-h-56 list-none ${feature.area}`}
           >
-            <div className="group relative h-full rounded-2xl border border-border/60 bg-card/50 p-2 transition-all duration-300 hover:border-primary/30 hover:bg-card/80 md:rounded-3xl md:p-3">
+            <div className="group border-border/60 bg-card/50 hover:border-primary/30 hover:bg-card/80 relative h-full rounded-2xl border p-2 transition-all duration-300 md:rounded-3xl md:p-3">
               <GlowingEffect
                 spread={40}
                 glow={true}
@@ -107,16 +107,16 @@ export default function WhoWeAre() {
                 proximity={64}
                 inactiveZone={0.01}
               />
-              <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D] md:p-6">
+              <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 md:p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]">
                 <div className="relative flex flex-1 flex-col justify-between gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-chart-2/10 transition-transform duration-300 group-hover:scale-110">
-                    <feature.icon className="size-6 text-primary" />
+                  <div className="from-primary/10 to-chart-2/10 flex size-12 items-center justify-center rounded-xl bg-gradient-to-br transition-transform duration-300 group-hover:scale-110">
+                    <feature.icon className="text-primary size-6" />
                   </div>
                   <div className="space-y-3">
-                    <h3 className="-tracking-4 pt-0.5 text-xl font-semibold text-foreground text-balance md:text-2xl">
+                    <h3 className="-tracking-4 text-foreground pt-0.5 text-xl font-semibold text-balance md:text-2xl">
                       {feature.title}
                     </h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                    <p className="text-muted-foreground text-sm leading-relaxed md:text-base">
                       {feature.description}
                     </p>
                   </div>

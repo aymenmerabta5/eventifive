@@ -11,10 +11,7 @@ interface PollListProps {
   currentUserId: string;
 }
 
-export function PollList({
-  sessionId,
-  currentUserId,
-}: PollListProps) {
+export function PollList({ sessionId, currentUserId }: PollListProps) {
   const { data: pollsData, isLoading } = usePolls(sessionId);
   const isSessionManager = pollsData?.isSessionManager ?? false;
   const closePollMutation = useClosePoll();
@@ -28,12 +25,8 @@ export function PollList({
   const polls = pollsData?.polls ?? [];
 
   // Separate active and closed polls
-  const activePolls = polls.filter(
-    (p) => p.isActive && p.closedAt === null
-  );
-  const closedPolls = polls.filter(
-    (p) => !p.isActive || p.closedAt !== null
-  );
+  const activePolls = polls.filter((p) => p.isActive && p.closedAt === null);
+  const closedPolls = polls.filter((p) => !p.isActive || p.closedAt !== null);
 
   const handleClosePoll = async (pollId: string) => {
     await closePollMutation.mutateAsync({ pollId, sessionId });
@@ -53,10 +46,10 @@ export function PollList({
       {/* Header with create button for session managers */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-muted-foreground" />
+          <BarChart3 className="text-muted-foreground h-5 w-5" />
           <h3 className="text-lg font-semibold">Live Polls</h3>
           {activePolls.length > 0 && (
-            <span className="px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+            <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
               {activePolls.length} active
             </span>
           )}
@@ -66,8 +59,8 @@ export function PollList({
 
       {/* Empty state */}
       {polls.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <div className="text-muted-foreground py-12 text-center">
+          <BarChart3 className="mx-auto mb-4 h-12 w-12 opacity-50" />
           <p className="font-medium">No polls yet</p>
           <p className="text-sm">
             {isSessionManager
@@ -96,7 +89,7 @@ export function PollList({
       {/* Closed polls section */}
       {closedPolls.length > 0 && (
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-muted-foreground">
+          <h4 className="text-muted-foreground text-sm font-medium">
             Closed Polls ({closedPolls.length})
           </h4>
           {closedPolls.map((poll) => (

@@ -5,11 +5,11 @@ import { CACHE_KEYS, getDashboardStatsKey } from "./keys";
  * Invalidate all dashboard cache for an organizer
  */
 export async function invalidateDashboardCache(
-  organizerId: string
+  organizerId: string,
 ): Promise<void> {
   await cache.invalidatePattern(`${CACHE_KEYS.DASHBOARD_STATS}:${organizerId}`);
   await cache.invalidatePattern(
-    `${CACHE_KEYS.DASHBOARD_CHART}:${organizerId}:*`
+    `${CACHE_KEYS.DASHBOARD_CHART}:${organizerId}:*`,
   );
 }
 
@@ -17,7 +17,7 @@ export async function invalidateDashboardCache(
  * Invalidate only dashboard stats cache for an organizer
  */
 export async function invalidateDashboardStats(
-  organizerId: string
+  organizerId: string,
 ): Promise<void> {
   await cache.del(getDashboardStatsKey(organizerId));
 }
@@ -26,9 +26,9 @@ export async function invalidateDashboardStats(
  * Invalidate only dashboard chart cache for an organizer
  */
 export async function invalidateDashboardChart(
-  organizerId: string
+  organizerId: string,
 ): Promise<void> {
   await cache.invalidatePattern(
-    `${CACHE_KEYS.DASHBOARD_CHART}:${organizerId}:*`
+    `${CACHE_KEYS.DASHBOARD_CHART}:${organizerId}:*`,
   );
 }

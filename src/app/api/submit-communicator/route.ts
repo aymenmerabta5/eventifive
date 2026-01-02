@@ -160,7 +160,9 @@ export async function POST(req: NextRequest) {
 
     if (normalizedAbstract.length > MAX_ABSTRACT_LENGTH) {
       return NextResponse.json(
-        { message: `Abstract must be less than ${MAX_ABSTRACT_LENGTH} characters` },
+        {
+          message: `Abstract must be less than ${MAX_ABSTRACT_LENGTH} characters`,
+        },
         { status: 400 },
       );
     }
@@ -173,7 +175,9 @@ export async function POST(req: NextRequest) {
 
     if (normalizedKeywords && normalizedKeywords.length > MAX_KEYWORDS_LENGTH) {
       return NextResponse.json(
-        { message: `Keywords must be less than ${MAX_KEYWORDS_LENGTH} characters` },
+        {
+          message: `Keywords must be less than ${MAX_KEYWORDS_LENGTH} characters`,
+        },
         { status: 400 },
       );
     }
@@ -184,7 +188,10 @@ export async function POST(req: NextRequest) {
 
     if (!normalizedType || !VALID_SUBMISSION_TYPES.has(normalizedType)) {
       return NextResponse.json(
-        { message: "Invalid submission type. Must be oral, poster, or displayed_paper" },
+        {
+          message:
+            "Invalid submission type. Must be oral, poster, or displayed_paper",
+        },
         { status: 400 },
       );
     }
@@ -201,10 +208,7 @@ export async function POST(req: NextRequest) {
       .limit(1);
 
     if (!eventData) {
-      return NextResponse.json(
-        { message: "Event not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: "Event not found" }, { status: 404 });
     }
 
     if (eventData.status !== "published") {

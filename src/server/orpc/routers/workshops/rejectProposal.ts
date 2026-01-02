@@ -1,9 +1,12 @@
 import { protectedProcedure } from "../../index";
 import { db } from "@/server/db";
-import { workshop, event } from "@/server/db/schema";
+import { workshop, event, user } from "@/server/db/schema";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { sendEmail } from "@/lib/sendEmail";
+import { WorkshopStatusEmail } from "@/lib/emails/WorkshopStatusEmail";
+import { env } from "@/env";
 
 const inputSchema = z.object({
   workshopId: z.string().uuid(),
@@ -28,7 +31,11 @@ export const rejectProposalRouter = protectedProcedure
     const [workshopData] = await db
       .select({
         id: workshop.id,
+        title: workshop.title,
+        facilitatorId: workshop.facilitatorId,
         proposalStatus: workshop.proposalStatus,
+        eventId: workshop.eventId,
+        eventTitle: event.title,
         eventOrganizerId: event.organizerId,
       })
       .from(workshop)
@@ -64,5 +71,53 @@ export const rejectProposalRouter = protectedProcedure
       })
       .where(eq(workshop.id, input.workshopId));
 
+    // Send rejection email (fire and forget)
+    sendWorkshopRejectionEmail(
+      workshopData.facilitatorId,
+      workshopData.title,
+      workshopData.eventTitle,
+    ).catch((error) => {
+      console.error(
+        `Failed to send workshop rejection email for workshop ${input.workshopId}:`,
+        error,
+      );
+    });
+
     return { ok: true as const };
   });
+
+async function sendWorkshopRejectionEmail(
+  facilitatorId: string,
+  workshopTitle: string,
+  eventTitle: string,
+) {
+  // Get facilitator details
+  const [facilitatorData] = await db
+    .select({
+      name: user.name,
+      email: user.email,
+    })
+    .from(user)
+    .where(eq(user.id, facilitatorId))
+    .limit(1);
+
+  if (!facilitatorData) {
+    console.error("Missing facilitator data for rejection email");
+    return;
+  }
+
+  await sendEmail(
+    facilitatorData.email,
+    `Workshop Proposal Update - ${eventTitle}`,
+    WorkshopStatusEmail,
+    {
+      recipientName: facilitatorData.name,
+      eventTitle: eventTitle,
+      workshopTitle: workshopTitle,
+      status: "rejected",
+      viewUrl: `${env.BETTER_AUTH_URL}/my-applications`,
+    },
+  );
+
+  console.log(`Workshop rejection email sent to ${facilitatorData.email}`);
+}

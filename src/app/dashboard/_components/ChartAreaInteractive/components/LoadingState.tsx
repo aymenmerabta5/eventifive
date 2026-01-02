@@ -1,56 +1,77 @@
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function LoadingState() {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80"
+        "@container/card relative overflow-hidden rounded-2xl",
+        "bg-card border-border/40 border",
+        "animate-in fade-in-0 slide-in-from-bottom-3 duration-500",
       )}
     >
       {/* Shimmer overlay */}
-      <div
-        className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
-        }}
-      />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, rgba(var(--primary)/0.03) 50%, transparent 100%)",
+          }}
+        />
+      </div>
 
       {/* Header */}
-      <div className="flex items-start justify-between p-6">
+      <div className="relative flex flex-col gap-3 p-6 @[540px]/card:flex-row @[540px]/card:items-start @[540px]/card:justify-between">
         <div className="space-y-2">
-          <div className="h-5 w-36 rounded-full bg-muted/60" />
-          <div className="h-4 w-48 rounded-full bg-muted/40" />
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-56" />
         </div>
         <div className="flex gap-2">
-          <div className="h-8 w-24 rounded-lg bg-muted/40" />
-          <div className="h-8 w-24 rounded-lg bg-muted/40" />
-          <div className="h-8 w-24 rounded-lg bg-muted/40" />
+          <Skeleton className="hidden h-9 w-28 rounded-lg @[767px]/card:block" />
+          <Skeleton className="hidden h-9 w-28 rounded-lg @[767px]/card:block" />
+          <Skeleton className="hidden h-9 w-24 rounded-lg @[767px]/card:block" />
+          <Skeleton className="h-9 w-40 rounded-xl @[767px]/card:hidden" />
         </div>
       </div>
 
       {/* Chart area */}
-      <div className="px-6 pb-6">
-        <div className="relative h-[250px] w-full overflow-hidden rounded-xl bg-muted/20">
-          {/* Fake chart lines */}
-          <div className="absolute inset-0 flex items-end justify-around gap-1 p-4">
-            {[40, 65, 45, 80, 55, 70, 50, 85, 60, 75, 45, 90].map((h, i) => (
+      <div className="relative px-2 pb-6 sm:px-6">
+        <div className="bg-muted/10 relative h-[250px] w-full overflow-hidden rounded-xl">
+          {/* Animated chart bars skeleton */}
+          <div className="absolute inset-0 flex items-end justify-around gap-2 p-6 pt-10">
+            {[45, 72, 38, 85, 52, 68, 42, 90, 58, 75, 48, 82].map((h, i) => (
               <div
                 key={i}
-                className="w-full rounded-t bg-gradient-to-t from-muted/40 to-muted/20"
+                className={cn(
+                  "w-full rounded-t-lg transition-all duration-1000",
+                  "from-primary/20 via-primary/10 to-primary/5 bg-gradient-to-t",
+                )}
                 style={{
                   height: `${h}%`,
-                  animationDelay: `${i * 100}ms`,
+                  animationDelay: `${i * 80}ms`,
                 }}
-              />
+              >
+                <Skeleton className="h-full w-full rounded-t-lg opacity-60" />
+              </div>
             ))}
           </div>
 
-          {/* Grid lines */}
-          <div className="absolute inset-0 flex flex-col justify-between p-4">
+          {/* Horizontal grid lines */}
+          <div className="absolute inset-0 flex flex-col justify-between px-6 py-6">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-px w-full bg-border/30" />
+              <div key={i} className="bg-border/20 h-px w-full" />
+            ))}
+          </div>
+
+          {/* Bottom axis skeleton */}
+          <div className="absolute right-0 bottom-0 left-0 flex justify-around px-6 pb-2">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <Skeleton
+                key={i}
+                className="h-3 w-10"
+                style={{ animationDelay: `${i * 50}ms` }}
+              />
             ))}
           </div>
         </div>
@@ -59,7 +80,7 @@ export function LoadingState() {
       <style>{`
         @keyframes shimmer {
           100% {
-            transform: translateX(100%);
+            transform: translateX(200%);
           }
         }
       `}</style>

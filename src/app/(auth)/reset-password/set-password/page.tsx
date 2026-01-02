@@ -1,5 +1,7 @@
-import Loader from "@/components/loader";
+"use client";
+
 import { Suspense } from "react";
+import Loader from "@/components/loader";
 import SetResetPasswordForm from "./_components/set-reset-password-form";
 
 export default function SetPasswordPage() {

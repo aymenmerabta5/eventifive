@@ -69,9 +69,12 @@ export const readReceipts = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    lastReadMessageId: text("last_read_message_id").references(() => messages.id, {
-      onDelete: "set null",
-    }),
+    lastReadMessageId: text("last_read_message_id").references(
+      () => messages.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     readAt: timestamp("read_at").notNull().defaultNow(),
   },
   (table) => [

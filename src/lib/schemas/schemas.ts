@@ -47,7 +47,7 @@ export const createEventSchema = z
       .max(255, "Title must be less than 255 characters"),
     description: z.string().optional(),
     type: z.enum(eventTypeValues, {
-      errorMap: () => ({ message: "Please select a valid event type" }),
+      error: "Please select a valid event type",
     }),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
@@ -105,7 +105,7 @@ export const createDraftEventSchema = z
         { message: "Big description is too large" },
       ),
     type: z.enum(eventTypeValues, {
-      errorMap: () => ({ message: "Please select a valid event type" }),
+      error: "Please select a valid event type",
     }),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
@@ -156,7 +156,7 @@ export const updateEventSchema = z
         { message: "Big description is too large" },
       ),
     type: z.enum(eventTypeValues, {
-      errorMap: () => ({ message: "Please select a valid event type" }),
+      error: "Please select a valid event type",
     }),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),

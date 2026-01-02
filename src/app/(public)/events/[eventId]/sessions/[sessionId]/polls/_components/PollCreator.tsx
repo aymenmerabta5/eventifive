@@ -104,7 +104,7 @@ export function PollCreator({ sessionId, trigger }: PollCreatorProps) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Create Poll
           </Button>
         )}
@@ -130,7 +130,7 @@ export function PollCreator({ sessionId, trigger }: PollCreatorProps) {
                 onChange={(e) => setQuestion(e.target.value)}
               />
               {errors.question && (
-                <p className="text-sm text-destructive">{errors.question}</p>
+                <p className="text-destructive text-sm">{errors.question}</p>
               )}
             </div>
 
@@ -152,7 +152,7 @@ export function PollCreator({ sessionId, trigger }: PollCreatorProps) {
                   Multiple Choice
                 </ToggleGroupItem>
               </ToggleGroup>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {pollType === "single"
                   ? "Attendees can select one option"
                   : "Attendees can select multiple options"}
@@ -170,7 +170,7 @@ export function PollCreator({ sessionId, trigger }: PollCreatorProps) {
                   onClick={addOption}
                   disabled={options.length >= 10}
                 >
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add Option
                 </Button>
               </div>
@@ -189,16 +189,16 @@ export function PollCreator({ sessionId, trigger }: PollCreatorProps) {
                         size="icon"
                         onClick={() => removeOption(index)}
                       >
-                        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                        <Trash2 className="text-muted-foreground hover:text-destructive h-4 w-4" />
                       </Button>
                     )}
                   </div>
                 ))}
               </div>
               {errors.options && (
-                <p className="text-sm text-destructive">{errors.options}</p>
+                <p className="text-destructive text-sm">{errors.options}</p>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {options.length}/10 options (minimum 2)
               </p>
             </div>
@@ -218,7 +218,7 @@ export function PollCreator({ sessionId, trigger }: PollCreatorProps) {
             <Button type="submit" disabled={createPollMutation.isPending}>
               {createPollMutation.isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : (

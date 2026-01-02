@@ -149,7 +149,9 @@ async function main() {
   console.log(
     `\n${colors.cyan}═══════════════════════════════════════════${colors.reset}`,
   );
-  console.log(`${colors.cyan}  Subscription Webhook Test Script${colors.reset}`);
+  console.log(
+    `${colors.cyan}  Subscription Webhook Test Script${colors.reset}`,
+  );
   console.log(
     `${colors.cyan}═══════════════════════════════════════════${colors.reset}`,
   );
@@ -167,9 +169,14 @@ async function main() {
 
   // Handle create + simulate for user + price
   if (args.userId && args.priceId) {
-    console.log(`\n${colors.blue}Creating test subscription payment...${colors.reset}\n`);
+    console.log(
+      `\n${colors.blue}Creating test subscription payment...${colors.reset}\n`,
+    );
 
-    const createResult = await createTestSubscriptionPayment(args.userId, args.priceId);
+    const createResult = await createTestSubscriptionPayment(
+      args.userId,
+      args.priceId,
+    );
 
     if (!createResult.success) {
       console.error(`${colors.red}✗${colors.reset} ${createResult.message}\n`);
@@ -177,7 +184,9 @@ async function main() {
     }
 
     if (args.create) {
-      console.log(`\n${colors.green}Done!${colors.reset} Use --payment-id ${createResult.paymentId} to simulate webhook.\n`);
+      console.log(
+        `\n${colors.green}Done!${colors.reset} Use --payment-id ${createResult.paymentId} to simulate webhook.\n`,
+      );
       process.exit(0);
     }
 
@@ -185,16 +194,22 @@ async function main() {
     console.log(`\n${colors.blue}Simulating webhook...${colors.reset}\n`);
     const payment = await getPaymentById(createResult.paymentId!);
     if (!payment) {
-      console.error(`${colors.red}✗${colors.reset} Payment not found after creation\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} Payment not found after creation\n`,
+      );
       process.exit(1);
     }
 
     const result = await simulateWebhook(payment, args.type, args.baseUrl);
     if (result.success) {
-      console.log(`${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}`);
+      console.log(
+        `${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}`,
+      );
       console.log(`\n${colors.green}Subscription activated!${colors.reset}\n`);
     } else {
-      console.error(`${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
       process.exit(1);
     }
     process.exit(0);
@@ -204,22 +219,32 @@ async function main() {
   if (args.paymentId) {
     const payment = await getPaymentById(args.paymentId);
     if (!payment) {
-      console.error(`\n${colors.red}✗${colors.reset} Payment not found: ${args.paymentId}\n`);
+      console.error(
+        `\n${colors.red}✗${colors.reset} Payment not found: ${args.paymentId}\n`,
+      );
       process.exit(1);
     }
 
     if (!payment.subscriptionId) {
-      console.error(`\n${colors.red}✗${colors.reset} Payment ${args.paymentId} is not a subscription payment\n`);
+      console.error(
+        `\n${colors.red}✗${colors.reset} Payment ${args.paymentId} is not a subscription payment\n`,
+      );
       process.exit(1);
     }
 
-    console.log(`\n${colors.blue}Simulating ${args.type} webhook...${colors.reset}\n`);
+    console.log(
+      `\n${colors.blue}Simulating ${args.type} webhook...${colors.reset}\n`,
+    );
     const result = await simulateWebhook(payment, args.type, args.baseUrl);
 
     if (result.success) {
-      console.log(`${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.log(
+        `${colors.green}✓${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
     } else {
-      console.error(`${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`);
+      console.error(
+        `${colors.red}✗${colors.reset} HTTP ${result.httpStatus} - ${result.message}\n`,
+      );
       process.exit(1);
     }
     process.exit(0);
@@ -244,7 +269,9 @@ async function main() {
     let errorCount = 0;
 
     for (const p of payments) {
-      console.log(`${colors.magenta}[Subscription]${colors.reset} Payment: ${p.id}`);
+      console.log(
+        `${colors.magenta}[Subscription]${colors.reset} Payment: ${p.id}`,
+      );
 
       const result = await simulateWebhook(p, args.type, args.baseUrl);
 
@@ -261,7 +288,9 @@ async function main() {
       }
     }
 
-    console.log(`${colors.cyan}────────────────────────────────────────────${colors.reset}`);
+    console.log(
+      `${colors.cyan}────────────────────────────────────────────${colors.reset}`,
+    );
     console.log(
       `${colors.green}Success: ${successCount}${colors.reset} | ${colors.red}Errors: ${errorCount}${colors.reset}`,
     );
@@ -272,19 +301,21 @@ async function main() {
 
   // Default: show pending subscription payments and plans
   const allPayments = await getPendingPaymentsWithDetails();
-  const subscriptionPayments = allPayments.filter((p) => p.payment.subscriptionId);
+  const subscriptionPayments = allPayments.filter(
+    (p) => p.payment.subscriptionId,
+  );
 
   if (subscriptionPayments.length > 0) {
     printPendingPayments(subscriptionPayments);
   } else {
-    console.log(`\n${colors.dim}No pending subscription payments found.${colors.reset}`);
+    console.log(
+      `\n${colors.dim}No pending subscription payments found.${colors.reset}`,
+    );
   }
 
   await listSubscriptionPlans();
 
-  console.log(
-    `${colors.yellow}Use --help for options.${colors.reset}\n`,
-  );
+  console.log(`${colors.yellow}Use --help for options.${colors.reset}\n`);
 }
 
 main().catch((error) => {

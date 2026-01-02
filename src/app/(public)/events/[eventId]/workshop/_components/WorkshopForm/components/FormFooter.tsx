@@ -1,11 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Rocket,
-  Loader2,
-  ShieldCheck,
-  ArrowRight,
-} from "lucide-react";
+import { Rocket, Loader2, ShieldCheck, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FormFooterProps {
@@ -25,7 +20,7 @@ export function FormFooter({
   return (
     <div className="space-y-6 pt-4">
       {/* Progress summary */}
-      <div className="rounded-xl border border-border/40 bg-gradient-to-r from-muted/30 to-muted/10 p-4">
+      <div className="border-border/40 from-muted/30 to-muted/10 rounded-xl border bg-gradient-to-r p-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
@@ -33,7 +28,7 @@ export function FormFooter({
                 "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
                 isComplete
                   ? "bg-green-500/10 text-green-500"
-                  : "bg-primary/10 text-primary"
+                  : "bg-primary/10 text-primary",
               )}
             >
               {isComplete ? (
@@ -48,7 +43,7 @@ export function FormFooter({
                   ? "Ready to submit!"
                   : `${Math.round(progress)}% complete`}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {isComplete
                   ? "Your proposal is ready for review"
                   : "Fill in all required fields to continue"}
@@ -57,7 +52,7 @@ export function FormFooter({
           </div>
 
           {/* Mini progress bar for mobile */}
-          <div className="hidden sm:block w-24">
+          <div className="hidden w-24 sm:block">
             <Progress value={progress} className="h-1.5" />
           </div>
         </div>
@@ -66,7 +61,7 @@ export function FormFooter({
       {/* Submit section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Terms notice */}
-        <p className="text-xs text-muted-foreground max-w-md">
+        <p className="text-muted-foreground max-w-md text-xs">
           By submitting, you agree to our{" "}
           <button type="button" className="text-primary hover:underline">
             Terms of Service
@@ -86,7 +81,7 @@ export function FormFooter({
             "group relative w-full overflow-hidden sm:w-auto sm:min-w-[200px]",
             "transition-all duration-300",
             isComplete &&
-              "bg-gradient-to-r from-primary via-primary to-chart-2 hover:shadow-lg hover:shadow-primary/20"
+              "from-primary via-primary to-chart-2 hover:shadow-primary/20 bg-gradient-to-r hover:shadow-lg",
           )}
         >
           {/* Shimmer effect */}
@@ -112,7 +107,7 @@ export function FormFooter({
       {/* Warning if no files */}
       {!hasFiles && (
         <p className="flex items-center justify-center gap-2 text-xs text-amber-600 dark:text-amber-400">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+          <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
           Please upload at least one supporting document to continue
         </p>
       )}

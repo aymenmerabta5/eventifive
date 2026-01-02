@@ -55,7 +55,12 @@ interface SessionCardProps {
   compact?: boolean;
 }
 
-export function SessionCard({ session, eventId, isRegistered, compact = false }: SessionCardProps) {
+export function SessionCard({
+  session,
+  eventId,
+  isRegistered,
+  compact = false,
+}: SessionCardProps) {
   const status = getSessionStatus(session.startAt, session.endAt);
   const isLive = status === "live";
   const isEnded = status === "ended";
@@ -63,20 +68,20 @@ export function SessionCard({ session, eventId, isRegistered, compact = false }:
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-border/50",
-        "bg-gradient-to-br from-card via-card to-card/80",
+        "border-border/50 relative overflow-hidden rounded-2xl border",
+        "from-card via-card to-card/80 bg-gradient-to-br",
         "transition-all duration-300",
         isLive && [
-          "border-destructive/30 ring-2 ring-destructive/10",
-          "shadow-lg shadow-destructive/5",
+          "border-destructive/30 ring-destructive/10 ring-2",
+          "shadow-destructive/5 shadow-lg",
         ],
         isEnded && "opacity-70",
-        !isLive && !isEnded && "hover:border-primary/30 hover:shadow-md"
+        !isLive && !isEnded && "hover:border-primary/30 hover:shadow-md",
       )}
     >
       {/* Live indicator strip */}
       {isLive && (
-        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-destructive via-destructive to-destructive/50" />
+        <div className="from-destructive via-destructive to-destructive/50 absolute top-0 left-0 h-full w-1 bg-gradient-to-b" />
       )}
 
       {/* Pattern overlay for live */}
@@ -95,8 +100,8 @@ export function SessionCard({ session, eventId, isRegistered, compact = false }:
         <div className="mb-3 flex items-start justify-between gap-3">
           <h3
             className={cn(
-              "font-display font-semibold leading-tight text-foreground",
-              compact ? "text-base" : "text-lg"
+              "font-display text-foreground leading-tight font-semibold",
+              compact ? "text-base" : "text-lg",
             )}
           >
             {session.title}
@@ -107,36 +112,38 @@ export function SessionCard({ session, eventId, isRegistered, compact = false }:
         {/* Meta info */}
         <div className={cn("space-y-2", compact ? "mb-3" : "mb-4")}>
           {/* Date & Time */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="flex size-6 items-center justify-center rounded-md bg-primary/10">
-              <IconCalendar className="size-3.5 text-primary" />
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <div className="bg-primary/10 flex size-6 items-center justify-center rounded-md">
+              <IconCalendar className="text-primary size-3.5" />
             </div>
             <span>
-              {formatDateFull(session.startAt)} &bull; {formatTime(session.startAt)} – {formatTime(session.endAt)}
+              {formatDateFull(session.startAt)} &bull;{" "}
+              {formatTime(session.startAt)} – {formatTime(session.endAt)}
             </span>
           </div>
 
           {/* Room & Chair */}
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             {session.room && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="flex size-6 items-center justify-center rounded-md bg-chart-2/10">
-                  <IconMapPin className="size-3.5 text-chart-2" />
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                <div className="bg-chart-2/10 flex size-6 items-center justify-center rounded-md">
+                  <IconMapPin className="text-chart-2 size-3.5" />
                 </div>
                 <span>
                   {session.room.name}
                   {session.room.location && (
                     <span className="text-muted-foreground/70">
-                      {" "}({session.room.location})
+                      {" "}
+                      ({session.room.location})
                     </span>
                   )}
                 </span>
               </div>
             )}
             {session.chair && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="flex size-6 items-center justify-center rounded-md bg-chart-3/10">
-                  <IconUser className="size-3.5 text-chart-3" />
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                <div className="bg-chart-3/10 flex size-6 items-center justify-center rounded-md">
+                  <IconUser className="text-chart-3 size-3.5" />
                 </div>
                 <span>{session.chair.name}</span>
               </div>
@@ -145,14 +152,14 @@ export function SessionCard({ session, eventId, isRegistered, compact = false }:
 
           {/* Description (only if not compact and has description) */}
           {!compact && session.description && (
-            <p className="line-clamp-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground line-clamp-2 text-sm">
               {session.description}
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex flex-wrap gap-2 border-t border-border/50 pt-3">
+        <div className="border-border/50 flex flex-wrap gap-2 border-t pt-3">
           <TooltipProvider>
             {/* Q&A Button */}
             <SessionActionButton
@@ -176,7 +183,9 @@ export function SessionCard({ session, eventId, isRegistered, compact = false }:
               icon={<IconChartBar className="size-4" />}
               label="Polls"
               disabled={!isRegistered}
-              disabledReason={!isRegistered ? "Register to access Polls" : undefined}
+              disabledReason={
+                !isRegistered ? "Register to access Polls" : undefined
+              }
               color="chart-2"
             />
 
@@ -187,7 +196,9 @@ export function SessionCard({ session, eventId, isRegistered, compact = false }:
                 icon={<IconExternalLink className="size-4" />}
                 label="Join Meeting"
                 disabled={!isRegistered}
-                disabledReason={!isRegistered ? "Register to join meeting" : undefined}
+                disabledReason={
+                  !isRegistered ? "Register to join meeting" : undefined
+                }
                 external
                 color="chart-3"
               />
@@ -228,10 +239,7 @@ function SessionActionButton({
     <Button
       variant="outline"
       size="sm"
-      className={cn(
-        "gap-2 border-border/50",
-        !disabled && colorClasses[color]
-      )}
+      className={cn("border-border/50 gap-2", !disabled && colorClasses[color])}
       disabled={disabled}
       asChild={!disabled}
     >
@@ -239,7 +247,7 @@ function SessionActionButton({
         <span className="flex items-center gap-2">
           {icon}
           {label}
-          <IconLock className="size-3 text-muted-foreground" />
+          <IconLock className="text-muted-foreground size-3" />
         </span>
       ) : external ? (
         <a href={href} target="_blank" rel="noopener noreferrer">

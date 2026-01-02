@@ -21,7 +21,11 @@ export function UploaderActions({
         Clear
       </Button>
       {mode === "upload" ? (
-        <Button type="button" onClick={onUpload} disabled={disabled || isUploading}>
+        <Button
+          type="button"
+          onClick={onUpload}
+          disabled={disabled || isUploading}
+        >
           {isUploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -76,11 +76,15 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
         </div>
 
         {/* Progress indicator */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:100ms] fill-mode-backwards">
+        <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards duration-700 [animation-delay:100ms]">
           <div className="mx-auto max-w-md space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground font-medium">Form completion</span>
-              <span className="font-semibold text-primary">{Math.round(progress)}%</span>
+              <span className="text-muted-foreground font-medium">
+                Form completion
+              </span>
+              <span className="text-primary font-semibold">
+                {Math.round(progress)}%
+              </span>
             </div>
             <Progress value={progress} className="h-1.5" />
           </div>
@@ -89,23 +93,23 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
         {/* Main form card */}
         <Card
           className={cn(
-            "animate-in fade-in slide-in-from-bottom-6 duration-700 [animation-delay:200ms] fill-mode-backwards",
-            "relative overflow-hidden border-border/50",
-            "bg-gradient-to-b from-card via-card to-card/80",
-            "shadow-xl shadow-primary/5",
-            "backdrop-blur-sm"
+            "animate-in fade-in slide-in-from-bottom-6 fill-mode-backwards duration-700 [animation-delay:200ms]",
+            "border-border/50 relative overflow-hidden",
+            "from-card via-card to-card/80 bg-gradient-to-b",
+            "shadow-primary/5 shadow-xl",
+            "backdrop-blur-sm",
           )}
         >
           {/* Decorative top gradient line */}
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+          <div className="via-primary/50 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
 
           {/* Subtle corner accent */}
-          <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-primary/5 blur-2xl" />
+          <div className="bg-primary/5 absolute -top-24 -right-24 h-48 w-48 rounded-full blur-2xl" />
 
           <CardContent className="relative p-6 sm:p-8 lg:p-10">
             <form onSubmit={handleSubmit} className="space-y-8" noValidate>
               {/* Section 1: Workshop Title */}
-              <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:300ms] fill-mode-backwards">
+              <section className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 [animation-delay:300ms]">
                 <WorkshopTitleField
                   workshopTitle={workshopTitle}
                   onWorkshopTitleChange={handleWorkshopTitleChange}
@@ -114,13 +118,13 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
 
               {/* Decorative divider */}
               <div className="flex items-center gap-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <div className="h-1.5 w-1.5 rounded-full bg-primary/30" />
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-transparent" />
+                <div className="via-border h-px flex-1 bg-gradient-to-r from-transparent to-transparent" />
+                <div className="bg-primary/30 h-1.5 w-1.5 rounded-full" />
+                <div className="via-border h-px flex-1 bg-gradient-to-l from-transparent to-transparent" />
               </div>
 
               {/* Section 2: Personal Info */}
-              <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:400ms] fill-mode-backwards">
+              <section className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 [animation-delay:400ms]">
                 <PersonalInfoFields
                   name={name}
                   email={email}
@@ -130,13 +134,13 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
 
               {/* Decorative divider */}
               <div className="flex items-center gap-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <div className="h-1.5 w-1.5 rounded-full bg-primary/30" />
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-transparent" />
+                <div className="via-border h-px flex-1 bg-gradient-to-r from-transparent to-transparent" />
+                <div className="bg-primary/30 h-1.5 w-1.5 rounded-full" />
+                <div className="via-border h-px flex-1 bg-gradient-to-l from-transparent to-transparent" />
               </div>
 
               {/* Section 3: Research & Capacity */}
-              <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:500ms] fill-mode-backwards">
+              <section className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 [animation-delay:500ms]">
                 <div className="grid gap-6 md:grid-cols-2">
                   <ResearchDomainField
                     researchDomain={researchDomain}
@@ -151,13 +155,13 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
 
               {/* Decorative divider */}
               <div className="flex items-center gap-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <div className="h-1.5 w-1.5 rounded-full bg-primary/30" />
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-transparent" />
+                <div className="via-border h-px flex-1 bg-gradient-to-r from-transparent to-transparent" />
+                <div className="bg-primary/30 h-1.5 w-1.5 rounded-full" />
+                <div className="via-border h-px flex-1 bg-gradient-to-l from-transparent to-transparent" />
               </div>
 
               {/* Section 4: Description */}
-              <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:600ms] fill-mode-backwards">
+              <section className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 [animation-delay:600ms]">
                 <WorkshopDescriptionField
                   description={description}
                   onDescriptionChange={handleDescriptionChange}
@@ -166,13 +170,13 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
 
               {/* Decorative divider */}
               <div className="flex items-center gap-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <div className="h-1.5 w-1.5 rounded-full bg-primary/30" />
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-transparent" />
+                <div className="via-border h-px flex-1 bg-gradient-to-r from-transparent to-transparent" />
+                <div className="bg-primary/30 h-1.5 w-1.5 rounded-full" />
+                <div className="via-border h-px flex-1 bg-gradient-to-l from-transparent to-transparent" />
               </div>
 
               {/* Section 5: File Upload */}
-              <section className="animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:700ms] fill-mode-backwards">
+              <section className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 [animation-delay:700ms]">
                 <FileUploadArea
                   files={files}
                   uploadedCount={uploadedCount}
@@ -189,7 +193,7 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
               </section>
 
               {/* Footer */}
-              <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 [animation-delay:800ms] fill-mode-backwards">
+              <div className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 [animation-delay:800ms]">
                 <FormFooter
                   isSubmitting={isSubmitting}
                   hasFiles={files.length > 0}
@@ -200,12 +204,13 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
           </CardContent>
 
           {/* Decorative bottom gradient line */}
-          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="via-primary/30 absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent to-transparent" />
         </Card>
 
         {/* Footer text */}
-        <p className="animate-in fade-in duration-700 [animation-delay:900ms] fill-mode-backwards text-center text-xs text-muted-foreground">
-          Need help? Contact our support team for assistance with your submission.
+        <p className="animate-in fade-in fill-mode-backwards text-muted-foreground text-center text-xs duration-700 [animation-delay:900ms]">
+          Need help? Contact our support team for assistance with your
+          submission.
         </p>
       </div>
     </div>

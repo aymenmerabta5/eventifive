@@ -62,16 +62,16 @@ export default function EventRow({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
             {/* Icon */}
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
-              <Icon className="size-6 text-primary-foreground" />
+            <div className="from-primary to-primary/80 shadow-primary/20 flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg">
+              <Icon className="text-primary-foreground size-6" />
             </div>
 
             {/* Text */}
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              <h2 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
                 {title}
               </h2>
-              <p className="max-w-prose text-sm text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground max-w-prose text-sm leading-relaxed">
                 {description}
               </p>
             </div>
@@ -82,7 +82,7 @@ export default function EventRow({
             variant="ghost"
             className={cn(
               "group w-fit gap-2 self-start font-semibold sm:self-auto",
-              "hover:bg-primary/10 hover:text-primary"
+              "hover:bg-primary/10 hover:text-primary",
             )}
           >
             <Link href={route as Route}>
@@ -96,7 +96,7 @@ export default function EventRow({
         </div>
 
         {/* Separator line */}
-        <div className="mt-6 h-px bg-gradient-to-r from-border via-border/50 to-transparent" />
+        <div className="from-border via-border/50 mt-6 h-px bg-gradient-to-r to-transparent" />
       </header>
 
       {/* Event cards grid */}
