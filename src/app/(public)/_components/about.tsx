@@ -157,9 +157,6 @@ export default function About() {
           </motion.div>
         </div>
       </div>
-
-      {/* Gradient transition to next section */}
-      <div className="from-muted/30 to-background h-16 w-full bg-gradient-to-b" />
     </>
   );
 }

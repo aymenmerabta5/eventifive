@@ -15,7 +15,7 @@ export default function Home() {
       <Suspense fallback={<HomePageSkeleton />}>
         <div className="flex flex-col">
           <Hero />
-          <GradientTransition />
+         
           <About />
           <WhoWeAre />
           <Platform />
