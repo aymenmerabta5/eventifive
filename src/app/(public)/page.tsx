@@ -5,7 +5,7 @@ import { Hero } from "./_components/Hero";
 import WhoWeAre from "./_components/WhoWeAre";
 import About from "./_components/About";
 import Platform from "./_components/Platform";
-import GradientTransition from "./_components/GradientTransition";
+
 import HomePageSkeleton from "./_components/HomePageSkeleton";
 import { LenisProvider } from "@/components/lenis-provider";
 
