@@ -89,7 +89,6 @@ export default function Header() {
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6">
-        {/* Desktop Navigation */}
         <nav className="hidden items-center gap-1 md:flex">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -123,7 +122,6 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Mobile Logo */}
         <motion.div
           className="md:hidden"
           initial={{ opacity: 0, x: -20 }}
@@ -133,14 +131,12 @@ export default function Header() {
           <Logo />
         </motion.div>
 
-        {/* Desktop Right Side */}
         <motion.div
           className="hidden items-center md:flex"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          {/* Unified Action Bar */}
           <div className="border-border/40 bg-card/80 flex items-center gap-1 rounded-full border p-1.5 shadow-sm backdrop-blur-sm">
             {session && (
               <>
@@ -163,7 +159,6 @@ export default function Header() {
           </div>
         </motion.div>
 
-        {/* Mobile Right Side */}
         <div className="flex items-center gap-2 md:hidden">
           {session && (
             <Link
@@ -223,7 +218,6 @@ export default function Header() {
               className="bg-background/95 w-full border-none p-0 backdrop-blur-xl"
             >
               <div className="flex h-full flex-col">
-                {/* Mobile Menu Header */}
                 <SheetHeader className="border-border/40 border-b p-6">
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <div className="flex items-center justify-between">
@@ -231,7 +225,6 @@ export default function Header() {
                   </div>
                 </SheetHeader>
 
-                {/* Mobile Menu Content */}
                 <nav className="flex flex-1 flex-col justify-center px-6">
                   <AnimatePresence>
                     {mobileMenuOpen && (
@@ -268,7 +261,6 @@ export default function Header() {
                           </motion.div>
                         ))}
 
-                        {/* Divider */}
                         <motion.div
                           initial={{ opacity: 0, scaleX: 0 }}
                           animate={{ opacity: 1, scaleX: 1 }}
@@ -280,7 +272,6 @@ export default function Header() {
                           className="via-border my-6 h-px bg-gradient-to-r from-transparent to-transparent"
                         />
 
-                        {/* Actions */}
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -303,7 +294,6 @@ export default function Header() {
                   </AnimatePresence>
                 </nav>
 
-                {/* Mobile Menu Footer */}
                 <div className="border-border/40 border-t p-6">
                   <p className="text-muted-foreground text-center text-sm">
                     © {new Date().getFullYear()} Eventifive

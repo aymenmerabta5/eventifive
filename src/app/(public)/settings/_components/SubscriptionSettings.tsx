@@ -155,7 +155,7 @@ export function SubscriptionSettings() {
         )}
       </div>
 
-      {/* Actions */}
+      
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button asChild variant="outline" className="flex-1">
           <Link href="/pricing">
@@ -165,7 +165,7 @@ export function SubscriptionSettings() {
         </Button>
       </div>
 
-      {/* Note */}
+      
       <p className="text-muted-foreground text-center text-xs">
         Event quota counts upcoming and ongoing events. Past events don&apos;t
         count against your limit.

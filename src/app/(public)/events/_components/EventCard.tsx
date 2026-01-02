@@ -91,27 +91,25 @@ export default function EventCard({ event }: EventCardProps) {
           isEnded && "opacity-75 hover:opacity-100",
         )}
       >
-        
         <div className="relative aspect-[16/10] w-full overflow-hidden">
-          {event.imageUrl && <Image
-            src={event.imageUrl}
-            alt={event.title}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className={cn(
-              "object-cover transition-transform duration-700 ease-out",
-              "group-hover:scale-105",
-            )}
-            unoptimized={!!event.imageUrl}
-          />}
+          {event.imageUrl && (
+            <Image
+              src={event.imageUrl}
+              alt={event.title}
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+              className={cn(
+                "object-cover transition-transform duration-700 ease-out",
+                "group-hover:scale-105",
+              )}
+              unoptimized={!!event.imageUrl}
+            />
+          )}
 
-          {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="from-primary/10 to-secondary/10 absolute inset-0 bg-gradient-to-br via-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-          {/* Top badges */}
           <div className="absolute top-4 right-4 left-4 flex items-start justify-between">
-            {/* Event type badge */}
             <Badge
               variant="secondary"
               className="bg-card/90 text-card-foreground border-0 shadow-sm backdrop-blur-sm"
@@ -119,7 +117,6 @@ export default function EventCard({ event }: EventCardProps) {
               {typeLabels[event.type] || event.type}
             </Badge>
 
-            {/* Status badge */}
             <Badge
               variant="outline"
               className={cn("gap-1.5 font-medium", config.className)}
@@ -133,22 +130,18 @@ export default function EventCard({ event }: EventCardProps) {
             </Badge>
           </div>
 
-          {/* Bottom gradient text area */}
           <div className="absolute right-0 bottom-0 left-0 p-5">
             <h3 className="group-hover:text-primary line-clamp-2 text-xl font-bold text-white drop-shadow-sm transition-colors">
               {event.title}
             </h3>
           </div>
 
-          {/* Live indicator glow */}
           {isLive && (
             <div className="bg-destructive/20 absolute -top-20 -right-20 size-40 animate-pulse rounded-full blur-3xl" />
           )}
         </div>
 
-        {/* Content section */}
         <div className="space-y-4 p-5">
-          {/* Meta info */}
           <div className="space-y-2.5">
             <div className="text-muted-foreground flex items-center gap-2.5 text-sm">
               <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
@@ -178,14 +171,12 @@ export default function EventCard({ event }: EventCardProps) {
             )}
           </div>
 
-          {/* Description */}
           {event.smallDescription && (
             <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
               {event.smallDescription}
             </p>
           )}
 
-          {/* Action button */}
           <Button
             variant="outline"
             className={cn(
@@ -199,7 +190,6 @@ export default function EventCard({ event }: EventCardProps) {
           </Button>
         </div>
 
-        {/* Decorative corner accent */}
         <div className="from-primary/5 to-secondary/10 absolute -right-8 -bottom-8 size-24 rounded-full bg-gradient-to-br opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
       </article>
     </Link>

@@ -80,7 +80,7 @@ export function SessionCard({ session, onRevoke }: SessionCardProps) {
       </div>
 
       {/* Revoke Button */}
-      {!session.isCurrent && (
+      {!session.isCurrent &&  (
         <Button
           variant="ghost"
           size="sm"
