@@ -505,7 +505,7 @@ export function EventFormCard({
                 </div>
                 <ReviewStep
                   invitesData={invitesData}
-                  isLoading={invitesQuery.isPending}
+                  isLoading={false}
                 />
               </div>
             )}

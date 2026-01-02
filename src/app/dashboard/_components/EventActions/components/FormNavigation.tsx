@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, X, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
 import type { EventFormMode, WizardStep } from "../types";
 
 interface FormNavigationProps {
@@ -46,17 +46,10 @@ export function FormNavigation({
           className="h-11 cursor-pointer gap-2 rounded-xl px-6"
           disabled={isLoading}
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Updating...
-            </>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Check className="size-4" />
-              Update Event
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <Check className="size-4" />
+            Update Event
+          </div>
         </StatefulButton>
       </div>
     );
@@ -82,17 +75,10 @@ export function FormNavigation({
           className="h-11 cursor-pointer gap-2 rounded-xl px-6"
           disabled={isLoading}
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Working...
-            </>
-          ) : (
-            <div className="flex items-center gap-2">
-              Continue
-              <ArrowRight className="size-4" />
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            Continue
+            <ArrowRight className="size-4" />
+          </div>
         </StatefulButton>
       ) : (
         <Button
