@@ -7,7 +7,7 @@ import {
   SessionsHeader,
   SessionCard,
   SignOutAllSection,
-  RevokeSessionDrawer,
+  RevokeSessionDialog,
 } from "./components";
 
 export function SessionManagement() {
@@ -16,8 +16,8 @@ export function SessionManagement() {
     sortedSessions,
     otherSessionsCount,
     selectedSession,
-    drawerOpen,
-    drawerVariant,
+    dialogOpen,
+    dialogVariant,
     isRevoking,
     isPending,
     error,
@@ -26,7 +26,7 @@ export function SessionManagement() {
     handleRevokeClick,
     handleRevokeAllClick,
     handleRevokeConfirm,
-    handleDrawerOpenChange,
+    handleDialogOpenChange,
   } = useSessionManagement();
 
   // Loading state - ALWAYS handle first
@@ -68,12 +68,12 @@ export function SessionManagement() {
         </p>
       )}
 
-      {/* Revoke Drawer */}
-      <RevokeSessionDrawer
-        open={drawerOpen}
-        onOpenChange={handleDrawerOpenChange}
+      {/* Revoke Dialog */}
+      <RevokeSessionDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogOpenChange}
         session={selectedSession}
-        variant={drawerVariant}
+        variant={dialogVariant}
         isRevoking={isRevoking}
         onConfirm={handleRevokeConfirm}
         otherSessionsCount={otherSessionsCount}

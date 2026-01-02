@@ -6,4 +6,4 @@ export { ErrorState } from "./ErrorState";
 export { SessionsHeader } from "./SessionsHeader";
 export { SessionCard } from "./SessionCard";
 export { SignOutAllSection } from "./SignOutAllSection";
-export { RevokeSessionDrawer } from "./RevokeSessionDrawer";
+export { RevokeSessionDialog } from "./RevokeSessionDialog";

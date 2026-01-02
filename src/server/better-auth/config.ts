@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "@/env";
-import { captcha, customSession } from "better-auth/plugins";
+import { captcha, customSession, multiSession } from "better-auth/plugins";
 import { db } from "@/server/db";
 import { sendEmail } from "@/lib/sendEmail";
 import ResetPasswordEmail from "@/lib/emails/ResetPasswordEmail";
@@ -66,6 +66,7 @@ export const auth = betterAuth({
       secretKey: env.CLOUDFLARE_TURNSTYLE_SK,
       provider: "cloudflare-turnstile",
     }),
+    multiSession(),
     customSession(async ({ user, session }) => {
       const userId = user.id;
 

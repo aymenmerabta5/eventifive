@@ -1,13 +1,13 @@
 import type { DeviceType } from "@/lib/session-parser";
+import type { authClient } from "@/lib/auth-client";
+
+// Better Auth session type from listSessions
+export type BetterAuthSession = NonNullable<
+  Awaited<ReturnType<typeof authClient.listSessions>>["data"]
+>[number];
 
 // Parsed session data with device info
-export interface ParsedSession {
-  id: string;
-  token: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userAgent: string | null;
-  ipAddress: string | null;
+export interface ParsedSession extends BetterAuthSession {
   deviceLabel: string;
   browser: string;
   os: string;
@@ -15,5 +15,5 @@ export interface ParsedSession {
   isCurrent: boolean;
 }
 
-// Drawer variant type
-export type DrawerVariant = "single" | "all";
+// Dialog variant type
+export type DialogVariant = "single" | "all";

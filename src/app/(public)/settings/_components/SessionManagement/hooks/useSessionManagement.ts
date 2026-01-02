@@ -4,9 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { orpc } from "@/utils/orpc";
 import { parseUserAgent } from "@/lib/session-parser";
 import { QUERY_KEY } from "../constants";
-import type { ParsedSession, DrawerVariant } from "../types";
+import type { ParsedSession, DialogVariant } from "../types";
 
 export function useSessionManagement() {
   const { data: currentSession } = authClient.useSession();
@@ -29,32 +30,26 @@ export function useSessionManagement() {
   const [selectedSession, setSelectedSession] = useState<ParsedSession | null>(
     null,
   );
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerVariant, setDrawerVariant] = useState<DrawerVariant>("single");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogVariant, setDialogVariant] = useState<DialogVariant>("single");
   const [isRevoking, setIsRevoking] = useState(false);
 
   // Parse sessions with device info
   const sessions: ParsedSession[] = useMemo(
     () =>
       (sessionsData ?? []).map((session) => {
-        const userAgent = session.userAgent ?? null;
-        const ipAddress = session.ipAddress ?? null;
-        const parsed = parseUserAgent(userAgent);
+        const parsed = parseUserAgent(session.userAgent ?? null);
         return {
-          id: session.id,
-          token: session.token,
-          userAgent,
-          ipAddress,
-          createdAt: new Date(session.createdAt),
-          updatedAt: new Date(session.updatedAt),
+          ...session,
           deviceLabel: parsed.deviceLabel,
           browser: parsed.browser,
           os: parsed.os,
           deviceType: parsed.deviceType,
-          isCurrent: session.token === currentSession?.session?.token,
+          // Compare by session ID since useSession() may not expose token
+          isCurrent: session.id === currentSession?.session?.id,
         };
       }),
-    [sessionsData, currentSession?.session?.token],
+    [sessionsData, currentSession?.session?.id],
   );
 
   // Sort sessions: current first, then by updatedAt descending
@@ -82,41 +77,54 @@ export function useSessionManagement() {
 
   const handleRevokeClick = useCallback((session: ParsedSession) => {
     setSelectedSession(session);
-    setDrawerVariant("single");
-    setDrawerOpen(true);
+    setDialogVariant("single");
+    setDialogOpen(true);
   }, []);
 
   const handleRevokeAllClick = useCallback(() => {
     setSelectedSession(null);
-    setDrawerVariant("all");
-    setDrawerOpen(true);
+    setDialogVariant("all");
+    setDialogOpen(true);
   }, []);
 
   const handleRevokeConfirm = useCallback(async () => {
     setIsRevoking(true);
     try {
-      if (drawerVariant === "single" && selectedSession) {
-        await authClient.revokeSession({ token: selectedSession.token });
+      if (dialogVariant === "single" && selectedSession) {
+        // Prevent revoking current session
+        if (selectedSession.isCurrent) {
+          throw new Error("Cannot revoke your current session");
+        }
+        // Use custom oRPC endpoint to revoke session directly from database
+        await orpc.profile.revokeSession.call({
+          sessionId: selectedSession.id,
+        });
         toast.success("Session revoked successfully");
       } else {
-        await authClient.revokeOtherSessions();
+        // Revoke all other sessions (standard method, not multiSession)
+        const { error } = await authClient.revokeOtherSessions();
+        if (error) {
+          throw new Error(error.message ?? "Failed to sign out other sessions");
+        }
         toast.success("All other sessions have been signed out");
       }
-      setDrawerOpen(false);
-      refetch();
-    } catch {
+      setDialogOpen(false);
+      void refetch();
+    } catch (err) {
       toast.error(
-        drawerVariant === "single"
-          ? "Failed to revoke session"
-          : "Failed to sign out other sessions",
+        err instanceof Error
+          ? err.message
+          : dialogVariant === "single"
+            ? "Failed to revoke session"
+            : "Failed to sign out other sessions",
       );
     } finally {
       setIsRevoking(false);
     }
-  }, [drawerVariant, selectedSession, refetch]);
+  }, [dialogVariant, selectedSession, refetch]);
 
-  const handleDrawerOpenChange = useCallback((open: boolean) => {
-    setDrawerOpen(open);
+  const handleDialogOpenChange = useCallback((open: boolean) => {
+    setDialogOpen(open);
   }, []);
 
   return {
@@ -126,9 +134,9 @@ export function useSessionManagement() {
     otherSessionsCount,
     selectedSession,
 
-    // Drawer state
-    drawerOpen,
-    drawerVariant,
+    // Dialog state
+    dialogOpen,
+    dialogVariant,
     isRevoking,
 
     // Loading states
@@ -141,6 +149,6 @@ export function useSessionManagement() {
     handleRevokeClick,
     handleRevokeAllClick,
     handleRevokeConfirm,
-    handleDrawerOpenChange,
+    handleDialogOpenChange,
   };
 }
