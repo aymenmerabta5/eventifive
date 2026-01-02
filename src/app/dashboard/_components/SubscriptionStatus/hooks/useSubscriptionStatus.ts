@@ -3,9 +3,13 @@
 import { useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
-import { QUERY_KEY } from "../constants";
+import { authClient } from "@/lib/auth-client";
 
 export function useSubscriptionStatus() {
+  // Get session for admin check
+  const { data: session } = authClient.useSession();
+  const isAdmin = session?.user?.isAdmin ?? false;
+
   // Data fetching
   const {
     data: subscription,
@@ -40,6 +44,7 @@ export function useSubscriptionStatus() {
     subscription,
     hasSubscription,
     daysRemaining,
+    isAdmin,
 
     // Loading states
     isPending,

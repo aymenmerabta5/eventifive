@@ -13,11 +13,13 @@ import type { SubscriptionData, SubscriptionStatusType } from "../types";
 interface ActiveSubscriptionCardProps {
   subscription: SubscriptionData;
   daysRemaining: number;
+  isAdmin: boolean;
 }
 
 export function ActiveSubscriptionCard({
   subscription,
   daysRemaining,
+  isAdmin,
 }: ActiveSubscriptionCardProps) {
   const isPending = subscription.status === "pending";
 
@@ -90,8 +92,8 @@ export function ActiveSubscriptionCard({
           </div>
         </div>
 
-        {/* Status messages */}
-        {subscription.status === "active" && (
+        {/* Renewal info - only for non-admin users */}
+        {subscription.status === "active" && !isAdmin && (
           <div className="bg-secondary/50 flex items-center gap-2 rounded-lg p-2.5">
             <IconCalendar className="text-primary size-4" />
             <span className="text-foreground text-sm">
