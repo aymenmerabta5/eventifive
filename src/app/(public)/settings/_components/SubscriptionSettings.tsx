@@ -63,7 +63,7 @@ export function SubscriptionSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Current Plan Card */}
+      
       <div className="from-primary/5 to-primary/10 rounded-xl border bg-gradient-to-br p-6">
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ export function SubscriptionSettings() {
           </Badge>
         </div>
 
-        {/* Features */}
+    
         <div className="mb-4 grid gap-2 sm:grid-cols-2">
           {plan.features?.map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
@@ -96,7 +96,7 @@ export function SubscriptionSettings() {
           ))}
         </div>
 
-        {/* Period Info */}
+        
         <div className="flex items-center justify-between border-t pt-4 text-sm">
           <span className="text-muted-foreground">Current period ends</span>
           <span className="font-medium">
@@ -105,7 +105,7 @@ export function SubscriptionSettings() {
         </div>
       </div>
 
-      {/* Quota Usage Card */}
+
       <div className="rounded-xl border p-6">
         <div className="mb-4 flex items-center gap-2">
           <IconCalendarEvent className="text-primary size-5" />

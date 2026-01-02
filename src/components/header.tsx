@@ -61,7 +61,7 @@ export default function Header() {
       links.filter((link) => {
         if (
           "showWhenSubscribed" in link &&
-          !link.showWhenSubscribed &&
+          !link.showWhenSubscribed && 
           session?.user?.hasActiveSubscription
         ) {
           return false;

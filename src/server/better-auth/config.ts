@@ -11,7 +11,7 @@ import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg", // or "pg" or "mysql"
+    provider: "pg",
   }),
   emailAndPassword: {
     enabled: true,
@@ -38,9 +38,9 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       biography: {
-        type: "string", // Using string instead of json because better-auth maps additionalFields to basic types
+        type: "string",
         required: false,
-        input: false, // We handle updates manually via our own API
+        input: false,
       },
       institution: {
         type: "string",
@@ -69,24 +69,21 @@ export const auth = betterAuth({
     customSession(async ({ user, session }) => {
       const userId = user.id;
 
-      // Check if user has an active subscription
+     
       const [subscription] = await db
         .select({ id: userSubscription.id })
         .from(userSubscription)
         .where(
           and(
             eq(userSubscription.userId, userId),
-            or(
-              eq(userSubscription.status, "active"),
-              eq(userSubscription.status, "pending"),
-            ),
+
+            eq(userSubscription.status, "active"),
           ),
         )
         .limit(1);
 
       const hasActiveSubscription = !!subscription;
 
-      // Check if user is an admin
       const [adminRole] = await db
         .select({ roleName: roles.name })
         .from(userRoles)
@@ -96,21 +93,17 @@ export const auth = betterAuth({
 
       const isAdmin = !!adminRole;
 
-      // Generate profile image URL
       let profileImageUrl: string | null = null;
       if (user.image) {
         if (user.image.startsWith("https://lh3.googleusercontent.com")) {
-          // Google OAuth image - use directly
           profileImageUrl = user.image;
         } else {
-          // S3 key - generate presigned URL
           try {
             const { downloadUrl } = await generatePresignedDownloadUrl(
               user.image,
             );
             profileImageUrl = downloadUrl;
           } catch {
-            // If presigned URL fails, leave as null
             profileImageUrl = null;
           }
         }
