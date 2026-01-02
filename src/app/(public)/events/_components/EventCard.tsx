@@ -91,10 +91,10 @@ export default function EventCard({ event }: EventCardProps) {
           isEnded && "opacity-75 hover:opacity-100",
         )}
       >
-        {/* Image section */}
+        
         <div className="relative aspect-[16/10] w-full overflow-hidden">
-          <Image
-            src={event.imageUrl || "/download.jpg"}
+          {event.imageUrl && <Image
+            src={event.imageUrl}
             alt={event.title}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
@@ -103,7 +103,7 @@ export default function EventCard({ event }: EventCardProps) {
               "group-hover:scale-105",
             )}
             unoptimized={!!event.imageUrl}
-          />
+          />}
 
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
