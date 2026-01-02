@@ -31,7 +31,7 @@ export function SubscriptionSettings() {
     );
   }
 
-  if (!subscription) {
+  if (!subscription || subscription.status !== "active") {
     return (
       <div className="space-y-6">
         <div className="rounded-xl border border-dashed p-8 text-center">

@@ -14,6 +14,7 @@ export function SubscriptionStatus() {
     subscription,
     hasSubscription,
     daysRemaining,
+    isAdmin,
     isPending,
     error,
     isRefetching,
@@ -40,6 +41,7 @@ export function SubscriptionStatus() {
     <ActiveSubscriptionCard
       subscription={subscription as SubscriptionData}
       daysRemaining={daysRemaining}
+      isAdmin={isAdmin}
     />
   );
 }

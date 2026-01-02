@@ -8,7 +8,7 @@ import { ChargilyClient } from "@chargily/chargily-pay";
 export const client = env.CHARGILY_SK
   ? new ChargilyClient({
       api_key: env.CHARGILY_SK,
-      mode: env.NODE_ENV === "production" ? "live" : "test",
+      mode: "test", // For now for the teacher to see it it will be test
     })
   : null;
 
