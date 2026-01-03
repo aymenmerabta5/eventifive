@@ -53,7 +53,10 @@ export function AcceptWorkshopModal({
 
   const handleConfirm = () => {
     if (!isRangeValid) return;
-    onConfirm(startAt, endAt);
+    // Convert datetime-local format to ISO 8601 format
+    const startAtISO = startAt ? new Date(startAt).toISOString() : undefined;
+    const endAtISO = endAt ? new Date(endAt).toISOString() : undefined;
+    onConfirm(startAtISO, endAtISO);
   };
 
   return (
