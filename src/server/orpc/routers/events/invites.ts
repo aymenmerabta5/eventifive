@@ -15,6 +15,7 @@ import { ORPCError } from "@orpc/server";
 import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 import { issueBadgeForRole } from "@/lib/badges/issueBadge";
+import { autoRegisterUserForEvent } from "@/lib/registrations";
 
 // Constants
 const REQUIRED_REVIEWERS = 3;
@@ -334,6 +335,19 @@ export const inviteCommunicatorRouter = protectedProcedure
       userId: foundUser.id,
     });
 
+    // Auto-register communicator as participant (fire and forget)
+    autoRegisterUserForEvent(
+      input.eventId,
+      foundUser.id,
+      organizerId,
+      "communicator_add",
+    ).catch((error) => {
+      console.error(
+        `Failed to auto-register communicator ${foundUser.id}:`,
+        error,
+      );
+    });
+
     // Issue communicator badge (fire and forget)
     issueBadgeForRole(input.eventId, foundUser.id, "communicator").catch(
       (error) => {
@@ -382,6 +396,25 @@ export const acceptSpeakerRouter = protectedProcedure
       .update(eventSpeakers)
       .set({ status: "accepted", respondedAt: new Date() })
       .where(eq(eventSpeakers.id, found.id));
+
+    // Get organizerId for auto-registration
+    const [eventData] = await db
+      .select({ organizerId: event.organizerId })
+      .from(event)
+      .where(eq(event.id, input.eventId))
+      .limit(1);
+
+    if (eventData) {
+      // Auto-register speaker as participant (fire and forget)
+      autoRegisterUserForEvent(
+        input.eventId,
+        userId,
+        eventData.organizerId,
+        "speaker_accept",
+      ).catch((error) => {
+        console.error(`Failed to auto-register speaker ${userId}:`, error);
+      });
+    }
 
     // Issue speaker badge (fire and forget)
     issueBadgeForRole(input.eventId, userId, "speaker").catch((error) => {
@@ -490,6 +523,25 @@ export const acceptReviewerRouter = protectedProcedure
           });
       }
     });
+
+    // Get organizerId for auto-registration
+    const [eventData] = await db
+      .select({ organizerId: event.organizerId })
+      .from(event)
+      .where(eq(event.id, input.eventId))
+      .limit(1);
+
+    if (eventData) {
+      // Auto-register reviewer as participant (fire and forget)
+      autoRegisterUserForEvent(
+        input.eventId,
+        userId,
+        eventData.organizerId,
+        "reviewer_accept",
+      ).catch((error) => {
+        console.error(`Failed to auto-register reviewer ${userId}:`, error);
+      });
+    }
 
     // Issue reviewer badge (fire and forget, after transaction)
     issueBadgeForRole(input.eventId, userId, "reviewer").catch((error) => {

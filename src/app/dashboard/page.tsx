@@ -151,11 +151,15 @@ function Dashboard() {
             <div className="flex flex-col gap-6 py-6">
               {showAddEvent ? (
                 <div className="px-4 lg:px-6">
-                  <EventFormCard mode="create" />
+                  <EventFormCard key="create" mode="create" />
                 </div>
               ) : showUpdateEvent ? (
                 <div className="px-4 lg:px-6">
-                  <EventFormCard mode="update" eventId={eventId ?? undefined} />
+                  <EventFormCard
+                    key={`update-${eventId}`}
+                    mode="update"
+                    eventId={eventId ?? undefined}
+                  />
                 </div>
               ) : showMyEvents ? (
                 <div className="px-4 lg:px-6">

@@ -13,6 +13,7 @@ import { z } from "zod";
 import { randomUUID } from "crypto";
 import { eq, and, gte, count } from "drizzle-orm";
 import { invalidateDashboardStats } from "@/server/cache";
+import { autoRegisterUserForEvent } from "@/lib/registrations";
 
 const outputSchema = z.object({
   status: z.enum(["success", "error"]),
@@ -139,6 +140,19 @@ export const createDraftEventRouter = protectedProcedure
 
       // Invalidate dashboard stats cache
       await invalidateDashboardStats(session.user.id);
+
+      // Auto-register organizer as participant (fire and forget)
+      autoRegisterUserForEvent(
+        eventId,
+        session.user.id,
+        session.user.id, // organizer is the user
+        "event_create",
+      ).catch((error) => {
+        console.error(
+          `Failed to auto-register organizer ${session.user.id}:`,
+          error,
+        );
+      });
 
       return {
         status: "success" as const,
