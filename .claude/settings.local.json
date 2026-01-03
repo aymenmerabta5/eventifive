@@ -41,7 +41,8 @@
       "Bash(taskkill /F /FI \"IMAGENAME eq node.exe\")",
       "Bash(taskkill /F /FI \"IMAGENAME eq bun.exe\")",
       "Bash(taskkill:*)",
-      "Bash(bun add:*)"
+      "Bash(bun add:*)",
+      "Bash(bun remove:*)"
     ],
     "deny": [],
     "ask": []

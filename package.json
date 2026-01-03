@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": ["src/mcp"],
   "scripts": {
-    "build": "next build",
+    "build": "bun --bun next build",
     "check": "bun run lint && bun run typecheck",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

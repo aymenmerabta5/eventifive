@@ -11,6 +11,7 @@ const config: NextConfig = {
   reactCompiler: true,
   cacheComponents: true,
   // output: "standalone", later
+  serverExternalPackages: ["better-auth"],
 };
 
 export default config;
