@@ -85,16 +85,23 @@ export async function POST(req: NextRequest) {
 
     // Parse FormData
     const formData = await req.formData();
-    const file = formData.get("file") as File | null;
+    const uploadedFiles = formData.getAll("file") as File[];
     const eventId = formData.get("eventId");
     const title = formData.get("title");
     const description = formData.get("description");
     const researchDomain = formData.get("researchDomain");
     const capacity = formData.get("capacity");
 
-    if (!file) {
+    if (!uploadedFiles || uploadedFiles.length === 0) {
       return NextResponse.json(
-        { message: "No file provided" },
+        { message: "No files provided" },
+        { status: 400 },
+      );
+    }
+
+    if (uploadedFiles.length > MAX_FILES_PER_WORKSHOP) {
+      return NextResponse.json(
+        { message: `You can upload a maximum of ${MAX_FILES_PER_WORKSHOP} files` },
         { status: 400 },
       );
     }
@@ -220,44 +227,76 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate file type
-    const isAllowedDocType = ALLOWED_DOCUMENT_TYPES.has(file.type);
-    if (!isAllowedDocType) {
-      const validation = validateFile(file.name, file.size, file.type);
-      if (!validation.valid) {
-        return NextResponse.json(
-          { message: validation.error },
-          { status: 400 },
-        );
+    // Validate all files
+    for (const file of uploadedFiles) {
+      // Validate file type
+      const isAllowedDocType = ALLOWED_DOCUMENT_TYPES.has(file.type);
+      if (!isAllowedDocType) {
+        const validation = validateFile(file.name, file.size, file.type);
+        if (!validation.valid) {
+          return NextResponse.json(
+            { message: `${file.name}: ${validation.error}` },
+            { status: 400 },
+          );
+        }
+        if (validation.fileType !== "document") {
+          return NextResponse.json(
+            { message: `${file.name}: Only document files are allowed` },
+            { status: 400 },
+          );
+        }
       }
-      if (validation.fileType !== "document") {
+
+      if (file.size > MAX_DOCUMENT_SIZE) {
         return NextResponse.json(
-          { message: "Only document files are allowed" },
+          { message: `${file.name}: Document must be less than 10MB` },
           { status: 400 },
         );
       }
     }
 
-    if (file.size > MAX_DOCUMENT_SIZE) {
+    // Generate workshop ID
+    const workshopId = uuidv4();
+
+    // Prepare file uploads
+    const fileUploads: Array<{
+      fileId: string;
+      file: File;
+      key: string;
+      buffer: Buffer;
+    }> = [];
+
+    for (const file of uploadedFiles) {
+      const fileId = uuidv4();
+      const sanitizedName = sanitizeFileName(file.name);
+      const key = `${session.user.id}/workshops/${workshopId}/${fileId}-${sanitizedName}`;
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      fileUploads.push({
+        fileId,
+        file,
+        key,
+        buffer,
+      });
+    }
+
+    // Upload all files to S3
+    try {
+      await Promise.all(
+        fileUploads.map(({ key, buffer, file }) =>
+          s3Client.write(key, buffer, {
+            type: file.type,
+          }),
+        ),
+      );
+    } catch (s3Error) {
+      console.error("Error uploading files to S3:", s3Error);
       return NextResponse.json(
-        { message: "Document must be less than 10MB" },
-        { status: 400 },
+        { message: "Failed to upload files to storage" },
+        { status: 500 },
       );
     }
-
-    // Generate IDs
-    const workshopId = uuidv4();
-    const fileId = uuidv4();
-    const sanitizedName = sanitizeFileName(file.name);
-    const key = `${session.user.id}/workshops/${workshopId}/${fileId}-${sanitizedName}`;
-
-    // Upload to S3
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    await s3Client.write(key, buffer, {
-      type: file.type,
-    });
 
     try {
       await db.transaction(async (tx) => {
@@ -274,39 +313,43 @@ export async function POST(req: NextRequest) {
           proposedAt: new Date(),
         });
 
-        // Insert file record
-        await tx.insert(files).values({
-          id: fileId,
-          userId: session.user.id,
-          eventId: normalizedEventId,
-          s3Key: key,
-          fileName: file.name,
-          fileType: "document",
-          fileSize: file.size,
-          contentType: file.type || "application/octet-stream",
-          status: "completed",
-        });
+        // Insert all file records and link them to the workshop
+        for (const { fileId, file, key } of fileUploads) {
+          // Insert file record
+          await tx.insert(files).values({
+            id: fileId,
+            userId: session.user.id,
+            eventId: normalizedEventId,
+            s3Key: key,
+            fileName: file.name,
+            fileType: "document",
+            fileSize: file.size,
+            contentType: file.type || "application/octet-stream",
+            status: "completed",
+          });
 
-        // Link file to workshop
-        await tx.insert(workshopFile).values({
-          id: uuidv4(),
-          workshopId,
-          fileId,
-          purpose: "proposal_document",
-          uploadedAt: new Date(),
-        });
+          // Link file to workshop
+          await tx.insert(workshopFile).values({
+            id: uuidv4(),
+            workshopId,
+            fileId,
+            purpose: "proposal_document",
+            uploadedAt: new Date(),
+          });
+        }
       });
     } catch (dbError) {
-      // Rollback S3 upload if database transaction fails
-      await s3Client.delete(key);
+      // Rollback S3 uploads if database transaction fails
+      await Promise.all(
+        fileUploads.map(({ key }) => s3Client.delete(key).catch(() => {})),
+      );
       throw dbError;
     }
 
     return NextResponse.json({
       message: "Workshop proposal submitted successfully",
       workshopId,
-      fileId,
-      documentKey: key,
+      fileCount: fileUploads.length,
     });
   } catch (error) {
     console.error("Error submitting workshop proposal:", error);

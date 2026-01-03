@@ -212,14 +212,16 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
       setIsSubmitting(true);
 
       try {
-        // Only submit the first file with the workshop proposal
-        const file = files[0];
-        if (!file) {
-          throw new Error("No file selected");
+        // Submit all files with the workshop proposal
+        if (files.length === 0) {
+          throw new Error("No files selected");
         }
 
         const formData = new FormData();
-        formData.set("file", file);
+        // Append all files
+        files.forEach((file) => {
+          formData.append("file", file);
+        });
         formData.set("eventId", eventId);
         formData.set("title", workshopTitle.trim());
         formData.set("description", description.trim());
@@ -245,7 +247,7 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
 
         toast.success("Workshop proposal submitted successfully!");
         setFiles([]);
-        setUploadedCount((prev) => Math.min(MAX_FILES, prev + 1));
+        setUploadedCount((prev) => Math.min(MAX_FILES, prev + files.length));
       } catch (error) {
         console.error("Error during workshop proposal submission:", error);
         toast.error(
