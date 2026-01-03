@@ -14,7 +14,7 @@ export function AuthFormHeader({
   icon: Icon,
   title,
   subtitle,
-  className = "mb-3",
+  className = "mb-6",
 }: AuthFormHeaderProps) {
   return (
     <motion.div
@@ -25,7 +25,7 @@ export function AuthFormHeader({
     >
       {/* Animated icon container */}
       <motion.div
-        className="bg-primary shadow-primary/20 mb-2 flex size-9 items-center justify-center rounded-lg shadow-md"
+        className="bg-primary shadow-primary/20 mb-4 flex size-12 items-center justify-center rounded-xl shadow-md"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{
@@ -35,16 +35,24 @@ export function AuthFormHeader({
           delay: 0.2,
         }}
       >
-        <Icon className="text-primary-foreground size-4" strokeWidth={2} />
+        <Icon className="text-primary-foreground size-5" strokeWidth={2} />
       </motion.div>
 
       {/* Title */}
-      <h1 className="font-display text-foreground text-lg font-bold tracking-tight sm:text-xl">
+      <h1 className="font-display text-foreground text-xl font-bold tracking-tight sm:text-2xl">
         {title}
       </h1>
 
       {/* Subtitle */}
-      <p className="text-muted-foreground mt-1 text-xs">{subtitle}</p>
+      <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
+
+      {/* Decorative line */}
+      <motion.div
+        className="via-border mt-4 h-px w-12 bg-gradient-to-r from-transparent to-transparent"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      />
     </motion.div>
   );
 }
