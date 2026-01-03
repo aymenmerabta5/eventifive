@@ -49,7 +49,7 @@ export function SignUpForm({ onSwitchToSignIn }: SignUpFormProps) {
           e.stopPropagation();
           form.handleSubmit();
         }}
-        className="space-y-4"
+        className="space-y-2.5"
       >
         <motion.div
           initial={{ opacity: 0, y: 10 }}
