@@ -34,7 +34,7 @@ export const getMaterialDownloadRouter = protectedProcedure
   .handler(async ({ context, input }) => {
     const userId = context.session.user.id;
 
-    // Get workshop file with file and workshop data
+    // Get workshop file with file and workshop data (includes both proposal documents and materials)
     const [workshopFileData] = await db
       .select({
         id: workshopFile.id,
@@ -52,12 +52,7 @@ export const getMaterialDownloadRouter = protectedProcedure
       })
       .from(workshopFile)
       .innerJoin(files, eq(workshopFile.fileId, files.id))
-      .where(
-        and(
-          eq(workshopFile.id, input.workshopFileId),
-          eq(workshopFile.purpose, "workshop_material"),
-        ),
-      );
+      .where(eq(workshopFile.id, input.workshopFileId));
 
     if (!workshopFileData) {
       throw new ORPCError("NOT_FOUND", { message: "Material not found" });

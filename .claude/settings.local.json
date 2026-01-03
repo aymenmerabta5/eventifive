@@ -42,7 +42,11 @@
       "Bash(taskkill /F /FI \"IMAGENAME eq bun.exe\")",
       "Bash(taskkill:*)",
       "Bash(bun add:*)",
-      "Bash(bun remove:*)"
+      "Bash(bun remove:*)",
+      "mcp__eventifive__eventifive_list_users",
+      "mcp__eventifive__eventifive_bulk_invite_reviewers",
+      "mcp__eventifive__eventifive_respond_reviewer_invite",
+      "Bash(bun --eval:*)"
     ],
     "deny": [],
     "ask": []

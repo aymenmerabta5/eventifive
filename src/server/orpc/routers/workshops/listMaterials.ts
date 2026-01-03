@@ -89,7 +89,7 @@ export const listMaterialsRouter = protectedProcedure
       };
     }
 
-    // Get all materials for this workshop
+    // Get all materials for this workshop (both proposal documents and uploaded materials)
     const materials = await db
       .select({
         id: workshopFile.id,
@@ -101,12 +101,7 @@ export const listMaterialsRouter = protectedProcedure
       })
       .from(workshopFile)
       .innerJoin(files, eq(workshopFile.fileId, files.id))
-      .where(
-        and(
-          eq(workshopFile.workshopId, input.workshopId),
-          eq(workshopFile.purpose, "workshop_material"),
-        ),
-      )
+      .where(eq(workshopFile.workshopId, input.workshopId))
       .orderBy(workshopFile.uploadedAt);
 
     return {
