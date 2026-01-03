@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useWorkshopForm } from "./hooks";
 import {
   LoadingState,
+  AlreadySubmittedState,
   FormHeader,
   WorkshopTitleField,
   PersonalInfoFields,
@@ -35,6 +36,8 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
     isDragOver,
     canAddMoreFiles,
     maxFiles,
+    hasExistingProposal,
+    existingProposal,
     handleWorkshopTitleChange,
     handleNameChange,
     handleResearchDomainChange,
@@ -61,8 +64,13 @@ export function WorkshopForm({ eventId, eventType }: WorkshopFormProps) {
   };
 
   // Loading state
-  if (isPending || !user) {
+  if (isPending || !user || isLoadingQuota) {
     return <LoadingState />;
+  }
+
+  // Show already submitted state if user has a pending proposal
+  if (hasExistingProposal && existingProposal) {
+    return <AlreadySubmittedState existingProposal={existingProposal} />;
   }
 
   const progress = calculateProgress();

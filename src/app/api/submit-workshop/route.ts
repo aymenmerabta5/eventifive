@@ -43,6 +43,39 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Check if user already has a pending proposal for this event
+    const [existingProposal] = await db
+      .select({
+        id: workshop.id,
+        title: workshop.title,
+        proposalStatus: workshop.proposalStatus,
+        proposedAt: workshop.proposedAt,
+      })
+      .from(workshop)
+      .where(
+        and(
+          eq(workshop.facilitatorId, session.user.id),
+          eq(workshop.eventId, normalizedEventId),
+          eq(workshop.proposalStatus, "pending"),
+        ),
+      )
+      .limit(1);
+
+    // If user has a pending proposal, return that information
+    if (existingProposal) {
+      return NextResponse.json({
+        hasExistingProposal: true,
+        existingProposal: {
+          id: existingProposal.id,
+          title: existingProposal.title,
+          status: existingProposal.proposalStatus,
+          submittedAt: existingProposal.proposedAt,
+        },
+        uploadedCount: 0,
+        maxFiles: MAX_FILES_PER_WORKSHOP,
+      });
+    }
+
     // Count files uploaded for workshops by this user for this event
     const existing = await db
       .select({ count: sql<number>`count(*)` })
@@ -56,6 +89,7 @@ export async function GET(req: NextRequest) {
       );
 
     return NextResponse.json({
+      hasExistingProposal: false,
       uploadedCount: Number(existing[0]?.count ?? 0),
       maxFiles: MAX_FILES_PER_WORKSHOP,
     });

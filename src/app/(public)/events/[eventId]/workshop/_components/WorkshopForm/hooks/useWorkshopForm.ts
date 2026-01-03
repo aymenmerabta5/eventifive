@@ -37,6 +37,13 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [workshopId, setWorkshopId] = useState<string | null>(null);
+  const [hasExistingProposal, setHasExistingProposal] = useState(false);
+  const [existingProposal, setExistingProposal] = useState<{
+    id: string;
+    title: string;
+    status: string;
+    submittedAt: Date | null;
+  } | null>(null);
 
   // Derived state
   const remainingSlots = Math.max(0, MAX_FILES - uploadedCount - files.length);
@@ -75,6 +82,16 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
       })
       .then((json) => {
         if (cancelled) return;
+        
+        // Check if user has an existing proposal
+        if (json.hasExistingProposal && json.existingProposal) {
+          setHasExistingProposal(true);
+          setExistingProposal(json.existingProposal);
+        } else {
+          setHasExistingProposal(false);
+          setExistingProposal(null);
+        }
+        
         setUploadedCount(Number(json.uploadedCount ?? 0));
       })
       .catch((error) => {
@@ -293,6 +310,8 @@ export function useWorkshopForm({ eventId }: UseWorkshopFormProps) {
     isSubmitting,
     isDragOver,
     workshopId,
+    hasExistingProposal,
+    existingProposal,
 
     // Derived state
     remainingSlots,

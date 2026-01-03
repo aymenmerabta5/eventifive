@@ -1,5 +1,6 @@
 // State components (always first)
 export { LoadingState } from "./LoadingState";
+export { AlreadySubmittedState } from "./AlreadySubmittedState";
 
 // Feature components
 export { FormHeader } from "./FormHeader";

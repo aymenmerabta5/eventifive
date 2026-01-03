@@ -33,6 +33,13 @@ export interface WorkshopFormState {
 
 // Upload quota response
 export interface UploadQuotaResponse {
+  hasExistingProposal?: boolean;
+  existingProposal?: {
+    id: string;
+    title: string;
+    status: string;
+    submittedAt: Date | null;
+  };
   uploadedCount?: number;
   maxFiles?: number;
   message?: string;
