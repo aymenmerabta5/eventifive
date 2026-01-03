@@ -2,7 +2,14 @@ import { z } from "zod";
 import { protectedProcedure } from "../../index";
 import { ORPCError } from "@orpc/server";
 import { db } from "@/server/db";
-import { files, submissionFile, reviewAssignment } from "@/server/db/schema";
+import {
+  files,
+  submissionFile,
+  reviewAssignment,
+  workshopFile,
+  workshop,
+  event,
+} from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { generatePresignedDownloadUrl } from "@/server/bucket/presignedUrls";
 
@@ -41,7 +48,11 @@ export const getDownloadUrlRouter = protectedProcedure
         });
       }
 
+      // Check if user owns the file
       if (file.userId !== session.user.id) {
+        let hasAccess = false;
+
+        // Check if it's a submission file with review assignment
         const [submissionFileRecord] = await db
           .select()
           .from(submissionFile)
@@ -63,12 +74,47 @@ export const getDownloadUrlRouter = protectedProcedure
             )
             .limit(1);
 
-          if (!assignment) {
-            throw new ORPCError("FORBIDDEN", {
-              message: "You do not have permission to access this file",
-            });
+          if (assignment) {
+            hasAccess = true;
           }
-        } else {
+        }
+
+        // Check if it's a workshop proposal file and user is the event organizer
+        if (!hasAccess) {
+          const [workshopFileRecord] = await db
+            .select({
+              workshopId: workshopFile.workshopId,
+              purpose: workshopFile.purpose,
+            })
+            .from(workshopFile)
+            .where(eq(workshopFile.fileId, fileId))
+            .limit(1);
+
+          if (workshopFileRecord) {
+            // Get workshop with event info
+            const [workshopData] = await db
+              .select({
+                eventOrganizerId: event.organizerId,
+                facilitatorId: workshop.facilitatorId,
+              })
+              .from(workshop)
+              .innerJoin(event, eq(workshop.eventId, event.id))
+              .where(eq(workshop.id, workshopFileRecord.workshopId))
+              .limit(1);
+
+            if (workshopData) {
+              // Allow access if user is the event organizer or the workshop facilitator
+              if (
+                workshopData.eventOrganizerId === session.user.id ||
+                workshopData.facilitatorId === session.user.id
+              ) {
+                hasAccess = true;
+              }
+            }
+          }
+        }
+
+        if (!hasAccess) {
           throw new ORPCError("FORBIDDEN", {
             message: "You do not have permission to access this file",
           });
