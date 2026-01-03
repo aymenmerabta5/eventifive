@@ -21,6 +21,8 @@ import type {
 
 interface RegistrationTabsProps {
   eventId: string;
+  eventStartDate?: Date;
+  eventEndDate?: Date;
   participants: Participant[];
   communicatorSubmissions: CommunicatorSubmission[];
   workshopProposals: WorkshopProposal[];
@@ -39,6 +41,8 @@ interface RegistrationTabsProps {
 
 export function RegistrationTabs({
   eventId,
+  eventStartDate,
+  eventEndDate,
   participants,
   communicatorSubmissions,
   workshopProposals,
@@ -158,6 +162,8 @@ export function RegistrationTabs({
           onReject={onRejectProposal}
           isAccepting={isAcceptingProposal}
           isRejecting={isRejectingProposal}
+          eventStartDate={eventStartDate}
+          eventEndDate={eventEndDate}
         />
       </TabsContent>
 

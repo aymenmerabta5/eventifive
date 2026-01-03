@@ -21,6 +21,13 @@ interface UseEventRegistrationProps {
 export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
   const router = useRouter();
 
+  // Fetch event details to get date range
+  const eventQuery = useQuery({
+    ...orpc.events.get.queryOptions({
+      input: { id: eventId },
+    }),
+  });
+
   const registrationsQuery = useQuery({
     ...orpc.submissions.listForOrganizer.queryOptions({
       input: { eventId },
@@ -42,6 +49,7 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
 
   // Combine errors
   const error =
+    eventQuery.error ||
     registrationsQuery.error ||
     participantsQuery.error ||
     workshopProposalsQuery.error;
@@ -154,10 +162,12 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
   }, [participants, communicatorSubmissions, workshopProposals]);
 
   const isRefetching =
+    eventQuery.isRefetching ||
     registrationsQuery.isRefetching ||
     participantsQuery.isRefetching ||
     workshopProposalsQuery.isRefetching;
   const isPending =
+    eventQuery.isPending ||
     registrationsQuery.isPending ||
     participantsQuery.isPending ||
     workshopProposalsQuery.isPending;
@@ -167,10 +177,11 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
     workshopProposals.length === 0;
 
   const handleRefresh = useCallback(() => {
+    void eventQuery.refetch();
     void registrationsQuery.refetch();
     void participantsQuery.refetch();
     void workshopProposalsQuery.refetch();
-  }, [registrationsQuery, participantsQuery, workshopProposalsQuery]);
+  }, [eventQuery, registrationsQuery, participantsQuery, workshopProposalsQuery]);
 
   const handleBack = useCallback(() => {
     router.push("/dashboard?view=my-events");
@@ -200,6 +211,7 @@ export function useEventRegistration({ eventId }: UseEventRegistrationProps) {
 
   return {
     // Data
+    event: eventQuery.data,
     participants,
     workshopProposals,
     communicatorSubmissions,

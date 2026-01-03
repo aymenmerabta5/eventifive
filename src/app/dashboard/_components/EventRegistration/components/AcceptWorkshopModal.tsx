@@ -10,17 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { IconLoader2, IconCheck, IconCalendar } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
-interface AcceptWorkshopModalProps {
+export interface AcceptWorkshopModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workshopTitle: string;
   onConfirm: (startAt?: string, endAt?: string) => void;
   isLoading: boolean;
+  eventStartDate?: Date;
+  eventEndDate?: Date;
 }
 
 export function AcceptWorkshopModal({
@@ -29,96 +28,111 @@ export function AcceptWorkshopModal({
   workshopTitle,
   onConfirm,
   isLoading,
+  eventStartDate,
+  eventEndDate,
 }: AcceptWorkshopModalProps) {
-  const [startAt, setStartAt] = useState("");
-  const [endAt, setEndAt] = useState("");
+  // Convert event dates to ISO strings for input min/max
+  const minDate = eventStartDate ? eventStartDate.toISOString().slice(0, 16) : "";
+  const maxDate = eventEndDate ? eventEndDate.toISOString().slice(0, 16) : "";
+
+  const [startAt, setStartAt] = useState<string>("");
+  const [endAt, setEndAt] = useState<string>("");
+
+  const isStartValid =
+    !startAt ||
+    (!minDate || startAt >= minDate) &&
+    (!maxDate || startAt <= maxDate);
+
+  const isEndValid =
+    !endAt ||
+    (!minDate || endAt >= minDate) &&
+    (!maxDate || endAt <= maxDate);
+
+  const isRangeValid =
+    (!startAt || !endAt || startAt <= endAt) && isStartValid && isEndValid;
 
   const handleConfirm = () => {
-    onConfirm(
-      startAt ? new Date(startAt).toISOString() : undefined,
-      endAt ? new Date(endAt).toISOString() : undefined,
-    );
-  };
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      // Reset form on close
-      setStartAt("");
-      setEndAt("");
-    }
-    onOpenChange(newOpen);
+    if (!isRangeValid) return;
+    onConfirm(startAt, endAt);
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div
               className={cn(
                 "flex size-8 items-center justify-center rounded-lg",
-                "bg-primary/10",
+                "bg-primary/10"
               )}
             >
-              <IconCheck className="text-primary size-4" />
+              {/* <IconCheck className="text-primary size-4" /> */}
             </div>
             Accept Workshop Proposal
           </DialogTitle>
           <DialogDescription>
-            Accept &quot;{workshopTitle}&quot; as a workshop. Optionally set the
-            schedule for when this workshop will take place.
+            Accept &quot;{workshopTitle}&quot; as a workshop. You can set the
+            schedule for this workshop, but it must be within the event dates.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label
-              htmlFor="startAt"
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <IconCalendar className="text-muted-foreground size-4" />
-              Start Date & Time (optional)
-            </Label>
-            <Input
-              id="startAt"
+            <label className="flex items-center gap-2 text-sm font-medium">
+              Start Date & Time
+            </label>
+            <input
               type="datetime-local"
+              className="h-10 rounded border px-2"
+              min={minDate}
+              max={maxDate}
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
-              className="h-10"
             />
+            {!isStartValid && (
+              <span className="text-destructive text-xs">
+                Start date must be within event dates.
+              </span>
+            )}
           </div>
           <div className="grid gap-2">
-            <Label
-              htmlFor="endAt"
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <IconCalendar className="text-muted-foreground size-4" />
-              End Date & Time (optional)
-            </Label>
-            <Input
-              id="endAt"
+            <label className="flex items-center gap-2 text-sm font-medium">
+              End Date & Time
+            </label>
+            <input
               type="datetime-local"
+              className="h-10 rounded border px-2"
+              min={minDate}
+              max={maxDate}
               value={endAt}
               onChange={(e) => setEndAt(e.target.value)}
-              className="h-10"
             />
+            {!isEndValid && (
+              <span className="text-destructive text-xs">
+                End date must be within event dates.
+              </span>
+            )}
+            {startAt && endAt && startAt > endAt && (
+              <span className="text-destructive text-xs">
+                End date must be after start date.
+              </span>
+            )}
           </div>
         </div>
 
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
-            onClick={() => handleOpenChange(false)}
+            onClick={() => onOpenChange(false)}
             disabled={isLoading}
           >
             Cancel
           </Button>
-          <Button onClick={handleConfirm} disabled={isLoading}>
-            {isLoading ? (
-              <IconLoader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <IconCheck className="mr-2 size-4" />
-            )}
+          <Button
+            onClick={handleConfirm}
+            disabled={isLoading || !isRangeValid}
+          >
             Accept Workshop
           </Button>
         </DialogFooter>

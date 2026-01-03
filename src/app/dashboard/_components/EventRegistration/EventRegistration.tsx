@@ -14,6 +14,7 @@ interface EventRegistrationProps {
 
 export function EventRegistration({ eventId }: EventRegistrationProps) {
   const {
+    event,
     participants,
     workshopProposals,
     communicatorSubmissions,
@@ -75,6 +76,8 @@ export function EventRegistration({ eventId }: EventRegistrationProps) {
 
       <RegistrationTabs
         eventId={eventId}
+        eventStartDate={event?.startDate}
+        eventEndDate={event?.endDate}
         participants={participants}
         communicatorSubmissions={communicatorSubmissions}
         workshopProposals={workshopProposals}

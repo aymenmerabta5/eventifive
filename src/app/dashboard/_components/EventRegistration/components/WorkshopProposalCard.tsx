@@ -27,12 +27,14 @@ import { AcceptWorkshopModal } from "./AcceptWorkshopModal";
 import { RejectWorkshopModal } from "./RejectWorkshopModal";
 import type { WorkshopProposal, WorkshopProposalFile } from "../types";
 
-interface WorkshopProposalCardProps {
+export interface WorkshopProposalCardProps {
   proposal: WorkshopProposal;
   onAccept: (workshopId: string, startAt?: string, endAt?: string) => void;
   onReject: (workshopId: string, reason: string) => void;
   isAccepting: boolean;
   isRejecting: boolean;
+  eventStartDate?: Date; // <-- Add this
+  eventEndDate?: Date;   // <-- Add this
 }
 
 export function WorkshopProposalCard({
@@ -41,6 +43,8 @@ export function WorkshopProposalCard({
   onReject,
   isAccepting,
   isRejecting,
+  eventStartDate,   // <-- Add this
+  eventEndDate,     // <-- Add this
 }: WorkshopProposalCardProps) {
   const [isFilesOpen, setIsFilesOpen] = useState(false);
   const [files, setFiles] = useState<WorkshopProposalFile[]>([]);
@@ -379,6 +383,8 @@ export function WorkshopProposalCard({
         workshopTitle={proposal.title}
         onConfirm={handleAcceptConfirm}
         isLoading={isAccepting}
+        eventStartDate={eventStartDate}   // <-- Add this
+        eventEndDate={eventEndDate}       // <-- Add this
       />
       <RejectWorkshopModal
         open={isRejectModalOpen}

@@ -13,6 +13,8 @@ interface WorkshopTabProps {
   onReject: (workshopId: string, reason: string) => void;
   isAccepting: boolean;
   isRejecting: boolean;
+  eventStartDate?: Date;
+  eventEndDate?: Date;
 }
 
 export function WorkshopTab({
@@ -22,6 +24,8 @@ export function WorkshopTab({
   onReject,
   isAccepting,
   isRejecting,
+  eventStartDate,
+  eventEndDate,
 }: WorkshopTabProps) {
   const stats = {
     total: proposals.length,
@@ -111,6 +115,8 @@ export function WorkshopTab({
                   onReject={onReject}
                   isAccepting={isAccepting}
                   isRejecting={isRejecting}
+                  eventStartDate={eventStartDate}
+                  eventEndDate={eventEndDate}
                 />
               ))}
             </div>
