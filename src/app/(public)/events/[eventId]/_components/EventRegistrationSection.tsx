@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { orpc } from "@/utils/orpc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -46,6 +46,7 @@ export function EventRegistrationSection({
   registrationStatus,
 }: EventRegistrationSectionProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const isFreeEvent = priceAmount <= 0;
   const priceDisplay = isFreeEvent
@@ -62,6 +63,13 @@ export function EventRegistrationSection({
     orpc.events.register.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
+        // Invalidate sessions and workshops queries so they refetch with updated registration status
+        queryClient.invalidateQueries({
+          queryKey: orpc.sessions.listSessions.key({ input: { eventId } }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: orpc.workshops.listByEvent.key({ input: { eventId } }),
+        });
         router.refresh();
       },
       onError: (error) => {

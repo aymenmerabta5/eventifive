@@ -34,7 +34,7 @@ export function SessionsSection({
 }: SessionsSectionProps) {
   const [pastSessionsOpen, setPastSessionsOpen] = useState(false);
 
-  const { data, isLoading, error, refetch, isRefetching } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     ...orpc.sessions.listSessions.queryOptions({
       input: { eventId },
     }),
@@ -127,20 +127,6 @@ export function SessionsSection({
               )}
             </div>
           </div>
-          {hasAnySessions && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isRefetching}
-              className="text-muted-foreground hover:text-foreground gap-2"
-            >
-              <IconRefresh
-                className={cn("size-4", isRefetching && "animate-spin")}
-              />
-              Refresh
-            </Button>
-          )}
         </div>
 
         {/* Content */}

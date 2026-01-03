@@ -35,7 +35,7 @@ export function WorkshopsSection({
 }: WorkshopsSectionProps) {
   const [pastWorkshopsOpen, setPastWorkshopsOpen] = useState(false);
 
-  const { data, isLoading, error, refetch, isRefetching } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     ...orpc.workshops.listByEvent.queryOptions({
       input: { eventId },
     }),
@@ -136,20 +136,6 @@ export function WorkshopsSection({
               )}
             </div>
           </div>
-          {hasAnyWorkshops && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isRefetching}
-              className="text-muted-foreground hover:text-foreground gap-2"
-            >
-              <IconRefresh
-                className={cn("size-4", isRefetching && "animate-spin")}
-              />
-              Refresh
-            </Button>
-          )}
         </div>
 
         {/* Content */}
