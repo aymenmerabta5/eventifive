@@ -5,15 +5,15 @@ import { client } from "@/utils/orpc";
 import { CONVERSATIONS_QUERY_KEY } from "./use-conversations";
 import type { Conversation } from "../types";
 
+type CreateConversationInput = { userId?: string; name?: string };
+
 export function useCreateConversation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async (input: CreateConversationInput) => {
       const response =
-        await client.websocketsRouter.messages.createConversation({
-          userId,
-        });
+        await client.websocketsRouter.messages.createConversation(input);
       return response;
     },
     onSuccess: (data) => {

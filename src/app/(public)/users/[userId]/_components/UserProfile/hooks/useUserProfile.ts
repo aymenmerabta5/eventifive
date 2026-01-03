@@ -19,7 +19,7 @@ export function useUserProfile(userId: string) {
 
     try {
       setIsContacting(true);
-      const result = await createConversation.mutateAsync(userId);
+      const result = await createConversation.mutateAsync({ userId });
       router.push(`/messages?conversationId=${result.id}`);
     } catch (error) {
       toast.error(

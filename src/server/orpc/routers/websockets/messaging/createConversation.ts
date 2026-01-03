@@ -4,10 +4,13 @@ import { ORPCError } from "@orpc/server";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/server/db";
 import { conversations, user } from "@/server/db/schema";
-import { eq, or, and } from "drizzle-orm";
+import { eq, or, and, ilike } from "drizzle-orm";
 
 const inputCreateConversationSchema = z.object({
-  userId: z.string().min(1),
+  userId: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+}).refine((data) => data.userId || data.name, {
+  message: "Either userId or name must be provided",
 });
 
 const outputCreateConversationSchema = z.object({
@@ -29,25 +32,23 @@ export const createConversationRouter = protectedProcedure
   .handler(async ({ context, input }) => {
     const { session } = context;
     const currentUserId = session.user.id;
-    const { userId: otherUserId } = input;
+    const { userId, name } = input;
 
-    // Cannot create conversation with yourself
-    if (currentUserId === otherUserId) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Cannot create a conversation with yourself",
-      });
+    // Find user by userId or name
+    let otherUser;
+    if (userId) {
+      otherUser = await db
+        .select({ id: user.id, name: user.name, image: user.image })
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1);
+    } else {
+      otherUser = await db
+        .select({ id: user.id, name: user.name, image: user.image })
+        .from(user)
+        .where(ilike(user.name, name!))
+        .limit(1);
     }
-
-    // Verify the other user exists
-    const otherUser = await db
-      .select({
-        id: user.id,
-        name: user.name,
-        image: user.image,
-      })
-      .from(user)
-      .where(eq(user.id, otherUserId))
-      .limit(1);
 
     if (otherUser.length === 0 || !otherUser[0]) {
       throw new ORPCError("NOT_FOUND", {
@@ -56,6 +57,14 @@ export const createConversationRouter = protectedProcedure
     }
 
     const otherUserData = otherUser[0];
+    const otherUserId = otherUserData.id;
+
+    // Cannot create conversation with yourself
+    if (currentUserId === otherUserId) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Cannot create a conversation with yourself",
+      });
+    }
 
     // Check if conversation already exists
     const existingConversation = await db

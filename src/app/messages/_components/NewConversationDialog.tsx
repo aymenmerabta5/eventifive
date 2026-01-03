@@ -24,21 +24,21 @@ export function NewConversationDialog({
   onOpenChange,
   onConversationCreated,
 }: NewConversationDialogProps) {
-  const [userId, setUserId] = useState("");
+  const [name, setName] = useState("");
   const createConversation = useCreateConversation();
 
   const handleCreateConversation = async () => {
-    if (!userId.trim()) {
-      toast.error("Please enter a user ID");
+    if (!name.trim()) {
+      toast.error("Please enter a name");
       return;
     }
 
     try {
-      const result = await createConversation.mutateAsync(userId.trim());
+      const result = await createConversation.mutateAsync({ name: name.trim() });
       toast.success(
         result.isNew ? "Conversation created" : "Conversation found",
       );
-      setUserId("");
+      setName("");
       onConversationCreated(result.id);
     } catch (error) {
       toast.error(
@@ -60,14 +60,14 @@ export function NewConversationDialog({
           <div className="space-y-4 p-4">
             <div className="space-y-2">
               <label className="text-foreground text-sm font-medium">
-                User ID
+                Name
               </label>
               <div className="relative">
                 <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                 <Input
-                  placeholder="Enter user ID to start conversation..."
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
+                  placeholder="Enter name to start conversation..."
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="pl-9"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -77,13 +77,13 @@ export function NewConversationDialog({
                 />
               </div>
               <p className="text-muted-foreground text-xs">
-                Enter the ID of the user you want to message
+                Enter the name of the user you want to message
               </p>
             </div>
 
             <Button
               onClick={handleCreateConversation}
-              disabled={!userId.trim() || createConversation.isPending}
+              disabled={!name.trim() || createConversation.isPending}
               className="w-full"
             >
               {createConversation.isPending ? (
