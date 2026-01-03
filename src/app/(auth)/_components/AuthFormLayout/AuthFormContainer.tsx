@@ -20,7 +20,7 @@ export function AuthFormContainer({ children }: AuthFormContainerProps) {
         <div className="bg-primary pointer-events-none absolute -inset-3 -z-10 rounded-2xl opacity-[0.03] blur-xl dark:opacity-[0.08]" />
 
         {/* Main card */}
-        <div className="border-border/40 bg-card/90 dark:border-border/20 dark:bg-card/70 relative rounded-xl border p-6 shadow-lg backdrop-blur-xl sm:p-8 dark:shadow-xl">
+        <div className="border-border/50 bg-card/95 dark:border-border/25 dark:bg-card/90 relative rounded-xl border p-6 shadow-lg backdrop-blur-xl sm:p-8 dark:shadow-xl">
           {/* Subtle inner glow on top edge */}
           <div className="via-primary/15 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
 

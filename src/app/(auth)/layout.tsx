@@ -40,10 +40,10 @@ function DecorativePanel() {
   return (
     <div className="relative hidden h-full overflow-hidden lg:block">
       {/* Base gradient background - darker for dark mode */}
-      <div className="from-background via-card to-background dark:via-background absolute inset-0 bg-gradient-to-br dark:from-black dark:to-black" />
+      <div className="from-background via-card to-background dark:via-background absolute inset-0 bg-linear-to-br dark:from-black dark:to-black" />
 
       {/* Subtle primary accent overlay - reduced in dark mode */}
-      <div className="from-primary/20 via-primary/10 dark:from-primary/10 dark:via-primary/5 absolute inset-0 bg-gradient-to-br to-transparent dark:to-transparent" />
+      <div className="from-primary/20 via-primary/10 dark:from-primary/10 dark:via-primary/5 absolute inset-0 bg-linear-to-br to-transparent dark:to-transparent" />
 
       {/* Animated mesh gradient overlay - dimmer in dark mode */}
       <div className="absolute inset-0 opacity-30 dark:opacity-20">
@@ -169,16 +169,27 @@ export default function AuthLayout({
       <DecorativePanel />
 
       {/* Right form panel */}
-      <div className="bg-background relative flex items-center justify-center overflow-y-auto">
-        {/* Subtle gradient background */}
-        <div className="from-primary/[0.02] to-primary/[0.01] pointer-events-none absolute inset-0 bg-linear-to-br via-transparent" />
+      <div className="relative overflow-hidden bg-linear-to-br from-background via-card/40 to-background lg:border-l lg:border-border/20 dark:via-card/25">
+        {/* Lighter texture so the panel doesn't read as a giant card */}
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/6 via-transparent to-primary/3 dark:from-primary/10 dark:to-primary/6" />
 
-        {/* Decorative blur elements for mobile/tablet */}
-        <div className="bg-primary/10 dark:bg-primary/5 pointer-events-none absolute -top-32 -right-32 size-64 rounded-full blur-3xl lg:hidden" />
-        <div className="bg-primary/5 dark:bg-primary/[0.03] pointer-events-none absolute -bottom-32 -left-32 size-64 rounded-full blur-3xl lg:hidden" />
+        {/* Subtle dot pattern */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.035] dark:opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 1px)`,
+            backgroundSize: "32px 32px",
+          }}
+        />
+
+        {/* Ambient blobs (also on desktop) */}
+        <div className="bg-primary/10 dark:bg-primary/8 pointer-events-none absolute -top-40 -right-40 size-80 rounded-full blur-3xl" />
+        <div className="bg-secondary/12 dark:bg-secondary/8 pointer-events-none absolute -bottom-40 -left-40 size-80 rounded-full blur-3xl" />
 
         {/* Form content */}
-        <div className="relative z-10 w-full">{children}</div>
+        <div className="relative z-10 flex h-full items-center justify-center overflow-y-auto overflow-x-hidden">
+          <div className="w-full">{children}</div>
+        </div>
       </div>
     </div>
   );
