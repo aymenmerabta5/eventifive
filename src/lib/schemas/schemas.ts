@@ -70,6 +70,19 @@ export const createEventSchema = z
       message: "End date must be after start date",
       path: ["endDate"],
     },
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      const diffInMs = end.getTime() - start.getTime();
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+      return diffInDays >= 1;
+    },
+    {
+      message: "Event must be at least 1 day long",
+      path: ["endDate"],
+    },
   );
 
 // TEACHING: Separate schema for the 3-step wizard draft creation.
@@ -127,6 +140,19 @@ export const createDraftEventSchema = z
       message: "End date must be after start date",
       path: ["endDate"],
     },
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      const diffInMs = end.getTime() - start.getTime();
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+      return diffInDays >= 1;
+    },
+    {
+      message: "Event must be at least 1 day long",
+      path: ["endDate"],
+    },
   );
 
 export const updateEventSchema = z
@@ -176,6 +202,19 @@ export const updateEventSchema = z
     },
     {
       message: "End date must be after start date",
+      path: ["endDate"],
+    },
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      const diffInMs = end.getTime() - start.getTime();
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+      return diffInDays >= 1;
+    },
+    {
+      message: "Event must be at least 1 day long",
       path: ["endDate"],
     },
   );

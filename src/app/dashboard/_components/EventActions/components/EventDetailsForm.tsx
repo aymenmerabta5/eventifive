@@ -297,7 +297,10 @@ export function EventDetailsForm({
           <form.Field name="endDate">
             {(field) => {
               const startDate = form.state.values.startDate;
-              const endMin = startDate || nowMinDateTime;
+              // End date must be at least 1 day after start date
+              const endMin = startDate 
+                ? addDaysToDateTimeLocalInputValue(startDate, 1)
+                : nowMinDateTime;
               const endMax = startDate
                 ? addDaysToDateTimeLocalInputValue(startDate, 15)
                 : "";
